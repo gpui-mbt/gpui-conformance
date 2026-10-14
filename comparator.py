@@ -83,6 +83,36 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
             raise ValueError("duplicate case IDs")
         if any(case.get("status") not in ("observed", "unsupported", "unverified") for case in cases):
             raise ValueError("invalid adapter status")
+        native = [c for c in cases if c["status"] == "observed" and c.get("layer") in ("native-window","native-gpu")]
+        if native:
+            if run.get("execution_mode") != "native" or run.get("backend") != "appkit-metal":
+                raise ValueError("native layer lacks native backend execution identity")
+            if implementation == "moonbit":
+                read_artifact("runtime_library")
+                process_identity(run["library_build"])
+                read_artifact("library_build_stdout")
+                read_artifact("library_build_stderr")
+            for case in native:
+                if case["layer"] == "native-gpu":
+                    s = next((s for s in load_json(root / "scenarios.json")["cases"] if s["id"] == case["id"]), None)
+                    if s is None:
+                        raise ValueError("unexpected native case ID")
+                    frame = output["frame"]
+                    observation = case["observation"]
+                    if not valid_observation(s, observation) or any(frame[k] != observation[k] for k in ("width","height","scale")):
+                        raise ValueError("GPU readback metadata differs from observation")
+                    if abs(frame["width"]/frame["scale"]-s["width"]) > 0.0001 or abs(frame["height"]/frame["scale"]-s["height"]) > 0.0001:
+                        raise ValueError("GPU readback viewport differs from requested scenario")
+                    pixels = frame["rgba8"]
+                    if not isinstance(pixels,list) or len(pixels) != frame["width"] * frame["height"] * 4 or len(pixels) > 16*1024*1024*4 or any(type(x) is not int or not 0 <= x <= 255 for x in pixels):
+                        raise ValueError("missing or malformed complete GPU readback")
+                    for point, observed_pixel in zip(s["points"], observation["samples"]):
+                        x,y=(math.floor(coordinate * frame["scale"]) for coordinate in point)
+                        if not (0 <= x < frame["width"] and 0 <= y < frame["height"]):
+                            raise ValueError("sample outside GPU readback")
+                        offset=(y*frame["width"]+x)*4
+                        if pixels[offset:offset+4] != observed_pixel:
+                            raise ValueError("pixel samples do not come from retained readback")
         return {case["id"]: case for case in cases}, None
     except (KeyError, ValueError, TypeError, OSError, UnicodeError, AttributeError) as exc:
         return {}, str(exc)

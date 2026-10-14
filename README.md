@@ -1,8 +1,9 @@
 # GPUI Conformance Suite
 
 Execute shared scenarios against pinned Rust GPUI and gpui.mbt, retaining the
-programs and raw process output that produced each comparison. This first slice
-runs on an Apple Silicon Mac without opening windows or changing keyboard focus.
+programs and raw process output that produced each comparison. The headless
+runner creates no native windows. The separate native runner uses isolated,
+self-closing AppKit/Metal fixtures in a coordinated Apple Silicon Mac session.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
 gpui.mbt `f9f59fe074da3858ca82fe1d5fadd84cd17f0438` (0.7.2). See [pins.json](pins.json).
@@ -16,8 +17,8 @@ gpui.mbt `f9f59fe074da3858ca82fe1d5fadd84cd17f0438` (0.7.2). See [pins.json](pin
 | Interior, far-edge and zero-extent pointer samples | GPUI test-platform mouse dispatch → child listeners; MoonBit input dispatch → element target |
 | Plain/modified/repeated key down | GPUI focused element listener; MoonBit focused capture/bubble dispatch callback |
 | Nested positive rectangle clips | GPUI window content-mask stack during canvas prepaint; MoonBit scene snapshot clip chain intersected by its geometry API |
-| Window create/resize/remove | Rust test window executes; native MoonBit counterpart awaits coordinated foreground execution: **unverified** |
-| Native GPU pixels | No native readback executed: **unverified** |
+| Native window create/resize/remove | Separate native runner observes logical content size and handle liveness in both AppKit backends |
+| Native GPU pixels | Separate native runner compares three requested pixel samples, bound to the complete retained RGBA8 readbacks |
 | IME composition | Outside this bounded slice: **unsupported** |
 
 Headless layout/paint preparation and clip geometry do not establish pixel
@@ -53,6 +54,43 @@ with normal network permission. The checked-in lockfile is resolved from the
 pinned upstream lockfile; it preserves upstream's locked yanked `spin 0.10.0`
 dependency. No dependency substitution is made. Rust probes are built in debug
 mode because GPUI debug selectors are unavailable in release mode.
+
+### Native AppKit/Metal slice
+
+In a coordinated desktop session, run `python3 run_native.py --output
+_build/native`. Add `--build-only` to compile both probes and the MoonBit
+test-hook dylib without launching anything; this correctly reports unverified.
+The same source/candidate options apply. Both builds finish before any launch,
+and probes run sequentially with 15-second process deadlines. Only owned child
+processes can be terminated. The MoonBit fixture restores the formerly frontmost
+application on success and framework errors; an independently built parent
+guard attempts restoration before timeout termination, only while the owned
+fixture is still frontmost. Intervening user focus changes are respected.
+
+[native_scenarios.json](native_scenarios.json) specifies one window followed by
+one pixel case with the same initial viewport: 256×192 logical pixels, resize
+to 320×224, a black background and an opaque red 64×48 rectangle at (32,32).
+Both adapters consume those scene inputs. Pixel positions are logical; scale
+and physical readback dimensions come from each backend. The comparison covers
+three interior samples, not every pixel or anti-aliased edges. Full buffers are
+retained and the comparator derives each sample from those bytes. Window origin
+is normalized to content coordinates (0,0); desktop position, close-request
+events, user interaction and physical input are outside this native slice.
+
+Rust uses `gpui_platform::application()` and native `Window::render_to_image`,
+which renders its completed scene through the native Metal renderer into an
+owned drawable without presenting. The MoonBit AppKit host presents its own
+Metal drawable and reads the completed frame through `GPUI_TESTING`. The
+runtime-shader feature is enabled for upstream's own Metal shader compilation.
+Add `--negative-control` to actually render the MoonBit rectangle blue while
+upstream renders the shared red input. A real GPU color mismatch must result.
+No expected pixel answers are emitted by the probes.
+
+Run `python3 tests/test_native_evidence.py --evidence _build/native` to check
+missing/short readbacks, dishonest samples, missing/tampered dylibs, bad native
+identities, malformed scenarios, and owned timeout cleanup without GUI launches.
+Historical headless outputs keep their native placeholders unverified; native
+qualification is a separate corpus and never overwrites earlier evidence.
 
 For a separately committed gpui.mbt fix, pass its checkout and full immutable
 SHA with `--candidate-revision`. The result retains both candidate and baseline

@@ -41,6 +41,19 @@ def validate_scenarios(scenarios):
                 raise ValueError("first clip slice requires a nonempty effective intersection")
         if kind == "window" and (not numbers(s.get("resize"), 2) or not all(0 < x <= 4096 for x in s["resize"])):
             raise ValueError("invalid resize")
+        if kind == "pixels" and "width" in s:
+            if not numbers([s.get("width"), s.get("height")], 2) or not all(0 < x <= 1024 for x in (s["width"],s["height"])):
+                raise ValueError("invalid native readback viewport")
+            if not numbers(s.get("rect"), 4) or not all(x >= 0 for x in s["rect"]) or s["rect"][0]+s["rect"][2] > s["width"] or s["rect"][1]+s["rect"][3] > s["height"]:
+                raise ValueError("invalid native rectangle")
+            if any(not numbers(s.get(k),4) or any(type(x) is not int or not 0 <= x <= 255 for x in s[k]) or s[k][3] != 255 for k in ("background","color")):
+                raise ValueError("native slice requires opaque RGBA8 colors")
+            if not s.get("points") or any(not numbers(p,2) or not (0 <= p[0] < s["width"] and 0 <= p[1] < s["height"]) for p in s["points"]):
+                raise ValueError("invalid native sample points")
+    if any(s["kind"] == "pixels" and "width" in s for s in scenarios["cases"]):
+        cases=scenarios["cases"]
+        if len(cases)!=2 or [s["kind"] for s in cases] != ["window","pixels"] or any(cases[0][k] != cases[1][k] for k in ("width","height")):
+            raise ValueError("native fixture requires ordered window/pixels cases sharing one initial viewport")
 
 
 def valid_observation(s, observation):
@@ -58,5 +71,7 @@ def valid_observation(s, observation):
     if kind == "clip":
         return observation.keys() == {"effective_clip"} and numbers(observation["effective_clip"], 4)
     if kind == "window":
-        return observation.keys() == {"initial", "resized", "count_before", "count_after"} and numbers(observation["initial"], 4) and numbers(observation["resized"], 4) and type(observation["count_before"]) is int and type(observation["count_after"]) is int
-    return False  # Native pixels/IME observations require a future reviewed contract.
+        return observation.keys() == {"initial", "resized", "live_before", "live_after"} and numbers(observation["initial"], 4) and numbers(observation["resized"], 4) and type(observation["live_before"]) is bool and type(observation["live_after"]) is bool
+    if kind == "pixels" and "points" in s:
+        return observation.keys() == {"width","height","scale","samples"} and type(observation["width"]) is int and type(observation["height"]) is int and 0 < observation["width"] <= 8192 and 0 < observation["height"] <= 8192 and numbers([observation["scale"]],1) and 0 < observation["scale"] <= 8 and isinstance(observation["samples"],list) and len(observation["samples"]) == len(s["points"]) and all(numbers(p,4) and all(type(x) is int and 0 <= x <= 255 for x in p) for p in observation["samples"])
+    return False

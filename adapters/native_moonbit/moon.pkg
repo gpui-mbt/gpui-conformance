@@ -1,0 +1,12 @@
+import {
+  "f4ah6o/gpui/platform/macos" @macos,
+  "f4ah6o/gpui/platform/testing" @testing,
+  "f4ah6o/gpui/primitives",
+  "f4ah6o/gpui/scene",
+  "f4ah6o/gpui/diagnostics",
+  "moonbitlang/core/json",
+  "moonbitlang/core/env",
+}
+options("is-main": true, "native-stub": ["foreground.m"],
+  "link": { "native": { "cc-flags": "-fobjc-arc", "cc-link-flags": "-framework AppKit" } },
+)

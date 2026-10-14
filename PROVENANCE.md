@@ -24,5 +24,14 @@ Method: **independent_from_behavior**. Shared scenarios are original synthetic
 rectangles and events; probes call library APIs and are independently authored.
 No upstream implementation, test bodies, artwork, screenshots or font files are
 copied. The adapter Cargo.lock records dependency versions from the pinned
-workspace. Scope deviations: only two child rectangles; no GPU pixels, native
-window comparison, physical input, IME or accessibility qualification.
+workspace. Scope deviations: two headless child rectangles; the native corpus
+observes content-size/liveness and three opaque-rectangle GPU pixel samples,
+not desktop positions, all pixels, physical input, IME or accessibility.
+
+The native adapter also links pinned `gpui_platform`, `gpui_macos` and
+`gpui_apple` public APIs. Their owning Cargo manifests declare Apache-2.0.
+Inspected native paths: `crates/gpui_platform/src/gpui_platform.rs`,
+`crates/gpui_macos/src/window.rs`, `crates/gpui_apple/build.rs` and its renderer
+readback API. Sources remain unmodified; runtime Metal compilation uses the
+upstream `runtime_shaders` feature. The small foreground-restoration helper
+under `adapters/native_moonbit/` is original AppKit API usage, not copied code.

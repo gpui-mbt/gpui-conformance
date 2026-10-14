@@ -45,7 +45,7 @@ def artifact(path, root):
     return {"path": str(path.relative_to(root)), "sha256": digest(path.read_bytes())}
 
 
-def execute(args, env, out, err, cwd, timeout):
+def execute(args, env, out, err, cwd, timeout, before_terminate=None):
     started = now()
     timed_out = False
     with out.open("wb") as stdout, err.open("wb") as stderr:
@@ -54,8 +54,12 @@ def execute(args, env, out, err, cwd, timeout):
             code = proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            proc.kill()  # This owned child only; no global process/service cleanup.
-            code = proc.wait()
+            try:
+                if before_terminate is not None:
+                    before_terminate(proc.pid)
+            finally:
+                proc.kill()  # This owned child only; no global process/service cleanup.
+                code = proc.wait()
     return {"command": args, "pid": proc.pid, "started_at": started, "finished_at": now(),
             "returncode": code, "timed_out": timed_out}
 
