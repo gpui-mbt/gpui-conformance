@@ -67,7 +67,7 @@ fn main {
   let viewport = checked(@primitives.Rect::new(0, 0, width, height))
   let background = array(field(p, "background"))
   let color = if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
-    [0, 0, 255, 255].to_json()
+    @json.to_json([0, 0, 255, 255])
   } else {
     field(p, "color")
   }
@@ -115,7 +115,7 @@ fn main {
         (number(coords[1]) * scale).to_int(),
       ),
     )
-    [red, green, blue, alpha].to_json()
+    @json.to_json([red, green, blue, alpha])
   })
   let size = array(field(w, "resize"))
   checked(host.set_size(window, number(size[0]), number(size[1])))
@@ -137,50 +137,48 @@ fn main {
   let rows = [
     object([
       ("id", field(w, "id")),
-      ("layer", "native-window".to_json()),
-      ("status", "observed".to_json()),
+      ("layer", @json.to_json("native-window")),
+      ("status", @json.to_json("observed")),
       (
         "observation",
         object([
-          ("initial", [0.0, 0.0, width, height].to_json()),
-          ("resized", [0.0, 0.0, new_width, new_height].to_json()),
-          ("live_before", live_before.to_json()),
-          ("live_after", live_after.to_json()),
+          ("initial", @json.to_json([0.0, 0.0, width, height])),
+          ("resized", @json.to_json([0.0, 0.0, new_width, new_height])),
+          ("live_before", @json.to_json(live_before)),
+          ("live_after", @json.to_json(live_after)),
         ]),
       ),
     ]),
     object([
       ("id", field(p, "id")),
-      ("layer", "native-gpu".to_json()),
-      ("status", "observed".to_json()),
+      ("layer", @json.to_json("native-gpu")),
+      ("status", @json.to_json("observed")),
       (
         "observation",
         object([
-          ("width", capture.width().to_json()),
-          ("height", capture.height().to_json()),
-          ("scale", capture.scale().to_json()),
-          ("samples", samples.to_json()),
+          ("width", @json.to_json(capture.width())),
+          ("height", @json.to_json(capture.height())),
+          ("scale", @json.to_json(capture.scale())),
+          ("samples", @json.to_json(samples)),
         ]),
       ),
     ]),
   ]
   let output = object([
-    ("implementation", "moonbit".to_json()),
-    ("run_token", @env.get_env_var("GPUI_RUN_TOKEN").unwrap().to_json()),
-    ("cases", rows.to_json()),
+    ("implementation", @json.to_json("moonbit")),
+    ("run_token", @json.to_json(@env.get_env_var("GPUI_RUN_TOKEN").unwrap())),
+    ("cases", @json.to_json(rows)),
     (
       "frame",
       object([
-        ("width", capture.width().to_json()),
-        ("height", capture.height().to_json()),
-        ("scale", capture.scale().to_json()),
+        ("width", @json.to_json(capture.width())),
+        ("height", @json.to_json(capture.height())),
+        ("scale", @json.to_json(capture.scale())),
         (
           "rgba8",
-          capture
-          .rgba8_top_left()
-          .to_array()
-          .map(byte => byte.to_int())
-          .to_json(),
+          @json.to_json(
+            capture.rgba8_top_left().to_array().map(byte => byte.to_int()),
+          ),
         ),
       ]),
     ),

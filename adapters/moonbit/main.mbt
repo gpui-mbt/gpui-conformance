@@ -54,7 +54,7 @@ fn object(fields : Array[(String, Json)]) -> Json {
 
 ///|
 fn bounds(rect : @primitives.Rect) -> Json {
-  [rect.left(), rect.top(), rect.size().width(), rect.size().height()].to_json()
+  @json.to_json([rect.left(), rect.top(), rect.size().width(), rect.size().height()])
 }
 
 ///|
@@ -114,7 +114,7 @@ fn observe(s : Json) -> Json {
   let row : Map[String, Json] = Map::from_array([
     ("id", field(s, "id")),
     ("layer", field(s, "layer")),
-    ("status", "observed".to_json()),
+    ("status", @json.to_json("observed")),
   ])
   match kind {
     "scene" => {
@@ -128,21 +128,21 @@ fn observe(s : Json) -> Json {
                 ("bounds", bounds(quad_bounds)),
                 (
                   "rgba",
-                  [color.red(), color.green(), color.blue(), color.alpha()].to_json(),
+                  @json.to_json([color.red(), color.green(), color.blue(), color.alpha()]),
                 ),
               ])
             _ => abort("fixture emitted a non-quad")
           }
         })
-      row["observation"] = object([("quads", quads.to_json())])
+      row["observation"] = object([("quads", @json.to_json(quads))])
     }
     "window" | "pixels" => {
-      row["status"] = "unverified".to_json()
-      row["reason"] = "Native macOS fixture requires coordinated foreground execution; not executed".to_json()
+      row["status"] = @json.to_json("unverified")
+      row["reason"] = @json.to_json("Native macOS fixture requires coordinated foreground execution; not executed")
     }
     "ime" => {
-      row["status"] = "unsupported".to_json()
-      row["reason"] = "IME composition is outside this first slice".to_json()
+      row["status"] = @json.to_json("unsupported")
+      row["reason"] = @json.to_json("IME composition is outside this first slice")
     }
     "clip" => {
       let viewport = checked(
@@ -180,10 +180,10 @@ fn observe(s : Json) -> Json {
       let output = painted.tree().nodes().map(node => bounds(node.bounds()))
       if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
         let first = array(output[1])
-        first[2] = (number(first[2]) + 1).to_json()
+        first[2] = @json.to_json(number(first[2]) + 1)
         output[1] = Json::array(first)
       }
-      row["observation"] = object([("bounds", output.to_json())])
+      row["observation"] = object([("bounds", @json.to_json(output))])
     }
     "pointer" => {
       let element_tree = tree(s).tree()
@@ -199,11 +199,11 @@ fn observe(s : Json) -> Json {
           ),
         )
         match plan.target() {
-          Some(id) if id > 1 => id.to_int().to_json()
+          Some(id) if id > 1 => @json.to_json(id.to_int())
           _ => Json::null()
         }
       })
-      row["observation"] = object([("targets", targets.to_json())])
+      row["observation"] = object([("targets", @json.to_json(targets))])
     }
     "key" => {
       let element_tree = checked(tree(s).tree().with_focus(1))
@@ -231,14 +231,14 @@ fn observe(s : Json) -> Json {
                     repeat~
                   ) =>
                     keys.push(
-                      [
-                        key.to_json(),
-                        modifiers.shift().to_json(),
-                        modifiers.control().to_json(),
-                        modifiers.alt().to_json(),
-                        modifiers.meta().to_json(),
-                        repeat.to_json(),
-                      ].to_json(),
+                      @json.to_json([
+                        @json.to_json(key),
+                        @json.to_json(modifiers.shift()),
+                        @json.to_json(modifiers.control()),
+                        @json.to_json(modifiers.alt()),
+                        @json.to_json(modifiers.meta()),
+                        @json.to_json(repeat),
+                      ]),
                     )
                   _ => ()
                 }
@@ -248,7 +248,7 @@ fn observe(s : Json) -> Json {
           ),
         )
       }
-      row["observation"] = object([("keys", keys.to_json())])
+      row["observation"] = object([("keys", @json.to_json(keys))])
     }
     _ => abort("unknown scenario kind")
   }
@@ -261,9 +261,9 @@ fn main {
   let scenarios = @json.parse(raw) catch { _ => abort("invalid scenarios") }
   let cases = array(field(scenarios, "cases")).map(observe)
   let output = object([
-    ("implementation", "moonbit".to_json()),
-    ("run_token", @env.get_env_var("GPUI_RUN_TOKEN").unwrap().to_json()),
-    ("cases", cases.to_json()),
+    ("implementation", @json.to_json("moonbit")),
+    ("run_token", @json.to_json(@env.get_env_var("GPUI_RUN_TOKEN").unwrap())),
+    ("cases", @json.to_json(cases)),
   ])
   println("GPUI_CONFORMANCE " + output.stringify())
 }
