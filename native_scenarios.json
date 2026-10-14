@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id":"window-lifecycle","kind":"window","layer":"native-window","width":256,"height":192,"resize":[320,224]},
+    {"id":"native-pixels","kind":"pixels","layer":"native-gpu","width":256,"height":192,"rect":[32,32,64,48],"background":[0,0,0,255],"color":[255,0,0,255],"points":[[8,8],[40,40],[120,100]]}
+  ]
+}

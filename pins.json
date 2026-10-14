@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+    "package": "crates/gpui",
+    "version": "0.2.2"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+    "version": "0.7.2"
+  }
+}
