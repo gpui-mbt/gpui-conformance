@@ -32,6 +32,9 @@ The original trees/data are authored here; no upstream test fixture is copied.
 Requires Python 3.12+, Rust **1.98.1**, MoonBit, and Xcode command-line tools.
 The measured local MoonBit version is recorded in each manifest. The local run
 used `moon 0.1.20260920 (914d7da)` and the matching installed core library.
+The publication candidate on the updated gpui.mbt main uses the already
+installed `moon 0.1.20261012 (748b63c)`, `moonc 0.10.15+943464bfa` and matching
+core. See [PUBLICATION_RESULTS.md](PUBLICATION_RESULTS.md) for that separate run.
 
 Clone the repositories into separate directories; check out the exact SHAs in
 [pins.json](pins.json). Keep the upstream checkout read-only after checkout. The

@@ -1,0 +1,1636 @@
+{
+  "schema_version": 1,
+  "scope": "Current publication integration: real headless execution only; native remains separately qualified by the historical native corpus.",
+  "suite_revision": "c6c06a88aa23509928a4bf26f9705e2d84b3f354",
+  "executions": {
+    "baseline-publication-final": {
+      "directory": "_build/baseline-publication-final",
+      "manifest_sha256": "26a4fa4beb4d533a3863119b181fa3bcab88fc6b450765ef9716204128f134eb",
+      "comparison_sha256": "d0b9d866cc952597ffe2279d8c030aafc426ddff9433b1bcf2bfe8c4f257e7d9",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "version": "0.7.2"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "c6c06a88aa23509928a4bf26f9705e2d84b3f354",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "df656aa2-3978-45bd-a2e6-142a815ae379",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 82549,
+              "started_at": "2026-10-14T21:18:13.007879+00:00",
+              "finished_at": "2026-10-14T21:18:13.302757+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "0189b07ecc525d5e5b579b4e3767aef162ccc9d50e17025c705e6cfcd7d5fd68"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "a1cdd88c3b5a67bd4eecfb0f6af5a6a24cd63dd0fa835a68665d42d833b3b48f"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/baseline-publication-final/upstream/probe"
+              ],
+              "pid": 82550,
+              "started_at": "2026-10-14T21:18:13.336544+00:00",
+              "finished_at": "2026-10-14T21:18:13.684389+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "b11384d3ef06bbb5ef307823d63f85c1097910b3d5598d3a3ceb4efa9439a78b"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "source_tree": "4f0430c34dd60ec258aa54ee7a5dc4a4d573bc38",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20260920 (914d7da 2026-09-20)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "d3c4dc7a-e577-405a-905e-f07b2380cb18",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 82557,
+              "started_at": "2026-10-14T21:18:13.732538+00:00",
+              "finished_at": "2026-10-14T21:18:14.342193+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "cb49dceaed0953c604fef9849407282c96310fe9a26eaf89b5ab10b5e48880d4"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/baseline-publication-final/moonbit/probe"
+              ],
+              "pid": 82597,
+              "started_at": "2026-10-14T21:18:14.343249+00:00",
+              "finished_at": "2026-10-14T21:18:14.689866+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "7fd67983cef3388784de0d2f777e64748ee20a09d06d78abc77ab9d2e650d0c6"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "version": "0.7.2"
+          }
+        },
+        "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+        "cases": [
+          {
+            "id": "layout-gap",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  30.0
+                ],
+                [
+                  25.0,
+                  0.0,
+                  25.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  30
+                ],
+                [
+                  25,
+                  0,
+                  25,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-shrink",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  60.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  30.0,
+                  30.0
+                ],
+                [
+                  30.0,
+                  0.0,
+                  30.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  60,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  30,
+                  30
+                ],
+                [
+                  30,
+                  0,
+                  30,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "paint-quads",
+            "layer": "headless-scene",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "quads": [
+                {
+                  "bounds": [
+                    0.0,
+                    0.0,
+                    20.0,
+                    30.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25.0,
+                    0.0,
+                    25.0,
+                    40.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "quads": [
+                {
+                  "bounds": [
+                    0,
+                    0,
+                    20,
+                    30
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25,
+                    0,
+                    25,
+                    40
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "pointer-interior",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            }
+          },
+          {
+            "id": "pointer-boundary",
+            "layer": "headless-dispatch",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.targets[0]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[1]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[2]",
+                "upstream": null,
+                "moonbit": 3
+              }
+            ],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null,
+                null,
+                2
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                2,
+                3,
+                null,
+                2
+              ]
+            }
+          },
+          {
+            "id": "pointer-degenerate",
+            "layer": "headless-dispatch",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.targets[0]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[1]",
+                "upstream": null,
+                "moonbit": 3
+              },
+              {
+                "path": "observation.targets[2]",
+                "upstream": null,
+                "moonbit": 3
+              }
+            ],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                3,
+                3
+              ]
+            }
+          },
+          {
+            "id": "key-modifiers",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            },
+            "moonbit": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            }
+          },
+          {
+            "id": "clip-nested",
+            "layer": "headless-clip",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "effective_clip": [
+                30.0,
+                15.0,
+                40.0,
+                30.0
+              ]
+            },
+            "moonbit": {
+              "effective_clip": [
+                30,
+                15,
+                40,
+                30
+              ]
+            }
+          },
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": [
+              null,
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": [
+              "No native GPU capture was executed",
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "ime-composition",
+            "layer": "native-ime",
+            "status": "unsupported",
+            "reason": [
+              "IME composition is outside this first slice",
+              "IME composition is outside this first slice"
+            ]
+          }
+        ],
+        "summary": {
+          "pass": 6,
+          "mismatch": 2,
+          "unsupported": 1,
+          "unverified": 2
+        }
+      }
+    },
+    "candidate-publication-final": {
+      "directory": "_build/candidate-publication-final",
+      "manifest_sha256": "e1219e379c77d6e064a2ed2adc496bad21dcf3992260a684a2c75f684cd72099",
+      "comparison_sha256": "77a651a1cae80709a8ba9cc688665f7a9912b814a64b2964be599d97342bbe2b",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dfc80843456a4b7dbf7aa99da87373b6cd8f5ab",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "c6c06a88aa23509928a4bf26f9705e2d84b3f354",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "ed4b0573-da8a-436d-98a8-6f0f9f4b2a1b",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 82317,
+              "started_at": "2026-10-14T21:17:58.093853+00:00",
+              "finished_at": "2026-10-14T21:17:58.600638+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "848129b2690d527e75938adcb3215e7ca0a57d6b0d6e75a8a76ce013beb85817"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "a1cdd88c3b5a67bd4eecfb0f6af5a6a24cd63dd0fa835a68665d42d833b3b48f"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/candidate-publication-final/upstream/probe"
+              ],
+              "pid": 82321,
+              "started_at": "2026-10-14T21:17:58.632114+00:00",
+              "finished_at": "2026-10-14T21:17:59.028255+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "2a5e6f5651b788c0f1992a3a3dd3661af87f040bf4c8c96e8117f113b0c24897"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "7dfc80843456a4b7dbf7aa99da87373b6cd8f5ab",
+            "source_tree": "321847ca2e2758574956506b5da3007b4d903eae",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "356276c4-dc6e-4c41-8e10-8ba462096e21",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 82325,
+              "started_at": "2026-10-14T21:17:59.075530+00:00",
+              "finished_at": "2026-10-14T21:17:59.526772+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "af79b9f86bbc3c94814a9ceac2ce733bb39b72760415ebe12d3cca6a4c9c7d65"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/candidate-publication-final/moonbit/probe"
+              ],
+              "pid": 82355,
+              "started_at": "2026-10-14T21:17:59.528118+00:00",
+              "finished_at": "2026-10-14T21:17:59.875508+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "0fd3944110c28ac7aafaf908a4244f8cde39acb50f8a58db360895f667e3bc68"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dfc80843456a4b7dbf7aa99da87373b6cd8f5ab",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+        "cases": [
+          {
+            "id": "layout-gap",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  30.0
+                ],
+                [
+                  25.0,
+                  0.0,
+                  25.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  30
+                ],
+                [
+                  25,
+                  0,
+                  25,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-shrink",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  60.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  30.0,
+                  30.0
+                ],
+                [
+                  30.0,
+                  0.0,
+                  30.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  60,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  30,
+                  30
+                ],
+                [
+                  30,
+                  0,
+                  30,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "paint-quads",
+            "layer": "headless-scene",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "quads": [
+                {
+                  "bounds": [
+                    0.0,
+                    0.0,
+                    20.0,
+                    30.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25.0,
+                    0.0,
+                    25.0,
+                    40.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "quads": [
+                {
+                  "bounds": [
+                    0,
+                    0,
+                    20,
+                    30
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25,
+                    0,
+                    25,
+                    40
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "pointer-interior",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            }
+          },
+          {
+            "id": "pointer-boundary",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null,
+                null,
+                2
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                null,
+                null,
+                null,
+                null,
+                2
+              ]
+            }
+          },
+          {
+            "id": "pointer-degenerate",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                null,
+                null,
+                null
+              ]
+            }
+          },
+          {
+            "id": "key-modifiers",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            },
+            "moonbit": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            }
+          },
+          {
+            "id": "clip-nested",
+            "layer": "headless-clip",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "effective_clip": [
+                30.0,
+                15.0,
+                40.0,
+                30.0
+              ]
+            },
+            "moonbit": {
+              "effective_clip": [
+                30,
+                15,
+                40,
+                30
+              ]
+            }
+          },
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": [
+              null,
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": [
+              "No native GPU capture was executed",
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "ime-composition",
+            "layer": "native-ime",
+            "status": "unsupported",
+            "reason": [
+              "IME composition is outside this first slice",
+              "IME composition is outside this first slice"
+            ]
+          }
+        ],
+        "summary": {
+          "pass": 8,
+          "mismatch": 0,
+          "unsupported": 1,
+          "unverified": 2
+        }
+      }
+    },
+    "negative-publication-final": {
+      "directory": "_build/negative-publication-final",
+      "manifest_sha256": "35abcc49ccd40c215303a842fb110c845793397e9c0142a6febcd63c34c19407",
+      "comparison_sha256": "174589fe7d81a5a5f1d1875eb0c87c7d93d8ec2b7a4d786d8c84e7e445ff018b",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "version": "0.7.2"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "c6c06a88aa23509928a4bf26f9705e2d84b3f354",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "c8b108f7-abc0-41ed-950f-56d9c4bdfd72",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 82669,
+              "started_at": "2026-10-14T21:18:30.332212+00:00",
+              "finished_at": "2026-10-14T21:18:30.626431+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "0189b07ecc525d5e5b579b4e3767aef162ccc9d50e17025c705e6cfcd7d5fd68"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "a1cdd88c3b5a67bd4eecfb0f6af5a6a24cd63dd0fa835a68665d42d833b3b48f"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/negative-publication-final/upstream/probe"
+              ],
+              "pid": 82670,
+              "started_at": "2026-10-14T21:18:30.665954+00:00",
+              "finished_at": "2026-10-14T21:18:31.008311+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "37a32de14d1ad2c5b9312a236ee655ed7845479143cc6ddefba4a06c68cef155"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "source_tree": "4f0430c34dd60ec258aa54ee7a5dc4a4d573bc38",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20260920 (914d7da 2026-09-20)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+            "run_token": "8529e4c5-b0d4-4fa8-b45b-862509163b79",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 82680,
+              "started_at": "2026-10-14T21:18:31.046419+00:00",
+              "finished_at": "2026-10-14T21:18:31.666611+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "6472c613bdae04af8ac56a4df5bd63038e1efb74922550b7b9786653926664be"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance/_build/negative-publication-final/moonbit/probe"
+              ],
+              "pid": 82732,
+              "started_at": "2026-10-14T21:18:31.667740+00:00",
+              "finished_at": "2026-10-14T21:18:32.009773+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "a754bee253b972623d98a39951ed83ce267b33b15081593aeb1c0a5d992b57ae"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+            "version": "0.7.2"
+          }
+        },
+        "scenarios_sha256": "76391976d053643cc6710e7471f858b6491c1fcaacb93e1b41dc5ece0fef102a",
+        "cases": [
+          {
+            "id": "layout-gap",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  30.0
+                ],
+                [
+                  25.0,
+                  0.0,
+                  25.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  30
+                ],
+                [
+                  25,
+                  0,
+                  25,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-shrink",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 30.0,
+                "moonbit": 31
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  60.0,
+                  60.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  30.0,
+                  30.0
+                ],
+                [
+                  30.0,
+                  0.0,
+                  30.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  60,
+                  60
+                ],
+                [
+                  0,
+                  0,
+                  31,
+                  30
+                ],
+                [
+                  30,
+                  0,
+                  30,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "paint-quads",
+            "layer": "headless-scene",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "quads": [
+                {
+                  "bounds": [
+                    0.0,
+                    0.0,
+                    20.0,
+                    30.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25.0,
+                    0.0,
+                    25.0,
+                    40.0
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "quads": [
+                {
+                  "bounds": [
+                    0,
+                    0,
+                    20,
+                    30
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                },
+                {
+                  "bounds": [
+                    25,
+                    0,
+                    25,
+                    40
+                  ],
+                  "rgba": [
+                    32,
+                    64,
+                    96,
+                    255
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "pointer-interior",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                3,
+                null
+              ]
+            }
+          },
+          {
+            "id": "pointer-boundary",
+            "layer": "headless-dispatch",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.targets[0]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[1]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[2]",
+                "upstream": null,
+                "moonbit": 3
+              }
+            ],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null,
+                null,
+                2
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                2,
+                3,
+                null,
+                2
+              ]
+            }
+          },
+          {
+            "id": "pointer-degenerate",
+            "layer": "headless-dispatch",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.targets[0]",
+                "upstream": null,
+                "moonbit": 2
+              },
+              {
+                "path": "observation.targets[1]",
+                "upstream": null,
+                "moonbit": 3
+              },
+              {
+                "path": "observation.targets[2]",
+                "upstream": null,
+                "moonbit": 3
+              }
+            ],
+            "upstream": {
+              "targets": [
+                null,
+                null,
+                null
+              ]
+            },
+            "moonbit": {
+              "targets": [
+                2,
+                3,
+                3
+              ]
+            }
+          },
+          {
+            "id": "key-modifiers",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            },
+            "moonbit": {
+              "keys": [
+                [
+                  "a",
+                  false,
+                  false,
+                  false,
+                  false,
+                  false
+                ],
+                [
+                  "b",
+                  true,
+                  true,
+                  false,
+                  true,
+                  true
+                ]
+              ]
+            }
+          },
+          {
+            "id": "clip-nested",
+            "layer": "headless-clip",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "effective_clip": [
+                30.0,
+                15.0,
+                40.0,
+                30.0
+              ]
+            },
+            "moonbit": {
+              "effective_clip": [
+                30,
+                15,
+                40,
+                30
+              ]
+            }
+          },
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": [
+              null,
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": [
+              "No native GPU capture was executed",
+              "Native macOS fixture requires coordinated foreground execution; not executed"
+            ]
+          },
+          {
+            "id": "ime-composition",
+            "layer": "native-ime",
+            "status": "unsupported",
+            "reason": [
+              "IME composition is outside this first slice",
+              "IME composition is outside this first slice"
+            ]
+          }
+        ],
+        "summary": {
+          "pass": 4,
+          "mismatch": 4,
+          "unsupported": 1,
+          "unverified": 2
+        }
+      }
+    }
+  }
+}
