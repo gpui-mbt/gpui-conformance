@@ -94,6 +94,8 @@ missing/short readbacks, dishonest samples, missing/tampered dylibs, bad native
 identities, malformed scenarios, and owned timeout cleanup without GUI launches.
 Historical headless outputs keep their native placeholders unverified; native
 qualification is a separate corpus and never overwrites earlier evidence.
+Fresh native executions at merged suite `316a62d3` and merged gpui.mbt
+`24bf42ca` are recorded in [MERGED_NATIVE_RESULTS.md](MERGED_NATIVE_RESULTS.md).
 
 ### Portable CI checks
 
