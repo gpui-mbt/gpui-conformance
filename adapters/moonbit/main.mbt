@@ -1,6 +1,9 @@
 ///|
 fn[T, E] checked(value : Result[T, E]) -> T {
-  match value { Ok(value) => value; Err(_) => abort("framework operation failed") }
+  match value {
+    Ok(value) => value
+    Err(_) => abort("framework operation failed")
+  }
 }
 
 ///|
@@ -13,22 +16,35 @@ fn field(value : Json, key : String) -> Json {
 
 ///|
 fn array(value : Json) -> Array[Json] {
-  match value { Array(values) => values; _ => abort("expected array") }
+  match value {
+    Array(values) => values
+    _ => abort("expected array")
+  }
 }
 
 ///|
 fn number(value : Json) -> Double {
-  match value { Number(value, ..) => value; _ => abort("expected number") }
+  match value {
+    Number(value, ..) => value
+    _ => abort("expected number")
+  }
 }
 
 ///|
 fn string(value : Json) -> String {
-  match value { String(value) => value; _ => abort("expected string") }
+  match value {
+    String(value) => value
+    _ => abort("expected string")
+  }
 }
 
 ///|
 fn boolean(value : Json) -> Bool {
-  match value { True => true; False => false; _ => abort("expected bool") }
+  match value {
+    True => true
+    False => false
+    _ => abort("expected bool")
+  }
 }
 
 ///|
@@ -44,30 +60,82 @@ fn bounds(rect : @primitives.Rect) -> Json {
 ///|
 fn rect(value : Json) -> @primitives.Rect {
   let v = array(value)
-  checked(@primitives.Rect::new(number(v[0]), number(v[1]), number(v[2]), number(v[3])))
+  checked(
+    @primitives.Rect::new(
+      number(v[0]),
+      number(v[1]),
+      number(v[2]),
+      number(v[3]),
+    ),
+  )
 }
 
 ///|
 fn tree(s : Json) -> @element.Prepainted {
-  let style = checked(@layout.FlexTreeStyle::new(@layout.FlowDirection::row()).with_gap(number(field(s, "gap"))))
+  let style = checked(
+    @layout.FlexTreeStyle::new(@layout.FlowDirection::row()).with_gap(
+      number(field(s, "gap")),
+    ),
+  )
   let mut root = @element.Element::root(1, style).with_focusable(true)
   for i, child in array(field(s, "children")) {
     let dimensions = array(child)
     let width = number(dimensions[0])
     let height = number(dimensions[1])
-    let item = @layout.FlexItem::new((i + 2).to_uint64(), checked(@layout.Dimension::points(width)), checked(@layout.Dimension::points(height)), checked(@primitives.Size::new(width, height)))
-    root = root.with_child(@element.Element::new(item).with_background(Some(checked(@primitives.Color::rgba(32, 64, 96, 255)))))
+    let item = @layout.FlexItem::new(
+      (i + 2).to_uint64(),
+      checked(@layout.Dimension::points(width)),
+      checked(@layout.Dimension::points(height)),
+      checked(@primitives.Size::new(width, height)),
+    )
+    root = root.with_child(
+      @element.Element::new(item).with_background(
+        Some(checked(@primitives.Color::rgba(32, 64, 96, 255))),
+      ),
+    )
   }
-  checked(checked(root.request_layout(checked(@primitives.Size::new(number(field(s, "width")), number(field(s, "height")))))).prepaint())
+  checked(
+    checked(
+      root.request_layout(
+        checked(
+          @primitives.Size::new(
+            number(field(s, "width")),
+            number(field(s, "height")),
+          ),
+        ),
+      ),
+    ).prepaint(),
+  )
 }
 
 ///|
 fn observe(s : Json) -> Json {
   let kind = string(field(s, "kind"))
   let row : Map[String, Json] = Map::from_array([
-    ("id", field(s, "id")), ("layer", field(s, "layer")), ("status", "observed".to_json()),
+    ("id", field(s, "id")),
+    ("layer", field(s, "layer")),
+    ("status", "observed".to_json()),
   ])
   match kind {
+    "scene" => {
+      let snapshot = checked(tree(s).paint_snapshot(1))
+      let quads = snapshot
+        .items()
+        .map(item => {
+          match item {
+            @scene.QuadItem(bounds=quad_bounds, color~, ..) =>
+              object([
+                ("bounds", bounds(quad_bounds)),
+                (
+                  "rgba",
+                  [color.red(), color.green(), color.blue(), color.alpha()].to_json(),
+                ),
+              ])
+            _ => abort("fixture emitted a non-quad")
+          }
+        })
+      row["observation"] = object([("quads", quads.to_json())])
+    }
     "window" | "pixels" => {
       row["status"] = "unverified".to_json()
       row["reason"] = "Native macOS fixture requires coordinated foreground execution; not executed".to_json()
@@ -77,14 +145,26 @@ fn observe(s : Json) -> Json {
       row["reason"] = "IME composition is outside this first slice".to_json()
     }
     "clip" => {
-      let viewport = checked(@primitives.Rect::new(0, 0, number(field(s, "width")), number(field(s, "height"))))
+      let viewport = checked(
+        @primitives.Rect::new(
+          0,
+          0,
+          number(field(s, "width")),
+          number(field(s, "height")),
+        ),
+      )
       let clips = array(field(s, "clips"))
       // Generate and validate a real scene snapshot; clip chains are retained.
       let scene = @scene.Scene::new([
         @scene.PaintCommand::clip_push(1, rect(clips[0])),
         @scene.PaintCommand::clip_push(2, rect(clips[1])),
-        @scene.PaintCommand::quad(3, viewport, checked(@primitives.Color::rgba(32, 64, 96, 255))),
-        @scene.PaintCommand::clip_pop(2), @scene.PaintCommand::clip_pop(1),
+        @scene.PaintCommand::quad(
+          3,
+          viewport,
+          checked(@primitives.Color::rgba(32, 64, 96, 255)),
+        ),
+        @scene.PaintCommand::clip_pop(2),
+        @scene.PaintCommand::clip_pop(1),
       ])
       let snapshot = checked(scene.snapshot_v1(viewport, 1))
       let mut clip = viewport
@@ -109,7 +189,15 @@ fn observe(s : Json) -> Json {
       let element_tree = tree(s).tree()
       let targets = array(field(s, "points")).map(p => {
         let coords = array(p)
-        let plan = element_tree.dispatch_input(@primitives.PointerButtonPressed(position=checked(@primitives.Point::new(number(coords[0]), number(coords[1]))), button=@primitives.Primary, modifiers=@primitives.Modifiers::none()))
+        let plan = element_tree.dispatch_input(
+          @primitives.PointerButtonPressed(
+            position=checked(
+              @primitives.Point::new(number(coords[0]), number(coords[1])),
+            ),
+            button=@primitives.Primary,
+            modifiers=@primitives.Modifiers::none(),
+          ),
+        )
         match plan.target() {
           Some(id) if id > 1 => id.to_int().to_json()
           _ => Json::null()
@@ -122,16 +210,43 @@ fn observe(s : Json) -> Json {
       let keys : Array[Json] = []
       for k in array(field(s, "keys")) {
         let v = array(k)
-        let event = @primitives.KeyPressed(key=@primitives.Character(string(v[0])), modifiers=@primitives.Modifiers::new(shift=boolean(v[1]), control=boolean(v[2]), alt=boolean(v[3]), meta=boolean(v[4])), repeat=boolean(v[5]))
-        ignore(checked(element_tree.dispatch_input_with(event, (context, event) => {
-          if context.phase() is @element.Bubble {
-            match event {
-              @primitives.KeyPressed(key=@primitives.Character(key), modifiers~, repeat~) => keys.push([key.to_json(), modifiers.shift().to_json(), modifiers.control().to_json(), modifiers.alt().to_json(), modifiers.meta().to_json(), repeat.to_json()].to_json())
-              _ => ()
-            }
-          }
-          Ok(())
-        })))
+        let event = @primitives.KeyPressed(
+          key=@primitives.Character(string(v[0])),
+          modifiers=@primitives.Modifiers::new(
+            shift=boolean(v[1]),
+            control=boolean(v[2]),
+            alt=boolean(v[3]),
+            meta=boolean(v[4]),
+          ),
+          repeat=boolean(v[5]),
+        )
+        ignore(
+          checked(
+            element_tree.dispatch_input_with(event, (context, event) => {
+              if context.phase() is @element.Bubble {
+                match event {
+                  @primitives.KeyPressed(
+                    key=@primitives.Character(key),
+                    modifiers~,
+                    repeat~
+                  ) =>
+                    keys.push(
+                      [
+                        key.to_json(),
+                        modifiers.shift().to_json(),
+                        modifiers.control().to_json(),
+                        modifiers.alt().to_json(),
+                        modifiers.meta().to_json(),
+                        repeat.to_json(),
+                      ].to_json(),
+                    )
+                  _ => ()
+                }
+              }
+              Ok(())
+            }),
+          ),
+        )
       }
       row["observation"] = object([("keys", keys.to_json())])
     }
@@ -143,8 +258,12 @@ fn observe(s : Json) -> Json {
 ///|
 fn main {
   let raw = @env.get_env_var("GPUI_SCENARIOS").unwrap()
-  let scenarios = try @json.parse(raw) catch { _ => abort("invalid scenarios") }
+  let scenarios = @json.parse(raw) catch { _ => abort("invalid scenarios") }
   let cases = array(field(scenarios, "cases")).map(observe)
-  let output = object([("implementation", "moonbit".to_json()), ("run_token", @env.get_env_var("GPUI_RUN_TOKEN").unwrap().to_json()), ("cases", cases.to_json())])
+  let output = object([
+    ("implementation", "moonbit".to_json()),
+    ("run_token", @env.get_env_var("GPUI_RUN_TOKEN").unwrap().to_json()),
+    ("cases", cases.to_json()),
+  ])
   println("GPUI_CONFORMANCE " + output.stringify())
 }

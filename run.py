@@ -7,12 +7,14 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import tarfile
 import uuid
 
 from comparator import compare, digest
+from contracts import validate_scenarios
 
 ROOT = Path(__file__).resolve().parent
 
@@ -25,14 +27,18 @@ def command(args, cwd=None):
     return subprocess.check_output(args, cwd=cwd, text=True).strip()
 
 
-def source(path, revision):
+def source(path, revision, implementation, expected_version):
     actual = command(["git", "rev-parse", "HEAD"], path)
     if actual != revision:
         raise ValueError(f"{path}: expected {revision}, got {actual}")
     dirty = bool(command(["git", "status", "--porcelain", "--untracked-files=no"], path))
     if dirty:
         raise ValueError(f"{path}: tracked source has local changes")
-    return {"revision": actual, "source_tree": command(["git", "rev-parse", "HEAD^{tree}"], path), "dirty": dirty}
+    package_manifest = path / ("crates/gpui/Cargo.toml" if implementation == "upstream" else "moon.mod")
+    match = re.search(r'^version\s*=\s*"([^"]+)"', package_manifest.read_text(), re.MULTILINE)
+    if not match or match[1] != expected_version:
+        raise ValueError(f"{path}: package version differs from reviewed pin")
+    return {"revision": actual, "source_tree": command(["git", "rev-parse", "HEAD^{tree}"], path), "dirty": dirty, "version": match[1]}
 
 
 def artifact(path, root):
@@ -93,8 +99,9 @@ def main():
         pins["moonbit"]["baseline_revision"] = pins["moonbit"]["revision"]
         pins["moonbit"]["revision"] = args.candidate_revision
     sources = {"upstream": args.upstream_source.resolve(), "moonbit": args.moonbit_source.resolve()}
-    identities = {name: source(path, pins[name]["revision"]) for name, path in sources.items()}
+    identities = {name: source(path, pins[name]["revision"], name, pins[name]["version"]) for name, path in sources.items()}
     scenarios = (ROOT / "scenarios.json").read_bytes()
+    validate_scenarios(json.loads(scenarios))
     (out / "scenarios.json").write_bytes(scenarios)
     host = {"os": platform.system(), "architecture": platform.machine(), "release": platform.release(),
             "macos": platform.mac_ver()[0]}
@@ -117,7 +124,7 @@ def main():
         folder = out / name
         folder.mkdir()
         token = str(uuid.uuid4())
-        run = {**identities[name], "implementation": name, "version": pins[name]["version"], "platform": host,
+        run = {**identities[name], "implementation": name, "platform": host,
                "toolchain": config["version"], "scenarios_sha256": digest(scenarios), "run_token": token}
         run["build"] = execute(config["build"], env, folder / "build.stdout", folder / "build.stderr", config["cwd"], 600)
         run["build_stdout"] = artifact(folder / "build.stdout", out)
@@ -133,7 +140,7 @@ def main():
             run["stderr"] = artifact(folder / "stderr.log", out)
         manifest["runs"][name] = run
         # Verify the read-only inputs again after build and execution.
-        source(sources[name], pins[name]["revision"])
+        source(sources[name], pins[name]["revision"], name, pins[name]["version"])
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     result = compare(manifest, json.loads(scenarios), out)
     (out / "comparison.json").write_text(json.dumps(result, indent=2) + "\n")

@@ -7,9 +7,30 @@ import hashlib
 import json
 import math
 from pathlib import Path
+from datetime import datetime
+import re
+import uuid
+from contracts import validate_scenarios, valid_observation
 
 PREFIX = "GPUI_CONFORMANCE "
 STATUSES = ("pass", "mismatch", "unsupported", "unverified")
+PIN_FILE = Path(__file__).resolve().parent / "pins.json"
+
+
+def sha(value, length):
+    return isinstance(value, str) and re.fullmatch("[0-9a-f]{" + str(length) + "}", value) is not None
+
+
+def process_identity(value):
+    if type(value["pid"]) is not int or value["pid"] <= 0:
+        raise ValueError("missing process identity")
+    if not isinstance(value["command"], list) or not value["command"] or any(not isinstance(x, str) or not x for x in value["command"]):
+        raise ValueError("missing process command")
+    if type(value["returncode"]) is not int or value["returncode"] != 0 or value["timed_out"] is not False:
+        raise ValueError("process failed or timed out")
+    start, end = (datetime.fromisoformat(value[k]) for k in ("started_at", "finished_at"))
+    if start.tzinfo is None or end.tzinfo is None or end < start:
+        raise ValueError("invalid process timestamps")
 
 
 def digest(data):
@@ -20,20 +41,21 @@ def load_json(path):
     return json.loads(Path(path).read_text())
 
 
-def evidence(run, root, implementation, scenarios_hash, expected_revision):
+def evidence(run, root, implementation, scenarios_hash, expected_revision, expected_version, expected_platform):
     """Return verified raw observations or a reason this run is unverified."""
     try:
         if run["implementation"] != implementation:
             raise ValueError("wrong implementation")
-        if run["revision"] != expected_revision or run["dirty"]:
+        if not sha(expected_revision, 40) or run["revision"] != expected_revision or run["dirty"] is not False:
             raise ValueError("source revision or clean-tree check differs")
         if run["scenarios_sha256"] != scenarios_hash:
             raise ValueError("scenario digest differs")
-        if run["execution"]["returncode"] != 0 or run["execution"]["timed_out"]:
-            raise ValueError("process failed or timed out")
-        if run["execution"]["pid"] <= 0 or not run["execution"]["command"]:
-            raise ValueError("missing process identity")
-        if not run["execution"]["finished_at"] or not run["toolchain"] or not run["platform"]:
+        process_identity(run["execution"])
+        process_identity(run["build"])
+        if run["platform"] != expected_platform or run["version"] != expected_version or not sha(run["source_tree"], 40):
+            raise ValueError("platform/version/source identity differs or is absent")
+        uuid.UUID(run["run_token"])
+        if not isinstance(run["toolchain"], str) or not run["toolchain"] or not run["platform"]:
             raise ValueError("missing execution/platform/toolchain metadata")
         # Relocatable evidence; never read a path outside its result directory.
         def read_artifact(name):
@@ -46,6 +68,8 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision):
             return data
         raw = read_artifact("stdout")
         read_artifact("stderr")
+        read_artifact("build_stdout")
+        read_artifact("build_stderr")
         # The built executable is retained independently for replay/audit.
         read_artifact("executable")
         lines = [line[len(PREFIX):] for line in raw.decode().splitlines() if line.startswith(PREFIX)]
@@ -60,7 +84,7 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision):
         if any(case.get("status") not in ("observed", "unsupported", "unverified") for case in cases):
             raise ValueError("invalid adapter status")
         return {case["id"]: case for case in cases}, None
-    except (KeyError, ValueError, TypeError, OSError, UnicodeError) as exc:
+    except (KeyError, ValueError, TypeError, OSError, UnicodeError, AttributeError) as exc:
         return {}, str(exc)
 
 
@@ -80,16 +104,37 @@ def differences(a, b, path="observation"):
 def compare(manifest, scenarios, root):
     root = Path(root)
     scenario_bytes = (root / "scenarios.json").read_bytes()
+    validate_scenarios(scenarios)
+    if json.loads(scenario_bytes) != scenarios:
+        raise ValueError("comparison scenarios differ from retained scenario artifact")
     scenario_hash = digest(scenario_bytes)
     results = {}
     errors = {}
+    canonical_pins = load_json(PIN_FILE)
+    host = manifest.get("platform", {})
+    protocol_error = None
+    if type(manifest.get("schema_version")) is not int or manifest["schema_version"] != 1 or manifest.get("pins", {}).get("schema_version") != 1:
+        protocol_error = "unsupported or missing manifest/pins schema version"
+    elif not isinstance(host, dict) or any(not isinstance(host.get(k), str) or not host[k] for k in ("os", "architecture", "release")) or (host["os"] == "Darwin" and (not isinstance(host.get("macos"), str) or not host["macos"])):
+        protocol_error = "missing platform OS/architecture/release identity"
     for name in ("upstream", "moonbit"):
         run = manifest.get("runs", {}).get(name, {})
-        results[name], errors[name] = evidence(run, root, name, scenario_hash, manifest.get("pins", {}).get(name, {}).get("revision"))
+        pin = manifest.get("pins", {}).get(name, {})
+        results[name], errors[name] = evidence(run, root, name, scenario_hash, pin.get("revision"), pin.get("version"), manifest.get("platform"))
+        expected_pin = canonical_pins[name]
+        accepted_pin = dict(expected_pin)
+        if name == "moonbit" and pin.get("baseline_revision") == expected_pin["revision"] and sha(pin.get("revision"), 40):
+            accepted_pin.update(revision=pin["revision"], baseline_revision=expected_pin["revision"])
+        if pin != accepted_pin:
+            errors[name] = "manifest pin differs from reviewed pins or explicit candidate mapping"
+        if protocol_error:
+            errors[name] = protocol_error
+        if results[name].keys() != {s["id"] for s in scenarios["cases"]}:
+            errors[name] = errors[name] or "missing or unexpected executed cases"
     # Independent executions may have equal semantic observations. Reusing an
     # identical raw trace/challenge for both implementations must never pass.
     u, m = (manifest.get("runs", {}).get(name, {}) for name in ("upstream", "moonbit"))
-    if u.get("run_token") == m.get("run_token") or u.get("stdout", {}).get("sha256") == m.get("stdout", {}).get("sha256"):
+    if u.get("run_token") == m.get("run_token") or u.get("stdout", {}).get("sha256") == m.get("stdout", {}).get("sha256") or u.get("executable", {}).get("sha256") == m.get("executable", {}).get("sha256"):
         errors["upstream"] = errors["moonbit"] = "duplicated execution trace or challenge"
     cases = []
     for scenario in scenarios["cases"]:
@@ -100,11 +145,11 @@ def compare(manifest, scenarios, root):
         elif any(case["status"] == "unverified" for case in pair):
             row.update(status="unverified", reason=[case.get("reason") for case in pair])
         elif any(case["status"] == "unsupported" for case in pair):
-            row.update(status="unsupported", reason=[case.get("reason") for case in pair])
+            row.update(status="unsupported" if all(case.get("reason") for case in pair if case["status"] == "unsupported") else "unverified", reason=[case.get("reason") for case in pair])
         elif any(case.get("layer") != scenario["layer"] for case in pair):
             row.update(status="unverified", reason="execution layers differ from requested coverage")
-        elif any("observation" not in case or not case["observation"] for case in pair):
-            row.update(status="unverified", reason="empty observation")
+        elif any(not valid_observation(scenario, case.get("observation")) for case in pair):
+            row.update(status="unverified", reason="empty or malformed observation for requested scenario")
         else:
             diff = differences(pair[0]["observation"], pair[1]["observation"])
             row.update(status="mismatch" if diff else "pass", differences=diff)
