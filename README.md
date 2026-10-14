@@ -92,6 +92,16 @@ identities, malformed scenarios, and owned timeout cleanup without GUI launches.
 Historical headless outputs keep their native placeholders unverified; native
 qualification is a separate corpus and never overwrites earlier evidence.
 
+### Portable CI checks
+
+GitHub Actions runs `python3 -m unittest discover -s tests -p
+'test_portable_contracts.py'` on a clean checkout. These checks validate the
+shared corpora, numeric comparison rules and published index consistency, and
+prove that indexes without retained execution artifacts produce zero passes.
+They do not rerun either implementation or qualify native conformance. The
+real-evidence adversarial commands above require the entire retained result
+directories and remain a separate validation step.
+
 For a separately committed gpui.mbt fix, pass its checkout and full immutable
 SHA with `--candidate-revision`. The result retains both candidate and baseline
 revisions; the suite pin remains the baseline. Existing output directories are

@@ -92,6 +92,10 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
                 process_identity(run["library_build"])
                 read_artifact("library_build_stdout")
                 read_artifact("library_build_stderr")
+                read_artifact("foreground_guard")
+                process_identity(run["guard_build"])
+                read_artifact("guard_build_stdout")
+                read_artifact("guard_build_stderr")
             for case in native:
                 if case["layer"] == "native-gpu":
                     s = next((s for s in load_json(root / "scenarios.json")["cases"] if s["id"] == case["id"]), None)

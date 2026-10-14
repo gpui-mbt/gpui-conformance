@@ -60,6 +60,24 @@ class NativeEvidenceTests(unittest.TestCase):
         run=self.manifest["runs"]["moonbit"]
         (self.root/run["library_build_stdout"]["path"]).unlink()
         self.unverified()
+    def test_missing_foreground_guard(self):
+        run=self.manifest["runs"]["moonbit"]
+        (self.root/run["foreground_guard"]["path"]).unlink()
+        self.unverified()
+    def test_tampered_foreground_guard(self):
+        run=self.manifest["runs"]["moonbit"]
+        with (self.root/run["foreground_guard"]["path"]).open("ab") as output: output.write(b"tampered")
+        self.unverified()
+    def test_failed_guard_build(self):
+        self.manifest["runs"]["moonbit"]["guard_build"]["returncode"]=1
+        self.unverified()
+    def test_missing_guard_build_identity(self):
+        del self.manifest["runs"]["moonbit"]["guard_build"]["pid"]
+        self.unverified()
+    def test_missing_guard_build_log(self):
+        run=self.manifest["runs"]["moonbit"]
+        (self.root/run["guard_build_stderr"]["path"]).unlink()
+        self.unverified()
     def test_mock_mode_cannot_claim_native(self):
         self.manifest["runs"]["upstream"]["execution_mode"]="headless"
         self.unverified()
