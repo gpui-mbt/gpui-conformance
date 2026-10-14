@@ -1,0 +1,756 @@
+{
+  "schema_version": 1,
+  "scope": "Fresh executed native window and GPU-sample evidence at both exact merged commits; historical native results are not reused.",
+  "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+  "moonbit_revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+  "checks": {
+    "native_evidence_tests": 19
+  },
+  "executions": {
+    "native-merged-positive": {
+      "directory": "_build/native-merged-positive",
+      "manifest_sha256": "42fba74d12084ea7e34ea0f6da0f7f675806fa54602faa2b348b19397f3e8b20",
+      "comparison_sha256": "fba8def7faca5c96d7e81ef742eb2b602c1760ffa4dc4592b5415473ffb46e13",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "06ab013f-4351-4285-a254-ebd450105baf",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 86197,
+              "started_at": "2026-10-14T21:39:28.040205+00:00",
+              "finished_at": "2026-10-14T21:39:39.467564+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "688aef819c14ad93d8e8cccc1fef8f6819ceead90e76f953d970ca6d49230d43"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "bd0a9c6173cda2183018c63f46232781e4701c07d1ff83b9ec690703f11c3bc1"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-positive/upstream/probe"
+              ],
+              "pid": 86326,
+              "started_at": "2026-10-14T21:39:41.614696+00:00",
+              "finished_at": "2026-10-14T21:39:42.894529+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "1ae21dd33c8be9b7e4adde442b41423b52de3928001d8ae56c8b8d3d2ba33fd5"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "source_tree": "321847ca2e2758574956506b5da3007b4d903eae",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "5f9fb30a-98d5-41f6-8178-0415b8c6759c",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-8c272f04-ec94-4079-8d2f-492efea37d37/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-8c272f04-ec94-4079-8d2f-492efea37d37/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-8c272f04-ec94-4079-8d2f-492efea37d37/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-positive/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 86259,
+              "started_at": "2026-10-14T21:39:39.525555+00:00",
+              "finished_at": "2026-10-14T21:39:40.424808+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "9d64d60d0504068cd9f3f7c5d853f96938418d587bbe156b9c460aab574845c0"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-positive/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 86264,
+              "started_at": "2026-10-14T21:39:40.425156+00:00",
+              "finished_at": "2026-10-14T21:39:40.745583+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "37afedfd63db3a34e3655738d2f836d909615465986df9cfe66fb2727a6ec957"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 86267,
+              "started_at": "2026-10-14T21:39:40.745860+00:00",
+              "finished_at": "2026-10-14T21:39:41.613590+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "1545f59f9e12d6cc2d04ae5016e49c50557e81091d5936f08ae87b67c923776f"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-positive/moonbit/probe"
+              ],
+              "pid": 86333,
+              "started_at": "2026-10-14T21:39:43.216654+00:00",
+              "finished_at": "2026-10-14T21:39:44.131588+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "d8189e66a9bf2fa4fa16b099e0d63eeab1709a9bc13b3a2755c3b1c23e390074"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "initial": [
+                0,
+                0,
+                256.0,
+                192.0
+              ],
+              "resized": [
+                0,
+                0,
+                320.0,
+                224.0
+              ],
+              "live_before": true,
+              "live_after": false
+            },
+            "moonbit": {
+              "initial": [
+                0,
+                0,
+                256,
+                192
+              ],
+              "resized": [
+                0,
+                0,
+                320,
+                224
+              ],
+              "live_before": true,
+              "live_after": false
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "width": 512,
+              "height": 384,
+              "scale": 2.0,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "moonbit": {
+              "width": 512,
+              "height": 384,
+              "scale": 2,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 2,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "native-merged-negative": {
+      "directory": "_build/native-merged-negative",
+      "manifest_sha256": "2114bce5c17e8e6ae7dbec544b3e61e21edf065ed4c5a808e320f4fc383c084b",
+      "comparison_sha256": "e0b5ee8de5b956e50fe0ed98d27299ee5167e1cbe878bda05b2f81a4afc6952a",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "4037309d-76c8-4c16-b88b-f41cf99ffce1",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 86408,
+              "started_at": "2026-10-14T21:40:02.250970+00:00",
+              "finished_at": "2026-10-14T21:40:02.868831+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "5070c66a3be1a733ac8d881eb00156051ebfb893578ea7b8a72a36f8f05ecdb1"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "bd0a9c6173cda2183018c63f46232781e4701c07d1ff83b9ec690703f11c3bc1"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative/upstream/probe"
+              ],
+              "pid": 86478,
+              "started_at": "2026-10-14T21:40:04.734692+00:00",
+              "finished_at": "2026-10-14T21:40:05.569455+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "c5e2f3c92d9825dc7f5d992ba5c25e8f0619d0888f67af7ee8f1c4041406e571"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "source_tree": "321847ca2e2758574956506b5da3007b4d903eae",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "992e0a2a-dc2e-4feb-bf4d-33cade097349",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-b066b2db-7dd4-44ca-97c8-e5d12456adf2/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-b066b2db-7dd4-44ca-97c8-e5d12456adf2/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/moonbit-runtime-b066b2db-7dd4-44ca-97c8-e5d12456adf2/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 86414,
+              "started_at": "2026-10-14T21:40:02.920377+00:00",
+              "finished_at": "2026-10-14T21:40:03.576404+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "74868072f273604558f2e24394774d608b46e179884b26b469c4b27400ab2d8e"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 86429,
+              "started_at": "2026-10-14T21:40:03.576744+00:00",
+              "finished_at": "2026-10-14T21:40:03.899841+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "70e67909b17bbf7657e4e52e791ae24589653d023e96cdb595ccf01cf57a18bd"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 86432,
+              "started_at": "2026-10-14T21:40:03.900084+00:00",
+              "finished_at": "2026-10-14T21:40:04.732947+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "8699f3f77b043df026fd05420875f88c3b50cc9d9d0ff9433bf89c95abe2be77"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative/moonbit/probe"
+              ],
+              "pid": 86481,
+              "started_at": "2026-10-14T21:40:05.863660+00:00",
+              "finished_at": "2026-10-14T21:40:06.735650+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "e213c17409f2b9d34de96b86133725b2c55e545730365e38af9db40e56650bc6"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "initial": [
+                0,
+                0,
+                256.0,
+                192.0
+              ],
+              "resized": [
+                0,
+                0,
+                320.0,
+                224.0
+              ],
+              "live_before": true,
+              "live_after": false
+            },
+            "moonbit": {
+              "initial": [
+                0,
+                0,
+                256,
+                192
+              ],
+              "resized": [
+                0,
+                0,
+                320,
+                224
+              ],
+              "live_before": true,
+              "live_after": false
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.samples[1][0]",
+                "upstream": 255,
+                "moonbit": 0
+              },
+              {
+                "path": "observation.samples[1][2]",
+                "upstream": 0,
+                "moonbit": 255
+              }
+            ],
+            "upstream": {
+              "width": 512,
+              "height": 384,
+              "scale": 2.0,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "moonbit": {
+              "width": 512,
+              "height": 384,
+              "scale": 2,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 1,
+          "mismatch": 1,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    }
+  }
+}
