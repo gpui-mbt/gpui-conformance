@@ -39,11 +39,13 @@ successful build logs, raw stdout/stderr and its manifest. Run
 The JSON report in this repository is an index/summary; it cannot establish a
 pass without those full execution artifacts. Executables are kept out of Git.
 
-Native window lifecycle and GPU pixels remain **unverified**. The MoonBit native
-host creates a frontmost key window and activates its application; a launch
-requires coordination with the parent task/user so it does not disrupt ongoing
-work. Rust's executed headless window lifecycle is retained as one-sided evidence
-and does not satisfy the native comparison. IME composition remains outside the
-first slice and is **unsupported**. No native GUI, security setting, Gatekeeper
-exception, credential, running app/service, remote branch, PR or release was
-changed by this task.
+At this initial checkpoint, native window lifecycle and GPU pixels remained
+**unverified**. The later, coordinated [native qualification](NATIVE_RESULTS.md)
+executes both AppKit/Metal backends and qualifies bounded window/content-size
+and three GPU sample cases. Historical headless artifacts retain their original
+unverified placeholders. Rust's headless lifecycle is still one-sided evidence
+and does not replace the new native execution.
+
+IME composition remains **unsupported**; physical input is outside this slice.
+All work remains local. No security setting, Gatekeeper exception, credential,
+existing-app/service termination, remote branch, PR or release was changed.
