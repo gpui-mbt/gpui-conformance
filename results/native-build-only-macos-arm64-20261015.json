@@ -1,0 +1,520 @@
+{
+  "schema_version": 1,
+  "scope": "Build-only preservation check after selecting the native adapter directly; no GUI or native oracle execution in this batch.",
+  "corpus": "native_scenarios.json",
+  "suite_revision": "f1219ea0d530a99f0c22fa8a40471dbe5dba3c09",
+  "baseline_revision": "2badfaf54482d4fe11d64a39b2c247350cc01bea",
+  "candidate_revision": "553bff7e35cea7b1d6aeaf20dc22b2348af9b865",
+  "executions": {
+    "native-boundary-build-only": {
+      "directory": "_build/native-boundary-build-only",
+      "manifest_sha256": "d4d27cae9cb8eb99f068e7780010080fe7f3a8d840bae4da1e4f4547c978cecc",
+      "comparison_sha256": "6413857f0c7101d77978b0f9b259fc660d7a6b0a1e6c2ce873123db180a8338d",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "2badfaf54482d4fe11d64a39b2c247350cc01bea",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "f1219ea0d530a99f0c22fa8a40471dbe5dba3c09",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "dab416b0-b991-4767-b395-a63caaaebcee",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 33065,
+              "started_at": "2026-10-15T03:30:35.830136+00:00",
+              "finished_at": "2026-10-15T03:30:47.667853+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "4713798927ea4579b7dd0bf0cd6de075f491fc73632dd76de707ed2dede9642c"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "bd0a9c6173cda2183018c63f46232781e4701c07d1ff83b9ec690703f11c3bc1"
+            }
+          },
+          "moonbit": {
+            "revision": "2badfaf54482d4fe11d64a39b2c247350cc01bea",
+            "source_tree": "c176422d9726216a3ea3952bd843b221c911d7b8",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "f5264a03-1ad7-4ce3-b628-3c12a44e048c",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-9992ed6d-800e-4095-9304-b152f5526eac/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-9992ed6d-800e-4095-9304-b152f5526eac/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-9992ed6d-800e-4095-9304-b152f5526eac/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-boundary-build-only/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 33278,
+              "started_at": "2026-10-15T03:30:47.705634+00:00",
+              "finished_at": "2026-10-15T03:30:48.612645+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "75f9271aa383d90812762302608364b964b271acce462f8f5b9b6114942cee6c"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-boundary-build-only/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 33283,
+              "started_at": "2026-10-15T03:30:48.613032+00:00",
+              "finished_at": "2026-10-15T03:30:48.917254+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "640791176cb20f4974fb55dc716a6d0e230d04b8091149829530c41ff829527c"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 33286,
+              "started_at": "2026-10-15T03:30:48.917549+00:00",
+              "finished_at": "2026-10-15T03:30:49.666161+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "1785f691dba7fee5b6c94f77c5fbdc17d9bef4438393567f7e65f681e69553b9"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "2badfaf54482d4fe11d64a39b2c247350cc01bea",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": {
+              "upstream": "duplicated execution trace or challenge",
+              "moonbit": "duplicated execution trace or challenge"
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": {
+              "upstream": "duplicated execution trace or challenge",
+              "moonbit": "duplicated execution trace or challenge"
+            }
+          }
+        ],
+        "summary": {
+          "pass": 0,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 2
+        }
+      }
+    },
+    "native-candidate-build-only": {
+      "directory": "_build/native-candidate-build-only",
+      "manifest_sha256": "28cfe850f7699b4fe30f4c6941869651502ed7905d137bfc578c1da446111b1a",
+      "comparison_sha256": "d61e049c46f32c5cd58756a26f0fb2fa815f8d801f7201764a94eb8b38adab78",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "553bff7e35cea7b1d6aeaf20dc22b2348af9b865",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "f1219ea0d530a99f0c22fa8a40471dbe5dba3c09",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "7c157f5b-78e9-47de-aebc-7adcea995098",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 33613,
+              "started_at": "2026-10-15T03:31:30.195873+00:00",
+              "finished_at": "2026-10-15T03:31:30.683168+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "3eb02f9fbf43fc03ee96798d3c0398d1163561fe18cdf7139e69f5048f834b6a"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "bd0a9c6173cda2183018c63f46232781e4701c07d1ff83b9ec690703f11c3bc1"
+            }
+          },
+          "moonbit": {
+            "revision": "553bff7e35cea7b1d6aeaf20dc22b2348af9b865",
+            "source_tree": "f450b61a656c193df00e1fc47e53cc2b92005e3a",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "e16d607a-3666-4e58-90e1-4f6db1594b06",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-3e4221d1-a596-436a-84a1-73f71545bf78/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-3e4221d1-a596-436a-84a1-73f71545bf78/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/moonbit-runtime-3e4221d1-a596-436a-84a1-73f71545bf78/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-candidate-build-only/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 33620,
+              "started_at": "2026-10-15T03:31:30.720026+00:00",
+              "finished_at": "2026-10-15T03:31:31.552303+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "8cc9328aead84d48277061e81f36f3679d785b7dc159960eeec26b79a5e32c66"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-boundaries/_build/native-candidate-build-only/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 33625,
+              "started_at": "2026-10-15T03:31:31.552745+00:00",
+              "finished_at": "2026-10-15T03:31:31.919223+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "2a6a28bd67abced854d87b5a5bfce1cfbd5b6caf84fd0420631a820ba58bb7b2"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 33635,
+              "started_at": "2026-10-15T03:31:31.919562+00:00",
+              "finished_at": "2026-10-15T03:31:32.683051+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "9a2e9a047d4370d98b2532bf5fa4f9bb2e780e6b425ad74eee71370ae4771a03"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "553bff7e35cea7b1d6aeaf20dc22b2348af9b865",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": {
+              "upstream": "duplicated execution trace or challenge",
+              "moonbit": "duplicated execution trace or challenge"
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": {
+              "upstream": "duplicated execution trace or challenge",
+              "moonbit": "duplicated execution trace or challenge"
+            }
+          }
+        ],
+        "summary": {
+          "pass": 0,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 2
+        }
+      }
+    }
+  }
+}

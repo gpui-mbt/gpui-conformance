@@ -95,7 +95,9 @@ class PortableContractTests(unittest.TestCase):
         for path in (ROOT / "results").glob("*.json"):
             index = load_json(path)
             native = path.name.startswith("native-")
-            scenario_path = ROOT / ("native_scenarios.json" if native else "scenarios.json")
+            corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json"))
+            scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():
                 with self.subTest(index=path.name, execution=name), tempfile.TemporaryDirectory() as directory:

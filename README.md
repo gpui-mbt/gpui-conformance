@@ -112,6 +112,21 @@ SHA with `--candidate-revision`. The result retains both candidate and baseline
 revisions; the suite pin remains the baseline. Existing output directories are
 rejected so prior evidence cannot be overwritten.
 
+## Input, focus and layout boundary batch
+
+[boundary_scenarios.json](boundary_scenarios.json) adds 13 separate headless
+cases: six layout boundary/control cases, three pointer capture/bubble routes
+and propagation stops, and four focus-switch/blur/key-up/propagation cases.
+The original and native corpora remain unchanged. Use `run.py --scenarios
+boundary_scenarios.json` with an explicit `--candidate-revision` for this batch.
+See [BOUNDARY_RESULTS.md](BOUNDARY_RESULTS.md) for exact before/after revisions,
+fresh execution evidence, regression checks and limitations.
+
+The bounded route/focus contract retains every listener callback in execution
+order, including its element ID and phase. Empty no-hit/blur steps are allowed
+inside a case containing observed callbacks; an entirely empty case cannot
+establish a pass. Portable CI checks contracts/indexes without framework execution.
+
 ## Result contract
 
 `comparison.json` has one row per shared scenario with `pass`, `mismatch`,
