@@ -25,26 +25,53 @@ def validate_scenarios(scenarios):
             if not numbers([s.get("width"), s.get("height")], 2) or not (0 < s["width"] <= 4096 and 0 < s["height"] <= 4096):
                 raise ValueError("invalid bounded viewport")
         if kind in ("layout", "scene", "pointer", "key", "route", "focus"):
-            if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or len(s.get("children", [])) != 2 or any(not numbers(c, 2, True) or max(c) > 4096 for c in s["children"]):
-                raise ValueError("first slice requires two bounded children and nonnegative gap")
+            children = s.get("children", [])
+            child_count = len(children) if isinstance(children, list) else 0
+            allowed_counts = (2, 3) if kind in ("layout", "pointer") else (2,)
+            if kind == "layout":
+                direction = s.get("direction", "row")
+                main_index = 1 if direction == "column" else 0
+                valid_children = all(
+                    isinstance(c, list) and len(c) == 2 and c[main_index] is not None
+                    and all(x is None or type(x) in (int, float) and math.isfinite(x) and 0 <= x <= 4096 for x in c)
+                    for c in children
+                )
+            else:
+                valid_children = all(numbers(c, 2, True) and max(c) <= 4096 for c in children)
+            if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or child_count not in allowed_counts or not valid_children:
+                raise ValueError("first slice requires two or three bounded layout/pointer children and nonnegative gap")
         if kind == "layout":
-            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end"):
+            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
                 raise ValueError("unknown layout direction/alignment")
-            for field, default in (("grow", [0, 0]), ("shrink", [1, 1])):
-                if not numbers(s.get(field, default), 2, True) or max(s.get(field, default)) > 16:
+            if s.get("layout_observation", "bounds") not in ("bounds", "line_origins"):
+                raise ValueError("unknown bounded layout observation")
+            if s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse"):
+                raise ValueError("unknown bounded flex wrapping mode")
+            child_count = len(s["children"])
+            for field, default in (("grow", [0] * child_count), ("shrink", [1] * child_count)):
+                if not numbers(s.get(field, default), child_count, True) or max(s.get(field, default)) > 16:
                     raise ValueError("invalid bounded flex factors")
-            minima = s.get("min_main", [0, 0])
-            maxima = s.get("max_main", [None, None])
-            if not numbers(minima, 2, True) or max(minima) > 4096:
+            minima = s.get("min_main", [0] * child_count)
+            maxima = s.get("max_main", [None] * child_count)
+            if not numbers(minima, child_count, True) or max(minima) > 4096:
                 raise ValueError("invalid bounded main-axis minima")
-            if not isinstance(maxima, list) or len(maxima) != 2 or any(
+            if not isinstance(maxima, list) or len(maxima) != child_count or any(
                 x is not None and (type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 4096)
                 for x in maxima
             ) or any(limit is not None and minimum > limit for minimum, limit in zip(minima, maxima)):
                 raise ValueError("invalid bounded main-axis maxima")
-        elif "min_main" in s or "max_main" in s:
-            raise ValueError("main-axis limit fields require a layout scenario")
-        if kind == "pointer" and (not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
+            cross_minima = s.get("min_cross", [0] * child_count)
+            cross_maxima = s.get("max_cross", [None] * child_count)
+            if not numbers(cross_minima, child_count, True) or max(cross_minima) > 4096:
+                raise ValueError("invalid bounded cross-axis minima")
+            if not isinstance(cross_maxima, list) or len(cross_maxima) != child_count or any(
+                x is not None and (type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 4096)
+                for x in cross_maxima
+            ) or any(limit is not None and minimum > limit for minimum, limit in zip(cross_minima, cross_maxima)):
+                raise ValueError("invalid bounded cross-axis maxima")
+        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation")):
+            raise ValueError("layout-specific fields require a layout scenario")
+        if kind == "pointer" and (s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse") or not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
         if kind == "key" and (not s.get("keys") or any(not isinstance(k, list) or len(k) != 6 or not isinstance(k[0], str) or len(k[0]) != 1 or any(type(x) is not bool for x in k[1:]) for k in s["keys"])):
             raise ValueError("invalid key samples")
@@ -96,9 +123,12 @@ def valid_observation(s, observation):
         steps = observation.get("steps")
         return observation.keys() == {"steps"} and isinstance(steps, list) and len(steps) == len(s["focuses"]) and all(isinstance(v, dict) and v.keys() == {"focused", "events"} and (v["focused"] is None or type(v["focused"]) is int and v["focused"] in (1, 2, 3)) and valid_event_trace(v["events"]) for v in steps) and any(v["events"] for v in steps)
     if kind == "layout":
-        return observation.keys() == {"bounds"} and isinstance(observation["bounds"], list) and len(observation["bounds"]) == 3 and all(numbers(r, 4) for r in observation["bounds"])
+        if s.get("layout_observation", "bounds") == "line_origins":
+            origins = observation.get("line_origins")
+            return observation.keys() == {"line_origins"} and numbers(origins, len(s["children"]))
+        return observation.keys() == {"bounds"} and isinstance(observation["bounds"], list) and len(observation["bounds"]) == len(s["children"]) + 1 and all(numbers(r, 4) for r in observation["bounds"])
     if kind == "pointer":
-        return observation.keys() == {"targets"} and isinstance(observation["targets"], list) and len(observation["targets"]) == len(s["points"]) and all(x is None or type(x) is int and x in (2, 3) for x in observation["targets"])
+        return observation.keys() == {"targets"} and isinstance(observation["targets"], list) and len(observation["targets"]) == len(s["points"]) and all(x is None or type(x) is int and 2 <= x < len(s["children"]) + 2 for x in observation["targets"])
     if kind == "scene":
         return observation.keys() == {"quads"} and isinstance(observation["quads"], list) and 0 < len(observation["quads"]) <= 32 and all(isinstance(q, dict) and q.keys() == {"bounds", "rgba"} and numbers(q["bounds"], 4) and numbers(q["rgba"], 4) and all(type(x) is int and 0 <= x <= 255 for x in q["rgba"]) for q in observation["quads"])
     if kind == "key":

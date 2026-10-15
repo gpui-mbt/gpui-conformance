@@ -39,6 +39,22 @@ fn number(value : Json) -> Double {
 }
 
 ///|
+fn dimension(value : Json) -> @layout.Dimension {
+  match value {
+    Null => @layout.Dimension::auto()
+    _ => checked(@layout.Dimension::points(number(value)))
+  }
+}
+
+///|
+fn dimension_fallback(value : Json) -> Double {
+  match value {
+    Null => 0.0
+    _ => number(value)
+  }
+}
+
+///|
 fn string(value : Json) -> String {
   match value {
     String(value) => value
@@ -98,10 +114,17 @@ fn tree(s : Json) -> @element.Prepainted {
   let align = match optional(s, "align") {
     Some(String("center")) => @layout.AlignItems::center()
     Some(String("end")) => @layout.AlignItems::end()
+    Some(String("stretch")) => @layout.AlignItems::stretch()
     _ => @layout.AlignItems::start()
+  }
+  let wrap = match optional(s, "wrap") {
+    Some(String("wrap")) => @layout.FlexWrap::wrap()
+    Some(String("wrap_reverse")) => @layout.FlexWrap::wrap_reverse()
+    _ => @layout.FlexWrap::no_wrap()
   }
   let style = checked(
     @layout.FlexTreeStyle::new(direction)
+    .with_wrap(wrap)
     .with_justify(justify)
     .with_align(align)
     .with_gap(number(field(s, "gap"))),
@@ -109,28 +132,12 @@ fn tree(s : Json) -> @element.Prepainted {
   let mut root = @element.Element::root(1, style).with_focusable(true)
   for i, child in array(field(s, "children")) {
     let dimensions = array(child)
-    let width = number(dimensions[0])
-    let height = number(dimensions[1])
+    let width = dimension_fallback(dimensions[0])
+    let height = dimension_fallback(dimensions[1])
     let item = @layout.FlexItem::new(
       (i + 2).to_uint64(),
-      checked(
-        @layout.Dimension::points(
-          if direction is @layout.Column {
-            height
-          } else {
-            width
-          },
-        ),
-      ),
-      checked(
-        @layout.Dimension::points(
-          if direction is @layout.Column {
-            width
-          } else {
-            height
-          },
-        ),
-      ),
+      if direction is @layout.Column { dimension(dimensions[1]) } else { dimension(dimensions[0]) },
+      if direction is @layout.Column { dimension(dimensions[0]) } else { dimension(dimensions[1]) },
       checked(@primitives.Size::new(width, height)),
     )
     let item = checked(
@@ -152,6 +159,22 @@ fn tree(s : Json) -> @element.Prepainted {
           None => 0.0
         },
         match optional(s, "max_main") {
+          Some(value) =>
+            match array(value)[i] {
+              Null => None
+              limit => Some(number(limit))
+            }
+          None => None
+        },
+      ),
+    )
+    let item = checked(
+      item.with_cross_limits(
+        match optional(s, "min_cross") {
+          Some(value) => number(array(value)[i])
+          None => 0.0
+        },
+        match optional(s, "max_cross") {
           Some(value) =>
             match array(value)[i] {
               Null => None
@@ -261,12 +284,50 @@ fn observe(s : Json) -> Json {
       // Execute the complete request-layout/prepaint/paint-snapshot path.
       ignore(checked(painted.paint_snapshot(1)))
       let output = painted.tree().nodes().map(node => bounds(node.bounds()))
+      let line_origins = optional(s, "layout_observation") == Some(
+        @json.to_json("line_origins"),
+      )
       if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
-        let first = array(output[1])
-        first[2] = @json.to_json(number(first[2]) + 1)
-        output[1] = Json::array(first)
+        if line_origins {
+          // Perturb the second child's cross-axis origin: for the decimal
+          // fixtures this simulates a wrong wrap line assignment.
+          let child_index = if output.length() > 2 { 2 } else { 1 }
+          let second = array(output[child_index])
+          let cross_axis = if optional(s, "direction") == Some(
+            @json.to_json("column"),
+          ) {
+            0
+          } else {
+            1
+          }
+          second[cross_axis] = @json.to_json(number(second[cross_axis]) + 1)
+          output[child_index] = Json::array(second)
+        } else {
+          let first = array(output[1])
+          first[2] = @json.to_json(number(first[2]) + 1)
+          output[1] = Json::array(first)
+        }
       }
-      row["observation"] = object([("bounds", @json.to_json(output))])
+      if line_origins {
+        let cross_axis = if optional(s, "direction") == Some(
+          @json.to_json("column"),
+        ) {
+          0
+        } else {
+          1
+        }
+        let origins : Array[Json] = []
+        let mut index = 0
+        for child_bounds in output {
+          if index > 0 {
+            origins.push(array(child_bounds)[cross_axis])
+          }
+          index = index + 1
+        }
+        row["observation"] = object([("line_origins", @json.to_json(origins))])
+      } else {
+        row["observation"] = object([("bounds", @json.to_json(output))])
+      }
     }
     "pointer" => {
       let element_tree = tree(s).tree()

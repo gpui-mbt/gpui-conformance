@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "wrap-minmax-break-and-line-growth",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 50,
+      "height": 40,
+      "gap": 2,
+      "children": [[20, 10], [20, 10], [20, 10]],
+      "grow": [1, 1, 1],
+      "shrink": [0, 0, 0],
+      "min_main": [40, 0, 0],
+      "max_main": [null, 23, null],
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-reverse-center-cross-alignment",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 30,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "shrink": [0, 0],
+      "align": "center",
+      "wrap": "wrap_reverse"
+    },
+    {
+      "id": "nowrap-explicit-regression",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 30,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "shrink": [0, 0],
+      "wrap": "nowrap"
+    },
+    {
+      "id": "wrap-pointer-cross-gap",
+      "kind": "pointer",
+      "layer": "headless-dispatch",
+      "width": 60,
+      "height": 30,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "wrap": "wrap",
+      "points": [[5, 17], [5, 15], [5, 5]]
+    },
+    {
+      "id": "wrap-reverse-pointer-cross-gap",
+      "kind": "pointer",
+      "layer": "headless-dispatch",
+      "width": 60,
+      "height": 30,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "wrap": "wrap_reverse",
+      "points": [[5, 5], [5, 15], [5, 23]]
+    },
+    {
+      "id": "wrap-cross-overflow-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 15,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "shrink": [0, 0],
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-reverse-cross-overflow-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 15,
+      "gap": 2,
+      "children": [[40, 10], [40, 10]],
+      "shrink": [0, 0],
+      "wrap": "wrap_reverse"
+    },
+    {
+      "id": "wrap-reverse-column-cross-axis",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 30,
+      "height": 60,
+      "gap": 2,
+      "children": [[10, 40], [10, 40]],
+      "shrink": [0, 0],
+      "wrap": "wrap_reverse"
+    },
+    {
+      "id": "wrap-auto-cross-stretch-minimum",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 30,
+      "gap": 2,
+      "children": [[40, null], [40, 10]],
+      "shrink": [0, 0],
+      "min_cross": [12, 0],
+      "align": "stretch",
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-oversize-singleton-shrink",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 50,
+      "height": 22,
+      "gap": 2,
+      "children": [[20, 10], [70, 10]],
+      "shrink": [0, 1],
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-decimal-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100.3,
+      "height": 20,
+      "gap": 0,
+      "children": [[50.1, 10], [50.2, 10]],
+      "shrink": [0, 0],
+      "layout_observation": "line_origins",
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-decimal-overflow-above-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100.3,
+      "height": 20,
+      "gap": 0,
+      "children": [[50.1, 10], [50.8, 10]],
+      "shrink": [0, 0],
+      "layout_observation": "line_origins",
+      "wrap": "wrap"
+    }
+  ]
+}

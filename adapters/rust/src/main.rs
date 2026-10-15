@@ -53,6 +53,11 @@ impl Render for View {
                     event.is_held
                 ]));
             });
+        root = match self.scenario["wrap"].as_str().unwrap_or("nowrap") {
+            "wrap" => root.flex_wrap(),
+            "wrap_reverse" => root.flex_wrap_reverse(),
+            _ => root.flex_nowrap(),
+        };
         if self.scenario["direction"] == "column" {
             root = root.flex_col();
         }
@@ -64,6 +69,7 @@ impl Render for View {
         root = match self.scenario["align"].as_str().unwrap_or("start") {
             "center" => root.items_center(),
             "end" => root.items_end(),
+            "stretch" => root.items_stretch(),
             _ => root.items_start(),
         };
         for (i, dimensions) in self.scenario["children"]
@@ -73,11 +79,10 @@ impl Render for View {
             .enumerate()
         {
             let trace = self.trace.clone();
+            let selector = ["a", "b", "c"][i];
             let mut child = div()
                 .id(i + 2)
-                .debug_selector(move || if i == 0 { "a" } else { "b" }.into())
-                .w(px(n(&dimensions[0])))
-                .h(px(n(&dimensions[1])))
+                .debug_selector(move || selector.into())
                 .min_w(px(0.))
                 .flex_grow(self.scenario["grow"].get(i).map(n).unwrap_or(0.))
                 .flex_shrink(self.scenario["shrink"].get(i).map(n).unwrap_or(1.))
@@ -86,6 +91,12 @@ impl Render for View {
                 .on_mouse_down(MouseButton::Left, move |_, _, _| {
                     trace.borrow_mut().push(json!(i + 2))
                 });
+            if let Some(width) = dimensions[0].as_f64() {
+                child = child.w(px(width as f32));
+            }
+            if let Some(height) = dimensions[1].as_f64() {
+                child = child.h(px(height as f32));
+            }
             let minimum = self.scenario["min_main"].get(i).map(n).unwrap_or(0.);
             let maximum = self.scenario["max_main"]
                 .get(i)
@@ -96,10 +107,26 @@ impl Render for View {
                 if let Some(limit) = maximum {
                     child = child.max_h(px(limit));
                 }
+                child = child.min_w(px(self.scenario["min_cross"].get(i).map(n).unwrap_or(0.)));
+                if let Some(limit) = self.scenario["max_cross"]
+                    .get(i)
+                    .filter(|v| !v.is_null())
+                    .map(n)
+                {
+                    child = child.max_w(px(limit));
+                }
             } else {
                 child = child.min_w(px(minimum));
                 if let Some(limit) = maximum {
                     child = child.max_w(px(limit));
+                }
+                child = child.min_h(px(self.scenario["min_cross"].get(i).map(n).unwrap_or(0.)));
+                if let Some(limit) = self.scenario["max_cross"]
+                    .get(i)
+                    .filter(|v| !v.is_null())
+                    .map(n)
+                {
+                    child = child.max_h(px(limit));
                 }
             }
             root = root.child(child);
@@ -162,11 +189,31 @@ fn observe(s: &Value) -> Value {
             result["observation"] = json!({"quads":quads});
         }
         "layout" => {
-            let observed: Vec<_> = ["root", "a", "b"]
-                .iter()
+            let selectors = ["a", "b", "c"];
+            let observed: Vec<_> = std::iter::once("root")
+                .chain(
+                    selectors
+                        .iter()
+                        .take(s["children"].as_array().unwrap().len())
+                        .copied(),
+                )
                 .map(|selector| bounds(cx.debug_bounds(selector).expect("drawn selector")))
                 .collect();
-            result["observation"] = json!({"bounds":observed});
+            if s["layout_observation"] == "line_origins" {
+                // Decimal fixtures opt into a narrower projection because GPUI's
+                // TestApp snaps Pixels to its physical grid. This records each
+                // child's cross-axis line origin while ordinary cases compare
+                // the complete root and child rectangles.
+                let cross_axis = if s["direction"] == "column" { 0 } else { 1 };
+                let line_origins: Vec<_> = observed
+                    .iter()
+                    .skip(1)
+                    .map(|child| child[cross_axis].clone())
+                    .collect();
+                result["observation"] = json!({"line_origins":line_origins});
+            } else {
+                result["observation"] = json!({"bounds":observed});
+            }
         }
         "pointer" => {
             let mut hits = Vec::new();
