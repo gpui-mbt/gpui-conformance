@@ -117,6 +117,28 @@
       "children": [[20, 10], [70, 10]],
       "shrink": [0, 1],
       "wrap": "wrap"
+    },
+    {
+      "id": "wrap-decimal-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100.3,
+      "height": 20,
+      "gap": 0,
+      "children": [[50.1, 10], [50.2, 10]],
+      "shrink": [0, 0],
+      "wrap": "wrap"
+    },
+    {
+      "id": "wrap-decimal-overflow-above-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100.3,
+      "height": 20,
+      "gap": 0,
+      "children": [[50.1, 10], [50.2001, 10]],
+      "shrink": [0, 0],
+      "wrap": "wrap"
     }
   ]
 }
