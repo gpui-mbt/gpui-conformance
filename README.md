@@ -127,6 +127,14 @@ They do not rerun either implementation or qualify native conformance. The
 real-evidence adversarial commands above require the entire retained result
 directories and remain a separate validation step.
 
+### Linux headless oracle run
+
+The retained Linux x86_64 run on gpui.mbt `71da96d9` measured 101 headless
+passes with no mismatches. IME remains unsupported and native window/GPU rows
+remain unverified; this is not Linux native-GUI qualification. Exact pins,
+summary, evidence-checker commands and reproduction command are recorded in
+[the Linux results note](LINUX_HEADLESS_RESULTS_20261015.md).
+
 For a separately committed gpui.mbt fix, pass its checkout and full immutable
 SHA with `--candidate-revision`. The result retains both candidate and baseline
 revisions; the suite pin remains the baseline. Existing output directories are
