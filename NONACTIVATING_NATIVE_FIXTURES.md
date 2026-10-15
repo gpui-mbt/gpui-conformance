@@ -18,7 +18,7 @@ Historical evidence without this protocol retains its original classification.
 The runner builds both probes before launching either, gives each child a
 fresh challenge, and kills only that owned child after 15 seconds. It does not
 restore or activate another application. A failed native operation reports its
-framework code, operation and backend in the retained stderr. Build-only and
+framework code, operation and backend in the retained process output. Build-only and
 failed/timeout runs remain unverified.
 
 This is internal AppKit/Metal execution evidence. It does not establish
