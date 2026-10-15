@@ -18,7 +18,7 @@ from run import prepare_moonbit
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -33,6 +33,13 @@ class PortableContractTests(unittest.TestCase):
         for value in ([True, .25], [math.nan, .25], [math.inf, .25], [-1e-9, .25], [16.0001, 0], [.25]):
             corpus = load_json(ROOT / "fractional_grow_scenarios.json")
             corpus["cases"][0]["grow"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_scenarios(corpus)
+
+    def test_fractional_shrink_factors_require_finite_bounded_numbers(self):
+        for value in ([True, .25], [math.nan, .25], [math.inf, .25], [-1e-9, .25], [16.0001, 0], [.25]):
+            corpus = load_json(ROOT / "fractional_shrink_scenarios.json")
+            corpus["cases"][0]["shrink"] = value
             with self.subTest(value=value), self.assertRaises(ValueError):
                 validate_scenarios(corpus)
 
@@ -103,7 +110,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():
