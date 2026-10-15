@@ -90,7 +90,10 @@ unverified items and exact screenshot pixel differences. A missing Rust
 bundle fails `--require-rust`; one candidate screenshot cannot pass a pair.
 `difference-x4.png` visualizes exact RGB differences at four times brightness.
 Differences are measured without tolerance or masking and are never promoted
-to native conformance. Text shaping, border dash phase, shadows, other
+to native conformance. Captures are integer-coordinate 500×500 browser page
+regions, without image rescaling; raw canvas bounds, clip coordinates and
+equal fractional offsets are recorded. They are not intrinsic canvas readbacks.
+Text shaping, border dash phase, shadows, other
 examples, IME, hardware GPU browsers and native parity remain separate work.
 
 ## Cloudflare hosting and existing GitHub Pages

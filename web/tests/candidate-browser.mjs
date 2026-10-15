@@ -27,10 +27,13 @@ const server = createServer(async (request, response) => {
 await new Promise(done => server.listen(0, '127.0.0.1', done));
 let browser;
 const report = { overall: 'failed', candidate: 'failed', rust: 'not_run', comparison: 'unverified', verified: [], unverified: ['native parity', 'text shaping and rasterization', 'application event handling', 'IME and interactive examples'], operations: [], errors: [], console: [], requests: [] };
+report.build = manifest;
+report.environment = {platform: process.platform, arch: process.arch, node: process.version, graphics: 'Chromium with SwiftShader requested; raw backend logs retained'};
 let page;
 try {
   assert(!required || paired, 'Required Rust bundle is missing');
   browser = await chromium.launch({ headless: true, args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+  report.environment.browser = await browser.version();
   page = await browser.newPage({ viewport: { width: 1400, height: 950 }, deviceScaleFactor: 1 });
   const errors = report.errors; page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => report.console.push({type: message.type(), text: message.text()}));
@@ -63,9 +66,18 @@ try {
   assert.equal(swatches.length, 6);
   assert.equal(swatches[0].bounds.x, 134); assert.equal(swatches[0].bounds.y, 256);
   assert.equal(swatches[5].bounds.x, 334);
-  assert.deepEqual(swatches.map(s => [s.color.red,s.color.green,s.color.blue]), [[255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,0,0],[255,255,255]]);
+  assert.deepEqual(swatches.map(s => [s.color.red,s.color.green,s.color.blue]), [[255,0,0],[0,128,0],[0,0,255],[255,255,0],[0,0,0],[255,255,255]]);
   await writeFile(join(evidence, 'moonbit-scene.json'), JSON.stringify(frame, null, 2));
-  await moon.locator('canvas').screenshot({ path: join(evidence, 'moonbit.png') });
+  async function captureCanvas(locator, side) {
+    await locator.scrollIntoViewIfNeeded();
+    const bounds = await locator.boundingBox();
+    assert.equal(bounds.width, 500); assert.equal(bounds.height, 500);
+    const clip = {x: Math.ceil(bounds.x), y: Math.ceil(bounds.y), width: 500, height: 500};
+    report.captures ||= {};
+    report.captures[side] = {bounds, clip, method:'integer CSS pixel page clip; no rescaling or masking'};
+    return page.screenshot({clip});
+  }
+  await writeFile(join(evidence, 'moonbit.png'), await captureCanvas(moon.locator('canvas'), 'moonbit'));
   report.candidate = 'passed';
   if (paired) {
     report.rust = 'failed';
@@ -77,13 +89,13 @@ try {
     }
     const rust = page.frameLocator('#rust-frame');
     assert.equal(await rust.locator('html').evaluate(() => crossOriginIsolated), true);
-    const probes = [[150,272,255,0,0], [190,272,0,255,0], [230,272,0,0,255], [270,272,255,255,0], [310,272,0,0,0], [350,272,255,255,255]];
-    async function inspectCanvas(locator) {
-      const buffer = await locator.screenshot();
+    const probes = [[150,272,255,0,0], [190,272,0,128,0], [230,272,0,0,255], [270,272,255,255,0], [310,272,0,0,0], [350,272,255,255,255]];
+    async function inspectCanvas(locator, side) {
+      const buffer = await captureCanvas(locator, side);
       const pixels = await page.evaluate(async ({url, probes}) => {
         const image = new Image(); image.src = url; await image.decode();
         const canvas = document.createElement('canvas'); canvas.width = 500; canvas.height = 500;
-        const context = canvas.getContext('2d'); context.drawImage(image, 0, 0);
+        const context = canvas.getContext('2d', {willReadFrequently:true}); context.drawImage(image, 0, 0);
         return probes.map(([x,y]) => [...context.getImageData(x,y,1,1).data].slice(0,3));
       }, {url: 'data:image/png;base64,' + buffer.toString('base64'), probes});
       return {buffer, pixels};
@@ -92,12 +104,19 @@ try {
     let observed;
     const deadline = Date.now() + 30000;
     do {
-      observed = await inspectCanvas(rust.locator('canvas'));
+      observed = await inspectCanvas(rust.locator('canvas'), 'rust');
       if (JSON.stringify(observed.pixels) === JSON.stringify(expected)) break;
       await page.waitForTimeout(200);
     } while (Date.now() < deadline);
     await writeFile(join(evidence, 'rust.png'), observed.buffer);
-    report.probes = {coordinates: probes.map(p => p.slice(0,2)), expected, rust: observed.pixels, moonbit: (await inspectCanvas(moon.locator('canvas'))).pixels};
+    report.probes = {coordinates: probes.map(p => p.slice(0,2)), expected, rust: observed.pixels, moonbit: (await inspectCanvas(moon.locator('canvas'), 'moonbit')).pixels};
+    const offsets = Object.fromEntries(['rust','moonbit'].map(side => [side, {
+      x: report.captures[side].clip.x - report.captures[side].bounds.x,
+      y: report.captures[side].clip.y - report.captures[side].bounds.y,
+    }]));
+    assert(Math.abs(offsets.rust.x - offsets.moonbit.x) < 1e-7);
+    assert(Math.abs(offsets.rust.y - offsets.moonbit.y) < 1e-7);
+    report.capture_alignment = {offsets, equal_fractional_offsets: true};
     assert.deepEqual(report.probes.rust, expected, 'Real Rust canvas must render all six color probes');
     assert.deepEqual(report.probes.moonbit, expected);
     assert(report.requests.some(r => r.url.includes('/rust/') && r.url.endsWith('.wasm') && r.status === 200), 'Actual WASM response required');
@@ -108,7 +127,7 @@ try {
       assert(events.some(e => e.type === 'click' && e.trusted));
       assert(events.some(e => e.type === 'keydown' && e.key === 'Enter' && e.trusted));
       await writeFile(join(evidence, side + '-browser-events.json'), JSON.stringify(events, null, 2));
-      assert.deepEqual((await inspectCanvas(pane.locator('canvas'))).pixels, expected);
+      assert.deepEqual((await inspectCanvas(pane.locator('canvas'), side)).pixels, expected);
       report.operations.push({side, action:'pointer click then Enter', delivery:'passed', color_probes_after:'passed', application_handling:'not_applicable_static_example'});
     }
     report.rust = 'passed';
