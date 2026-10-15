@@ -53,7 +53,7 @@ With the documented toolchains/environment configured, reproduce a fresh run:
 
 ```sh
 python3 run.py --upstream-source ../zed-source --moonbit-source ../gpui-gap-fix \
-  --candidate-revision 5db9dbee4d688141ac6e47097af1230191e07db4 \
+  --candidate-revision 9fb1f278789da554975bfe388dfcf58c3e0e9287 \
   --scenarios gap_budget_scenarios.json --output _build/gap-reproduction
 ```
 
