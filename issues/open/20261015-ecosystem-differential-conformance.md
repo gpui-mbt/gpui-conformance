@@ -15,6 +15,12 @@ Parent: [ecosystem方針・共通マージ基準](https://github.com/gpui-mbt/gp
 
 既存の`pass / mismatch / unsupported / unverified`と終了コードを維持する。概念上のPASS/FAIL等へ表示変換する場合も元の分類を保存し、fixtureや既存結果を無断で改名・上書きしない。
 
+### 既存Linux headless結果（PR #13）
+
+[PR #13](https://github.com/gpui-mbt/gpui-conformance/pull/13) は [merge commit `cdd3cdadf605346ed2b90a59d461697582b8751c`](https://github.com/gpui-mbt/gpui-conformance/commit/cdd3cdadf605346ed2b90a59d461697582b8751c) で取り込まれました。候補gpui.mbt `71da96d9f8eaed89f42937d4edcd3eb2122cfb54` と固定GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` のLinux比較は **101 pass / 0 mismatch / 1 unsupported / 2 unverified** です。101件はすべてheadless計測で、IMEはunsupported、native window/GPUはunverifiedです。Linux native window/GPUの適合を示すものではありません。
+
+PRの検証記録ではcontract suite 52 tests、original 11-case evidence checker 38 tests、expanded-corpus evidence checker 38 testsがpassしました。生の証拠directory二つとcombined scenario corpusはlocal-onlyであり、[結果ノート](https://github.com/gpui-mbt/gpui-conformance/blob/218b8d387080564970ac696e8862e899f3e14dfc/LINUX_HEADLESS_RESULTS_20261015.md)と記載コマンドだけでは完全な再実行bundleになりません。
+
 ## 3. 境界と受け渡し
 
 1. gpui.mbtがengine修正を所有し、本repoがfixture・adapter・比較規則・実行証拠を所有する。差分だけが消えるようにoracle側を書き換えない。
