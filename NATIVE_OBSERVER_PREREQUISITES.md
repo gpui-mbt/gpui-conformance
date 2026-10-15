@@ -5,31 +5,37 @@ Accessibility permission, physical input, browser launch or model credentials.
 It evaluates the exact previously recorded revisions. It does not qualify a
 live external observer or any current native candidate.
 
-## Current barriers
+## Qualified fixture increment
 
-- The Rust fixture uses `show: false`, renders offscreen and closes quickly.
-  An external observer cannot reliably attach after process discovery.
-- The current MoonBit fixture requires the distinct background-host operation
-  and leaves its window hidden. Its qualified candidate no longer activates
-  or restores another app; see [the native results](NONACTIVATING_NATIVE_RESULTS.md).
-  Older foreground-host historical results retain their original classification.
-- The two fixtures do not yet publish a shared observer-ready handshake or
-  retain a window until an owned observer acknowledges completion.
-- No macOS AX collector, window ownership binding, trust check or post-action
-  native state proof is qualified by this batch. Physical input remains
-  unqualified; the separate physical-input PR stays Draft.
+Both fixtures default to hidden accessory windows. Explicit `--observe-visible`
+orders only the owned window behind others after completed GPU readback, then
+publishes a nonce/PID/start/executable/window/frame record and holds it for at
+most five seconds. Actual WindowServer ownership bindings, ready/ack chains
+and invalid-identity controls passed on both implementations. See
+[the protocol](OBSERVER_READY_PROTOCOL.md) and
+[actual results](OBSERVER_READY_RESULTS.md). Historical classifications are unchanged.
+
+## Remaining barriers
+
+The actual observer has AX trust without requesting permission. On this host,
+both fixtures' `AXWindows` entries reported `AXApplication` with title `probe`,
+not a nonce-matching `AXWindow`; AX calls reported no error. The collector
+correctly rejects that association. Its underlying cause is undetermined.
+External AX window matching, semantic nodes, post-action native state and
+physical input remain unverified. No screenshot/content-rectangle transform is
+qualified; WindowServer outer bounds alone do not establish one.
 
 ## Required fixture lifecycle
 
-A separate reviewed fixture increment should expose an explicit observer mode.
-The default headless/build-only behavior remains available. In a coordinated
-session the fixture creates only its own window and emits a nonce-bound ready
+The reviewed fixture increment exposes an explicit observer mode.
+The default hidden/build-only behavior remains available. The fixture creates
+only its own window and emits a nonce-bound ready
 record after its first completed frame. The record must bind executable hash,
 PID, process start identity, native window identifier, content size, scale,
 source revision, scene revision and frame sequence. The owned window remains
 alive for a bounded acknowledgment interval. Completion and timeout close only
 that fixture's window/process and never target another app by title or frontmost
-status. User focus changes take precedence over restoration attempts.
+status. The runner never restores or activates another app.
 
 ## Required observer and action binding
 

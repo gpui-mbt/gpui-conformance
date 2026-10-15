@@ -21,10 +21,11 @@ restore or activate another application. A failed native operation reports its
 framework code, operation and backend in the retained process output. Build-only and
 failed/timeout runs remain unverified.
 
-This is internal AppKit/Metal execution evidence. It does not establish
+This default mode is internal AppKit/Metal execution evidence. It does not establish
 accessibility, WindowServer observation, physical input delivery or visible
 desktop behavior. No permission prompt, security-setting change, external
-window capture or input injection is part of this protocol.
+window capture or input injection is part of this protocol. The separate explicit
+`--observe-visible` mode is described in [OBSERVER_READY_PROTOCOL.md](OBSERVER_READY_PROTOCOL.md).
 
 Run with a committed engine revision that provides background startup:
 

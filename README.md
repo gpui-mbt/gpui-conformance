@@ -104,7 +104,10 @@ Fresh native executions at merged suite `316a62d3` and merged gpui.mbt
 `24bf42ca` are recorded in [MERGED_NATIVE_RESULTS.md](MERGED_NATIVE_RESULTS.md).
 The separately qualified nonactivating candidate and real GPU divergence control
 are recorded in [NONACTIVATING_NATIVE_RESULTS.md](NONACTIVATING_NATIVE_RESULTS.md).
-Visible observation, external AX and physical input remain unverified.
+An explicit bounded `--observe-visible` mode now qualifies owned WindowServer
+identity and ready/ack lifecycle; see [its actual results](OBSERVER_READY_RESULTS.md).
+External AX window matching, semantic behavior, physical input and screenshot
+content binding remain unverified.
 
 ### Portable CI checks
 
