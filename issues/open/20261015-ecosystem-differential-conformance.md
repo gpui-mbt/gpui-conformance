@@ -21,6 +21,8 @@ Parent: [ecosystem方針・共通マージ基準](https://github.com/gpui-mbt/gp
 
 PRの検証記録ではcontract suite 52 tests、original 11-case evidence checker 38 tests、expanded-corpus evidence checker 38 testsがpassしました。生の証拠directory二つとcombined scenario corpusはlocal-onlyであり、[結果ノート](https://github.com/gpui-mbt/gpui-conformance/blob/218b8d387080564970ac696e8862e899f3e14dfc/LINUX_HEADLESS_RESULTS_20261015.md)と記載コマンドだけでは完全な再実行bundleになりません。
 
+[補足コメント](https://github.com/gpui-mbt/gpui-conformance/pull/14#issuecomment-6189651217)を踏まえ、次の作業は既存headless結果の再実装ではなく、証拠bundleの保持・再検証と、native window/GPU・実IMEの別レーンでの検証とする。歴史的な実行報告を削除しない一方、raw artifactを取得できない状態を第三者による再検証済みへ昇格させない。契約検査の件数は両実装の実行ケース数へ足さない。
+
 ## 3. 境界と受け渡し
 
 1. gpui.mbtがengine修正を所有し、本repoがfixture・adapter・比較規則・実行証拠を所有する。差分だけが消えるようにoracle側を書き換えない。
@@ -35,6 +37,7 @@ PRの検証記録ではcontract suite 52 tests、original 11-case evidence check
 2. **headless回帰**：layout、clip、pointer routing、focusの既存fixtureを土台に、アプリ由来の最小反例と境界条件を追加する。同じ入力を両adapterへ渡し、期待値をそのまま返すstubを認めない。
 3. **native profile**：macOS Apple Siliconを優先し、LinuxはWayland/X11など実際のprofile単位で扱う。Windowsは独立profile。window lifecycle、frame、実入力、IME、accessibilityを別々に記録する。未対応OS／観測層は未対応・未検証のまま表示する。
 4. **consumerとの連動**：gpui.mbtの候補SHAを明示して実行し、結果を該当PRへ関連付ける。missing case、artifact欠損、古いSHA、未完了processを検査し、過去結果による誤ったGreenを防ぐ。
+5. **移送可能な証拠bundle**：既存の二つのraw evidence directoryとcombined corpusを、manifestから解決できる単位として保持する。正確なscenario入力・生成手順、suite/reference/candidate SHA、toolchain/lock、実行コマンド、build/stdout/stderr、観測・readback、比較器が必要とするartifactとhashを揃える。永続保存先・保持条件・取得と検証の手順を記録し、local pathや期限切れartifactだけに依存しない。再配布条件を確認し、認証情報・ユーザーデータを含めない。
 
 ## 5. 受入条件
 
@@ -46,13 +49,16 @@ PRの検証記録ではcontract suite 52 tests、original 11-case evidence check
 | negative control | 意図したgeometry／色の差を確実にmismatchへする | 閾値変更で差を隠す |
 | 証拠改変・再利用 | 異なるSHA、欠損・改変artifact、空trace、timeoutを拒否する | 未実行をpassへ集計する |
 | ユーザー画面の安全 | owned fixtureのみを起動・終了し、許可した観測範囲に限定する | 他windowへ入力、強制activate、任意process kill |
+| bundleの移送 | 元のlocal directoryがない別環境で取得・hash検査・既存比較器による再判定ができる | 結果ノートや集計JSONのみ、欠損corpus、期限切れartifact |
 
 明示していない大きな範囲を互換と呼ばない。比較できない環境は`unverified`、仕様上の対象外は理由付き`unsupported`とし、必要なケースが未検証なら受入を保留する。reference実装自体の不具合の可能性も、観測事実と推測を分けて報告する。
+
+bundleを用いた過去証拠の再判定と、固定sourceから両実装を再build・再実行する検証を分ける。再実行には新しいrun IDと新規output directoryを使い、元の証拠を上書きしない。corpus欠損・hash不一致・取得不能をnegative testで拒否する。必要なnative profileやIME実行を準備できない場合も、headless成功は保持しつつ当該レーンを未検証のまま残す。
 
 ## 6. 検証方法
 
 既存portable契約検査：`python3 -m unittest discover -s tests -p 'test_portable_contracts.py'`。
-両実装比較・native・negative controlはREADMEの実コマンドに、固定sourceと新規output directoryを指定して実行する。実行後にコマンド・対象SHA・profile・PASS/FAIL/未実行と理由を記録する。上記は実装時の検証計画であり、この文書追加で実行済みとはしない。
+両実装比較・native・negative controlはREADMEの実コマンドに、固定sourceと新規output directoryを指定して実行する。実行後にコマンド・対象SHA・profile・PASS/FAIL/未実行と理由を記録する。上記は実装時の検証計画であり、この文書更新で新たなframework実行・bundle検証が完了したとはしない。ローカルとCI内の実行を分け、CI成功の範囲は実際のjob/stepとartifactで示す。
 
 ## 7. マージ基準・完了条件
 
@@ -62,3 +68,4 @@ PRの検証記録ではcontract suite 52 tests、original 11-case evidence check
 2. [ ] アプリ由来の新しい最小fixtureを少なくとも1件、両実装で比較する。
 3. [ ] negative controlと欠損／古い証拠の拒否を回帰テストにする。
 4. [ ] native・入力・IME等の未検証範囲を隠さず、consumer PRから結果を参照できる。
+5. [ ] local-onlyの証拠とcombined corpusを取得可能なbundleにし、別環境での再判定と欠損拒否を確認する。
