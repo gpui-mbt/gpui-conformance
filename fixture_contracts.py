@@ -1,10 +1,10 @@
 """Nonactivating fixture telemetry, distinct from AX or physical-input qualification."""
 
 
-def validate_native_fixture(value, pid):
+def validate_native_fixture(value, pid, mode="hidden"):
     if type(pid) is not int or pid <= 0:
         raise ValueError("missing owned process identity")
-    if not isinstance(value, dict) or type(value.get("protocol")) is not int or value["protocol"] != 1 or value.get("mode") != "hidden":
+    if mode not in ("hidden", "visible") or not isinstance(value, dict) or type(value.get("protocol")) is not int or value["protocol"] != 1 or value.get("mode") != mode:
         raise ValueError("missing or unknown native fixture safety protocol")
     snapshots = value.get("snapshots")
     phases = ["created", "rendered", "resized", "closed"]
@@ -14,9 +14,11 @@ def validate_native_fixture(value, pid):
     for phase, sample in zip(phases, snapshots):
         if not isinstance(sample, dict) or sample.get("phase") != phase or type(sample.get("pid")) is not int or sample["pid"] != pid:
             raise ValueError("fixture phase or owned process identity differs")
-        for key in ("fixture_frontmost", "application_active", "window_visible", "window_key"):
+        for key in ("fixture_frontmost", "application_active", "window_key"):
             if sample.get(key) is not False:
                 raise ValueError("hidden fixture became visible, key or active")
+        if sample.get("window_visible") is not (mode == "visible" and phase in ("rendered", "resized")):
+            raise ValueError("fixture visibility differs from requested mode/phase")
         if type(sample.get("activation_policy")) is not int or sample["activation_policy"] != 1:
             raise ValueError("native fixture lacks accessory activation policy")
         count, number = sample.get("owned_titled_windows"), sample.get("native_window_id")

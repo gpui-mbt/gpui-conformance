@@ -54,6 +54,9 @@ fn object(values : Array[(String, Json)]) -> Json {
 }
 
 ///|
+extern "C" fn fixture_checkpoint() -> Int32 = "conformance_fixture_checkpoint"
+
+///|
 extern "C" fn fixture_integer(field : Int32) -> Int64 = "conformance_fixture_integer"
 
 ///|
@@ -134,6 +137,12 @@ fn main {
   ])
   checked(host.present(window, prepared(scene.snapshot_v1(viewport, scale))))
   let capture = checked(@testing.capture_frame(host, window))
+  if @env.get_env_var("GPUI_FIXTURE_MODE") == Some("visible") {
+    checked(host.show_window_unfocused(window))
+  }
+  if fixture_checkpoint() != 1 {
+    abort("owned observer checkpoint failed or timed out")
+  }
   let rendered = fixture_state("rendered")
   let samples = array(field(p, "points")).map(point => {
     let coords = array(point)
@@ -198,7 +207,12 @@ fn main {
       "native_fixture",
       object([
         ("protocol", @json.to_json(1)),
-        ("mode", @json.to_json("hidden")),
+        (
+          "mode",
+          @json.to_json(
+            @env.get_env_var("GPUI_FIXTURE_MODE").unwrap_or("hidden"),
+          ),
+        ),
         ("snapshots", @json.to_json([created, rendered, resized, closed])),
       ]),
     ),
