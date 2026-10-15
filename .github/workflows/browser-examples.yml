@@ -1,0 +1,78 @@
+name: Browser example ports
+on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/browser-examples.yml'
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: browser-examples-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  moonbit-example:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pin source revisions
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p = json.load(open('web/examples.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('gpui=' + p['moonbit']['revision'], file=out)
+              print('zed=' + p['upstream']['revision'], file=out)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.gpui }}
+          path: _sources/gpui
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /assets/fonts/ibm-plex-sans/
+            /crates/gpui/examples/hello_world.rs
+      - name: Install MoonBit and record the actual compiler
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
+          bash "$RUNNER_TEMP/install-moon.sh"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Host and catalog contracts
+        run: node --test web/tests/contracts.test.mjs
+      - name: Compile and unit-test the actual MoonBit port
+        run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
+      - name: Install browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Real MoonBit browser execution (not Rust parity)
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: node web/tests/candidate-browser.mjs _build/browser-lab
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-example-evidence
+          path: |
+            _build/browser-lab
+            _build/browser-example-evidence
+          if-no-files-found: warn

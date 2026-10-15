@@ -1,65 +1,48 @@
-// Keep runtime URLs explicit: a successful iframe load is not evidence of behavior parity.
-const $ = (id) => document.getElementById(id);
-const params = new URLSearchParams(location.search);
-const defaults = {
-  rust: params.get("rust") || "",
-  moon: params.get("moon") || "https://gpui-mbt.github.io/gpui.mbt/",
-};
-const safeHttpUrl = (input) => {
-  if (!input.trim()) return "";
-  try {
-    const url = new URL(input.trim());
-    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
-  } catch {
-    return "";
+import { selectExample, rustExampleUrl, moonbitExampleUrl } from './routing.mjs';
+const $ = id => document.getElementById(id);
+const query = new URL(location.href).searchParams;
+try {
+  const response = await fetch('./examples.json');
+  if (!response.ok) throw new Error(`Catalog HTTP ${response.status}`);
+  const catalog = await response.json();
+  for (const example of catalog.examples) {
+    const option = document.createElement('option'); option.value = example.id;
+    option.textContent = `${example.title}${example.moonbit === 'implemented' ? '' : ' — MoonBit not implemented'}`;
+    $('fixture').append(option);
   }
-};
-$("rust-url").value = defaults.rust;
-$("moon-url").value = defaults.moon;
-function loadFrame(side, url) {
-  const frame = $(side + "-frame");
-  const empty = $(side + "-empty");
-  frame.removeAttribute("src");
-  const validated = safeHttpUrl(url);
-  frame.style.display = validated ? "block" : "none";
-  empty.hidden = Boolean(validated);
-  if (validated) frame.src = validated;
-  return validated;
-}
-function loadBoth() {
-  const rustInput = $("rust-url").value;
-  const moonInput = $("moon-url").value;
-  const rust = loadFrame("rust", rustInput);
-  const moon = loadFrame("moon", moonInput);
-  const query = new URLSearchParams();
-  if (rust) query.set("rust", rust);
-  if (moon) query.set("moon", moon);
-  const next = query.toString() ? "?" + query.toString() : location.pathname;
-  history.replaceState(null, "", next);
-  $("notice").textContent = (!rust && rustInput.trim()) || (!moon && moonInput.trim())
-    ? "Invalid URL: use only http:// or https://."
-    : rust && moon
-      ? "Both iframe URLs requested. Loading or embedding success does NOT indicate fixture parity."
-      : "One or both runtimes are missing. Configure both URLs before comparing.";
-}
-$("settings").addEventListener("submit", (event) => {
-  event.preventDefault();
-  if ($("fixture").value !== "preview") {
-    $("notice").textContent = "Shared fixture not implemented. Choose the existing demo preview; no conformance result is available.";
-    return;
+  const requested = query.get('example') || 'hello_world';
+  $('fixture').value = selectExample(catalog, requested).id;
+  $('rust-url').value = query.get('rust') || '';
+  $('pins').textContent = `Upstream ${catalog.upstream.revision} · Candidate ${catalog.moonbit.revision}`;
+  function clearFrames() {
+    for (const side of ['rust', 'moon']) { $(side + '-frame').removeAttribute('src'); $(side + '-frame').hidden = true; $(side + '-empty').hidden = false; }
   }
-  loadBoth();
-});
-$("reload").addEventListener("click", () => {
-  if ($("fixture").value !== "preview") {
-    $("notice").textContent = "Shared fixture not implemented.";
-    return;
+  function load() {
+    // Clear the old pair first; a missing port must never leave a stale, mismatched application visible.
+    clearFrames();
+    try {
+      const example = selectExample(catalog, $('fixture').value);
+      $('rust-source').href = `https://github.com/${catalog.upstream.repository}/blob/${catalog.upstream.revision}/${example.source}`;
+      $('moon-source').hidden = example.moonbit !== 'implemented';
+      $('moon-source').href = 'https://github.com/gpui-mbt/gpui-conformance/blob/feat/browser-side-by-side-lab/web/moonbit/hello_world/hello_world.mbt';
+      const moon = moonbitExampleUrl(location.href, example);
+      if (!moon) {
+        $('notice').textContent = `${example.title}: MoonBit port not implemented. Neither runtime is substituted.`;
+        $('rust-empty').textContent = 'Select an implemented pair to compare.';
+        return;
+      }
+      const rust = rustExampleUrl($('rust-url').value, example);
+      $('moon-frame').src = moon; $('moon-frame').hidden = false; $('moon-empty').hidden = true;
+      if (rust) { $('rust-frame').src = rust; $('rust-frame').hidden = false; $('rust-empty').hidden = true; }
+      else $('rust-empty').textContent = 'Rust WASM is not bundled. Enter the base URL of the upstream gallery; the matching route is selected automatically.';
+      const next = new URL(location.href); next.search = '';
+      next.searchParams.set('example', example.id);
+      if ($('rust-url').value.trim()) next.searchParams.set('rust', $('rust-url').value.trim());
+      history.replaceState(null, '', next);
+      $('notice').textContent = `${example.title} · fixed ${example.width} × ${example.height} logical pixels · ${rust ? 'Both URLs requested; Rust rendering not verified.' : 'MoonBit port requested; Rust URL not configured.'} The upstream example has no interactive controls.`;
+    } catch (error) { $('notice').textContent = error.message; }
   }
-  loadBoth();
-});
-$("fixture").addEventListener("change", () => {
-  const experimental = $("fixture").value !== "preview";
-  $("notice").textContent = experimental
-    ? "UNIMPLEMENTED: identical fixture UI and controlled inputs must be added to both runtimes."
-    : "Existing demos preview different applications; this is not a conformance test.";
-});
+  $('settings').addEventListener('submit', event => { event.preventDefault(); load(); });
+  $('fixture').addEventListener('change', load);
+  load();
+} catch (error) { $('notice').textContent = `Unable to load examples: ${error.message}`; }
