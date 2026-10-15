@@ -1,5 +1,12 @@
 # Reference provenance
 
+The input/focus/layout boundary batch uses independently authored scenarios and
+adapters. Additional inspected public interfaces are capture/bubble key and
+mouse listeners in `crates/gpui/src/elements/div.rs`, focus/blur/readback and
+dispatch in `crates/gpui/src/window.rs`, and GPUI's flex style builders. Layout
+observations still come from completed GPUI Render/Taffy bounds, not copied
+upstream tests or expected coordinate tables.
+
 Reference: `https://github.com/zed-industries/zed` at
 `d9afb21688e04f89d9e94d96d33eb530aef90886`. This matches gpui.mbt's existing
 `docs/upstream.json` compatibility target. Upstream remains unmodified.

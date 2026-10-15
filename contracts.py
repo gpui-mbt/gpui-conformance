@@ -1,7 +1,7 @@
 """Bounded first-slice input and observation contracts."""
 import math
 
-LAYERS = {"layout": "headless-layout", "pointer": "headless-dispatch", "key": "headless-dispatch",
+LAYERS = {"layout": "headless-layout", "pointer": "headless-dispatch", "key": "headless-dispatch", "route": "headless-dispatch", "focus": "headless-dispatch",
           "scene": "headless-scene", "clip": "headless-clip", "window": "native-window", "pixels": "native-gpu", "ime": "native-ime"}
 
 
@@ -21,16 +21,30 @@ def validate_scenarios(scenarios):
         if not isinstance(s.get("id"), str) or not s["id"] or s["id"] in ids:
             raise ValueError("invalid or duplicate scenario ID")
         ids.add(s["id"])
-        if kind in ("layout", "scene", "pointer", "key", "clip", "window"):
+        if kind in ("layout", "scene", "pointer", "key", "route", "focus", "clip", "window"):
             if not numbers([s.get("width"), s.get("height")], 2) or not (0 < s["width"] <= 4096 and 0 < s["height"] <= 4096):
                 raise ValueError("invalid bounded viewport")
-        if kind in ("layout", "scene", "pointer", "key"):
+        if kind in ("layout", "scene", "pointer", "key", "route", "focus"):
             if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or len(s.get("children", [])) != 2 or any(not numbers(c, 2, True) or max(c) > 4096 for c in s["children"]):
                 raise ValueError("first slice requires two bounded children and nonnegative gap")
+        if kind == "layout":
+            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end"):
+                raise ValueError("unknown layout direction/alignment")
+            for field, default in (("grow", [0, 0]), ("shrink", [1, 1])):
+                if not numbers(s.get(field, default), 2, True) or max(s.get(field, default)) > 16:
+                    raise ValueError("invalid bounded flex factors")
         if kind == "pointer" and (not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
         if kind == "key" and (not s.get("keys") or any(not isinstance(k, list) or len(k) != 6 or not isinstance(k[0], str) or len(k[0]) != 1 or any(type(x) is not bool for x in k[1:]) for k in s["keys"])):
             raise ValueError("invalid key samples")
+        if kind in ("route", "focus"):
+            stop = s.get("stop")
+            if stop is not None and (not isinstance(stop, list) or len(stop) != 2 or type(stop[0]) is not int or stop[0] not in (1, 2, 3) or stop[1] not in ("capture", "bubble")):
+                raise ValueError("invalid propagation stop")
+        if kind == "route" and (not isinstance(s.get("points"), list) or not 1 <= len(s["points"]) <= 16 or any(not numbers(p, 2) or max(abs(x) for x in p) > 4096 for p in s["points"])):
+            raise ValueError("invalid bounded routing points")
+        if kind == "focus" and (not isinstance(s.get("focuses"), list) or not 1 <= len(s["focuses"]) <= 16 or any(x is not None and (type(x) is not int or x not in (1, 2, 3)) for x in s["focuses"]) or s.get("event") not in ("down", "up") or not isinstance(s.get("key"), str) or len(s["key"]) != 1 or not 32 <= ord(s["key"]) <= 126):
+            raise ValueError("invalid bounded focus/key sequence")
         if kind == "clip" and (len(s.get("clips", [])) != 2 or any(not numbers(c, 4) or c[2] <= 0 or c[3] <= 0 for c in s["clips"])):
             raise ValueError("first slice requires two nonempty rectangle clips")
         if kind == "clip":
@@ -56,10 +70,20 @@ def validate_scenarios(scenarios):
             raise ValueError("native fixture requires ordered window/pixels cases sharing one initial viewport")
 
 
+def valid_event_trace(value):
+    return isinstance(value, list) and len(value) <= 6 and all(isinstance(e, list) and len(e) == 2 and type(e[0]) is int and e[0] in (1, 2, 3) and e[1] in ("capture", "bubble") for e in value)
+
+
 def valid_observation(s, observation):
     if not isinstance(observation, dict):
         return False
     kind = s["kind"]
+    if kind == "route":
+        events = observation.get("events")
+        return observation.keys() == {"events"} and isinstance(events, list) and len(events) == len(s["points"]) and all(valid_event_trace(v) for v in events) and any(events)
+    if kind == "focus":
+        steps = observation.get("steps")
+        return observation.keys() == {"steps"} and isinstance(steps, list) and len(steps) == len(s["focuses"]) and all(isinstance(v, dict) and v.keys() == {"focused", "events"} and (v["focused"] is None or type(v["focused"]) is int and v["focused"] in (1, 2, 3)) and valid_event_trace(v["events"]) for v in steps) and any(v["events"] for v in steps)
     if kind == "layout":
         return observation.keys() == {"bounds"} and isinstance(observation["bounds"], list) and len(observation["bounds"]) == 3 and all(numbers(r, 4) for r in observation["bounds"])
     if kind == "pointer":

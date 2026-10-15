@@ -15,6 +15,14 @@ fn field(value : Json, key : String) -> Json {
 }
 
 ///|
+fn optional(value : Json, key : String) -> Json? {
+  match value {
+    Object(fields) => fields.get(key)
+    _ => None
+  }
+}
+
+///|
 fn array(value : Json) -> Array[Json] {
   match value {
     Array(values) => values
@@ -54,7 +62,12 @@ fn object(fields : Array[(String, Json)]) -> Json {
 
 ///|
 fn bounds(rect : @primitives.Rect) -> Json {
-  @json.to_json([rect.left(), rect.top(), rect.size().width(), rect.size().height()])
+  @json.to_json([
+    rect.left(),
+    rect.top(),
+    rect.size().width(),
+    rect.size().height(),
+  ])
 }
 
 ///|
@@ -72,10 +85,26 @@ fn rect(value : Json) -> @primitives.Rect {
 
 ///|
 fn tree(s : Json) -> @element.Prepainted {
+  let direction = if optional(s, "direction") == Some(@json.to_json("column")) {
+    @layout.FlowDirection::column()
+  } else {
+    @layout.FlowDirection::row()
+  }
+  let justify = match optional(s, "justify") {
+    Some(String("center")) => @layout.JustifyContent::center()
+    Some(String("end")) => @layout.JustifyContent::end()
+    _ => @layout.JustifyContent::start()
+  }
+  let align = match optional(s, "align") {
+    Some(String("center")) => @layout.AlignItems::center()
+    Some(String("end")) => @layout.AlignItems::end()
+    _ => @layout.AlignItems::start()
+  }
   let style = checked(
-    @layout.FlexTreeStyle::new(@layout.FlowDirection::row()).with_gap(
-      number(field(s, "gap")),
-    ),
+    @layout.FlexTreeStyle::new(direction)
+    .with_justify(justify)
+    .with_align(align)
+    .with_gap(number(field(s, "gap"))),
   )
   let mut root = @element.Element::root(1, style).with_focusable(true)
   for i, child in array(field(s, "children")) {
@@ -84,14 +113,42 @@ fn tree(s : Json) -> @element.Prepainted {
     let height = number(dimensions[1])
     let item = @layout.FlexItem::new(
       (i + 2).to_uint64(),
-      checked(@layout.Dimension::points(width)),
-      checked(@layout.Dimension::points(height)),
+      checked(
+        @layout.Dimension::points(
+          if direction is @layout.Column {
+            height
+          } else {
+            width
+          },
+        ),
+      ),
+      checked(
+        @layout.Dimension::points(
+          if direction is @layout.Column {
+            width
+          } else {
+            height
+          },
+        ),
+      ),
       checked(@primitives.Size::new(width, height)),
+    )
+    let item = checked(
+      item.with_flex(
+        match optional(s, "grow") {
+          Some(value) => number(array(value)[i])
+          None => 0.0
+        },
+        match optional(s, "shrink") {
+          Some(value) => number(array(value)[i])
+          None => 1.0
+        },
+      ),
     )
     root = root.with_child(
       @element.Element::new(item).with_background(
         Some(checked(@primitives.Color::rgba(32, 64, 96, 255))),
-      ),
+      ).with_focusable(string(field(s, "kind")) == "focus"),
     )
   }
   checked(
@@ -111,6 +168,7 @@ fn tree(s : Json) -> @element.Prepainted {
 ///|
 fn observe(s : Json) -> Json {
   let kind = string(field(s, "kind"))
+  if kind == "focus" || kind == "route" { return observe_routing(s) }
   let row : Map[String, Json] = Map::from_array([
     ("id", field(s, "id")),
     ("layer", field(s, "layer")),
@@ -128,7 +186,12 @@ fn observe(s : Json) -> Json {
                 ("bounds", bounds(quad_bounds)),
                 (
                   "rgba",
-                  @json.to_json([color.red(), color.green(), color.blue(), color.alpha()]),
+                  @json.to_json([
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    color.alpha(),
+                  ]),
                 ),
               ])
             _ => abort("fixture emitted a non-quad")
@@ -138,11 +201,15 @@ fn observe(s : Json) -> Json {
     }
     "window" | "pixels" => {
       row["status"] = @json.to_json("unverified")
-      row["reason"] = @json.to_json("Native macOS fixture requires coordinated foreground execution; not executed")
+      row["reason"] = @json.to_json(
+        "Native macOS fixture requires coordinated foreground execution; not executed",
+      )
     }
     "ime" => {
       row["status"] = @json.to_json("unsupported")
-      row["reason"] = @json.to_json("IME composition is outside this first slice")
+      row["reason"] = @json.to_json(
+        "IME composition is outside this first slice",
+      )
     }
     "clip" => {
       let viewport = checked(
