@@ -1,0 +1,2382 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded fractional-shrink correction and preservation coverage; native preparation is build-only.",
+  "corpus": "boundary_scenarios.json",
+  "suite_revision": "8843d05d7e1c84e7bce36c1acbce32ff0bf2ea60",
+  "baseline_revision": "9fb1f278789da554975bfe388dfcf58c3e0e9287",
+  "candidate_revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+  "executions": {
+    "shrink-prior-boundary": {
+      "directory": "_build/shrink-prior-boundary",
+      "manifest_sha256": "3c48e9475a1cd3948e015aae80fc407a15faa6c6713bb4940c5202299cf6aa19",
+      "comparison_sha256": "52ea5b70f7c407478082ed81730d43f00245b0906b422db4305b9836be48f92f",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "8843d05d7e1c84e7bce36c1acbce32ff0bf2ea60",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+            "run_token": "de5a538e-16c0-4bd9-86b6-51a8d345eea5",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 58932,
+              "started_at": "2026-10-15T04:49:09.581487+00:00",
+              "finished_at": "2026-10-15T04:49:09.792309+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "6a8321ef1596be901f4de93f1de9665564d999fe3fb339e6f0951e51f7cc3ba1"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "1c8d0f3594e31c251ac28d60f271b51a4f32d8411d1b98d3c3d25d8e6b02657b"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/shrink-prior-boundary/upstream/probe"
+              ],
+              "pid": 58936,
+              "started_at": "2026-10-15T04:49:09.836297+00:00",
+              "finished_at": "2026-10-15T04:49:10.203001+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "32c7c985995e253cc5fdd5cb106dff8664028bc46ba5827b90b773e55922d426"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "source_tree": "07a9462227991ab338c2cad59f06ba53aae35d5e",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+            "run_token": "e0ef2291-9ccb-4783-9ffd-8f76b2309737",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 58941,
+              "started_at": "2026-10-15T04:49:10.245168+00:00",
+              "finished_at": "2026-10-15T04:49:10.666708+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "fd5452be836161ade23ee0166918301d9f15219b205b91354ac7752b52b5ea56"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/shrink-prior-boundary/moonbit/probe"
+              ],
+              "pid": 58976,
+              "started_at": "2026-10-15T04:49:10.668144+00:00",
+              "finished_at": "2026-10-15T04:49:11.035534+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "912e440361c8574141bb471f55e8e57dfc3b10248f69fade258110ec67129c42"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+        "cases": [
+          {
+            "id": "layout-main-center-overflow-row",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  40.0
+                ],
+                [
+                  -20.0,
+                  0.0,
+                  40.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  40.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  40
+                ],
+                [
+                  -20,
+                  0,
+                  40,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  40,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-main-end-overflow-column",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  40.0
+                ],
+                [
+                  0.0,
+                  -40.0,
+                  10.0,
+                  40.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  40
+                ],
+                [
+                  0,
+                  -40,
+                  10,
+                  40
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-cross-center-overflow-row",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  -10.0,
+                  20.0,
+                  40.0
+                ],
+                [
+                  20.0,
+                  -20.0,
+                  20.0,
+                  60.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  -10,
+                  20,
+                  40
+                ],
+                [
+                  20,
+                  -20,
+                  20,
+                  60
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-cross-end-overflow-column",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  -20.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  -40.0,
+                  20.0,
+                  60.0,
+                  20.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  -20,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  -40,
+                  20,
+                  60,
+                  20
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-center-exact-fit",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  20.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  20.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  20
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  20
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-gap-zero-budget",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  4.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ],
+                [
+                  8.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  4,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  10
+                ],
+                [
+                  8,
+                  0,
+                  0,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "pointer-route-phases",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                []
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                []
+              ]
+            }
+          },
+          {
+            "id": "pointer-stop-root-capture",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ]
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": "pointer-stop-child-bubble",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ]
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": "focus-switch-and-blur",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-keyup-after-blur",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-stop-root-capture",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-stop-child-bubble",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 13,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "shrink-prior-boundary-negative": {
+      "directory": "_build/shrink-prior-boundary-negative",
+      "manifest_sha256": "dac13230cabc48613d77c9df8f1ccdb3349dca4cf4e059fd323b7cdcb4c550e3",
+      "comparison_sha256": "fd74e03ed38e099ffe754aaea2b81f1c8f9abc8d57628bc3285a12129664e090",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "8843d05d7e1c84e7bce36c1acbce32ff0bf2ea60",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+            "run_token": "87eb0109-c51c-434f-bcae-9e2e183c11a3",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 59003,
+              "started_at": "2026-10-15T04:49:11.389601+00:00",
+              "finished_at": "2026-10-15T04:49:11.591331+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "6a8321ef1596be901f4de93f1de9665564d999fe3fb339e6f0951e51f7cc3ba1"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "1c8d0f3594e31c251ac28d60f271b51a4f32d8411d1b98d3c3d25d8e6b02657b"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/shrink-prior-boundary-negative/upstream/probe"
+              ],
+              "pid": 59005,
+              "started_at": "2026-10-15T04:49:11.649053+00:00",
+              "finished_at": "2026-10-15T04:49:12.029405+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "311779999be89038c3344f2601f1f16e4ec9538db7c9380609cd1a5a40dc71c4"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "source_tree": "07a9462227991ab338c2cad59f06ba53aae35d5e",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+            "run_token": "1995eb9b-22ff-4c37-9f8c-c15100f9365c",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 59010,
+              "started_at": "2026-10-15T04:49:12.077897+00:00",
+              "finished_at": "2026-10-15T04:49:12.545338+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "b388321f7c27672225f0179481de91cf2456f5324154167e85d56b3c2c378a70"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-shrink/_build/shrink-prior-boundary-negative/moonbit/probe"
+              ],
+              "pid": 59056,
+              "started_at": "2026-10-15T04:49:12.546857+00:00",
+              "finished_at": "2026-10-15T04:49:12.910929+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "5bc10e7e6710d5fff36342edab96213dfd78aaa70147498e43d9c10e8814fd8b"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "7dcf28f6f1eaaad3ee799d937850a65645bb1952",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "22d849debd1a1182541e12f0a7ae7e2f6edf5f06817cb7465a61991d82cc3678",
+        "cases": [
+          {
+            "id": "layout-main-center-overflow-row",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 40.0,
+                "moonbit": 41
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  40.0
+                ],
+                [
+                  -20.0,
+                  0.0,
+                  40.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  40.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  40
+                ],
+                [
+                  -20,
+                  0,
+                  41,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  40,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-main-end-overflow-column",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 10.0,
+                "moonbit": 11
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  40.0
+                ],
+                [
+                  0.0,
+                  -40.0,
+                  10.0,
+                  40.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  40.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  40
+                ],
+                [
+                  0,
+                  -40,
+                  11,
+                  40
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  40
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-cross-center-overflow-row",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  -10.0,
+                  20.0,
+                  40.0
+                ],
+                [
+                  20.0,
+                  -20.0,
+                  20.0,
+                  60.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  -10,
+                  21,
+                  40
+                ],
+                [
+                  20,
+                  -20,
+                  20,
+                  60
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-cross-end-overflow-column",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 40.0,
+                "moonbit": 41
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  -20.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  -40.0,
+                  20.0,
+                  60.0,
+                  20.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  -20,
+                  0,
+                  41,
+                  20
+                ],
+                [
+                  -40,
+                  20,
+                  60,
+                  20
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-center-exact-fit",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  20.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  20.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  20
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  20
+                ]
+              ]
+            }
+          },
+          {
+            "id": "layout-gap-zero-budget",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 0.0,
+                "moonbit": 1
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  4.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ],
+                [
+                  8.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  4,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  1,
+                  10
+                ],
+                [
+                  8,
+                  0,
+                  0,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "pointer-route-phases",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                []
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ],
+                []
+              ]
+            }
+          },
+          {
+            "id": "pointer-stop-root-capture",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ]
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": "pointer-stop-child-bubble",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ]
+              ]
+            },
+            "moonbit": {
+              "events": [
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "capture"
+                  ],
+                  [
+                    2,
+                    "bubble"
+                  ]
+                ],
+                [
+                  [
+                    1,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "capture"
+                  ],
+                  [
+                    3,
+                    "bubble"
+                  ],
+                  [
+                    1,
+                    "bubble"
+                  ]
+                ]
+              ]
+            }
+          },
+          {
+            "id": "focus-switch-and-blur",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-keyup-after-blur",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": null,
+                  "events": []
+                },
+                {
+                  "focused": 1,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-stop-root-capture",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ]
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "focus-stop-child-bubble",
+            "layer": "headless-dispatch",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "moonbit": {
+              "steps": [
+                {
+                  "focused": 2,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "capture"
+                    ],
+                    [
+                      2,
+                      "bubble"
+                    ]
+                  ]
+                },
+                {
+                  "focused": 3,
+                  "events": [
+                    [
+                      1,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "capture"
+                    ],
+                    [
+                      3,
+                      "bubble"
+                    ],
+                    [
+                      1,
+                      "bubble"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 7,
+          "mismatch": 6,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    }
+  }
+}
