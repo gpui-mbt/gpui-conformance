@@ -141,6 +141,32 @@
       "shrink": [0, 0],
       "layout_observation": "line_origins",
       "wrap": "wrap"
+    },
+    {
+      "id": "wrap-authored-half-tie-device-scale",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 10,
+      "gap": 0,
+      "children": [[40, 10.75], [40, 10.75], [40, 10.75]],
+      "shrink": [0, 0, 0],
+      "layout_observation": "line_origins",
+      "wrap": "wrap",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "align-negative-half-tie-device-scale",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 20,
+      "gap": 0,
+      "children": [[40, 40.5], [40, 40.5]],
+      "shrink": [0, 0],
+      "align": "center",
+      "layout_observation": "line_origins",
+      "device_scale_factor": 2
     }
   ]
 }
