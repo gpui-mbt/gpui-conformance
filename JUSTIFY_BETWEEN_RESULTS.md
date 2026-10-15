@@ -57,13 +57,16 @@ unchanged. The engine's full MoonBit test suite passes 503/503 tests.
 
 ## Retained artifacts and limits
 
-The valid clean executions are retained in `_build/justify-between-final-baseline-*`,
-`_build/justify-between-final-candidate*`, and
-`_build/justify-between-final-regression-*`. Each directory contains selected
-scenario bytes, source/platform/toolchain identities, process/build logs,
-executable hashes, raw outputs, `manifest.json`, and `comparison.json`; preserve
-the full directories to audit the results. The manifests identify the exact
-clean suite and framework commits for each execution.
+The authoritative clean executions are `_build/justify-between-final-baseline-run4`,
+`_build/justify-between-final-baseline-negative-run4`,
+`_build/justify-between-final-candidate-run2`,
+`_build/justify-between-final-candidate-negative-run2`, and all seven
+`_build/justify-between-final-regression2-*` directories. Each directory
+contains selected scenario bytes, source/platform/toolchain identities,
+process/build logs, executable hashes, raw outputs, `manifest.json`, and
+`comparison.json`; preserve the full directories to audit the results. The
+manifests identify the exact clean suite and framework commits for each
+execution. Earlier retry directories are not authoritative evidence.
 Run `python3 comparator.py <directory>` to validate hashes and recompute a
 comparison. The six-case oracle establishes only this bounded logical-layout
 subset. It does not establish native rendering, all justification modes,
