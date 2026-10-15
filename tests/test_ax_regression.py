@@ -105,6 +105,10 @@ class FakeRunner:
             value["ax_owned_candidates"] = [None]
         elif kind == "candidate-string":
             value["ax_owned_candidates"] = "x"
+        elif kind == "window-null":
+            value["window"] = None
+        elif kind == "bounds-null":
+            value["window"]["kCGWindowBounds"] = None
         elif kind == "windows-null":
             value.update(ax_trusted=True, ax_status="pass", ax_matching_windows=1)
             value["ax_owned_candidates"] = [
@@ -182,7 +186,14 @@ class FakeRunner:
 
 class AXRegressionTests(unittest.TestCase):
     def test_malformed_observer_shapes_are_retained_in_unverified_summaries(self):
-        for kind in ("root-string", "candidate-null", "candidate-string", "windows-null"):
+        for kind in (
+            "root-string",
+            "candidate-null",
+            "candidate-string",
+            "window-null",
+            "bounds-null",
+            "windows-null",
+        ):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
                 output = Path(directory) / "evidence"
                 fake = FakeRunner([kind])

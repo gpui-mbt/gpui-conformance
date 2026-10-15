@@ -22,6 +22,12 @@ def classify_attempt(observation, ready):
     """Local getters, permission and successful IPC cannot establish AXWindow identity."""
     if not isinstance(observation, dict):
         raise ValueError("invalid observer record: expected an object")
+    window = observation.get("window", {})
+    if not isinstance(window, dict):
+        raise ValueError("invalid observer record: window must be an object")
+    bounds = window.get("kCGWindowBounds", {})
+    if not isinstance(bounds, dict):
+        raise ValueError("invalid observer record: window bounds must be an object")
     for key in ("ax_owned_candidates", "ax_windows"):
         if key in observation:
             entries = observation[key]
