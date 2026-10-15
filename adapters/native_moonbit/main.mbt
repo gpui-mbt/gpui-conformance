@@ -60,14 +60,14 @@ extern "C" fn fixture_integer(field : Int32) -> Int64 = "conformance_fixture_int
 fn fixture_state(phase : String) -> Json {
   object([
     ("phase", @json.to_json(phase)),
-    ("pid", @json.to_json(fixture_integer(0))),
+    ("pid", @json.to_json(fixture_integer(0).to_double())),
     ("fixture_frontmost", @json.to_json(fixture_integer(1) == 1)),
     ("application_active", @json.to_json(fixture_integer(2) == 1)),
-    ("owned_titled_windows", @json.to_json(fixture_integer(3))),
-    ("native_window_id", @json.to_json(fixture_integer(4))),
+    ("owned_titled_windows", @json.to_json(fixture_integer(3).to_double())),
+    ("native_window_id", @json.to_json(fixture_integer(4).to_double())),
     ("window_visible", @json.to_json(fixture_integer(5) == 1)),
     ("window_key", @json.to_json(fixture_integer(6) == 1)),
-    ("activation_policy", @json.to_json(fixture_integer(7))),
+    ("activation_policy", @json.to_json(fixture_integer(7).to_double())),
   ])
 }
 
