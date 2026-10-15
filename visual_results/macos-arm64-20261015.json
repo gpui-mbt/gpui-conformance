@@ -1,0 +1,963 @@
+{
+  "schema_version": 1,
+  "kind": "retained-native-image-evaluation",
+  "native_execution": "not-rerun",
+  "executions": {
+    "visual-reviewed-positive": {
+      "directory": "_build/visual-reviewed-positive",
+      "report_sha256": "76d23baec78de47f0a2ad6b7089c55564e594790dab015ffe9440a0812e7db45",
+      "report": {
+        "schema_version": 1,
+        "kind": "retained-native-image-evaluation",
+        "status": "pass",
+        "native_execution": "not-rerun",
+        "evidence_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-positive",
+        "output_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive",
+        "qualification": "analysis of the recorded source revisions only",
+        "policy": "identical complete RGBA8 bytes, physical dimensions and device scale; vlmkit is a diagnostic",
+        "pixelmatch_per_pixel_threshold": 0.0,
+        "zlib": "1.2.12",
+        "suite_revision": "2f10d411d145e73f872c79de17871d732b377c83",
+        "suite_dirty": false,
+        "toolchain": {
+          "directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed",
+          "receipt_sha256": "54edf6ed9b8f8bd7eb98e2e6fa3752e978267c8f3614cdc8520bb73b18c07f59",
+          "pins": {
+            "schema_version": 1,
+            "repository": "https://github.com/f4ah6o/vlmkit",
+            "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+            "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+            "version": "0.23.2",
+            "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+            "license": "MIT",
+            "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+            "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+          }
+        },
+        "source_evidence": {
+          "manifest_sha256": "42fba74d12084ea7e34ea0f6da0f7f675806fa54602faa2b348b19397f3e8b20",
+          "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+          "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+          "pins": {
+            "schema_version": 1,
+            "upstream": {
+              "repository": "https://github.com/zed-industries/zed",
+              "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+              "package": "crates/gpui",
+              "version": "0.2.2"
+            },
+            "moonbit": {
+              "repository": "https://github.com/gpui-mbt/gpui.mbt",
+              "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+              "version": "0.7.2",
+              "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+            }
+          },
+          "platform": {
+            "os": "Darwin",
+            "architecture": "arm64",
+            "release": "25.5.0",
+            "macos": "26.5.2"
+          },
+          "comparison": {
+            "schema_version": 1,
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "pins": {
+              "schema_version": 1,
+              "upstream": {
+                "repository": "https://github.com/zed-industries/zed",
+                "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+                "package": "crates/gpui",
+                "version": "0.2.2"
+              },
+              "moonbit": {
+                "repository": "https://github.com/gpui-mbt/gpui.mbt",
+                "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+                "version": "0.7.2",
+                "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+              }
+            },
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "cases": [
+              {
+                "id": "window-lifecycle",
+                "layer": "native-window",
+                "status": "pass",
+                "differences": [],
+                "upstream": {
+                  "initial": [
+                    0,
+                    0,
+                    256.0,
+                    192.0
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320.0,
+                    224.0
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                },
+                "moonbit": {
+                  "initial": [
+                    0,
+                    0,
+                    256,
+                    192
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320,
+                    224
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                }
+              },
+              {
+                "id": "native-pixels",
+                "layer": "native-gpu",
+                "status": "pass",
+                "differences": [],
+                "upstream": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2.0,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      255,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                },
+                "moonbit": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      255,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                }
+              }
+            ],
+            "summary": {
+              "pass": 2,
+              "mismatch": 0,
+              "unsupported": 0,
+              "unverified": 0
+            }
+          }
+        },
+        "frames": {
+          "upstream": {
+            "width": 512,
+            "height": 384,
+            "scale": 2.0,
+            "rgba8_sha256": "ed7059105b0f49b6fed34ea6658a9a312ded65310765e93bbd46955048ab8178",
+            "png": {
+              "path": "upstream.png",
+              "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+            }
+          },
+          "moonbit": {
+            "width": 512,
+            "height": 384,
+            "scale": 2,
+            "rgba8_sha256": "ed7059105b0f49b6fed34ea6658a9a312ded65310765e93bbd46955048ab8178",
+            "png": {
+              "path": "moonbit.png",
+              "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+            }
+          }
+        },
+        "exact": {
+          "status": "pass",
+          "metadata_differences": {},
+          "different_pixels": 0,
+          "total_pixels": 196608
+        },
+        "diff_execution": {
+          "command": [
+            "node",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed/runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive/upstream.png",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive/moonbit.png",
+            "--threshold",
+            "0.0",
+            "--json",
+            "--output-dir",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive/diff"
+          ],
+          "pid": 82445,
+          "started_at": "2026-10-15T05:56:50.931488+00:00",
+          "finished_at": "2026-10-15T05:56:51.135272+00:00",
+          "returncode": 0,
+          "timed_out": false
+        },
+        "vlmkit": {
+          "status": "pass",
+          "baselinePath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive/upstream.png",
+          "currentPath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-positive/moonbit.png",
+          "baselineSize": {
+            "width": 512,
+            "height": 384
+          },
+          "currentSize": {
+            "width": 512,
+            "height": 384
+          },
+          "sizeDelta": {
+            "width": 0,
+            "height": 0
+          },
+          "diffPixels": 0,
+          "totalPixels": 196608,
+          "diffRatio": 0,
+          "regions": [],
+          "summary": "no changes",
+          "changes": []
+        },
+        "diagnostic_artifacts": [
+          {
+            "path": "diff.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "diff.stdout",
+            "sha256": "3b318fe7508b650f5cd30bc97865c2e2f5ecead3cd3e1c788cc825a149982936"
+          },
+          {
+            "path": "moonbit.png",
+            "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+          },
+          {
+            "path": "upstream.png",
+            "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+          }
+        ]
+      }
+    },
+    "visual-reviewed-negative": {
+      "directory": "_build/visual-reviewed-negative",
+      "report_sha256": "3fc538d652e713672d9ef733e08d7a32df3b5f908ae7e4f158dd087fb4c214cd",
+      "report": {
+        "schema_version": 1,
+        "kind": "retained-native-image-evaluation",
+        "status": "mismatch",
+        "native_execution": "not-rerun",
+        "evidence_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative",
+        "output_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative",
+        "qualification": "analysis of the recorded source revisions only",
+        "policy": "identical complete RGBA8 bytes, physical dimensions and device scale; vlmkit is a diagnostic",
+        "pixelmatch_per_pixel_threshold": 0.0,
+        "zlib": "1.2.12",
+        "suite_revision": "2f10d411d145e73f872c79de17871d732b377c83",
+        "suite_dirty": false,
+        "toolchain": {
+          "directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed",
+          "receipt_sha256": "54edf6ed9b8f8bd7eb98e2e6fa3752e978267c8f3614cdc8520bb73b18c07f59",
+          "pins": {
+            "schema_version": 1,
+            "repository": "https://github.com/f4ah6o/vlmkit",
+            "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+            "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+            "version": "0.23.2",
+            "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+            "license": "MIT",
+            "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+            "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+          }
+        },
+        "source_evidence": {
+          "manifest_sha256": "2114bce5c17e8e6ae7dbec544b3e61e21edf065ed4c5a808e320f4fc383c084b",
+          "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+          "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+          "pins": {
+            "schema_version": 1,
+            "upstream": {
+              "repository": "https://github.com/zed-industries/zed",
+              "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+              "package": "crates/gpui",
+              "version": "0.2.2"
+            },
+            "moonbit": {
+              "repository": "https://github.com/gpui-mbt/gpui.mbt",
+              "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+              "version": "0.7.2",
+              "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+            }
+          },
+          "platform": {
+            "os": "Darwin",
+            "architecture": "arm64",
+            "release": "25.5.0",
+            "macos": "26.5.2"
+          },
+          "comparison": {
+            "schema_version": 1,
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "pins": {
+              "schema_version": 1,
+              "upstream": {
+                "repository": "https://github.com/zed-industries/zed",
+                "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+                "package": "crates/gpui",
+                "version": "0.2.2"
+              },
+              "moonbit": {
+                "repository": "https://github.com/gpui-mbt/gpui.mbt",
+                "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+                "version": "0.7.2",
+                "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+              }
+            },
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "cases": [
+              {
+                "id": "window-lifecycle",
+                "layer": "native-window",
+                "status": "pass",
+                "differences": [],
+                "upstream": {
+                  "initial": [
+                    0,
+                    0,
+                    256.0,
+                    192.0
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320.0,
+                    224.0
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                },
+                "moonbit": {
+                  "initial": [
+                    0,
+                    0,
+                    256,
+                    192
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320,
+                    224
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                }
+              },
+              {
+                "id": "native-pixels",
+                "layer": "native-gpu",
+                "status": "mismatch",
+                "differences": [
+                  {
+                    "path": "observation.samples[1][0]",
+                    "upstream": 255,
+                    "moonbit": 0
+                  },
+                  {
+                    "path": "observation.samples[1][2]",
+                    "upstream": 0,
+                    "moonbit": 255
+                  }
+                ],
+                "upstream": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2.0,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      255,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                },
+                "moonbit": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      255,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                }
+              }
+            ],
+            "summary": {
+              "pass": 1,
+              "mismatch": 1,
+              "unsupported": 0,
+              "unverified": 0
+            }
+          }
+        },
+        "frames": {
+          "upstream": {
+            "width": 512,
+            "height": 384,
+            "scale": 2.0,
+            "rgba8_sha256": "ed7059105b0f49b6fed34ea6658a9a312ded65310765e93bbd46955048ab8178",
+            "png": {
+              "path": "upstream.png",
+              "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+            }
+          },
+          "moonbit": {
+            "width": 512,
+            "height": 384,
+            "scale": 2,
+            "rgba8_sha256": "b3c4bb6bc08a90357482cac91ae89d61cef104d9cecdbdc5043b4839a159e648",
+            "png": {
+              "path": "moonbit.png",
+              "sha256": "1dd8edb4eb6b396d438f3dd202e5075a016e256e927b2f025bc988a098ec6791"
+            }
+          }
+        },
+        "exact": {
+          "status": "mismatch",
+          "metadata_differences": {},
+          "different_pixels": 12288,
+          "total_pixels": 196608
+        },
+        "diff_execution": {
+          "command": [
+            "node",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed/runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/upstream.png",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/moonbit.png",
+            "--threshold",
+            "0.0",
+            "--json",
+            "--output-dir",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/diff"
+          ],
+          "pid": 82460,
+          "started_at": "2026-10-15T05:56:54.375048+00:00",
+          "finished_at": "2026-10-15T05:56:54.577079+00:00",
+          "returncode": 0,
+          "timed_out": false
+        },
+        "vlmkit": {
+          "status": "changed",
+          "baselinePath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/upstream.png",
+          "currentPath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/moonbit.png",
+          "baselineSize": {
+            "width": 512,
+            "height": 384
+          },
+          "currentSize": {
+            "width": 512,
+            "height": 384
+          },
+          "sizeDelta": {
+            "width": 0,
+            "height": 0
+          },
+          "diffPixels": 12288,
+          "totalPixels": 196608,
+          "diffRatio": 0.0625,
+          "regions": [
+            {
+              "x": 64,
+              "y": 64,
+              "width": 128,
+              "height": 96,
+              "diffPixelCount": 12288,
+              "regionType": "content",
+              "colorSample": {
+                "baseline": {
+                  "r": 255,
+                  "g": 0,
+                  "b": 0,
+                  "hex": "#ff0000"
+                },
+                "current": {
+                  "r": 0,
+                  "g": 0,
+                  "b": 255,
+                  "hex": "#0000ff"
+                },
+                "distance": 361
+              }
+            }
+          ],
+          "heatmapPath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-negative/diff/moonbit_heatmap.png",
+          "summary": "1 color-change",
+          "changes": [
+            {
+              "type": "color-change",
+              "region": {
+                "x": 64,
+                "y": 64,
+                "width": 128,
+                "height": 96,
+                "diffPixelCount": 12288,
+                "regionType": "content",
+                "colorSample": {
+                  "baseline": {
+                    "r": 255,
+                    "g": 0,
+                    "b": 0,
+                    "hex": "#ff0000"
+                  },
+                  "current": {
+                    "r": 0,
+                    "g": 0,
+                    "b": 255,
+                    "hex": "#0000ff"
+                  },
+                  "distance": 361
+                }
+              },
+              "confidence": 0.65,
+              "description": "Color change in region (64, 64), 128x96, 100% density, #ff0000 -> #0000ff"
+            }
+          ]
+        },
+        "diagnostic_artifacts": [
+          {
+            "path": "diff/moonbit_heatmap.png",
+            "sha256": "66915db09d37f397440d5a7c716bd08622dfd9794bbe95d395ccdc7bb1ca459f"
+          },
+          {
+            "path": "diff.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "diff.stdout",
+            "sha256": "7bc5d05cd531cefe587b69c5433d91508956ad1f99373ec63f3e73b2769d6fc4"
+          },
+          {
+            "path": "moonbit.png",
+            "sha256": "1dd8edb4eb6b396d438f3dd202e5075a016e256e927b2f025bc988a098ec6791"
+          },
+          {
+            "path": "upstream.png",
+            "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+          }
+        ]
+      }
+    },
+    "visual-reviewed-threshold-control": {
+      "directory": "_build/visual-reviewed-threshold-control",
+      "report_sha256": "a98c453f68e48c87fc6554ed2ab80ea179cbcc2bc9f41bf7ac36bc88fb0482f1",
+      "report": {
+        "schema_version": 1,
+        "kind": "retained-native-image-evaluation",
+        "status": "mismatch",
+        "native_execution": "not-rerun",
+        "evidence_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-merged-native/_build/native-merged-negative",
+        "output_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control",
+        "qualification": "analysis of the recorded source revisions only",
+        "policy": "identical complete RGBA8 bytes, physical dimensions and device scale; vlmkit is a diagnostic",
+        "pixelmatch_per_pixel_threshold": 1.0,
+        "zlib": "1.2.12",
+        "suite_revision": "2f10d411d145e73f872c79de17871d732b377c83",
+        "suite_dirty": false,
+        "toolchain": {
+          "directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed",
+          "receipt_sha256": "54edf6ed9b8f8bd7eb98e2e6fa3752e978267c8f3614cdc8520bb73b18c07f59",
+          "pins": {
+            "schema_version": 1,
+            "repository": "https://github.com/f4ah6o/vlmkit",
+            "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+            "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+            "version": "0.23.2",
+            "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+            "license": "MIT",
+            "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+            "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+          }
+        },
+        "source_evidence": {
+          "manifest_sha256": "2114bce5c17e8e6ae7dbec544b3e61e21edf065ed4c5a808e320f4fc383c084b",
+          "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+          "suite_revision": "316a62d3b33fa8038c900b4f2e1058b1c96f395e",
+          "pins": {
+            "schema_version": 1,
+            "upstream": {
+              "repository": "https://github.com/zed-industries/zed",
+              "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+              "package": "crates/gpui",
+              "version": "0.2.2"
+            },
+            "moonbit": {
+              "repository": "https://github.com/gpui-mbt/gpui.mbt",
+              "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+              "version": "0.7.2",
+              "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+            }
+          },
+          "platform": {
+            "os": "Darwin",
+            "architecture": "arm64",
+            "release": "25.5.0",
+            "macos": "26.5.2"
+          },
+          "comparison": {
+            "schema_version": 1,
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "pins": {
+              "schema_version": 1,
+              "upstream": {
+                "repository": "https://github.com/zed-industries/zed",
+                "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+                "package": "crates/gpui",
+                "version": "0.2.2"
+              },
+              "moonbit": {
+                "repository": "https://github.com/gpui-mbt/gpui.mbt",
+                "revision": "24bf42ca3bfb5dd3d2fe2b03271605dee99e13ba",
+                "version": "0.7.2",
+                "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+              }
+            },
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "cases": [
+              {
+                "id": "window-lifecycle",
+                "layer": "native-window",
+                "status": "pass",
+                "differences": [],
+                "upstream": {
+                  "initial": [
+                    0,
+                    0,
+                    256.0,
+                    192.0
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320.0,
+                    224.0
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                },
+                "moonbit": {
+                  "initial": [
+                    0,
+                    0,
+                    256,
+                    192
+                  ],
+                  "resized": [
+                    0,
+                    0,
+                    320,
+                    224
+                  ],
+                  "live_before": true,
+                  "live_after": false
+                }
+              },
+              {
+                "id": "native-pixels",
+                "layer": "native-gpu",
+                "status": "mismatch",
+                "differences": [
+                  {
+                    "path": "observation.samples[1][0]",
+                    "upstream": 255,
+                    "moonbit": 0
+                  },
+                  {
+                    "path": "observation.samples[1][2]",
+                    "upstream": 0,
+                    "moonbit": 255
+                  }
+                ],
+                "upstream": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2.0,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      255,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                },
+                "moonbit": {
+                  "width": 512,
+                  "height": 384,
+                  "scale": 2,
+                  "samples": [
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      255,
+                      255
+                    ],
+                    [
+                      0,
+                      0,
+                      0,
+                      255
+                    ]
+                  ]
+                }
+              }
+            ],
+            "summary": {
+              "pass": 1,
+              "mismatch": 1,
+              "unsupported": 0,
+              "unverified": 0
+            }
+          }
+        },
+        "frames": {
+          "upstream": {
+            "width": 512,
+            "height": 384,
+            "scale": 2.0,
+            "rgba8_sha256": "ed7059105b0f49b6fed34ea6658a9a312ded65310765e93bbd46955048ab8178",
+            "png": {
+              "path": "upstream.png",
+              "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+            }
+          },
+          "moonbit": {
+            "width": 512,
+            "height": 384,
+            "scale": 2,
+            "rgba8_sha256": "b3c4bb6bc08a90357482cac91ae89d61cef104d9cecdbdc5043b4839a159e648",
+            "png": {
+              "path": "moonbit.png",
+              "sha256": "1dd8edb4eb6b396d438f3dd202e5075a016e256e927b2f025bc988a098ec6791"
+            }
+          }
+        },
+        "exact": {
+          "status": "mismatch",
+          "metadata_differences": {},
+          "different_pixels": 12288,
+          "total_pixels": 196608
+        },
+        "diff_execution": {
+          "command": [
+            "node",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed/runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control/upstream.png",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control/moonbit.png",
+            "--threshold",
+            "1.0",
+            "--json",
+            "--output-dir",
+            "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control/diff"
+          ],
+          "pid": 82491,
+          "started_at": "2026-10-15T05:56:57.957255+00:00",
+          "finished_at": "2026-10-15T05:56:58.165327+00:00",
+          "returncode": 0,
+          "timed_out": false
+        },
+        "vlmkit": {
+          "status": "pass",
+          "baselinePath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control/upstream.png",
+          "currentPath": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-threshold-control/moonbit.png",
+          "baselineSize": {
+            "width": 512,
+            "height": 384
+          },
+          "currentSize": {
+            "width": 512,
+            "height": 384
+          },
+          "sizeDelta": {
+            "width": 0,
+            "height": 0
+          },
+          "diffPixels": 0,
+          "totalPixels": 196608,
+          "diffRatio": 0,
+          "regions": [],
+          "summary": "no changes",
+          "changes": []
+        },
+        "diagnostic_artifacts": [
+          {
+            "path": "diff.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "path": "diff.stdout",
+            "sha256": "9314f14cccdba8cbc8666fa59a3d887845322f30fcbe5a0530a2f3e65f942761"
+          },
+          {
+            "path": "moonbit.png",
+            "sha256": "1dd8edb4eb6b396d438f3dd202e5075a016e256e927b2f025bc988a098ec6791"
+          },
+          {
+            "path": "upstream.png",
+            "sha256": "259f46ecfd6a4e5cec99df863cb5e48c4b1e108ffcf61352ce3f800b13b792a4"
+          }
+        ]
+      }
+    },
+    "visual-reviewed-build-only-control": {
+      "directory": "_build/visual-reviewed-build-only-control",
+      "report_sha256": "78c0eaf023c8a87ddadced8e00f683d239815981beb934757f7d6e61587025d3",
+      "report": {
+        "schema_version": 1,
+        "kind": "retained-native-image-evaluation",
+        "status": "unverified",
+        "native_execution": "not-rerun",
+        "evidence_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/limits-reviewed-native-build-only",
+        "output_directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-reviewed-build-only-control",
+        "qualification": "analysis of the recorded source revisions only",
+        "policy": "identical complete RGBA8 bytes, physical dimensions and device scale; vlmkit is a diagnostic",
+        "pixelmatch_per_pixel_threshold": 0.0,
+        "zlib": "1.2.12",
+        "suite_revision": "2f10d411d145e73f872c79de17871d732b377c83",
+        "suite_dirty": false,
+        "toolchain": {
+          "directory": "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-visual/_build/visual-toolchain-reviewed",
+          "receipt_sha256": "54edf6ed9b8f8bd7eb98e2e6fa3752e978267c8f3614cdc8520bb73b18c07f59",
+          "pins": {
+            "schema_version": 1,
+            "repository": "https://github.com/f4ah6o/vlmkit",
+            "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+            "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+            "version": "0.23.2",
+            "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+            "license": "MIT",
+            "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+            "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+            "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+          }
+        },
+        "reason": "retained native execution is unverified: {'id': 'native-pixels', 'layer': 'native-gpu', 'status': 'unverified', 'reason': {'upstream': 'duplicated execution trace or challenge', 'moonbit': 'duplicated execution trace or challenge'}}"
+      }
+    }
+  },
+  "toolchain": {
+    "directory": "_build/visual-toolchain-reviewed",
+    "receipt_sha256": "54edf6ed9b8f8bd7eb98e2e6fa3752e978267c8f3614cdc8520bb73b18c07f59",
+    "pins": {
+      "schema_version": 1,
+      "repository": "https://github.com/f4ah6o/vlmkit",
+      "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+      "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+      "version": "0.23.2",
+      "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+      "license": "MIT",
+      "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+      "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+      "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+    },
+    "source_archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae",
+    "runtime_inventory_entries": 11897,
+    "separate_artifact_hashes": 267
+  }
+}

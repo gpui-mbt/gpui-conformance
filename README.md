@@ -178,6 +178,18 @@ headless cases pass. Native preparation remains build-only/unverified under
 the no-focus-disruption constraint. See [FLEX_LIMIT_RESULTS.md](FLEX_LIMIT_RESULTS.md)
 for exact identities, evidence indexes, reproduction and coverage limits.
 
+## Evaluate retained native images with vlmkit
+
+`prepare_visual.py`, `evaluate_native_images.py` and `verify_native_images.py`
+provide a separate deterministic PNG diagnostic over verified retained RGBA8
+readbacks. Whole-frame bytes, dimensions and scale remain authoritative.
+The real retained negative is detected even when vlmkit exits normally; a
+permissive per-pixel threshold cannot override an exact mismatch. Build-only
+native evidence remains unverified. This analysis opens no windows and does
+not qualify new native execution or physical input. See
+[RETAINED_IMAGE_RESULTS.md](RETAINED_IMAGE_RESULTS.md) for exact versions,
+reproduction, controls and [observer prerequisites](NATIVE_OBSERVER_PREREQUISITES.md).
+
 ## Result contract
 
 `comparison.json` has one row per shared scenario with `pass`, `mismatch`,

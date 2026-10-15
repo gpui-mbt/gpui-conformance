@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/f4ah6o/vlmkit",
+  "revision": "b6ff83bb5f357e4ea3225af717479c6be74b2328",
+  "source_tree": "41177e125ffa57950ba6f5b844f2a0a87f4d385a",
+  "version": "0.23.2",
+  "lock_sha256": "45e91f77d4bc536ffee6d214f5a8109f8f0893209cd5660f7bfb89c373c8802c",
+  "license": "MIT",
+  "license_sha256": "c5f6ee341fb447b0b69264d5e304186f1d9cd2e9d1b9d33095d08879888defc1",
+  "entrypoint": "runtime/packages/vlmkit-markup/dist/png-diff.mjs",
+  "archive_sha256": "10a7fc63e909f0d1a7468d67bd1f703cab4265a2a80f5d82a81d40e78b7441ae"
+}

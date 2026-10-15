@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "status": "unverified",
+  "scope": "visible fixture, external AX observer and physical input",
+  "native_execution_attempted": false,
+  "permission_prompted": false,
+  "current_barriers": [
+    "Rust fixture is hidden/offscreen and short-lived.",
+    "MoonBit fixture presents and activates unconditionally.",
+    "No nonce-bound ready/ack lifecycle or external observer ownership contract is qualified.",
+    "AX collector trust and native post-action state binding are not qualified."
+  ],
+  "required_before_use": [
+    "Coordinated owned visible-fixture session with bounded ready/ack lifecycle.",
+    "Executable/PID/start/window/frame identity binding and foreign/stale negative controls.",
+    "Read-only trust check for the actual observer, without requesting permissions automatically.",
+    "Owned AX subtree and post-action completed-frame/semantic acknowledgment."
+  ],
+  "specification": "NATIVE_OBSERVER_PREREQUISITES.md"
+}
