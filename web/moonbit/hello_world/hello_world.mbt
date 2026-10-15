@@ -25,7 +25,7 @@ fn hello_world_layout(text_width : Double) -> @element.Prepainted {
   let row_style = @layout.FlexTreeStyle::new(@layout.FlowDirection::row())
     .with_gap(8.0).unwrap()
   let colors = [
-    color(255, 0, 0), color(0, 255, 0), color(0, 0, 255),
+    color(255, 0, 0), color(0, 128, 0), color(0, 0, 255),
     color(255, 255, 0), color(0, 0, 0), color(255, 255, 255),
   ]
   let ids : Array[UInt64] = [4, 5, 6, 7, 8, 9]
