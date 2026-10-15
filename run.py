@@ -64,14 +64,14 @@ def execute(args, env, out, err, cwd, timeout, before_terminate=None):
             "returncode": code, "timed_out": timed_out}
 
 
-def prepare_moonbit(path, build):
+def prepare_moonbit(path, build, adapter=None):
     runtime = build / ("moonbit-runtime-" + str(uuid.uuid4()))
     runtime.mkdir(parents=True, exist_ok=True)
     archive = subprocess.check_output(["git", "archive", "HEAD"], cwd=path)
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
         tar.extractall(runtime, filter="data")
     probe = runtime / "conformance_probe"
-    shutil.copytree(ROOT / "adapters/moonbit", probe, dirs_exist_ok=True)
+    shutil.copytree(adapter if adapter is not None else ROOT / "adapters/moonbit", probe, dirs_exist_ok=True)
     return runtime
 
 

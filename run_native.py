@@ -47,8 +47,7 @@ def main():
     shutil.copytree(ROOT/"adapters/native_rust",adapter,dirs_exist_ok=True)
     cargo=adapter/"Cargo.toml"
     cargo.write_text(cargo.read_text().replace('"../../../zed-source/crates/gpui"',json.dumps(str(paths["upstream"]/"crates/gpui"))).replace('"../../../zed-source/crates/gpui_platform"',json.dumps(str(paths["upstream"]/"crates/gpui_platform"))))
-    runtime=prepare_moonbit(paths["moonbit"],build)
-    shutil.copytree(ROOT/"adapters/native_moonbit",runtime/"conformance_probe",dirs_exist_ok=True)
+    runtime=prepare_moonbit(paths["moonbit"],build,ROOT/"adapters/native_moonbit")
     env=os.environ.copy()
     env.update(CARGO_TARGET_DIR=str(build/"native-rust"),GPUI_SCENARIOS=scenarios.decode(),GPUI_NATIVE_E2E="1",GPUI_NEGATIVE_CONTROL="1" if args.negative_control else "0")
     configs={

@@ -148,7 +148,7 @@ fn tree(s : Json) -> @element.Prepainted {
     root = root.with_child(
       @element.Element::new(item).with_background(
         Some(checked(@primitives.Color::rgba(32, 64, 96, 255))),
-      ),
+      ).with_focusable(string(field(s, "kind")) == "focus"),
     )
   }
   checked(
@@ -168,6 +168,7 @@ fn tree(s : Json) -> @element.Prepainted {
 ///|
 fn observe(s : Json) -> Json {
   let kind = string(field(s, "kind"))
+  if kind == "focus" || kind == "route" { return observe_routing(s) }
   let row : Map[String, Json] = Map::from_array([
     ("id", field(s, "id")),
     ("layer", field(s, "layer")),

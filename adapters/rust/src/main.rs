@@ -1,6 +1,7 @@
 use gpui::{prelude::*, *};
 use serde_json::{Value, json};
 use std::{cell::RefCell, rc::Rc};
+mod boundaries;
 
 type Trace = Rc<RefCell<Vec<Value>>>;
 struct View {
@@ -92,6 +93,9 @@ impl Render for View {
 }
 fn observe(s: &Value) -> Value {
     let kind = s["kind"].as_str().unwrap();
+    if matches!(kind, "focus" | "route") {
+        return boundaries::observe(s);
+    }
     let mut result = json!({"id":s["id"], "layer":s["layer"], "status":"observed"});
     if kind == "pixels" || kind == "ime" {
         result["status"] = json!(if kind == "ime" {

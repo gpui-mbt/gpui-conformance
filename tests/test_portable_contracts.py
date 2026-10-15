@@ -1,15 +1,19 @@
 """Portable CI guards; published indexes never substitute for real artifacts."""
 import copy
+import io
 import math
 from pathlib import Path
 import sys
 import tempfile
+import tarfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from comparator import STATUSES, compare, differences, load_json
 from contracts import validate_scenarios
+from run import prepare_moonbit
 
 
 class PortableContractTests(unittest.TestCase):
@@ -24,6 +28,31 @@ class PortableContractTests(unittest.TestCase):
             corpus["cases"][0][field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):
                 validate_scenarios(corpus)
+
+    def test_invalid_routing_and_focus_inputs_rejected(self):
+        for kind, field, value in (("route", "stop", [True, "capture"]), ("route", "points", []), ("focus", "focuses", [True]), ("focus", "key", "\n"), ("focus", "event", "arbitrary")):
+            corpus = load_json(ROOT / "boundary_scenarios.json")
+            scenario = next(s for s in corpus["cases"] if s["kind"] == kind)
+            scenario[field] = value
+            with self.subTest(kind=kind, field=field), self.assertRaises(ValueError):
+                validate_scenarios(corpus)
+
+    def test_native_preparation_does_not_mix_headless_sources(self):
+        # This checks copying only, never invents executable oracle evidence.
+        archive = io.BytesIO()
+        with tarfile.open(fileobj=archive, mode="w") as tar:
+            content = b'version = "0.7.2"\n'
+            info = tarfile.TarInfo("moon.mod")
+            info.size = len(content)
+            tar.addfile(info, io.BytesIO(content))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            adapter = root / "adapter"
+            adapter.mkdir()
+            (adapter / "native-only.mbt").write_text("native fixture source")
+            with patch("run.subprocess.check_output", return_value=archive.getvalue()):
+                runtime = prepare_moonbit(root, root / "build", adapter)
+            self.assertEqual({p.name for p in (runtime / "conformance_probe").iterdir()}, {"native-only.mbt"})
 
     def test_duplicate_scenario_ids_rejected(self):
         corpus = load_json(ROOT / "scenarios.json")

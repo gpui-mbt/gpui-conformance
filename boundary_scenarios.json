@@ -1,11 +1,342 @@
 {
   "schema_version": 1,
   "cases": [
-    {"id":"layout-main-center-overflow-row","kind":"layout","layer":"headless-layout","width":40,"height":40,"gap":0,"children":[[40,10],[40,10]],"shrink":[0,0],"justify":"center"},
-    {"id":"layout-main-end-overflow-column","kind":"layout","layer":"headless-layout","width":40,"height":40,"gap":0,"children":[[10,40],[10,40]],"shrink":[0,0],"direction":"column","justify":"end"},
-    {"id":"layout-cross-center-overflow-row","kind":"layout","layer":"headless-layout","width":100,"height":20,"gap":0,"children":[[20,40],[20,60]],"align":"center"},
-    {"id":"layout-cross-end-overflow-column","kind":"layout","layer":"headless-layout","width":20,"height":100,"gap":0,"children":[[40,20],[60,20]],"direction":"column","align":"end"},
-    {"id":"layout-center-exact-fit","kind":"layout","layer":"headless-layout","width":40,"height":20,"gap":0,"children":[[20,20],[20,20]],"justify":"center","align":"center"},
-    {"id":"layout-gap-zero-budget","kind":"layout","layer":"headless-layout","width":4,"height":20,"gap":8,"children":[[20,10],[20,10]]}
+    {
+      "id": "layout-main-center-overflow-row",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "center"
+    },
+    {
+      "id": "layout-main-end-overflow-column",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          10,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "direction": "column",
+      "justify": "end"
+    },
+    {
+      "id": "layout-cross-center-overflow-row",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 20,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          40
+        ],
+        [
+          20,
+          60
+        ]
+      ],
+      "align": "center"
+    },
+    {
+      "id": "layout-cross-end-overflow-column",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 20,
+      "height": 100,
+      "gap": 0,
+      "children": [
+        [
+          40,
+          20
+        ],
+        [
+          60,
+          20
+        ]
+      ],
+      "direction": "column",
+      "align": "end"
+    },
+    {
+      "id": "layout-center-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 20,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          20
+        ],
+        [
+          20,
+          20
+        ]
+      ],
+      "justify": "center",
+      "align": "center"
+    },
+    {
+      "id": "layout-gap-zero-budget",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 4,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ]
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "pointer-route-phases",
+      "kind": "route",
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          10
+        ],
+        [
+          90,
+          50
+        ],
+        [
+          110,
+          70
+        ]
+      ],
+      "stop": null
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "pointer-stop-root-capture",
+      "kind": "route",
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "stop": [
+        1,
+        "capture"
+      ]
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "pointer-stop-child-bubble",
+      "kind": "route",
+      "points": [
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "stop": [
+        2,
+        "bubble"
+      ]
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "focus-switch-and-blur",
+      "kind": "focus",
+      "focuses": [
+        1,
+        2,
+        3,
+        null,
+        2
+      ],
+      "event": "down",
+      "key": "k",
+      "stop": null
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "focus-keyup-after-blur",
+      "kind": "focus",
+      "focuses": [
+        2,
+        null,
+        3,
+        null,
+        1
+      ],
+      "event": "up",
+      "key": "k",
+      "stop": null
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "focus-stop-root-capture",
+      "kind": "focus",
+      "focuses": [
+        2,
+        3
+      ],
+      "event": "down",
+      "key": "k",
+      "stop": [
+        1,
+        "capture"
+      ]
+    },
+    {
+      "layer": "headless-dispatch",
+      "width": 100,
+      "height": 60,
+      "gap": 5,
+      "children": [
+        [
+          20,
+          30
+        ],
+        [
+          25,
+          40
+        ]
+      ],
+      "id": "focus-stop-child-bubble",
+      "kind": "focus",
+      "focuses": [
+        2,
+        3
+      ],
+      "event": "down",
+      "key": "k",
+      "stop": [
+        2,
+        "bubble"
+      ]
+    }
   ]
 }
