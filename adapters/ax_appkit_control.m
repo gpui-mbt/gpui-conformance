@@ -1,6 +1,7 @@
 #import <AppKit/AppKit.h>
 #include <libproc.h>
 #include <sys/proc_info.h>
+#include <stdio.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -54,6 +55,33 @@ int main(void) {
             if (!safe(window, foreground)) { [window close]; return 4; }
             tick(events);
         }
+        NSString *expectedBundle = env[@"GPUI_AX_CONTROL_BUNDLE_ID"];
+        NSString *expectedPath = env[@"GPUI_AX_CONTROL_BUNDLE_PATH"];
+        NSUInteger registrations = 0;
+        NSRunningApplication *running = nil;
+        if (expectedBundle.length) {
+            // The Button history measured registration after 0.5-0.6 s; a
+            // one-shot identity read would hide the external-AX experiment.
+            while (NSProcessInfo.processInfo.systemUptime < start + 1.5) {
+                if (!safe(window, foreground)) { [window close]; return 4; }
+                running = [NSRunningApplication runningApplicationWithProcessIdentifier:getpid()];
+                registrations++;
+                NSString *identifier = running.bundleIdentifier;
+                NSString *bundlePath = running.bundleURL.URLByResolvingSymlinksInPath.path;
+                if ((identifier && ![identifier isEqual:expectedBundle]) ||
+                    (bundlePath && ![bundlePath isEqual:expectedPath])) break;
+                if ([identifier isEqual:expectedBundle] && [bundlePath isEqual:expectedPath]) break;
+                tick(events);
+            }
+            if (![NSBundle.mainBundle.bundleIdentifier isEqual:expectedBundle] ||
+                ![running.bundleIdentifier isEqual:expectedBundle] ||
+                ![running.bundleURL.URLByResolvingSymlinksInPath.path isEqual:expectedPath]) {
+                fprintf(stderr, "bundle registration mismatch: expected=%s actual=%s observations=%lu\n",
+                    expectedBundle.UTF8String, running.bundleIdentifier.UTF8String ?: "(nil)",
+                    (unsigned long)registrations);
+                [window close]; return 8;
+            }
+        }
         struct proc_bsdinfo info = {0};
         char path[PROC_PIDPATHINFO_MAXSIZE] = {0};
         struct timespec now;
@@ -72,6 +100,8 @@ int main(void) {
         }
         NSDictionary *ready = @{
             @"protocol":@1, @"control_kind":@"stock-appkit-no-gpu", @"pump":pump,
+            @"bundle_registration_observations":@(registrations),
+            @"publication_elapsed_ms":@((NSProcessInfo.processInfo.systemUptime-start)*1000),
             @"run_token":token, @"pid":@(getpid()), @"native_window_id":@(window.windowNumber),
             @"process_start_sec":@(info.pbi_start_tvsec), @"process_start_usec":@(info.pbi_start_tvusec),
             @"executable":@(path), @"executable_sha256":env[@"GPUI_EXECUTABLE_SHA256"] ?: @"",
@@ -87,7 +117,7 @@ int main(void) {
                 @"button_role":button.accessibilityRole ?: NSNull.null,
                 @"bundle_path":NSBundle.mainBundle.bundlePath,
                 @"bundle_identifier":NSBundle.mainBundle.bundleIdentifier ?: NSNull.null,
-                @"running_bundle_identifier":NSRunningApplication.currentApplication.bundleIdentifier ?: NSNull.null},
+                @"running_bundle_identifier":(running ?: NSRunningApplication.currentApplication).bundleIdentifier ?: NSNull.null},
         };
         NSData *data = [NSJSONSerialization dataWithJSONObject:ready options:0 error:nil];
         if (!data || ![data writeToFile:[directory stringByAppendingPathComponent:@"ready.json"]

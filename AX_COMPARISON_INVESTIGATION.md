@@ -90,7 +90,11 @@ Each cell retains compile commands/logs, copied native sources and hashes,
 executables, plist, local hierarchy and every external observer attempt. The
 fixture has a five-second lifetime; the parent polls within 4.5 seconds with
 individual observer children limited to 750 ms. Timeout/failed attempts remain
-retained. A late match does not erase an initial alias. Exit 0 means only the
+retained. Bundle identity may settle for up to 1.5 seconds before publication,
+inside that same lifetime; nil identity is retried, an observed wrong ID/path
+is rejected, and registration observations/publication delay are retained.
+This avoids repeating the Button's known one-shot registration failure before
+testing AX. A late AX match does not erase an initial alias. Exit 0 means only the
 stock control's external window matched and the fixture exited normally;
 exit 1 leaves it unverified; exit 77 means an unsupported host. The summary's
 `gpui_ax_compatibility` remains `unverified` even on a stock-control pass.

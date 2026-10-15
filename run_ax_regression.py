@@ -52,13 +52,16 @@ def run_control(executable, observer, folder, out, revision, packaging, pump):
     env.update(GPUI_RUN_TOKEN=token, GPUI_OBSERVER_DIR=str(folder),
                GPUI_AX_CONTROL_PUMP=pump, GPUI_AX_DIAGNOSTICS="1",
                GPUI_EXECUTABLE_SHA256=run["executable"]["sha256"],
-               GPUI_SOURCE_REVISION=revision, GPUI_SCENE_SHA256=scenario_hash)
+               GPUI_SOURCE_REVISION=revision, GPUI_SCENE_SHA256=scenario_hash,
+               GPUI_AX_CONTROL_BUNDLE_ID="", GPUI_AX_CONTROL_BUNDLE_PATH="")
     if packaging == "bundle":
         plist = executable.parents[1]/"Info.plist"
         info = plistlib.loads(plist.read_bytes())
         info["CFBundleIdentifier"] = "org.gpui-mbt.conformance.appkit-control."+token
         plist.write_bytes(plistlib.dumps(info))
         run["info_plist"] = artifact(plist, out)
+        env.update(GPUI_AX_CONTROL_BUNDLE_ID=info["CFBundleIdentifier"],
+                   GPUI_AX_CONTROL_BUNDLE_PATH=str(executable.parents[2]))
     started = now()
     start = time.monotonic()
     deadline = start+4.5
