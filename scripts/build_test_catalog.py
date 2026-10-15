@@ -59,6 +59,24 @@ def pixel_status(recorded_status: str | None) -> str:
     return {"equal": "pass", "different": "difference"}.get(recorded_status, "unverified")
 
 
+def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any]) -> None:
+    """Fail closed if inventory metadata drifts from the retained browser build."""
+    build = browser["build"]
+    for key in ("upstream", "moonbit"):
+        recorded = build.get(key, {})
+        declared = inventory.get(key, {})
+        if recorded.get("repository") != declared.get("repository") or recorded.get("revision") != declared.get("revision"):
+            raise ValueError(f"browser {key} pin in examples.json differs from retained result")
+
+    recorded_implemented = set(build.get("implemented", []))
+    declared_implemented = {
+        example["id"] for example in inventory.get("examples", [])
+        if example.get("moonbit") == "implemented"
+    }
+    if recorded_implemented != declared_implemented:
+        raise ValueError("implemented browser examples differ from the retained result")
+
+
 def recorded_date(path: str) -> str:
     match = re.search(r"(20\d{6})", Path(path).name)
     if not match:
@@ -228,15 +246,20 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     browser = load_json(BROWSER_RESULT_PATH)
     current_pins = load_json("pins.json")
     browser_inventory = load_json("web/examples.json")
+    validate_browser_inventory(browser, browser_inventory)
+    browser_build = browser["build"]
+    browser_upstream = browser_build["upstream"]
+    browser_moonbit = browser_build["moonbit"]
+    browser_implemented = set(browser_build["implemented"])
     raster = browser["raster_comparison"]
     browser_status = pixel_status(raster.get("status"))
     changed = raster["changed_pixels"]
     total = raster["total_pixels"]
     examples = browser_inventory
-    upstream_revision = examples["upstream"]["revision"]
+    upstream_revision = browser_upstream["revision"]
     browser_examples = []
     for example in examples["examples"]:
-        implemented = example.get("moonbit") == "implemented"
+        implemented = example["id"] in browser_implemented
         status = browser_status if implemented else "unsupported"
         browser_examples.append({
             "id": example["id"],
@@ -269,8 +292,8 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         "details_url": source_url(revision, "web/PIXEL_ANALYSIS_20261016.md"),
         "examples_url": source_url(revision, "web/README.md"),
         "pins": [
-            {"label": "gpui.rs · GPUI 0.2.2", "revision": browser_inventory["upstream"]["revision"], "url": f"https://github.com/{browser_inventory['upstream']['repository']}/commit/{browser_inventory['upstream']['revision']}"},
-            {"label": "gpui.mbt", "revision": browser_inventory["moonbit"]["revision"], "url": f"https://github.com/{browser_inventory['moonbit']['repository']}/commit/{browser_inventory['moonbit']['revision']}"},
+            {"label": "gpui.rs · GPUI 0.2.2", "revision": browser_upstream["revision"], "url": f"https://github.com/{browser_upstream['repository']}/commit/{browser_upstream['revision']}"},
+            {"label": "gpui.mbt", "revision": browser_moonbit["revision"], "url": f"https://github.com/{browser_moonbit['repository']}/commit/{browser_moonbit['revision']}"},
         ],
     }
     ax_status = native_ax.get("status", "unverified")

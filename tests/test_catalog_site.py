@@ -1,6 +1,14 @@
 import unittest
 
-from scripts.build_test_catalog import build_catalog, pixel_status
+from copy import deepcopy
+
+from scripts.build_test_catalog import (
+    BROWSER_RESULT_PATH,
+    build_catalog,
+    load_json,
+    pixel_status,
+    validate_browser_inventory,
+)
 
 
 class TestCatalogData(unittest.TestCase):
@@ -50,6 +58,21 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(examples[0]["status"], "difference")
         self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 6)
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
+
+    def test_browser_inventory_must_match_retained_build_provenance(self):
+        browser = load_json(BROWSER_RESULT_PATH)
+        inventory = load_json("web/examples.json")
+        validate_browser_inventory(browser, inventory)
+
+        changed_pin = deepcopy(inventory)
+        changed_pin["moonbit"]["revision"] = "changed"
+        with self.assertRaisesRegex(ValueError, "moonbit pin"):
+            validate_browser_inventory(browser, changed_pin)
+
+        changed_implementation = deepcopy(inventory)
+        changed_implementation["examples"][0]["moonbit"] = "not_implemented"
+        with self.assertRaisesRegex(ValueError, "implemented browser examples"):
+            validate_browser_inventory(browser, changed_implementation)
 
     def test_native_status_is_not_carried_forward_across_candidate_pins(self):
         data = self.data
