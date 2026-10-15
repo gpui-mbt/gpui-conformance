@@ -13,6 +13,9 @@ oracle run.
 - Read-only Zed/GPUI: `d9afb21688e04f89d9e94d96d33eb530aef90886`, GPUI 0.2.2.
 - gpui.mbt baseline: `01818aa4e96fc21d1676f747a6b23d91445648a1`.
 - gpui.mbt candidate: `67b31732900c00cc11f068f13ca0fbceca5014a5`.
+- The candidate adapter/schema suite is committed and clean; each retained
+  manifest binds its exact suite revision. The baseline uses a clean suite
+  adapter commit that deliberately leaves the unavailable mode at start.
 - Linux x86_64; Rust 1.98.1 and MoonBit `0.1.20261012`.
 - The Rust and MoonBit adapters independently build and execute their layout
   paths. Geometry is compared as logical rectangles.
@@ -54,10 +57,13 @@ unchanged. The engine's full MoonBit test suite passes 503/503 tests.
 
 ## Retained artifacts and limits
 
-Clean final executions are retained under `_build/justify-between-final-*`.
-Each directory contains selected scenario bytes, source/platform/toolchain
-identities, process/build logs, executable hashes, raw outputs, `manifest.json`,
-and `comparison.json`; preserve the full directories to audit the results.
+The valid clean executions are retained in `_build/justify-between-final-baseline-*`,
+`_build/justify-between-final-candidate*`, and
+`_build/justify-between-final-regression-*`. Each directory contains selected
+scenario bytes, source/platform/toolchain identities, process/build logs,
+executable hashes, raw outputs, `manifest.json`, and `comparison.json`; preserve
+the full directories to audit the results. The manifests identify the exact
+clean suite and framework commits for each execution.
 Run `python3 comparator.py <directory>` to validate hashes and recompute a
 comparison. The six-case oracle establishes only this bounded logical-layout
 subset. It does not establish native rendering, all justification modes,
