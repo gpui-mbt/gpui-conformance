@@ -9,17 +9,27 @@ concurrency:
   group: browser-lab-pages
   cancel-in-progress: false
 jobs:
-  publish:
+  build:
     if: github.ref == 'refs/heads/feat/browser-side-by-side-lab'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/browser-examples.yml
+  publish:
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: browser-example-evidence
+          path: _artifacts
+      - name: Require a compiled port, not the source scaffold
+        run: test -s _artifacts/browser-lab/moonbit/runtime.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: _artifacts/browser-lab
       - id: deploy
         uses: actions/deploy-pages@v4
