@@ -209,6 +209,20 @@ headless cases pass. Native preparation remains build-only/unverified under
 the no-focus-disruption constraint. See [FLEX_LIMIT_RESULTS.md](FLEX_LIMIT_RESULTS.md)
 for exact identities, evidence indexes, reproduction and coverage limits.
 
+## Flex `space-between` capability batch
+
+[justify_between_scenarios.json](justify_between_scenarios.json) adds six
+headless layouts for empty/singleton lists, positive row/column spacing,
+negative-overflow fallback, and wrapped line-local distribution. The baseline
+lacked this justification mode, so this is a capability addition, not a bug in
+an existing mode. Its actual GPUI baseline records three passes/three
+mismatches; the candidate records six passes/zero mismatches, and a one-pixel
+negative control is detected on all five nonempty cases. All earlier 115
+executed headless cases remain passing, with one unsupported IME and two
+unverified native placeholders unchanged. See
+[JUSTIFY_BETWEEN_RESULTS.md](JUSTIFY_BETWEEN_RESULTS.md) for exact revisions,
+Linux execution evidence, regression counts and coverage limits.
+
 ## Evaluate retained native images with vlmkit
 
 `prepare_visual.py`, `evaluate_native_images.py` and `verify_native_images.py`

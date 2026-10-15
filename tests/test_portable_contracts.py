@@ -20,9 +20,32 @@ import run_native
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
+
+    def test_space_between_allows_empty_singleton_and_four_children(self):
+        corpus = load_json(ROOT / "justify_between_scenarios.json")
+        validate_scenarios(corpus)
+        expected_counts = {
+            "justify-between-empty": 0,
+            "justify-between-singleton": 1,
+            "justify-between-wrap-line-local": 4,
+        }
+        for scenario_id, expected_count in expected_counts.items():
+            scenario = next(s for s in corpus["cases"] if s["id"] == scenario_id)
+            self.assertEqual(len(scenario["children"]), expected_count)
+
+        for scenario_id in (
+            "justify-between-empty",
+            "justify-between-singleton",
+            "justify-between-wrap-line-local",
+        ):
+            invalid = copy.deepcopy(corpus)
+            scenario = next(s for s in invalid["cases"] if s["id"] == scenario_id)
+            scenario["justify"] = "start"
+            with self.subTest(scenario_id=scenario_id), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
 
     def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")
@@ -215,7 +238,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():

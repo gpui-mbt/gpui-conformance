@@ -109,6 +109,7 @@ fn tree(s : Json) -> @element.Prepainted {
   let justify = match optional(s, "justify") {
     Some(String("center")) => @layout.JustifyContent::center()
     Some(String("end")) => @layout.JustifyContent::end()
+    Some(String("space-between")) => @layout.JustifyContent::space_between()
     _ => @layout.JustifyContent::start()
   }
   let align = match optional(s, "align") {
@@ -291,7 +292,8 @@ fn observe(s : Json) -> Json {
       let line_origins = optional(s, "layout_observation") == Some(
         @json.to_json("line_origins"),
       )
-      if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
+      if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") &&
+        output.length() > 1 {
         if line_origins {
           // Perturb the second child's cross-axis origin: for the decimal
           // fixtures this simulates a wrong wrap line assignment.

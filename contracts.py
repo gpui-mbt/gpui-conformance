@@ -27,7 +27,16 @@ def validate_scenarios(scenarios):
         if kind in ("layout", "scene", "pointer", "key", "route", "focus"):
             children = s.get("children", [])
             child_count = len(children) if isinstance(children, list) else 0
-            allowed_counts = (2, 3) if kind in ("layout", "pointer") else (2,)
+            if kind == "layout":
+                allowed_counts = (
+                    tuple(range(5))
+                    if s.get("justify", "start") == "space-between"
+                    else (2, 3)
+                )
+            elif kind == "pointer":
+                allowed_counts = (2, 3)
+            else:
+                allowed_counts = (2,)
             if kind == "layout":
                 direction = s.get("direction", "row")
                 main_index = 1 if direction == "column" else 0
@@ -39,9 +48,9 @@ def validate_scenarios(scenarios):
             else:
                 valid_children = all(numbers(c, 2, True) and max(c) <= 4096 for c in children)
             if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or child_count not in allowed_counts or not valid_children:
-                raise ValueError("first slice requires two or three bounded layout/pointer children and nonnegative gap")
+                raise ValueError("first slice requires bounded children (two or three for layout/pointer; space-between layouts allow zero through four) and nonnegative gap")
         if kind == "layout":
-            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
+            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end", "space-between") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
                 raise ValueError("unknown layout direction/alignment")
             if s.get("layout_observation", "bounds") not in ("bounds", "line_origins"):
                 raise ValueError("unknown bounded layout observation")
@@ -56,11 +65,11 @@ def validate_scenarios(scenarios):
                 raise ValueError("unknown bounded flex wrapping mode")
             child_count = len(s["children"])
             for field, default in (("grow", [0] * child_count), ("shrink", [1] * child_count)):
-                if not numbers(s.get(field, default), child_count, True) or max(s.get(field, default)) > 16:
+                if not numbers(s.get(field, default), child_count, True) or max(s.get(field, default), default=0) > 16:
                     raise ValueError("invalid bounded flex factors")
             minima = s.get("min_main", [0] * child_count)
             maxima = s.get("max_main", [None] * child_count)
-            if not numbers(minima, child_count, True) or max(minima) > 4096:
+            if not numbers(minima, child_count, True) or max(minima, default=0) > 4096:
                 raise ValueError("invalid bounded main-axis minima")
             if not isinstance(maxima, list) or len(maxima) != child_count or any(
                 x is not None and (type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 4096)
@@ -69,7 +78,7 @@ def validate_scenarios(scenarios):
                 raise ValueError("invalid bounded main-axis maxima")
             cross_minima = s.get("min_cross", [0] * child_count)
             cross_maxima = s.get("max_cross", [None] * child_count)
-            if not numbers(cross_minima, child_count, True) or max(cross_minima) > 4096:
+            if not numbers(cross_minima, child_count, True) or max(cross_minima, default=0) > 4096:
                 raise ValueError("invalid bounded cross-axis minima")
             if not isinstance(cross_maxima, list) or len(cross_maxima) != child_count or any(
                 x is not None and (type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 4096)
