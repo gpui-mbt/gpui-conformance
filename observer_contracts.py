@@ -5,6 +5,21 @@ from pathlib import Path
 import uuid
 
 
+def execution_root(run):
+    """Recover the recorded result root without reading the original machine."""
+    command = run["execution"]["command"]
+    relative = Path(run["executable"]["path"])
+    if len(command) != 1 or relative.is_absolute() or ".." in relative.parts or len(relative.parts) < 2:
+        raise ValueError("invalid owned executable path/command")
+    absolute = Path(command[0])
+    if not absolute.is_absolute() or ".." in absolute.parts or len(absolute.parts) <= len(relative.parts):
+        raise ValueError("invalid absolute owned executable identity")
+    root = absolute.parents[len(relative.parts)-1]
+    if root / relative != absolute:
+        raise ValueError("execution command differs from retained executable path")
+    return root
+
+
 def validate_ready(value, run, pid, executable, dimensions, started_at, finished_at=None):
     if not isinstance(value, dict) or type(value.get("protocol")) is not int or value["protocol"] != 1:
         raise ValueError("unknown ready protocol")
@@ -35,6 +50,11 @@ def validate_ready(value, run, pid, executable, dimensions, started_at, finished
     # An executable path is an identity, never a relocation target to read.
     if not Path(value["executable"]).is_absolute():
         raise ValueError("missing absolute executable identity")
+    if run.get("fixture_packaging") == "app-bundle-v1":
+        local = value.get("local_ax", {})
+        identifier = "org.gpui-mbt.conformance."+run["implementation"]+"."+run["run_token"]
+        if value.get("local_ax_read") is not True or local.get("bundle_path") != str(Path(executable).parent.parent.parent) or local.get("bundle_identifier") != identifier or local.get("running_bundle_identifier") != identifier:
+            raise ValueError("owned runtime bundle identity differs")
 
 
 def validate_observation(value, ready):

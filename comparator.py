@@ -6,12 +6,13 @@ No stand-alone observation JSON or golden trace can establish conformance.
 import hashlib
 import json
 import math
+import plistlib
 from pathlib import Path
 from datetime import datetime
 import re
 import uuid
 from fixture_contracts import validate_native_fixture
-from observer_contracts import validate_ack, validate_frame_binding, validate_observation, validate_ready
+from observer_contracts import execution_root, validate_ack, validate_frame_binding, validate_observation, validate_ready
 from contracts import validate_scenarios, valid_observation
 
 PREFIX = "GPUI_CONFORMANCE "
@@ -76,6 +77,19 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
         read_artifact("build_stderr")
         # The built executable is retained independently for replay/audit.
         read_artifact("executable")
+        if "fixture_packaging" in run:
+            if run["fixture_packaging"] != "app-bundle-v1":
+                raise ValueError("unknown fixture packaging")
+            expected_bundle = {"CFBundlePackageType":"APPL", "CFBundleExecutable":"probe",
+                "CFBundleIdentifier":"org.gpui-mbt.conformance."+implementation+"."+run["run_token"],
+                "CFBundleName":"GPUI Conformance Fixture", "CFBundleVersion":"1",
+                "CFBundleShortVersionString":"1.0", "LSMinimumSystemVersion":"13.0",
+                "LSUIElement":True, "NSPrincipalClass":"NSApplication", "NSHighResolutionCapable":True}
+            if plistlib.loads(read_artifact("bundle_info_plist")) != expected_bundle:
+                raise ValueError("fixture bundle identity/policy differs")
+            executable_path = Path(run["executable"]["path"])
+            if executable_path.parts[-3:] != ("Contents","MacOS","probe") or executable_path.parent.parent.parent.suffix != ".app" or Path(run["bundle_info_plist"]["path"]) != executable_path.parent.parent/"Info.plist":
+                raise ValueError("fixture bundle paths differ")
         lines = [line[len(PREFIX):] for line in raw.decode().splitlines() if line.startswith(PREFIX)]
         if len(lines) != 1:
             raise ValueError("expected exactly one adapter output envelope")
@@ -104,7 +118,7 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
                                [window_scenario[k] for k in ("width", "height")],
                                run["execution"]["started_at"], run["execution"]["finished_at"])
                 validate_frame_binding(ready, output)
-                original_root = Path(run["execution"]["command"][0]).parent.parent
+                original_root = execution_root(run)
                 observer_executable = str(original_root / run["observer_executable"]["path"])
                 if run["observer_build"]["command"][-1] != observer_executable or observation["execution"]["command"] != [observer_executable, str(original_root / observation["ready"]["path"])]:
                     raise ValueError("observer execution command differs from built observer/ready record")

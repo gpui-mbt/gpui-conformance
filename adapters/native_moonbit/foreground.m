@@ -87,6 +87,9 @@ int32_t conformance_fixture_checkpoint(void) {
                         @"window_role":diagnostics ? (window.accessibilityRole ?: NSNull.null) : NSNull.null,
                         @"window_title":diagnostics ? (window.accessibilityTitle ?: NSNull.null) : NSNull.null,
                         @"window_class":NSStringFromClass(window.class),
+                        @"bundle_path":diagnostics ? NSBundle.mainBundle.bundlePath : NSNull.null,
+                        @"bundle_identifier":diagnostics ? (NSBundle.mainBundle.bundleIdentifier ?: NSNull.null) : NSNull.null,
+                        @"running_bundle_identifier":diagnostics ? (NSRunningApplication.currentApplication.bundleIdentifier ?: NSNull.null) : NSNull.null,
                         @"application_windows":localWindowRoles},
     };
     NSData *data = [NSJSONSerialization dataWithJSONObject:ready options:0 error:nil];

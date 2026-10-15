@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import plistlib
 import shutil
 import uuid
 
@@ -28,9 +29,12 @@ def main():
     parser.add_argument("--negative-control",action="store_true",help="Actually paint the MoonBit rectangle blue instead of the shared red")
     parser.add_argument("--observe-visible",action="store_true",help="Explicitly show only each owned accessory fixture behind other windows for a bounded read-only observer handshake")
     parser.add_argument("--ax-diagnostics",action="store_true",help="Read only the owned fixture's local accessibility objects and external AX attribute names to diagnose projection")
+    parser.add_argument("--bundle-fixtures",action="store_true",help="Stage private accessory .app fixtures and launch their exact executable as an owned child for identity diagnosis")
     parser.add_argument("--online",action="store_true")
     args=parser.parse_args()
     if args.ax_diagnostics and not args.observe_visible: parser.error("AX diagnostics require explicit --observe-visible")
+    if args.bundle_fixtures and not args.observe_visible: parser.error("Bundle fixtures require explicit --observe-visible")
+    if args.bundle_fixtures and not args.ax_diagnostics: parser.error("Bundle identity diagnosis requires explicit --ax-diagnostics")
     if platform.system() != "Darwin": parser.error("native slice requires macOS")
     out=args.output.resolve()
     out.mkdir(parents=True,exist_ok=False)
@@ -83,8 +87,20 @@ def main():
         run["build_stdout"]=artifact(folder/"build.stdout",out)
         run["build_stderr"]=artifact(folder/"build.stderr",out)
         if run["build"]["returncode"]==0:
-            shutil.copy2(config["exe"],folder/"probe")
-            run["executable"]=artifact(folder/"probe",out)
+            executable=folder/"probe"
+            if args.bundle_fixtures:
+                contents=folder/("GPUI"+name.title()+"Fixture.app")/"Contents"
+                executable=contents/"MacOS/probe"
+                executable.parent.mkdir(parents=True)
+                info={"CFBundlePackageType":"APPL", "CFBundleExecutable":"probe",
+                    "CFBundleIdentifier":"org.gpui-mbt.conformance."+name+"."+run["run_token"],
+                    "CFBundleName":"GPUI Conformance Fixture", "CFBundleVersion":"1",
+                    "CFBundleShortVersionString":"1.0", "LSMinimumSystemVersion":"13.0",
+                    "LSUIElement":True, "NSPrincipalClass":"NSApplication", "NSHighResolutionCapable":True}
+                (contents/"Info.plist").write_bytes(plistlib.dumps(info))
+                run.update(fixture_packaging="app-bundle-v1",bundle_info_plist=artifact(contents/"Info.plist",out))
+            shutil.copy2(config["exe"],executable)
+            run["executable"]=artifact(executable,out)
         manifest["runs"][name]=run
     # The same owned, retained helper reads each probe's own NSApplication.
     # It neither observes other windows nor activates/restores another app.
@@ -113,7 +129,7 @@ def main():
             if name=="moonbit": child_env["GPUI_MACOS_LIBRARY"]=str(folder/"libgpui_macos.dylib")
             if args.observe_visible:
                 child_env.update(GPUI_OBSERVER_DIR=str(folder),GPUI_EXECUTABLE_SHA256=run["executable"]["sha256"],GPUI_SOURCE_REVISION=run["revision"],GPUI_SCENE_SHA256=run["scenarios_sha256"])
-                run["execution"],run["observer"]=execute_observed(folder/"probe",child_env,folder,out,run,[json.loads(scenarios)["cases"][0][k] for k in ("width","height")],observer)
+                run["execution"],run["observer"]=execute_observed(out/run["executable"]["path"],child_env,folder,out,run,[json.loads(scenarios)["cases"][0][k] for k in ("width","height")],observer)
             else:
                 run["execution"]=execute([str(folder/"probe")],child_env,folder/"stdout.log",folder/"stderr.log",ROOT,15)
             run["stdout"]=artifact(folder/"stdout.log",out)
