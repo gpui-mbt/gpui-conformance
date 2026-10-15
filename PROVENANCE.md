@@ -7,6 +7,13 @@ dispatch in `crates/gpui/src/window.rs`, and GPUI's flex style builders. Layout
 observations still come from completed GPUI Render/Taffy bounds, not copied
 upstream tests or expected coordinate tables.
 
+The fractional-grow batch adds 17 original rectangle/factor inputs in
+`fractional_grow_scenarios.json` and reuses those same adapters unchanged.
+The MoonBit allocation adjustment was derived independently from measured
+behavior. Read-only inspection of locked Taffy 0.13.0 explains the retained
+partial-grow-with-gap difference; no dependency implementation or tests were
+copied. That known mismatch remains in the shared corpus and result indexes.
+
 Reference: `https://github.com/zed-industries/zed` at
 `d9afb21688e04f89d9e94d96d33eb530aef90886`. This matches gpui.mbt's existing
 `docs/upstream.json` compatibility target. Upstream remains unmodified.
