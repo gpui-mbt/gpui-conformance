@@ -13,6 +13,7 @@ Inputs and toolchains:
 - Rust `1.98.1` (`48a229cea`, 2026-09-01)
 - gpui.mbt `0.7.2`, candidate commit `71da96d9f8eaed89f42937d4edcd3eb2122cfb54`
 - MoonBit `0.1.20261012` (`748b63c`, 2026-10-12)
+- Conformance runner revision `fccf4ad93ae36c74365c17895f4d177a3667a678` (clean)
 - Scenario artifact SHA-256: `5702d15ae947a7a5195a4e6b509f7ab21abf6f723ca04c21e93cfc27d1c19970`
 
 The intentionally older gpui.mbt baseline `f9f59fe074da3858ca82fe1d5fadd84cd17f0438`
@@ -44,7 +45,9 @@ python3 tests/test_comparator.py \
 
 The checker requires the corpus and expected summary together, validates unique
 well-formed case IDs and exact status keys/counts, and verifies that the
-explicit corpus equals the scenario artifact retained with the run. The
+explicit corpus equals the scenario artifact retained with the run. Because
+the adversarial checks exercise the original first-slice fixtures, an expanded
+corpus must preserve those original 11 cases as its exact ordered prefix. The
 runner's generated `comparison.json` is not used as a substitute for comparing
 the retained executable/log evidence.
 

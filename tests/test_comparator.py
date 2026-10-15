@@ -58,6 +58,9 @@ def checker_configuration(evidence_dir, corpus_path=None, summary_path=None):
     expected = read_scenarios(corpus_path)
     if expected != retained:
         raise ValueError("explicit corpus differs from retained evidence scenarios")
+    first_slice = read_scenarios(SUITE_ROOT / "scenarios.json")
+    if expected["cases"][:len(first_slice["cases"])] != first_slice["cases"]:
+        raise ValueError("explicit corpus must retain the original first-slice cases in canonical order")
     summary = read_expected_summary(summary_path, len(expected["cases"]))
     return expected, summary
 
@@ -133,6 +136,20 @@ class ComparatorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "differs from retained evidence"):
                 checker_configuration(self.evidence_dir, corpus_path, summary_path)
 
+    def test_explicit_configuration_requires_original_fixture_prefix(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "evidence"
+            root.mkdir()
+            corpus = load_json(self.root / "scenarios.json")
+            corpus["cases"] = corpus["cases"][1:]
+            (root / "scenarios.json").write_text(json.dumps(corpus))
+            corpus_path = Path(temp) / "corpus.json"
+            summary_path = Path(temp) / "summary.json"
+            corpus_path.write_text(json.dumps(corpus))
+            summary_path.write_text(json.dumps({"pass": len(corpus["cases"]), "mismatch": 0, "unsupported": 0, "unverified": 0}))
+            with self.assertRaisesRegex(ValueError, "original first-slice cases"):
+                checker_configuration(root, corpus_path, summary_path)
+
     def test_explicit_configuration_rejects_malformed_summary(self):
         with tempfile.TemporaryDirectory() as temp:
             summary = dict(self.expected_summary)
@@ -145,7 +162,7 @@ class ComparatorTests(unittest.TestCase):
     def test_explicit_configuration_rejects_incomplete_summary(self):
         with tempfile.TemporaryDirectory() as temp:
             summary = dict(self.expected_summary)
-            summary["pass"] -= 1
+            summary["unverified"] += 1
             summary_path = Path(temp) / "summary.json"
             summary_path.write_text(json.dumps(summary))
             with self.assertRaisesRegex(ValueError, "add up"):
