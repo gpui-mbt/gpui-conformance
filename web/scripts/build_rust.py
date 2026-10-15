@@ -45,8 +45,8 @@ def build(upstream: Path, site: Path, target: Path) -> None:
         shutil.copy2(gallery / "Cargo.lock", rust / "Cargo.lock")
         # Font and source licenses travel with the binary that embeds these fonts.
         shutil.copy2(source / "LICENSE-APACHE", rust / "LICENSE-APACHE")
-        for family in ["ibm-plex-sans", "lilex"]:
-            shutil.copy2(source / "assets/fonts" / family / "license.txt", rust / f"{family}-license.txt")
+        for family, license_name in [("ibm-plex-sans", "license.txt"), ("lilex", "OFL.txt")]:
+            shutil.copy2(source / "assets/fonts" / family / license_name, rust / f"{family}-license.txt")
         check_source(upstream, catalog["upstream"]["revision"])
         manifest["rust_bundled"] = True
         manifest["rust"] = {
