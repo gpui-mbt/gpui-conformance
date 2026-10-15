@@ -40,47 +40,83 @@ old runtimes and shows the missing-port state; it never loads a substitute.
 Text input must eventually cover editing, selection and IME independently,
 and Prime sieve must execute real background work rather than replay counts.
 
-## Build and verify
+## Build and verify the actual pair
 
-Requires Python 3.12+, Node.js, MoonBit, and clean checkouts of the exact
-candidate and upstream revisions in `examples.json`.
+Requires Python 3.12+, Node.js, MoonBit, Rustup, and clean checkouts of the
+exact candidate and upstream revisions in `examples.json`.
 
 ```sh
+rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+# Install wasm-bindgen-cli 0.2.129; CI verifies the release archive SHA256.
 node --test web/tests/contracts.test.mjs
-python3 web/scripts/build_moonbit.py \
-  --gpui-source /path/to/gpui.mbt \
-  --upstream-source /path/to/zed \
-  --out _build/browser-lab
-python3 -m http.server 8080 --bind 127.0.0.1 -d _build/browser-lab
+python3 web/scripts/build_moonbit.py --gpui-source /path/to/gpui.mbt --upstream-source /path/to/zed
+python3 web/scripts/build_rust.py --upstream-source /path/to/zed
+python3 web/scripts/serve.py _build/browser-lab
 ```
 
-The build script verifies both revisions and tracked cleanliness, checks the
-upstream example's blob, stages a temporary copy of the candidate, runs the
-MoonBit package tests, builds the real JS module, and includes the font with
-its upstream license. It never changes either source checkout. Existing output
-directories are rejected; select a fresh `--out` rather than deleting work.
-Compiler version and output digests are recorded in `build-manifest.json`.
-The installer in CI currently follows the official distribution; the compiler
-version is measured, **not pinned**.
+Open `http://127.0.0.1:8080/`. Rust WASM is under `rust/`; MoonBit JS is
+under `moonbit/`. Both iframe URLs use the same origin and fixed 500×500
+logical viewports. There is no external runtime URL or substitute Rust image.
+The Rust loader compiles and starts the actual upstream `hello_world` binary
+from the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
+source and upstream platform/renderer implementations remain unchanged.
+Builds use disposable archives; original source checkouts remain read-only.
+The standalone dependency lock is retained in `web/rust/Cargo.lock` and Cargo
+uses `--locked`. The measured Rust/MoonBit compilers, binding generator,
+source pins, font digest, WASM/binding file digests and lockfile accompany the
+site in `build-manifest.json`. The MoonBit compiler is measured, not pinned.
+Existing output directories are rejected instead of deleting previous work.
 
-`browser-examples.yml` runs the host contracts, MoonBit compilation/unit tests,
-and Playwright against the actual compiled candidate under a GitHub Pages-like
-subpath. It retains a real screenshot and a report separating candidate
-execution from the **unexecuted Rust comparison**. It does not fabricate a
-Rust reference image or infer parity from the candidate's output.
+For browser evidence (install Playwright as in `browser-examples.yml`):
 
-## Rust side and Pages
+```sh
+PLAYWRIGHT_ROOT=/path/to/playwright-install node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
+python3 web/scripts/compare_screenshots.py _build/browser-example-evidence
+```
 
-The Rust WASM runtime is **not bundled by this change**. Enter the base URL of
-a separately hosted upstream gallery; `hello_world` selects its
-`hello-world` route. The host must allow framing and satisfy upstream's
-shared-memory WASM isolation requirements. A failed/missing Rust frame never
-becomes a pass. Both frames retain 500×500 logical pixels, with scrolling
-rather than asymmetric scaling on narrow displays.
+The E2E serves under `/gpui-conformance/`, verifies real WASM loading, the
+same origin and cross-origin isolation, and samples six actual swatch RGB
+pixels in each rendered canvas. It retains both 500×500 screenshots, the
+whole comparison, narrow-layout screenshot, actual MoonBit scene, HTTP and
+console records, trusted browser click/key delivery traces, and operation
+results. Selecting a missing port clears both frames. Reload waits for fresh
+iframe documents rather than accepting the old ready document. Click/Enter
+probes only establish browser delivery and unchanged static color probes;
+they do not establish GPUI application event semantics. This upstream example
+has no interactive application controls.
 
-The manual Pages workflow now runs the same build and candidate browser tests
-before publishing generated assets, instead of publishing source-only HTML.
-It remains limited to `feat/browser-side-by-side-lab`, is not dispatched by a
-push, and may replace the repository's published Pages site when deliberately
-run by a maintainer. Pages setup and a complete same-origin Rust bundle remain
-separate work. No merge or Pages deployment is performed by this change.
+`result.json` separates overall execution, candidate, Rust, verified items,
+unverified items and exact screenshot pixel differences. A missing Rust
+bundle fails `--require-rust`; one candidate screenshot cannot pass a pair.
+`difference-x4.png` visualizes exact RGB differences at four times brightness.
+Differences are measured without tolerance or masking and are never promoted
+to native conformance. Text shaping, border dash phase, shadows, other
+examples, IME, hardware GPU browsers and native parity remain separate work.
+
+## Cloudflare hosting and existing GitHub Pages
+
+The upstream WASM uses atomics and shared memory. The top-level comparison
+page, both frames and assets need cross-origin isolation. Ordinary GitHub
+Pages cannot apply this site's `_headers` file as HTTP response headers.
+Hosting only Rust on another origin does not give a non-isolated Pages parent
+the required isolation. Therefore the complete lab is packaged as one
+Cloudflare Worker static-assets deployment with `_headers` containing
+COOP `same-origin`, COEP `require-corp` and CORP `same-origin`.
+
+```sh
+npx wrangler@4.92.0 deploy --config wrangler.browser-lab.jsonc
+```
+
+The `browser-lab-cloudflare.yml` manual workflow first builds and tests the
+pair, then publishes to the dedicated Worker `gpui-conformance-browser-lab`.
+It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the
+`browser-lab-cloudflare` GitHub environment (or repository secrets).
+The old Pages workflow is disabled with an explicit explanation; it cannot
+overwrite the existing published site. Once a Cloudflare URL exists, an
+existing Pages site can link to it as a top-level navigation. An unisolated
+Pages iframe is not presented as a working shared-memory runtime host.
+Neither workflow runs deployment on push or pull request.
+
+Current execution evidence and deployment status are recorded in the PR.
+The browser work leaves `pins.json`, native adapters, runners, existing
+conformance scenarios and `harness.yml` unchanged.
