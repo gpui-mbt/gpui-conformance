@@ -1,0 +1,17 @@
+{
+  "protocol": 1,
+  "scope": "stock-appkit-external-window-only",
+  "status": "unverified",
+  "gpui_ax_compatibility": "unverified",
+  "permission_prompted": false,
+  "platform": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "macos": ""
+  },
+  "suite_revision": "cdd3cdadf605346ed2b90a59d461697582b8751c",
+  "suite_dirty": true,
+  "packaging": "bundle",
+  "pump": "runloop",
+  "reason": "requires macOS Apple Silicon; no native build or AX query attempted"
+}
