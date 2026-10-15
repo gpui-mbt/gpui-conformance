@@ -68,3 +68,12 @@ def validate_ack(value, ready):
                 "frame_sequence": 1, "observer_completed": True}
     if not isinstance(value, dict) or value.keys() != expected.keys() or any(value[k] != v or type(value[k]) is not type(v) for k, v in expected.items()):
         raise ValueError("owned acknowledgment identity differs")
+
+
+def validate_frame_binding(ready, output):
+    snapshots = output["native_fixture"]["snapshots"]
+    if any(sample["native_window_id"] != ready["native_window_id"] for sample in snapshots[:3]):
+        raise ValueError("observer window differs from rendered fixture")
+    frame = output["frame"]
+    if frame["scale"] != ready["scale"] or any(frame[key] != size*ready["scale"] for key, size in zip(("width", "height"), ready["content_size"])):
+        raise ValueError("ready dimensions/scale differ from completed GPU frame")

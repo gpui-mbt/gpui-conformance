@@ -11,7 +11,7 @@ from datetime import datetime
 import re
 import uuid
 from fixture_contracts import validate_native_fixture
-from observer_contracts import validate_ack, validate_observation, validate_ready
+from observer_contracts import validate_ack, validate_frame_binding, validate_observation, validate_ready
 from contracts import validate_scenarios, valid_observation
 
 PREFIX = "GPUI_CONFORMANCE "
@@ -103,19 +103,33 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
                 validate_ready(ready, run, run["execution"]["pid"], run["execution"]["command"][0],
                                [window_scenario[k] for k in ("width", "height")],
                                run["execution"]["started_at"], run["execution"]["finished_at"])
+                validate_frame_binding(ready, output)
+                original_root = Path(run["execution"]["command"][0]).parent.parent
+                observer_executable = str(original_root / run["observer_executable"]["path"])
+                if run["observer_build"]["command"][-1] != observer_executable or observation["execution"]["command"] != [observer_executable, str(original_root / observation["ready"]["path"])]:
+                    raise ValueError("observer execution command differs from built observer/ready record")
                 observed = json.loads(read_record(observation["stdout"]))
                 read_record(observation["stderr"])
                 validate_observation(observed, ready)
+                if observation["ax_status"] != observed["ax_status"]:
+                    raise ValueError("observer AX summary differs from raw observation")
                 ack = json.loads(read_record(observation["ack"]))
                 validate_ack(ack, ready)
                 controls = observation["negative_controls"]
                 expected_controls = [("stale-start", "process_start_sec", ready["process_start_sec"]-1), ("invalid-window", "native_window_id", 0), ("invalid-pid", "pid", 0)]
                 if not isinstance(controls, list) or len(controls) != len(expected_controls):
                     raise ValueError("missing owned observer negative controls")
+                previous_control_end = datetime.fromisoformat(run["execution"]["started_at"])
                 for control, (name, key, value) in zip(controls, expected_controls):
                     if control["name"] != name or json.loads(read_record(control["ready"])) != {**ready, key: value}:
                         raise ValueError("observer negative control identity differs")
                     process_identity(control["execution"])
+                    if control["execution"]["command"] != [observer_executable, str(original_root / control["ready"]["path"])]:
+                        raise ValueError("observer negative control command differs")
+                    control_start, control_end = (datetime.fromisoformat(control["execution"][k]) for k in ("started_at", "finished_at"))
+                    if not (previous_control_end <= control_start <= control_end <= datetime.fromisoformat(observation["execution"]["started_at"])) or int(control_start.timestamp()*1e9) < ready["ready_unix_ns"]:
+                        raise ValueError("observer negative control falls outside ready fixture lifetime")
+                    previous_control_end = control_end
                     result = json.loads(read_record(control["stdout"]))
                     read_record(control["stderr"])
                     if result.get("window_binding") != "unverified" or "window" in result or result.get("permission_prompted") is not False:

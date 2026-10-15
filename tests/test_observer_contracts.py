@@ -3,7 +3,7 @@ import copy
 from datetime import datetime
 import unittest
 
-from observer_contracts import validate_ack, validate_observation, validate_ready
+from observer_contracts import validate_ack, validate_frame_binding, validate_observation, validate_ready
 
 
 TOKEN = "a740c390-c5f0-4db8-a281-40c8dd4b940a"
@@ -92,6 +92,16 @@ class ObserverContracts(unittest.TestCase):
         for key,value in (("run_token","wrong"),("pid",124),("native_window_id",789),("frame_sequence",0),("observer_completed",1)):
             a = copy.deepcopy(ack); a[key] = value
             with self.subTest(key=key), self.assertRaises(ValueError): validate_ack(a,ready())
+
+    def test_ready_is_bound_to_same_rendered_window_and_full_frame(self):
+        output = {"native_fixture":{"snapshots":[{"native_window_id":456} for _ in range(4)]},
+                  "frame":{"width":512,"height":384,"scale":2}}
+        validate_frame_binding(ready(),output)
+        for field,value in (("width",256),("height",192),("scale",1)):
+            changed = copy.deepcopy(output); changed["frame"][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError): validate_frame_binding(ready(),changed)
+        changed = copy.deepcopy(output); changed["native_fixture"]["snapshots"][1]["native_window_id"] = 789
+        with self.assertRaises(ValueError): validate_frame_binding(ready(),changed)
 
 
 if __name__ == "__main__": unittest.main()
