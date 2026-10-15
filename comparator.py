@@ -11,6 +11,7 @@ from pathlib import Path
 from datetime import datetime
 import re
 import uuid
+from xml.parsers.expat import ExpatError
 from fixture_contracts import validate_native_fixture
 from observer_contracts import execution_root, validate_ack, validate_frame_binding, validate_observation, validate_ready
 from contracts import validate_scenarios, valid_observation
@@ -194,7 +195,7 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
                         if pixels[offset:offset+4] != observed_pixel:
                             raise ValueError("pixel samples do not come from retained readback")
         return {case["id"]: case for case in cases}, None
-    except (KeyError, ValueError, TypeError, OSError, UnicodeError, AttributeError) as exc:
+    except (KeyError, ValueError, TypeError, OSError, UnicodeError, AttributeError, ExpatError) as exc:
         return {}, str(exc)
 
 

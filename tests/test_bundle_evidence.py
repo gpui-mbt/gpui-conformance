@@ -25,6 +25,13 @@ class BundleEvidenceTests(ObserverEvidenceTests):
         (self.root/self.run_record()["bundle_info_plist"]["path"]).unlink()
         self.unverified()
 
+    def test_rehashed_malformed_xml_plist_is_unverified(self):
+        record = self.run_record()["bundle_info_plist"]
+        path = self.root/record["path"]
+        path.write_bytes(b'<?xml version="1.0"?><plist><dict>')
+        record["sha256"] = digest(path.read_bytes())
+        self.unverified()
+
     def test_rehashed_wrong_policy_or_identifier_plist_cannot_pass(self):
         record = self.run_record()["bundle_info_plist"]
         path = self.root/record["path"]
