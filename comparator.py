@@ -11,6 +11,7 @@ from datetime import datetime
 import re
 import uuid
 from fixture_contracts import validate_native_fixture
+from observer_contracts import validate_ack, validate_frame_binding, validate_observation, validate_ready
 from contracts import validate_scenarios, valid_observation
 
 PREFIX = "GPUI_CONFORMANCE "
@@ -59,14 +60,16 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
         if not isinstance(run["toolchain"], str) or not run["toolchain"] or not run["platform"]:
             raise ValueError("missing execution/platform/toolchain metadata")
         # Relocatable evidence; never read a path outside its result directory.
-        def read_artifact(name):
-            path = (root / run[name]["path"]).resolve()
+        def read_record(record):
+            path = (root / record["path"]).resolve()
             if not path.is_relative_to(root.resolve()):
                 raise ValueError("artifact path escapes result directory")
             data = path.read_bytes()
-            if digest(data) != run[name]["sha256"]:
-                raise ValueError(name + " digest differs")
+            if digest(data) != record["sha256"]:
+                raise ValueError("artifact digest differs")
             return data
+        def read_artifact(name):
+            return read_record(run[name])
         raw = read_artifact("stdout")
         read_artifact("stderr")
         read_artifact("build_stdout")
@@ -86,7 +89,53 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
             process_identity(run["fixture_guard_build"])
             read_artifact("fixture_guard_build_stdout")
             read_artifact("fixture_guard_build_stderr")
-            validate_native_fixture(output.get("native_fixture"), run["execution"]["pid"])
+            validate_native_fixture(output.get("native_fixture"), run["execution"]["pid"], run.get("fixture_mode", "hidden"))
+            if run.get("fixture_mode") == "visible":
+                observation = run["observer"]
+                if observation["status"] != "pass":
+                    raise ValueError("owned observer handshake was not completed")
+                process_identity(observation["execution"])
+                process_identity(run["observer_build"])
+                for key in ("observer_executable", "observer_build_stdout", "observer_build_stderr"):
+                    read_artifact(key)
+                ready = json.loads(read_record(observation["ready"]))
+                window_scenario = load_json(root / "scenarios.json")["cases"][0]
+                validate_ready(ready, run, run["execution"]["pid"], run["execution"]["command"][0],
+                               [window_scenario[k] for k in ("width", "height")],
+                               run["execution"]["started_at"], run["execution"]["finished_at"])
+                validate_frame_binding(ready, output)
+                original_root = Path(run["execution"]["command"][0]).parent.parent
+                observer_executable = str(original_root / run["observer_executable"]["path"])
+                if run["observer_build"]["command"][-1] != observer_executable or observation["execution"]["command"] != [observer_executable, str(original_root / observation["ready"]["path"])]:
+                    raise ValueError("observer execution command differs from built observer/ready record")
+                observed = json.loads(read_record(observation["stdout"]))
+                read_record(observation["stderr"])
+                validate_observation(observed, ready)
+                if observation["ax_status"] != observed["ax_status"]:
+                    raise ValueError("observer AX summary differs from raw observation")
+                ack = json.loads(read_record(observation["ack"]))
+                validate_ack(ack, ready)
+                controls = observation["negative_controls"]
+                expected_controls = [("stale-start", "process_start_sec", ready["process_start_sec"]-1), ("invalid-window", "native_window_id", 0), ("invalid-pid", "pid", 0)]
+                if not isinstance(controls, list) or len(controls) != len(expected_controls):
+                    raise ValueError("missing owned observer negative controls")
+                previous_control_end = datetime.fromisoformat(run["execution"]["started_at"])
+                for control, (name, key, value) in zip(controls, expected_controls):
+                    if control["name"] != name or json.loads(read_record(control["ready"])) != {**ready, key: value}:
+                        raise ValueError("observer negative control identity differs")
+                    process_identity(control["execution"])
+                    if control["execution"]["command"] != [observer_executable, str(original_root / control["ready"]["path"])]:
+                        raise ValueError("observer negative control command differs")
+                    control_start, control_end = (datetime.fromisoformat(control["execution"][k]) for k in ("started_at", "finished_at"))
+                    if not (previous_control_end <= control_start <= control_end <= datetime.fromisoformat(observation["execution"]["started_at"])) or int(control_start.timestamp()*1e9) < ready["ready_unix_ns"]:
+                        raise ValueError("observer negative control falls outside ready fixture lifetime")
+                    previous_control_end = control_end
+                    result = json.loads(read_record(control["stdout"]))
+                    read_record(control["stderr"])
+                    if result.get("window_binding") != "unverified" or "window" in result or result.get("permission_prompted") is not False:
+                        raise ValueError("observer negative control accepted a target")
+                if not (datetime.fromisoformat(run["execution"]["started_at"]) <= datetime.fromisoformat(observation["execution"]["started_at"]) <= datetime.fromisoformat(observation["execution"]["finished_at"]) <= datetime.fromisoformat(run["execution"]["finished_at"])):
+                    raise ValueError("observer execution falls outside owned fixture lifetime")
         cases = output["cases"]
         if len({case["id"] for case in cases}) != len(cases):
             raise ValueError("duplicate case IDs")

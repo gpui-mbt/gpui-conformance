@@ -1,21 +1,60 @@
 {
   "schema_version": 1,
   "status": "unverified",
-  "scope": "visible fixture, external AX observer and physical input",
+  "scope": "AX window matching, semantic AX, screenshot content binding and physical input",
   "native_execution_attempted": true,
-  "native_execution_scope": "hidden nonactivating AppKit/Metal candidate only; visible/AX/input unverified",
   "permission_prompted": false,
+  "qualification": {
+    "hidden_native": {
+      "status": "pass",
+      "paired_cases": 2,
+      "results": "NONACTIVATING_NATIVE_RESULTS.md"
+    },
+    "visible_native": {
+      "status": "pass",
+      "paired_cases": 2,
+      "results": "OBSERVER_READY_RESULTS.md"
+    },
+    "owned_window_identity": {
+      "status": "pass",
+      "implementations": [
+        "upstream",
+        "moonbit"
+      ],
+      "negative_controls": [
+        "stale-start",
+        "invalid-pid-zero",
+        "invalid-window-zero"
+      ]
+    },
+    "ax_window_match": {
+      "status": "unverified",
+      "ax_trusted": true,
+      "observed_role": "AXApplication",
+      "observed_title": "probe",
+      "attribute_error_codes": 0,
+      "underlying_cause": "undetermined"
+    },
+    "semantic_ax": {
+      "status": "unverified"
+    },
+    "screenshot_content_binding": {
+      "status": "unverified"
+    },
+    "physical_input": {
+      "status": "unverified"
+    }
+  },
   "current_barriers": [
-    "Rust fixture is hidden/offscreen and short-lived.",
-    "MoonBit background-host fixture is hidden and short-lived; older engine libraries reject this path.",
-    "No nonce-bound ready/ack lifecycle or external observer ownership contract is qualified.",
-    "AX collector trust and native post-action state binding are not qualified."
+    "AXWindows entries do not identify nonce-matching AXWindow nodes.",
+    "No screenshot content transform, semantic-node action or post-action completed-frame proof is qualified."
   ],
   "required_before_use": [
-    "Coordinated owned visible-fixture session with bounded ready/ack lifecycle.",
-    "Executable/PID/start/window/frame identity binding and foreign/stale negative controls.",
-    "Read-only trust check for the actual observer, without requesting permissions automatically.",
-    "Owned AX subtree and post-action completed-frame/semantic acknowledgment."
+    "One exact owned AX window association with retained attributes.",
+    "Verified content bounds/transform before screenshot interpretation.",
+    "Native pre/action/post state and completed-frame acknowledgment before physical input qualification."
   ],
-  "specification": "NATIVE_OBSERVER_PREREQUISITES.md"
+  "specification": "NATIVE_OBSERVER_PREREQUISITES.md",
+  "protocol": "OBSERVER_READY_PROTOCOL.md",
+  "results": "OBSERVER_READY_RESULTS.md"
 }

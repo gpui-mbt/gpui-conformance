@@ -15,6 +15,7 @@ import uuid
 from comparator import compare, digest
 from contracts import validate_scenarios
 from run import ROOT, artifact, command, execute, prepare_moonbit, source
+from native_observer import execute_observed
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--build-only",action="store_true")
     parser.add_argument("--negative-control",action="store_true",help="Actually paint the MoonBit rectangle blue instead of the shared red")
+    parser.add_argument("--observe-visible",action="store_true",help="Explicitly show only each owned accessory fixture behind other windows for a bounded read-only observer handshake")
     parser.add_argument("--online",action="store_true")
     args=parser.parse_args()
     if platform.system() != "Darwin": parser.error("native slice requires macOS")
@@ -58,7 +60,7 @@ def main():
     for name,config in configs.items():
         folder=out/name
         folder.mkdir()
-        run={**identities[name],"implementation":name,"execution_mode":"native","backend":"appkit-metal","fixture_protocol":1,"platform":host,"toolchain":config["toolchain"],"scenarios_sha256":digest(scenarios),"run_token":str(uuid.uuid4())}
+        run={**identities[name],"implementation":name,"execution_mode":"native","backend":"appkit-metal","fixture_protocol":1,"fixture_mode":"visible" if args.observe_visible else "hidden","platform":host,"toolchain":config["toolchain"],"scenarios_sha256":digest(scenarios),"run_token":str(uuid.uuid4())}
         if name=="moonbit":
             library=folder/"libgpui_macos.dylib"
             library_command=["xcrun","clang","-dynamiclib","-DGPUI_TESTING","-fobjc-arc","-Wall","-Wextra","-Werror",str(runtime/"platform/macos/native.m"),str(runtime/"platform/macos/accessibility.m"),str(runtime/"platform/macos_text/core_text.c")]
@@ -90,14 +92,28 @@ def main():
                                ("fixture_guard_build_stdout","guard_build_stdout"),("fixture_guard_build_stderr","guard_build_stderr")):
             if source_key in guard_run: run[key]=guard_run[source_key]
     builds_ok=all(record["returncode"]==0 and record["timed_out"] is False for run in manifest["runs"].values() for key,record in run.items() if key in ("build","library_build","guard_build"))
+    if args.observe_visible:
+        observer=out/"observer"
+        build_record=execute(["xcrun","clang","-fobjc-arc","-Wall","-Wextra","-Werror",str(ROOT/"adapters/native_observer.m"),"-framework","AppKit","-framework","ApplicationServices","-o",str(observer)],env,out/"observer-build.stdout",out/"observer-build.stderr",ROOT,60)
+        manifest["observer_build"]={"execution":build_record,"stdout":artifact(out/"observer-build.stdout",out),"stderr":artifact(out/"observer-build.stderr",out)}
+        builds_ok=builds_ok and build_record["returncode"]==0 and build_record["timed_out"] is False
+        if build_record["returncode"]==0:
+            manifest["observer_build"]["executable"]=artifact(observer,out)
+            for run in manifest["runs"].values():
+                run.update(observer_build=build_record,observer_executable=artifact(observer,out),observer_build_stdout=artifact(out/"observer-build.stdout",out),observer_build_stderr=artifact(out/"observer-build.stderr",out))
     if builds_ok and not args.build_only:
         for name,run in manifest["runs"].items():
             folder=out/name
             child_env=env.copy()
             child_env["GPUI_RUN_TOKEN"]=run["run_token"]
             child_env["GPUI_FIXTURE_GUARD"]=str(out/"moonbit/foreground_guard.dylib")
+            child_env["GPUI_FIXTURE_MODE"]=run["fixture_mode"]
             if name=="moonbit": child_env["GPUI_MACOS_LIBRARY"]=str(folder/"libgpui_macos.dylib")
-            run["execution"]=execute([str(folder/"probe")],child_env,folder/"stdout.log",folder/"stderr.log",ROOT,15)
+            if args.observe_visible:
+                child_env.update(GPUI_OBSERVER_DIR=str(folder),GPUI_EXECUTABLE_SHA256=run["executable"]["sha256"],GPUI_SOURCE_REVISION=run["revision"],GPUI_SCENE_SHA256=run["scenarios_sha256"])
+                run["execution"],run["observer"]=execute_observed(folder/"probe",child_env,folder,out,run,[json.loads(scenarios)["cases"][0][k] for k in ("width","height")],observer)
+            else:
+                run["execution"]=execute([str(folder/"probe")],child_env,folder/"stdout.log",folder/"stderr.log",ROOT,15)
             run["stdout"]=artifact(folder/"stdout.log",out)
             run["stderr"]=artifact(folder/"stderr.log",out)
     for name,path in paths.items(): source(path,pins[name]["revision"],name,pins[name]["version"])

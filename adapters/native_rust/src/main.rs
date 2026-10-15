@@ -2,13 +2,13 @@ use gpui::{prelude::*, *};
 use serde_json::{Value, json};
 use std::time::Duration;
 
-use std::ffi::{CString, c_char, c_void};
+use std::ffi::{CStr, CString, c_char, c_void};
 use std::sync::OnceLock;
 unsafe extern "C" {
     fn dlopen(path: *const c_char, flags: i32) -> *mut c_void;
     fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 }
-fn fixture_state(phase: &str) -> Value {
+fn fixture_symbol(symbol: &CStr) -> *mut c_void {
     static GUARD: OnceLock<usize> = OnceLock::new();
     let handle = *GUARD.get_or_init(|| {
         let path = CString::new(std::env::var("GPUI_FIXTURE_GUARD").unwrap()).unwrap();
@@ -16,8 +16,12 @@ fn fixture_state(phase: &str) -> Value {
         assert!(!handle.is_null(), "owned fixture guard must load");
         handle as usize
     }) as *mut c_void;
-    let symbol = unsafe { dlsym(handle, c"conformance_fixture_integer".as_ptr()) };
+    let symbol = unsafe { dlsym(handle, symbol.as_ptr()) };
     assert!(!symbol.is_null(), "fixture guard symbol");
+    symbol
+}
+fn fixture_state(phase: &str) -> Value {
+    let symbol = fixture_symbol(c"conformance_fixture_integer");
     let read: unsafe extern "C" fn(i32) -> i64 = unsafe { std::mem::transmute(symbol) };
     unsafe {
         json!({"phase":phase, "pid":read(0), "fixture_frontmost":read(1)==1,
@@ -85,6 +89,8 @@ fn main() {
                 (json!([0,0,f32::from(viewport.width),f32::from(viewport.height)]),
                  cx.windows().contains(&*handle),window.scale_factor(),image)
             }).unwrap();
+            let checkpoint: unsafe extern "C" fn() -> i32 = unsafe { std::mem::transmute(fixture_symbol(c"conformance_fixture_checkpoint")) };
+            assert_eq!(unsafe { checkpoint() }, 1, "owned observer checkpoint failed or timed out");
             let rendered=fixture_state("rendered");
             let samples: Vec<_> = pixels["points"].as_array().unwrap().iter().map(|p| {
                 let x=(number(&p[0])*scale).floor() as u32;
@@ -100,6 +106,7 @@ fn main() {
             let resized_state=fixture_state("resized");
             cx.update_window(*handle, |_, window, _| window.remove_window()).unwrap();
             let live_after=cx.update(|cx| cx.windows().contains(&*handle));
+            cx.background_executor().timer(Duration::from_millis(150)).await;
             let closed=fixture_state("closed");
             let rows=json!([
                 {"id":window_scenario["id"],"layer":"native-window","status":"observed",
@@ -108,7 +115,7 @@ fn main() {
                  "observation":{"width":image.width(),"height":image.height(),"scale":scale,"samples":samples}}
             ]);
             println!("GPUI_CONFORMANCE {}",json!({"implementation":"upstream","run_token":token,"cases":rows,
-                "native_fixture":{"protocol":1,"mode":"hidden","snapshots":[created,rendered,resized_state,closed]},
+                "native_fixture":{"protocol":1,"mode":std::env::var("GPUI_FIXTURE_MODE").unwrap_or_else(|_| "hidden".into()),"snapshots":[created,rendered,resized_state,closed]},
                 "frame":{"width":image.width(),"height":image.height(),"scale":scale,"rgba8":image.as_raw()}}));
             cx.update(|cx| cx.quit());
         }).detach();
