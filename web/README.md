@@ -96,6 +96,12 @@ equal fractional offsets are recorded. They are not intrinsic canvas readbacks.
 Text shaping, border dash phase, shadows, other
 examples, IME, hardware GPU browsers and native parity remain separate work.
 
+[The pixel investigation](PIXEL_ANALYSIS_20261016.md) accounts for all 1,641
+saved unequal pixels and corrects the host's dash geometry. The remaining
+1,532 unequal pixels are still reported as different. Reproduce the spatial
+analysis with `python3 web/scripts/analyze_screenshots.py _build/browser-example-evidence
+--font _build/browser-lab/moonbit/IBMPlexSans-Regular.ttf --baseline web/evidence/20261015`.
+
 ## Cloudflare hosting and existing GitHub Pages
 
 The upstream WASM uses atomics and shared memory. The top-level comparison

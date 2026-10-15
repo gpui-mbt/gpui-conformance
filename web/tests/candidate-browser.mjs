@@ -68,6 +68,20 @@ try {
   assert.equal(swatches[5].bounds.x, 334);
   assert.deepEqual(swatches.map(s => [s.color.red,s.color.green,s.color.blue]), [[255,0,0],[0,128,0],[0,0,255],[255,255,0],[0,0,0],[255,255,255]]);
   await writeFile(join(evidence, 'moonbit-scene.json'), JSON.stringify(frame, null, 2));
+  report.text_metrics = await moon.locator('canvas').evaluate(canvas => {
+    const {frame, metadata} = globalThis.gpuiExample;
+    const item = frame.snapshot.items.find(item => item.kind === 'text');
+    const context = canvas.getContext('2d');
+    context.save();
+    context.font = `${item.font_size}px "${metadata.font_family}"`;
+    const m = context.measureText(item.text);
+    context.restore();
+    const metrics = Object.fromEntries(['width','fontBoundingBoxAscent','fontBoundingBoxDescent',
+      'actualBoundingBoxAscent','actualBoundingBoxDescent','actualBoundingBoxLeft','actualBoundingBoxRight']
+      .map(key => [key, m[key]]));
+    return {font: metadata.font_family, font_size: item.font_size, bounds: item.bounds, ...metrics,
+      baseline: item.bounds.y + (item.bounds.height - m.fontBoundingBoxAscent - m.fontBoundingBoxDescent) / 2 + m.fontBoundingBoxAscent};
+  });
   async function captureCanvas(locator, side) {
     await locator.scrollIntoViewIfNeeded();
     const bounds = await locator.boundingBox();
