@@ -9,10 +9,10 @@ suite is `9125706b3566e94a9bfb6e687a697656f5147bd3`.
 | --- | ---: | ---: | ---: | ---: |
 | Flex-wrap corpus (12) | 12 | 0 | 0 | 0 |
 | Flex-wrap negative control (12) | 2 | 10 | 0 | 0 |
-| Existing 104 headless cases + flex-wrap corpus (116) | 113 | 0 | 1 | 2 |
+| Existing 104 cases + flex-wrap corpus (116) | 113 | 0 | 1 | 2 |
 | Full negative control (116) | 15 | 98 | 1 | 2 |
 
-The two retained non-pass results in the aggregate are the existing unsupported
+The three retained non-pass cases in the aggregate are the existing unsupported
 IME case and two native-unverified placeholders. The negative control alters
 only MoonBit observations; both decimal fixtures mismatch at
 `observation.line_origins[1]`, so the projection remains sensitive to a changed
