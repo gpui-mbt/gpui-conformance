@@ -10,11 +10,62 @@ export function validateFrame(frame) {
     if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
     if (item.kind === 'text' && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
-  const ids = new Set(snapshot.items.filter(i => i.kind === 'quad').map(i => i.id));
+  const quads = new Map(snapshot.items.filter(i => i.kind === 'quad').map(i => [i.id, i]));
   for (const d of frame.decorations) {
-    if (!ids.has(d.id) || !Number.isFinite(d.radius) || d.radius < 0 || d.border_width !== 1 || !/^#[0-9a-f]{6}$/i.test(d.border) || !Array.isArray(d.dash) || !d.dash.every(n => Number.isFinite(n) && n > 0)) throw new Error('Invalid host decoration');
+    const b = quads.get(d.id)?.bounds;
+    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || d.border_width !== 1 || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && d.radius <= d.border_width / 2)) throw new Error('Invalid host decoration');
   }
   return frame;
+}
+
+export function roundedDashSegments(b, radius, width) {
+  // A Canvas centerline dash pattern cannot preserve GPUI's outer-radius dash space.
+  // Pinned gpui_wgpu/shaders.wgsl lays out 2w dashes from the top-left tangent,
+  // then expands only the gaps to fit floor(outer perimeter / 3w) whole periods.
+  if (!(width > 0 && radius > width / 2 && radius <= Math.min(b.width, b.height) / 2)) throw new Error('Unsupported rounded dash geometry');
+  const inset = width / 2, r = radius - inset;
+  const horizontal = b.width - 2 * radius, vertical = b.height - 2 * radius;
+  const arc = radius * Math.PI / 2;
+  const perimeter = 2 * horizontal + 2 * vertical + 4 * arc;
+  const count = Math.floor(perimeter / (3 * width));
+  if (!count) throw new Error('Rounded perimeter too short for a dash');
+  const period = perimeter / count;
+  const x = b.x, y = b.y, right = x + b.width, bottom = y + b.height;
+  const segments = [
+    {length: horizontal, from: [x + radius, y + inset], to: [right - radius, y + inset]},
+    {length: arc, center: [right - radius, y + radius], angle: -Math.PI / 2},
+    {length: vertical, from: [right - inset, y + radius], to: [right - inset, bottom - radius]},
+    {length: arc, center: [right - radius, bottom - radius], angle: 0},
+    {length: horizontal, from: [right - radius, bottom - inset], to: [x + radius, bottom - inset]},
+    {length: arc, center: [x + radius, bottom - radius], angle: Math.PI / 2},
+    {length: vertical, from: [x + inset, bottom - radius], to: [x + inset, y + radius]},
+    {length: arc, center: [x + radius, y + radius], angle: Math.PI},
+  ];
+  const dashes = [];
+  for (let i = 0; i < count; i++) {
+    const start = i * period, end = start + 2 * width;
+    let offset = 0;
+    const commands = [];
+    for (const segment of segments) {
+      const a = Math.max(start, offset), z = Math.min(end, offset + segment.length);
+      if (z > a) {
+        const t0 = (a - offset) / segment.length, t1 = (z - offset) / segment.length;
+        if (segment.center) {
+          const angle0 = segment.angle + t0 * Math.PI / 2, angle1 = segment.angle + t1 * Math.PI / 2;
+          const [cx, cy] = segment.center;
+          if (!commands.length) commands.push(['moveTo', cx + r * Math.cos(angle0), cy + r * Math.sin(angle0)]);
+          commands.push(['arc', cx, cy, r, angle0, angle1]);
+        } else {
+          const point = t => segment.from.map((v, j) => v + t * (segment.to[j] - v));
+          if (!commands.length) commands.push(['moveTo', ...point(t0)]);
+          commands.push(['lineTo', ...point(t1)]);
+        }
+      }
+      offset += segment.length;
+    }
+    dashes.push(commands);
+  }
+  return {perimeter, count, period, dash_length: 2 * width, dashes};
 }
 
 export function drawFrame(context, frame, metadata, scale) {
@@ -48,9 +99,17 @@ export function drawFrame(context, frame, metadata, scale) {
           }
           context.fill(); context.shadowColor = 'transparent'; context.shadowBlur = 0; context.shadowOffsetY = 0;
           if (style) {
-            context.lineWidth = style.border_width; context.strokeStyle = style.border; context.setLineDash(style.dash);
+            context.lineWidth = style.border_width; context.strokeStyle = style.border;
+            context.setLineDash([]); context.lineCap = 'butt';
             const inset = style.border_width / 2;
-            context.beginPath(); context.roundRect(b.x + inset, b.y + inset, b.width - 2 * inset, b.height - 2 * inset, Math.max(0, style.radius - inset)); context.stroke();
+            if (style.border_style === 'dashed') {
+              const {dashes} = roundedDashSegments(b, style.radius, style.border_width);
+              context.beginPath();
+              for (const commands of dashes) for (const [command, ...args] of commands) context[command](...args);
+              context.stroke();
+            } else {
+              context.beginPath(); context.roundRect(b.x + inset, b.y + inset, b.width - 2 * inset, b.height - 2 * inset, Math.max(0, style.radius - inset)); context.stroke();
+            }
           }
         }
       } finally { context.restore(); }
