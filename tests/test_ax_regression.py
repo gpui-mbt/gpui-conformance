@@ -1,12 +1,19 @@
-"""Synthetic protocol and real subprocess cleanup tests; no native AX qualification."""
+"""Synthetic protocol and owned-process tests; no native AX qualification."""
+import contextlib
 import copy
+import hashlib
+import io
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+import run_ax_regression
 from run_ax_regression import classify_attempt, stop_owned
 from test_observer_contracts import observed, ready
 
@@ -21,7 +28,207 @@ def matched():
     return value
 
 
+class FakeChild:
+    def __init__(self, pid, alive_polls):
+        self.pid = pid
+        self.alive_polls = alive_polls
+        self.poll_count = 0
+        self.wait_count = 0
+        self.killed = False
+
+    def poll(self):
+        self.poll_count += 1
+        return None if self.poll_count <= self.alive_polls else 0
+
+    def wait(self, timeout=None):
+        self.wait_count += 1
+        return 0
+
+    def kill(self):
+        self.killed = True
+
+
+class FakeRunner:
+    """Exercise main/run_control without invoking a subprocess or native code."""
+    pid = 43210
+
+    def __init__(self, observation_kinds):
+        self.observation_kinds = list(observation_kinds)
+        self.child = None
+        self.ready_record = None
+
+    def popen(self, args, env, cwd, stdout, stderr):
+        executable = str(args[0])
+        token = env["GPUI_RUN_TOKEN"]
+        record = ready()
+        record.update(
+            run_token=token,
+            pid=self.pid,
+            native_window_id=456,
+            executable=executable,
+            title="GPUI conformance observer " + token,
+            control_kind="stock-appkit-no-gpu",
+            pump=env["GPUI_AX_CONTROL_PUMP"],
+            local_ax={
+                "application_windows": [
+                    {
+                        "same_owned_window": True,
+                        "role": "AXWindow",
+                        "title": "GPUI conformance observer " + token,
+                    }
+                ],
+                "button_role": "AXButton",
+            },
+        )
+        self.ready_record = record
+        ready_path = Path(env["GPUI_OBSERVER_DIR"]) / "ready.json"
+        ready_path.write_text(json.dumps(record) + "\n")
+        self.child = FakeChild(self.pid, alive_polls=len(self.observation_kinds) + 1)
+        return self.child
+
+    def make_observation(self, kind):
+        if kind == "root-string":
+            return "not an observer object"
+        record = self.ready_record
+        value = observed()
+        value.update(
+            pid=record["pid"],
+            native_window_id=record["native_window_id"],
+            run_token=record["run_token"],
+            process_start_sec=record["process_start_sec"],
+            process_start_usec=record["process_start_usec"],
+            executable=record["executable"],
+        )
+        value["window"]["kCGWindowOwnerPID"] = record["pid"]
+        value["window"]["kCGWindowNumber"] = record["native_window_id"]
+        if kind == "candidate-null":
+            value["ax_owned_candidates"] = [None]
+        elif kind == "candidate-string":
+            value["ax_owned_candidates"] = "x"
+        elif kind == "windows-null":
+            value.update(ax_trusted=True, ax_status="pass", ax_matching_windows=1)
+            value["ax_owned_candidates"] = [
+                {"same_application_element": False, "role": "AXWindow"}
+            ]
+            value["ax_windows"] = [None]
+        elif kind == "matched":
+            value.update(ax_trusted=True, ax_status="pass", ax_matching_windows=1)
+            value["ax_owned_candidates"] = [
+                {
+                    "pid": record["pid"],
+                    "title": record["title"],
+                    "role": "AXWindow",
+                    "same_application_element": False,
+                }
+            ]
+            value["ax_windows"] = [
+                {
+                    "pid": record["pid"],
+                    "title": record["title"],
+                    "role": "AXWindow",
+                    "position": [0, 0],
+                    "size": [256, 214],
+                }
+            ]
+        else:
+            raise AssertionError("unknown fake observation kind: " + kind)
+        return value
+
+    def execute(self, args, env, out, err, cwd, timeout, before_terminate=None):
+        out.parent.mkdir(parents=True, exist_ok=True)
+        err.parent.mkdir(parents=True, exist_ok=True)
+        if args[0] == "xcrun":
+            executable = Path(args[-1])
+            executable.parent.mkdir(parents=True, exist_ok=True)
+            executable.write_bytes(b"fake executable; no compiler invoked\n")
+            out.write_bytes(b"fake build output\n")
+            err.write_bytes(b"")
+        else:
+            kind = self.observation_kinds.pop(0)
+            out.write_text(json.dumps(self.make_observation(kind)) + "\n")
+            err.write_bytes(b"")
+        return {
+            "command": args,
+            "pid": self.pid,
+            "started_at": "fake-start",
+            "finished_at": "fake-finish",
+            "returncode": 0,
+            "timed_out": False,
+        }
+
+    def run_main(self, output):
+        argv = ["run_ax_regression.py", "--packaging", "flat", "--output", str(output)]
+
+        def fake_command(args, cwd=None):
+            if args[:2] == ["git", "rev-parse"]:
+                return "d" * 40
+            if args[0] == "xcrun":
+                return "fake clang"
+            return ""
+
+        with (
+            patch.object(sys, "argv", argv),
+            patch("run_ax_regression.platform.system", return_value="Darwin"),
+            patch("run_ax_regression.platform.machine", return_value="arm64"),
+            patch("run_ax_regression.platform.mac_ver", return_value=("14.0", ("", "", ""), "arm64")),
+            patch("run_ax_regression.command", side_effect=fake_command),
+            patch("run_ax_regression.execute", side_effect=self.execute),
+            patch("run_ax_regression.subprocess.Popen", side_effect=self.popen),
+            patch("run_ax_regression.validate_ready", return_value=None),
+            contextlib.redirect_stdout(io.StringIO()),
+        ):
+            return run_ax_regression.main()
+
+
 class AXRegressionTests(unittest.TestCase):
+    def test_malformed_observer_shapes_are_retained_in_unverified_summaries(self):
+        for kind in ("root-string", "candidate-null", "candidate-string", "windows-null"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "evidence"
+                fake = FakeRunner([kind])
+                result = fake.run_main(output)
+                summary_path = output / "summary.json"
+                self.assertEqual(result, 1)
+                self.assertTrue(summary_path.is_file())
+                summary = json.loads(summary_path.read_text())
+                self.assertEqual(summary["status"], "unverified")
+                self.assertEqual(summary["gpui_ax_compatibility"], "unverified")
+                self.assertEqual(summary["run"]["status"], "unverified")
+                self.assertEqual(summary["run"]["cleanup"], "owned-child-reaped")
+                self.assertEqual(summary["run"]["returncode"], 0)
+                self.assertEqual(len(summary["run"]["attempts"]), 1)
+
+                attempt = summary["run"]["attempts"][0]
+                self.assertEqual(attempt["classification"], "invalid-observer-record")
+                self.assertIn("invalid observer record", attempt["reason"])
+                raw_stdout = output / attempt["stdout"]["path"]
+                self.assertTrue(raw_stdout.is_file())
+                self.assertEqual(
+                    attempt["stdout"]["sha256"],
+                    hashlib.sha256(raw_stdout.read_bytes()).hexdigest(),
+                )
+                self.assertEqual(json.loads(raw_stdout.read_text()), fake.make_observation(kind))
+                self.assertIsNotNone(fake.child)
+                self.assertFalse(fake.child.killed)
+                self.assertGreater(fake.child.wait_count, 0)
+
+    def test_later_valid_observation_does_not_erase_earlier_invalid_attempt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "evidence"
+            fake = FakeRunner(["candidate-null", "matched"])
+            result = fake.run_main(output)
+            summary = json.loads((output / "summary.json").read_text())
+            self.assertEqual(result, 0)
+            self.assertEqual(summary["status"], "pass")
+            attempts = summary["run"]["attempts"]
+            self.assertEqual([item["classification"] for item in attempts], [
+                "invalid-observer-record",
+                "external-window-matched",
+            ])
+            self.assertTrue((output / attempts[0]["stdout"]["path"]).is_file())
+            self.assertFalse(fake.child.killed)
+            self.assertEqual(summary["run"]["cleanup"], "owned-child-reaped")
+
     def test_successful_ipc_and_trust_do_not_make_application_a_window(self):
         value = observed()
         value.update(ax_trusted=True,ax_application_attribute_status={"AXWindows":0},

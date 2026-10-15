@@ -20,6 +20,13 @@ ROOT = Path(__file__).resolve().parent
 
 def classify_attempt(observation, ready):
     """Local getters, permission and successful IPC cannot establish AXWindow identity."""
+    if not isinstance(observation, dict):
+        raise ValueError("invalid observer record: expected an object")
+    for key in ("ax_owned_candidates", "ax_windows"):
+        if key in observation:
+            entries = observation[key]
+            if not isinstance(entries, list) or any(not isinstance(entry, dict) for entry in entries):
+                raise ValueError("invalid observer record: " + key + " must be a list of objects")
     validate_observation(observation, ready)
     if observation["ax_status"] == "pass":
         candidates = observation.get("ax_owned_candidates", [])
