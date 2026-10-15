@@ -73,7 +73,7 @@ python3 run_native.py --moonbit-source /path/to/engine \
 python3 tests/test_bundle_evidence.py --evidence _build/bundled-positive
 ```
 
-The 39 real bundle replay/tamper checks and 51 portable guards launch no GUI
+The 40 real bundle replay/tamper checks and 51 portable guards launch no GUI
 fixtures. Missing plist/packaging, rehashed wrong policy/ID/type, unread or
 foreign runtime identity, wrong executable paths and extra arguments fail
 closed. Diagnostic fields do not relax the five-second checkpoint or
