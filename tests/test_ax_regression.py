@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -52,8 +53,9 @@ class FakeRunner:
     """Exercise main/run_control without invoking a subprocess or native code."""
     pid = 43210
 
-    def __init__(self, observation_kinds):
+    def __init__(self, observation_kinds, ready_kind=None):
         self.observation_kinds = list(observation_kinds)
+        self.ready_kind = ready_kind
         self.child = None
         self.ready_record = None
 
@@ -66,6 +68,10 @@ class FakeRunner:
             pid=self.pid,
             native_window_id=456,
             executable=executable,
+            executable_sha256=env["GPUI_EXECUTABLE_SHA256"],
+            source_revision=env["GPUI_SOURCE_REVISION"],
+            scene_revision=env["GPUI_SCENE_SHA256"],
+            ready_unix_ns=time.time_ns(),
             title="GPUI conformance observer " + token,
             control_kind="stock-appkit-no-gpu",
             pump=env["GPUI_AX_CONTROL_PUMP"],
@@ -80,6 +86,24 @@ class FakeRunner:
                 "button_role": "AXButton",
             },
         )
+        if self.ready_kind == "ready-root-null":
+            record = None
+        elif self.ready_kind == "ready-root-list":
+            record = [record]
+        elif self.ready_kind == "local-ax-null":
+            record["local_ax"] = None
+        elif self.ready_kind == "local-ax-list":
+            record["local_ax"] = []
+        elif self.ready_kind == "application-windows-null":
+            record["local_ax"]["application_windows"] = [None]
+        elif self.ready_kind == "application-windows-string":
+            record["local_ax"]["application_windows"] = ["x"]
+        elif self.ready_kind == "nonce-list":
+            record["run_token"] = []
+        elif self.ready_kind == "nonce-dict":
+            record["run_token"] = {}
+        elif self.ready_kind == "nonce-int":
+            record["run_token"] = 7
         self.ready_record = record
         ready_path = Path(env["GPUI_OBSERVER_DIR"]) / "ready.json"
         ready_path.write_text(json.dumps(record) + "\n")
@@ -178,13 +202,49 @@ class FakeRunner:
             patch("run_ax_regression.command", side_effect=fake_command),
             patch("run_ax_regression.execute", side_effect=self.execute),
             patch("run_ax_regression.subprocess.Popen", side_effect=self.popen),
-            patch("run_ax_regression.validate_ready", return_value=None),
             contextlib.redirect_stdout(io.StringIO()),
         ):
             return run_ax_regression.main()
 
 
 class AXRegressionTests(unittest.TestCase):
+    def test_malformed_ready_shapes_are_retained_with_unverified_summary(self):
+        for kind in (
+            "ready-root-null",
+            "ready-root-list",
+            "local-ax-null",
+            "local-ax-list",
+            "application-windows-null",
+            "application-windows-string",
+            "nonce-list",
+            "nonce-dict",
+            "nonce-int",
+        ):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as directory:
+                output = Path(directory) / "evidence"
+                fake = FakeRunner([], ready_kind=kind)
+                result = fake.run_main(output)
+                summary = json.loads((output / "summary.json").read_text())
+                self.assertEqual(result, 1)
+                self.assertEqual(summary["status"], "unverified")
+                self.assertEqual(summary["gpui_ax_compatibility"], "unverified")
+                self.assertEqual(summary["run"]["status"], "unverified")
+                self.assertEqual(summary["run"]["cleanup"], "owned-child-reaped")
+                self.assertEqual(summary["run"]["returncode"], 0)
+                self.assertEqual(summary["run"]["attempts"], [])
+                self.assertIn("invalid ready record", summary["run"]["reason"])
+                self.assertIn("ready", summary["run"])
+                retained_ready = output / summary["run"]["ready"]["path"]
+                self.assertTrue(retained_ready.is_file())
+                self.assertEqual(
+                    summary["run"]["ready"]["sha256"],
+                    hashlib.sha256(retained_ready.read_bytes()).hexdigest(),
+                )
+                self.assertEqual(json.loads(retained_ready.read_text()), fake.ready_record)
+                self.assertIsNotNone(fake.child)
+                self.assertFalse(fake.child.killed)
+                self.assertGreater(fake.child.wait_count, 0)
+
     def test_malformed_observer_shapes_are_retained_in_unverified_summaries(self):
         for kind in (
             "root-string",

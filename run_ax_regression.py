@@ -84,7 +84,8 @@ def run_control(executable, observer, folder, out, revision, packaging, pump):
             proc = subprocess.Popen([str(executable)], env=env, cwd=out, stdout=stdout, stderr=stderr)
             run["pid"] = proc.pid
             ready_path = folder/"ready.json"
-            ready = None
+            ready_missing = object()
+            ready = ready_missing
             while proc.poll() is None and time.monotonic() < start+2:
                 if ready_path.exists():
                     try:
@@ -93,14 +94,22 @@ def run_control(executable, observer, folder, out, revision, packaging, pump):
                     except json.JSONDecodeError:
                         pass
                 time.sleep(.01)
-            if ready is None:
+            if ready is ready_missing:
                 raise ValueError("stock AppKit fixture did not publish a ready record")
+            run["ready"] = artifact(ready_path, out)
+            if not isinstance(ready, dict):
+                raise ValueError("invalid ready record: expected an object")
+            if not isinstance(ready.get("run_token"), str):
+                raise ValueError("invalid ready record: run_token must be a string")
+            local = ready.get("local_ax")
+            if not isinstance(local, dict):
+                raise ValueError("invalid ready record: local_ax must be an object")
+            local_windows = local.get("application_windows")
+            if not isinstance(local_windows, list) or any(not isinstance(window, dict) for window in local_windows):
+                raise ValueError("invalid ready record: application_windows must be a list of objects")
             validate_ready(ready, run, proc.pid, executable, [256,192], started)
-            local = ready.get("local_ax", {})
-            local_windows = local.get("application_windows", [])
             if ready.get("control_kind") != "stock-appkit-no-gpu" or ready.get("pump") != pump or len(local_windows) != 1 or local_windows[0].get("same_owned_window") is not True or local_windows[0].get("role") != "AXWindow" or local_windows[0].get("title") != ready["title"] or local.get("button_role") != "AXButton":
                 raise ValueError("stock local AppKit hierarchy differs")
-            run["ready"] = artifact(ready_path, out)
             # Keep every early failure: later registration must not erase the initial projection.
             while proc.poll() is None and time.monotonic() < deadline-.05:
                 number = len(run["attempts"])
