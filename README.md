@@ -6,7 +6,7 @@ runner creates no native windows. The separate native runner uses isolated,
 self-closing hidden AppKit/Metal accessory fixtures on an Apple Silicon Mac.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
-gpui.mbt `f9f59fe074da3858ca82fe1d5fadd84cd17f0438` (0.7.2). See [pins.json](pins.json).
+gpui.mbt `bb3fa1ef552ae22d372cfcea8723e99498aa5fe7` (current main). See [pins.json](pins.json).
 
 ## First coverage slice
 
