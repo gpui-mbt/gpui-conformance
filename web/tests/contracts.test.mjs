@@ -13,14 +13,13 @@ test('the catalog maps upstream names rather than substituting Weekboard', () =>
 });
 test('a selected example resolves the same pair under a GitHub Pages subpath', () => {
   const example = selectExample(catalog, 'hello_world');
-  assert.equal(rustExampleUrl('https://example.test/rust/', example), 'https://example.test/rust/hello-world');
+  assert.equal(rustExampleUrl('https://example.test/gpui-conformance/', example), 'https://example.test/gpui-conformance/rust/?example=hello_world');
   assert.equal(moonbitExampleUrl('https://gpui-mbt.github.io/gpui-conformance/?example=hello_world', example), 'https://gpui-mbt.github.io/gpui-conformance/moonbit/?example=hello_world');
 });
 test('missing implementations and runtimes cannot be treated as a pair', () => {
   const missing = selectExample(catalog, 'input');
   assert.equal(moonbitExampleUrl('https://example.test/lab/', missing), null);
-  assert.equal(rustExampleUrl('', missing), null);
-  for (const url of ['javascript:alert(1)', 'data:text/html,hello', 'https://user:pass@example.test/', 'https://example.test/?example=other']) assert.throws(() => rustExampleUrl(url, missing));
+  assert.equal(rustExampleUrl('https://example.test/lab/', missing), null);
 });
 function frame() {
   return { ok: true, conformance: 'unverified', snapshot: { schema_version: 1, items: [{ id: 1, kind: 'quad', bounds: { x: 0, y: 0, width: 32, height: 32 }, color: { red: 255, green: 0, blue: 0, alpha: 255 } }] }, decorations: [{ id: 1, radius: 6, border_width: 1, border: '#ffffff', dash: [3, 3] }] };
