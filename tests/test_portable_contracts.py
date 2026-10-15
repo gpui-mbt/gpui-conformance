@@ -18,7 +18,7 @@ from run import prepare_moonbit
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -42,6 +42,24 @@ class PortableContractTests(unittest.TestCase):
             corpus["cases"][0]["shrink"] = value
             with self.subTest(value=value), self.assertRaises(ValueError):
                 validate_scenarios(corpus)
+
+    def test_main_axis_limits_require_valid_finite_bounded_pairs(self):
+        for field, value in (("min_main", [True, 0]), ("min_main", [None, 0]), ("min_main", [math.nan, 0]), ("min_main", [-1, 0]), ("min_main", [4097, 0]), ("min_main", [0]), ("max_main", [math.inf, None]), ("max_main", [True, None]), ("max_main", [-1, None]), ("max_main", [4097, None]), ("max_main", [30]), ("max_main", None)):
+            corpus = load_json(ROOT / "minmax_scenarios.json")
+            corpus["cases"][0][field] = value
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                validate_scenarios(corpus)
+        corpus = load_json(ROOT / "minmax_scenarios.json")
+        corpus["cases"][0]["min_main"] = [31, 0]
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
+
+    def test_limit_fields_cannot_be_silently_ignored_by_other_kinds(self):
+        corpus = load_json(ROOT / "scenarios.json")
+        scenario = next(s for s in corpus["cases"] if s["kind"] == "scene")
+        scenario["max_main"] = [30, None]
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
 
     def test_invalid_routing_and_focus_inputs_rejected(self):
         for kind, field, value in (("route", "stop", [True, "capture"]), ("route", "points", []), ("focus", "focuses", [True]), ("focus", "key", "\n"), ("focus", "event", "arbitrary")):
@@ -110,7 +128,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():
