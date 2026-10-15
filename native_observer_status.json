@@ -2,11 +2,12 @@
   "schema_version": 1,
   "status": "unverified",
   "scope": "visible fixture, external AX observer and physical input",
-  "native_execution_attempted": false,
+  "native_execution_attempted": true,
+  "native_execution_scope": "hidden nonactivating AppKit/Metal candidate only; visible/AX/input unverified",
   "permission_prompted": false,
   "current_barriers": [
     "Rust fixture is hidden/offscreen and short-lived.",
-    "MoonBit fixture presents and activates unconditionally.",
+    "MoonBit background-host fixture is hidden and short-lived; older engine libraries reject this path.",
     "No nonce-bound ready/ack lifecycle or external observer ownership contract is qualified.",
     "AX collector trust and native post-action state binding are not qualified."
   ],

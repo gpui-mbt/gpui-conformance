@@ -3,7 +3,7 @@
 Execute shared scenarios against pinned Rust GPUI and gpui.mbt, retaining the
 programs and raw process output that produced each comparison. The headless
 runner creates no native windows. The separate native runner uses isolated,
-self-closing AppKit/Metal fixtures in a coordinated Apple Silicon Mac session.
+self-closing hidden AppKit/Metal accessory fixtures on an Apple Silicon Mac.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
 gpui.mbt `f9f59fe074da3858ca82fe1d5fadd84cd17f0438` (0.7.2). See [pins.json](pins.json).
@@ -60,15 +60,19 @@ mode because GPUI debug selectors are unavailable in release mode.
 
 ### Native AppKit/Metal slice
 
-In a coordinated desktop session, run `python3 run_native.py --output
-_build/native`. Add `--build-only` to compile both probes and the MoonBit
+Run `python3 run_native.py --moonbit-source /path/to/background-host-engine
+--candidate-revision FULL_SHA --output _build/native`, using a committed engine
+with `Host::start_background()` (see [the qualified candidate](NONACTIVATING_NATIVE_RESULTS.md)).
+Add `--build-only` to compile both probes and the MoonBit
 test-hook dylib without launching anything; this correctly reports unverified.
 The same source/candidate options apply. Both builds finish before any launch,
 and probes run sequentially with 15-second process deadlines. Only owned child
-processes can be terminated. The MoonBit fixture restores the formerly frontmost
-application on success and framework errors; an independently built parent
-guard attempts restoration before timeout termination, only while the owned
-fixture is still frontmost. Intervening user focus changes are respected.
+processes can be terminated. Both probes select accessory policy before creating
+one hidden, unfocused window. Own-process telemetry binds the execution PID and
+window ID to hidden, inactive, non-key state throughout the lifecycle. The
+runner never activates or restores another application. Older engine libraries
+reject the distinct background-start operation; they cannot fall back to an
+activating path. See [the fixture protocol](NONACTIVATING_NATIVE_FIXTURES.md).
 
 [native_scenarios.json](native_scenarios.json) specifies one window followed by
 one pixel case with the same initial viewport: 256×192 logical pixels, resize
@@ -80,10 +84,12 @@ retained and the comparator derives each sample from those bytes. Window origin
 is normalized to content coordinates (0,0); desktop position, close-request
 events, user interaction and physical input are outside this native slice.
 
-Rust uses `gpui_platform::application()` and native `Window::render_to_image`,
+Rust uses `gpui_platform::application().with_windowing(WindowingRequest::Headless)`
+and native `Window::render_to_image`,
 which renders its completed scene through the native Metal renderer into an
 owned drawable without presenting. The MoonBit AppKit host presents its own
-Metal drawable and reads the completed frame through `GPUI_TESTING`. The
+Metal drawable in its hidden background-host window and reads the completed
+frame through `GPUI_TESTING`. The
 runtime-shader feature is enabled for upstream's own Metal shader compilation.
 Add `--negative-control` to actually render the MoonBit rectangle blue while
 upstream renders the shared red input. A real GPU color mismatch must result.
@@ -96,6 +102,9 @@ Historical headless outputs keep their native placeholders unverified; native
 qualification is a separate corpus and never overwrites earlier evidence.
 Fresh native executions at merged suite `316a62d3` and merged gpui.mbt
 `24bf42ca` are recorded in [MERGED_NATIVE_RESULTS.md](MERGED_NATIVE_RESULTS.md).
+The separately qualified nonactivating candidate and real GPU divergence control
+are recorded in [NONACTIVATING_NATIVE_RESULTS.md](NONACTIVATING_NATIVE_RESULTS.md).
+Visible observation, external AX and physical input remain unverified.
 
 ### Portable CI checks
 

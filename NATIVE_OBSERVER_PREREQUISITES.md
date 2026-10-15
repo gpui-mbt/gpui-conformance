@@ -9,8 +9,10 @@ live external observer or any current native candidate.
 
 - The Rust fixture uses `show: false`, renders offscreen and closes quickly.
   An external observer cannot reliably attach after process discovery.
-- The MoonBit host unconditionally presents and activates its window. Restoring
-  the previous app afterward does not satisfy a no-focus-disruption constraint.
+- The current MoonBit fixture requires the distinct background-host operation
+  and leaves its window hidden. Its qualified candidate no longer activates
+  or restores another app; see [the native results](NONACTIVATING_NATIVE_RESULTS.md).
+  Older foreground-host historical results retain their original classification.
 - The two fixtures do not yet publish a shared observer-ready handshake or
   retain a window until an owned observer acknowledges completion.
 - No macOS AX collector, window ownership binding, trust check or post-action
