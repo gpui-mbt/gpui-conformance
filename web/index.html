@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Side-by-side browser lab for upstream GPUI Rust/WebAssembly and gpui.mbt JavaScript">
+  <title>GPUI Conformance · Browser Lab</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <div><p class="eyebrow">GPUI CONFORMANCE / EXPERIMENTAL</p><h1>Browser comparison lab</h1>
+    <p>Upstream Rust/WASM and MoonBit/JS, side by side. A visual preview is not a conformance pass.</p></div>
+    <a class="source" href="https://github.com/gpui-mbt/gpui-conformance" target="_blank" rel="noopener noreferrer">Repository ↗</a>
+  </header>
+  <form class="toolbar" id="settings">
+    <label>Fixture <select id="fixture"><option value="preview">Existing browser demos (not equivalent)</option><option value="layout">Shared layout fixture (not yet implemented)</option><option value="pointer">Shared pointer fixture (not yet implemented)</option><option value="keyboard">Shared keyboard fixture (not yet implemented)</option></select></label>
+    <label>Rust/WASM URL <input id="rust-url" type="url" placeholder="https://…/rust/" spellcheck="false"></label>
+    <label>MoonBit/JS URL <input id="moon-url" type="url" placeholder="https://…/moonbit/" spellcheck="false"></label>
+    <button type="submit">Load both</button><button type="button" id="reload">Reload both</button>
+  </form>
+  <p class="notice" id="notice" role="status">No runtime loaded. Configure both URLs to compare real applications.</p>
+  <main class="panes" aria-label="Side-by-side application views">
+    <section class="pane"><div class="pane-head"><div><strong>gpui.rs</strong><span>Rust → WebAssembly · upstream</span></div><a id="rust-open" href="https://github.com/zed-industries/zed/tree/main/crates/gpui_web/examples/hello_web" target="_blank" rel="noopener noreferrer">Source ↗</a></div><div class="viewport"><iframe id="rust-frame" title="gpui.rs browser runtime" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock" referrerpolicy="no-referrer"></iframe><div class="placeholder" id="rust-empty">Set a URL to load the Rust/WASM application.</div></div></section>
+    <section class="pane"><div class="pane-head"><div><strong>gpui.mbt</strong><span>MoonBit → JavaScript · candidate</span></div><a id="moon-open" href="https://gpui-mbt.github.io/gpui.mbt/" target="_blank" rel="noopener noreferrer">Open demo ↗</a></div><div class="viewport"><iframe id="moon-frame" title="gpui.mbt browser runtime" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock" referrerpolicy="no-referrer"></iframe><div class="placeholder" id="moon-empty">Set a URL to load the MoonBit/JS application.</div></div></section>
+  </main>
+  <section class="status" aria-label="Comparison status"><strong>Conformance: UNVERIFIED</strong><p>No shared fixture execution, synchronized input, screenshot comparison, or retained evidence is performed by this page. Cross-origin framing may be blocked by the target host. A browser preview never changes the validated CLI results.</p></section>
+  <footer>Separate browser experiment · CLI/pinned native evidence remains authoritative for existing scopes.</footer>
+</body>
+</html>
