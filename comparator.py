@@ -77,6 +77,10 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
         read_artifact("build_stderr")
         # The built executable is retained independently for replay/audit.
         read_artifact("executable")
+        executable_path = Path(run["executable"]["path"])
+        bundled = executable_path.parts[-3:] == ("Contents","MacOS","probe")
+        if bundled and "fixture_packaging" not in run:
+            raise ValueError("missing fixture bundle packaging identity")
         if "fixture_packaging" in run:
             if run["fixture_packaging"] != "app-bundle-v1":
                 raise ValueError("unknown fixture packaging")
@@ -85,9 +89,9 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
                 "CFBundleName":"GPUI Conformance Fixture", "CFBundleVersion":"1",
                 "CFBundleShortVersionString":"1.0", "LSMinimumSystemVersion":"13.0",
                 "LSUIElement":True, "NSPrincipalClass":"NSApplication", "NSHighResolutionCapable":True}
-            if plistlib.loads(read_artifact("bundle_info_plist")) != expected_bundle:
+            actual_bundle = plistlib.loads(read_artifact("bundle_info_plist"))
+            if actual_bundle != expected_bundle or any(type(actual_bundle[k]) is not type(v) for k,v in expected_bundle.items()):
                 raise ValueError("fixture bundle identity/policy differs")
-            executable_path = Path(run["executable"]["path"])
             if executable_path.parts[-3:] != ("Contents","MacOS","probe") or executable_path.parent.parent.parent.suffix != ".app" or Path(run["bundle_info_plist"]["path"]) != executable_path.parent.parent/"Info.plist":
                 raise ValueError("fixture bundle paths differ")
         lines = [line[len(PREFIX):] for line in raw.decode().splitlines() if line.startswith(PREFIX)]
