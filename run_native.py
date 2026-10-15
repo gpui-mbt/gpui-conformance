@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Bounded, self-closing native window/Metal readback probes.
 
-Run only in a coordinated graphical session. --build-only never launches them.
+Hidden accessory applications never activate or order their windows onscreen.
+--build-only never launches them. This does not qualify AX or physical input.
 """
 import argparse
-import ctypes
 import json
 import os
 from pathlib import Path
@@ -58,7 +58,7 @@ def main():
     for name,config in configs.items():
         folder=out/name
         folder.mkdir()
-        run={**identities[name],"implementation":name,"execution_mode":"native","backend":"appkit-metal","platform":host,"toolchain":config["toolchain"],"scenarios_sha256":digest(scenarios),"run_token":str(uuid.uuid4())}
+        run={**identities[name],"implementation":name,"execution_mode":"native","backend":"appkit-metal","fixture_protocol":1,"platform":host,"toolchain":config["toolchain"],"scenarios_sha256":digest(scenarios),"run_token":str(uuid.uuid4())}
         if name=="moonbit":
             library=folder/"libgpui_macos.dylib"
             library_command=["xcrun","clang","-dynamiclib","-DGPUI_TESTING","-fobjc-arc","-Wall","-Wextra","-Werror",str(runtime/"platform/macos/native.m"),str(runtime/"platform/macos/accessibility.m"),str(runtime/"platform/macos_text/core_text.c")]
@@ -82,21 +82,22 @@ def main():
             shutil.copy2(config["exe"],folder/"probe")
             run["executable"]=artifact(folder/"probe",out)
         manifest["runs"][name]=run
+    # The same owned, retained helper reads each probe's own NSApplication.
+    # It neither observes other windows nor activates/restores another app.
+    guard_run=manifest["runs"]["moonbit"]
+    for run in manifest["runs"].values():
+        for key,source_key in (("fixture_guard","foreground_guard"),("fixture_guard_build","guard_build"),
+                               ("fixture_guard_build_stdout","guard_build_stdout"),("fixture_guard_build_stderr","guard_build_stderr")):
+            if source_key in guard_run: run[key]=guard_run[source_key]
     builds_ok=all(record["returncode"]==0 and record["timed_out"] is False for run in manifest["runs"].values() for key,record in run.items() if key in ("build","library_build","guard_build"))
     if builds_ok and not args.build_only:
         for name,run in manifest["runs"].items():
             folder=out/name
             child_env=env.copy()
             child_env["GPUI_RUN_TOKEN"]=run["run_token"]
+            child_env["GPUI_FIXTURE_GUARD"]=str(out/"moonbit/foreground_guard.dylib")
             if name=="moonbit": child_env["GPUI_MACOS_LIBRARY"]=str(folder/"libgpui_macos.dylib")
-            restore=None
-            if name=="moonbit":
-                guard=ctypes.CDLL(str(folder/"foreground_guard.dylib"))
-                guard.conformance_frontmost_pid.restype=ctypes.c_int
-                guard.conformance_restore_owned.argtypes=[ctypes.c_int,ctypes.c_int]
-                previous=guard.conformance_frontmost_pid()
-                restore=lambda owned: guard.conformance_restore_owned(owned,previous)
-            run["execution"]=execute([str(folder/"probe")],child_env,folder/"stdout.log",folder/"stderr.log",ROOT,15,before_terminate=restore)
+            run["execution"]=execute([str(folder/"probe")],child_env,folder/"stdout.log",folder/"stderr.log",ROOT,15)
             run["stdout"]=artifact(folder/"stdout.log",out)
             run["stderr"]=artifact(folder/"stderr.log",out)
     for name,path in paths.items(): source(path,pins[name]["revision"],name,pins[name]["version"])

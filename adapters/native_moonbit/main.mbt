@@ -1,11 +1,26 @@
 ///|
-fn[T, E] checked(value : Result[T, E]) -> T {
+fn[T, E] prepared(value : Result[T, E]) -> T {
   match value {
     Ok(value) => value
-    Err(_) => {
-      restore_foreground()
-      abort("native framework operation failed")
-    }
+    Err(_) => abort("invalid shared scene fixture")
+  }
+}
+
+///|
+fn[T] checked(value : Result[T, @diagnostics.FrameworkError]) -> T {
+  match value {
+    Ok(value) => value
+    Err(error) =>
+      abort(
+        "native framework operation failed: " +
+        error.code().label() +
+        "; operation=" +
+        error.operation() +
+        "; backend=" +
+        error.backend().unwrap_or("unknown") +
+        "; message=" +
+        error.message().unwrap_or("none"),
+      )
   }
 }
 
@@ -39,10 +54,22 @@ fn object(values : Array[(String, Json)]) -> Json {
 }
 
 ///|
-extern "C" fn preserve_foreground() -> Unit = "conformance_preserve_foreground"
+extern "C" fn fixture_integer(field : Int32) -> Int64 = "conformance_fixture_integer"
 
 ///|
-extern "C" fn restore_foreground() -> Unit = "conformance_restore_foreground"
+fn fixture_state(phase : String) -> Json {
+  object([
+    ("phase", @json.to_json(phase)),
+    ("pid", @json.to_json(fixture_integer(0))),
+    ("fixture_frontmost", @json.to_json(fixture_integer(1) == 1)),
+    ("application_active", @json.to_json(fixture_integer(2) == 1)),
+    ("owned_titled_windows", @json.to_json(fixture_integer(3))),
+    ("native_window_id", @json.to_json(fixture_integer(4))),
+    ("window_visible", @json.to_json(fixture_integer(5) == 1)),
+    ("window_key", @json.to_json(fixture_integer(6) == 1)),
+    ("activation_policy", @json.to_json(fixture_integer(7))),
+  ])
+}
 
 ///|
 fn main {
@@ -52,8 +79,7 @@ fn main {
   let cases = array(field(s, "cases"))
   let w = cases[0]
   let p = cases[1]
-  preserve_foreground()
-  let host = checked(@macos.Host::start())
+  let host = checked(@macos.Host::start_background())
   let window = checked(
     host.create_window(
       "GPUI conformance (self-closing)",
@@ -61,10 +87,11 @@ fn main {
       number(field(w, "height")),
     ),
   )
+  let created = fixture_state("created")
   let (width, height, scale) = checked(host.window_metrics(window))
   let live_before = host.window_metrics(window) is Ok(_)
   let r = array(field(p, "rect"))
-  let viewport = checked(@primitives.Rect::new(0, 0, width, height))
+  let viewport = prepared(@primitives.Rect::new(0, 0, width, height))
   let background = array(field(p, "background"))
   let color = if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
     @json.to_json([0, 0, 255, 255])
@@ -76,7 +103,7 @@ fn main {
     @scene.PaintCommand::quad(
       1,
       viewport,
-      checked(
+      prepared(
         @primitives.Color::rgba(
           number(background[0]).to_int(),
           number(background[1]).to_int(),
@@ -87,7 +114,7 @@ fn main {
     ),
     @scene.PaintCommand::quad(
       2,
-      checked(
+      prepared(
         @primitives.Rect::new(
           number(r[0]),
           number(r[1]),
@@ -95,7 +122,7 @@ fn main {
           number(r[3]),
         ),
       ),
-      checked(
+      prepared(
         @primitives.Color::rgba(
           number(channels[0]).to_int(),
           number(channels[1]).to_int(),
@@ -105,8 +132,9 @@ fn main {
       ),
     ),
   ])
-  checked(host.present(window, checked(scene.snapshot_v1(viewport, scale))))
+  checked(host.present(window, prepared(scene.snapshot_v1(viewport, scale))))
   let capture = checked(@testing.capture_frame(host, window))
+  let rendered = fixture_state("rendered")
   let samples = array(field(p, "points")).map(point => {
     let coords = array(point)
     let (red, green, blue, alpha) = checked(
@@ -123,17 +151,15 @@ fn main {
     ignore(checked(host.next_event(timeout_ms=10)))
   }
   let (new_width, new_height, _) = checked(host.window_metrics(window))
+  let resized = fixture_state("resized")
   checked(host.destroy_window(window))
   let live_after = match host.window_metrics(window) {
     Err(error) if error.code() is @diagnostics.StaleHandle => false
-    Err(_) => {
-      restore_foreground()
-      abort("unexpected post-destroy error")
-    }
+    Err(_) => abort("unexpected post-destroy error")
     Ok(_) => true
   }
+  let closed = fixture_state("closed")
   checked(host.stop())
-  restore_foreground()
   let rows = [
     object([
       ("id", field(w, "id")),
@@ -168,6 +194,14 @@ fn main {
     ("implementation", @json.to_json("moonbit")),
     ("run_token", @json.to_json(@env.get_env_var("GPUI_RUN_TOKEN").unwrap())),
     ("cases", @json.to_json(rows)),
+    (
+      "native_fixture",
+      object([
+        ("protocol", @json.to_json(1)),
+        ("mode", @json.to_json("hidden")),
+        ("snapshots", @json.to_json([created, rendered, resized, closed])),
+      ]),
+    ),
     (
       "frame",
       object([

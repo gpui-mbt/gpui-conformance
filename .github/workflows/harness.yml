@@ -19,3 +19,5 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_portable_contracts.py' -v
       - name: Validate retained image analysis contracts without native execution
         run: python3 -m unittest discover -s tests -p 'test_visual_contracts.py' -v
+      - name: Validate nonactivating fixture contracts without native execution
+        run: python3 -m unittest discover -s tests -p 'test_fixture_contracts.py' -v
