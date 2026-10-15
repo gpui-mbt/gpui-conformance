@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "provider": "Wrangler local static assets (not deployed)",
+  "headers": {
+    "cache-control": "public, max-age=0, must-revalidate",
+    "cf-cache-status": "HIT",
+    "content-encoding": "gzip",
+    "content-type": "text/html; charset=utf-8",
+    "cross-origin-embedder-policy": "require-corp",
+    "cross-origin-opener-policy": "same-origin",
+    "cross-origin-resource-policy": "same-origin",
+    "etag": "\"645cfcf8899450066c8f1658dfb0c2cd\"",
+    "transfer-encoding": "chunked"
+  },
+  "crossOriginIsolated": true,
+  "rust": "initialized",
+  "moonbit": "ready"
+}
