@@ -155,6 +155,18 @@ the original unsupported IME and unverified native placeholders remain visible.
 See [GAP_BUDGET_RESULTS.md](GAP_BUDGET_RESULTS.md) for immutable revisions,
 raw-evidence indexes, reproduction commands and remaining coverage limits.
 
+## Fractional flex-shrink batch
+
+[fractional_shrink_scenarios.json](fractional_shrink_scenarios.json) adds 17
+shared layouts for raw shrink totals below/equal to/above one, weighted shares,
+zero/unequal bases, signed overflow placement and gap-budget bounds. Actual
+baseline execution records seven passes/ten mismatches; the separate shrink
+correction records 17 passes/zero mismatches. Its deliberate width control
+records zero passes/17 mismatches. All 55 earlier measured headless cases pass;
+the original unsupported IME and unverified native rows remain visible. See
+[FRACTIONAL_SHRINK_RESULTS.md](FRACTIONAL_SHRINK_RESULTS.md) for exact identities,
+raw-evidence indexes and limitations.
+
 ## Result contract
 
 `comparison.json` has one row per shared scenario with `pass`, `mismatch`,
