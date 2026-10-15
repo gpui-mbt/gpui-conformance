@@ -167,6 +167,17 @@ the original unsupported IME and unverified native rows remain visible. See
 [FRACTIONAL_SHRINK_RESULTS.md](FRACTIONAL_SHRINK_RESULTS.md) for exact identities,
 raw-evidence indexes and limitations.
 
+## Flex min/max redistribution batch
+
+[minmax_scenarios.json](minmax_scenarios.json) adds 29 shared layouts covering
+capped growth, minimum-clamped shrink, hypothetical factor selection and
+fractional controls. Baseline execution records nine passes/twenty mismatches;
+the separate engine correction records 29 passes/zero mismatches, and its
+width control records zero passes/29 mismatches. All 72 previous measured
+headless cases pass. Native preparation remains build-only/unverified under
+the no-focus-disruption constraint. See [FLEX_LIMIT_RESULTS.md](FLEX_LIMIT_RESULTS.md)
+for exact identities, evidence indexes, reproduction and coverage limits.
+
 ## Result contract
 
 `comparison.json` has one row per shared scenario with `pass`, `mismatch`,

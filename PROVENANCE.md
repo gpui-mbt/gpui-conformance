@@ -49,3 +49,12 @@ Inspected native paths: `crates/gpui_platform/src/gpui_platform.rs`,
 readback API. Sources remain unmodified; runtime Metal compilation uses the
 upstream `runtime_shaders` feature. The small foreground-restoration helper
 under `adapters/native_moonbit/` is original AppKit API usage, not copied code.
+
+The min/max batch adds 29 original shared inputs and maps optional main-axis
+limits through each framework's public style/builder APIs. It copies no fixture
+or implementation. Read-only inspection of locked Taffy 0.13.0
+`src/compute/flexbox.rs` explains measured freeze/redistribution and initial
+partial-factor budgets. Taffy's Cargo.toml declares MIT; its locked crate
+SHA-256 is `c034e05f6ee85a12daa63863c2245797715075c70649947aa0da54f3f2ab1d0f`.
+GPUI's owning package remains Apache-2.0. The separate MoonBit engine change
+records this dependency inspection in its own provenance metadata.

@@ -145,6 +145,22 @@ fn tree(s : Json) -> @element.Prepainted {
         },
       ),
     )
+    let item = checked(
+      item.with_main_limits(
+        match optional(s, "min_main") {
+          Some(value) => number(array(value)[i])
+          None => 0.0
+        },
+        match optional(s, "max_main") {
+          Some(value) =>
+            match array(value)[i] {
+              Null => None
+              limit => Some(number(limit))
+            }
+          None => None
+        },
+      ),
+    )
     root = root.with_child(
       @element.Element::new(item).with_background(
         Some(checked(@primitives.Color::rgba(32, 64, 96, 255))),

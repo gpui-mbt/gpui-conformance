@@ -1,0 +1,2192 @@
+{
+  "schema_version": 1,
+  "scope": "Flex limit redistribution and preservation; native preparation is build-only. Retained artifacts are required to qualify execution.",
+  "corpus": "fractional_grow_scenarios.json",
+  "suite_revision": "48e40200c15f61eb2b4799fe9391ff91aa3b13ef",
+  "baseline_revision": "e7854d297ebd8f64ef332ba17e9893061b930a03",
+  "candidate_revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+  "executions": {
+    "limits-reviewed-grow": {
+      "directory": "_build/limits-reviewed-grow",
+      "manifest_sha256": "372f44e4a0a6e530dc145a9cf5413515acee31faeb361a1133f9e1bbb38efec6",
+      "comparison_sha256": "9994ffcf7fbb3e3e5f4dccfe4c0172e660110736e08a76ce8fe87e879ad81ebb",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "48e40200c15f61eb2b4799fe9391ff91aa3b13ef",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+            "run_token": "6fc36266-7736-4058-9b93-7197d24aac4d",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 75310,
+              "started_at": "2026-10-15T05:34:21.935694+00:00",
+              "finished_at": "2026-10-15T05:34:22.176143+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "1f4e6dfaab28b89c7663cc1afe94dbb3a07fa2bf94d00439a3c08996136ad10a"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "f04d247302a640c78ef976be97bcec08501f91f5dd603ff13ffdb5b77af67bfb"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/limits-reviewed-grow/upstream/probe"
+              ],
+              "pid": 75312,
+              "started_at": "2026-10-15T05:34:22.220466+00:00",
+              "finished_at": "2026-10-15T05:34:22.550304+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "664975dd9e178321307f57a36e7615ae6cd855c441a0f619f60290b46a0bf894"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "source_tree": "a0f15a1c16094541eb38f6b3c5092f9c409a08a8",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+            "run_token": "21e83e8b-8f67-43f9-bccd-e90574f5897c",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 75321,
+              "started_at": "2026-10-15T05:34:22.593827+00:00",
+              "finished_at": "2026-10-15T05:34:23.069680+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "4bfb4b5fd9a8f77123863d5d7b3402e8a9a4c1c0be1900e2f78be5f355be8918"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/limits-reviewed-grow/moonbit/probe"
+              ],
+              "pid": 75352,
+              "started_at": "2026-10-15T05:34:23.070923+00:00",
+              "finished_at": "2026-10-15T05:34:23.396755+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "d3345cc2e3eebe517c2cd041b873ecc79d30b604f46810bb975131794da408c2"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+        "cases": [
+          {
+            "id": "grow-partial-row",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  35.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  35,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-column",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  35.0
+                ],
+                [
+                  0.0,
+                  35.0,
+                  10.0,
+                  35.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  35
+                ],
+                [
+                  0,
+                  35,
+                  10,
+                  35
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-asymmetric-partial-row",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  52.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  52,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-first-factor",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-below-unit-sum",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  44.0,
+                  10.0
+                ],
+                [
+                  44.0,
+                  0.0,
+                  52.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  44,
+                  10
+                ],
+                [
+                  44,
+                  0,
+                  52,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-exact-unit-sum",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  68.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  68,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-above-unit-sum",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  68.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  68,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-sum",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-center",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  15.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  50.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  15,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  50,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-column-end",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  0.0,
+                  30.0,
+                  10.0,
+                  35.0
+                ],
+                [
+                  0.0,
+                  65.0,
+                  10.0,
+                  35.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  0,
+                  30,
+                  10,
+                  35
+                ],
+                [
+                  0,
+                  65,
+                  10,
+                  35
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-with-gap",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  39.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  31,
+                  10
+                ],
+                [
+                  39,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-exact-fit-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-negative-free-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  30.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  15.0,
+                  10.0
+                ],
+                [
+                  15.0,
+                  0.0,
+                  15.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  30,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  15,
+                  10
+                ],
+                [
+                  15,
+                  0,
+                  15,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-unequal-bases",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  26.0,
+                  10.0
+                ],
+                [
+                  26.0,
+                  0.0,
+                  46.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  26,
+                  10
+                ],
+                [
+                  26,
+                  0,
+                  46,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-maximum-factor-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  80.0,
+                  10.0
+                ],
+                [
+                  80.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  80,
+                  10
+                ],
+                [
+                  80,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-bases",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  25.0,
+                  10.0
+                ],
+                [
+                  25.0,
+                  0.0,
+                  25.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  25,
+                  10
+                ],
+                [
+                  25,
+                  0,
+                  25,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-small-positive-factors",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  1040.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  9.0,
+                  10.0
+                ],
+                [
+                  9.0,
+                  0.0,
+                  9.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  1040,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  9,
+                  10
+                ],
+                [
+                  9,
+                  0,
+                  9,
+                  10
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 17,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "limits-reviewed-grow-negative": {
+      "directory": "_build/limits-reviewed-grow-negative",
+      "manifest_sha256": "70b16544172fc57093473b9bd34bbad12d1453c12ee7327a45d2184da74b844d",
+      "comparison_sha256": "853809b8c1cd0c1f378e8d545644da527380f59a2dc823fad000a0e8ddb6760c",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "48e40200c15f61eb2b4799fe9391ff91aa3b13ef",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+            "run_token": "8573a955-11b8-42f7-aec1-57e2a2b7464c",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 75380,
+              "started_at": "2026-10-15T05:34:23.795403+00:00",
+              "finished_at": "2026-10-15T05:34:24.039348+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "69d000591266b5ed9fd97f7c0de64bfc4f3abaef291dfd7a6fd9c76eee93a521"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "f04d247302a640c78ef976be97bcec08501f91f5dd603ff13ffdb5b77af67bfb"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/limits-reviewed-grow-negative/upstream/probe"
+              ],
+              "pid": 75383,
+              "started_at": "2026-10-15T05:34:24.103238+00:00",
+              "finished_at": "2026-10-15T05:34:24.456258+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "ddbceac9fe38c0718da674dbbba7afc33a104a879ef76cf96a88f17a9f280e0f"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "source_tree": "a0f15a1c16094541eb38f6b3c5092f9c409a08a8",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+            "run_token": "0ae16efd-e6c8-4eee-b2e9-3acab30e5f9c",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 75390,
+              "started_at": "2026-10-15T05:34:24.491733+00:00",
+              "finished_at": "2026-10-15T05:34:24.980208+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "d2b340883b9229d49787d534a392c4279d53c645d801e183dca99974f139fb6c"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-limits/_build/limits-reviewed-grow-negative/moonbit/probe"
+              ],
+              "pid": 75443,
+              "started_at": "2026-10-15T05:34:24.981409+00:00",
+              "finished_at": "2026-10-15T05:34:25.334749+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "ba2134dc8b856abaab18ed79ed063d58a37c1f760be28474e0a911cd4267083b"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "b3d668e643e67c7c689ab92941a65c74c2811c6c",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "641f45bbd4e714ecd4dd44a5749a0d4606ac1b0539791f171328f1dbf7909722",
+        "cases": [
+          {
+            "id": "grow-partial-row",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 35.0,
+                "moonbit": 36
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  35.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  35,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-column",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 10.0,
+                "moonbit": 11
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  35.0
+                ],
+                [
+                  0.0,
+                  35.0,
+                  10.0,
+                  35.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  0,
+                  0,
+                  11,
+                  35
+                ],
+                [
+                  0,
+                  35,
+                  10,
+                  35
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-asymmetric-partial-row",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 36.0,
+                "moonbit": 37
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  52.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  37,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  52,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-first-factor",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-below-unit-sum",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 44.0,
+                "moonbit": 45
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  44.0,
+                  10.0
+                ],
+                [
+                  44.0,
+                  0.0,
+                  52.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  45,
+                  10
+                ],
+                [
+                  44,
+                  0,
+                  52,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-exact-unit-sum",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 36.0,
+                "moonbit": 37
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  68.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  37,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  68,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-above-unit-sum",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 36.0,
+                "moonbit": 37
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  36.0,
+                  10.0
+                ],
+                [
+                  36.0,
+                  0.0,
+                  68.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  37,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  68,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-sum",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-center",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 35.0,
+                "moonbit": 36
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  15.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  50.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  15,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  50,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-column-end",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 10.0,
+                "moonbit": 11
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  100.0
+                ],
+                [
+                  0.0,
+                  30.0,
+                  10.0,
+                  35.0
+                ],
+                [
+                  0.0,
+                  65.0,
+                  10.0,
+                  35.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  100
+                ],
+                [
+                  0,
+                  30,
+                  11,
+                  35
+                ],
+                [
+                  0,
+                  65,
+                  10,
+                  35
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-partial-with-gap",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 32
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  39.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  32,
+                  10
+                ],
+                [
+                  39,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-exact-fit-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  20.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  20,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-negative-free-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 15.0,
+                "moonbit": 16
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  30.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  15.0,
+                  10.0
+                ],
+                [
+                  15.0,
+                  0.0,
+                  15.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  30,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  16,
+                  10
+                ],
+                [
+                  15,
+                  0,
+                  15,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-unequal-bases",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 26.0,
+                "moonbit": 27
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  104.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  26.0,
+                  10.0
+                ],
+                [
+                  26.0,
+                  0.0,
+                  46.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  104,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  27,
+                  10
+                ],
+                [
+                  26,
+                  0,
+                  46,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-maximum-factor-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 80.0,
+                "moonbit": 81
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  80.0,
+                  10.0
+                ],
+                [
+                  80.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  81,
+                  10
+                ],
+                [
+                  80,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-zero-bases",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 25.0,
+                "moonbit": 26
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  25.0,
+                  10.0
+                ],
+                [
+                  25.0,
+                  0.0,
+                  25.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  26,
+                  10
+                ],
+                [
+                  25,
+                  0,
+                  25,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "grow-small-positive-factors",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 9.0,
+                "moonbit": 10
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  1040.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  9.0,
+                  10.0
+                ],
+                [
+                  9.0,
+                  0.0,
+                  9.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  1040,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  10
+                ],
+                [
+                  9,
+                  0,
+                  9,
+                  10
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 0,
+          "mismatch": 17,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    }
+  }
+}

@@ -33,6 +33,17 @@ def validate_scenarios(scenarios):
             for field, default in (("grow", [0, 0]), ("shrink", [1, 1])):
                 if not numbers(s.get(field, default), 2, True) or max(s.get(field, default)) > 16:
                     raise ValueError("invalid bounded flex factors")
+            minima = s.get("min_main", [0, 0])
+            maxima = s.get("max_main", [None, None])
+            if not numbers(minima, 2, True) or max(minima) > 4096:
+                raise ValueError("invalid bounded main-axis minima")
+            if not isinstance(maxima, list) or len(maxima) != 2 or any(
+                x is not None and (type(x) not in (int, float) or not math.isfinite(x) or not 0 <= x <= 4096)
+                for x in maxima
+            ) or any(limit is not None and minimum > limit for minimum, limit in zip(minima, maxima)):
+                raise ValueError("invalid bounded main-axis maxima")
+        elif "min_main" in s or "max_main" in s:
+            raise ValueError("main-axis limit fields require a layout scenario")
         if kind == "pointer" and (not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
         if kind == "key" and (not s.get("keys") or any(not isinstance(k, list) or len(k) != 6 or not isinstance(k[0], str) or len(k[0]) != 1 or any(type(x) is not bool for x in k[1:]) for k in s["keys"])):

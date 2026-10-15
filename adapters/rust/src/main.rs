@@ -73,7 +73,7 @@ impl Render for View {
             .enumerate()
         {
             let trace = self.trace.clone();
-            let child = div()
+            let mut child = div()
                 .id(i + 2)
                 .debug_selector(move || if i == 0 { "a" } else { "b" }.into())
                 .w(px(n(&dimensions[0])))
@@ -86,6 +86,22 @@ impl Render for View {
                 .on_mouse_down(MouseButton::Left, move |_, _, _| {
                     trace.borrow_mut().push(json!(i + 2))
                 });
+            let minimum = self.scenario["min_main"].get(i).map(n).unwrap_or(0.);
+            let maximum = self.scenario["max_main"]
+                .get(i)
+                .filter(|value| !value.is_null())
+                .map(n);
+            if self.scenario["direction"] == "column" {
+                child = child.min_h(px(minimum));
+                if let Some(limit) = maximum {
+                    child = child.max_h(px(limit));
+                }
+            } else {
+                child = child.min_w(px(minimum));
+                if let Some(limit) = maximum {
+                    child = child.max_w(px(limit));
+                }
+            }
             root = root.child(child);
         }
         root
