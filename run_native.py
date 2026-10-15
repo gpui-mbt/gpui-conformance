@@ -27,8 +27,10 @@ def main():
     parser.add_argument("--build-only",action="store_true")
     parser.add_argument("--negative-control",action="store_true",help="Actually paint the MoonBit rectangle blue instead of the shared red")
     parser.add_argument("--observe-visible",action="store_true",help="Explicitly show only each owned accessory fixture behind other windows for a bounded read-only observer handshake")
+    parser.add_argument("--ax-diagnostics",action="store_true",help="Read only the owned fixture's local accessibility objects and external AX attribute names to diagnose projection")
     parser.add_argument("--online",action="store_true")
     args=parser.parse_args()
+    if args.ax_diagnostics and not args.observe_visible: parser.error("AX diagnostics require explicit --observe-visible")
     if platform.system() != "Darwin": parser.error("native slice requires macOS")
     out=args.output.resolve()
     out.mkdir(parents=True,exist_ok=False)
@@ -44,14 +46,14 @@ def main():
     (out/"scenarios.json").write_bytes(scenarios)
     host={"os":platform.system(),"architecture":platform.machine(),"release":platform.release(),"macos":platform.mac_ver()[0]}
     manifest={"schema_version":1,"pins":pins,"platform":host,"negative_control":args.negative_control,
-              "suite_revision":command(["git","rev-parse","HEAD"],ROOT),"suite_dirty":bool(command(["git","status","--porcelain"],ROOT)),"runs":{}}
+              "suite_revision":command(["git","rev-parse","HEAD"],ROOT),"suite_dirty":bool(command(["git","status","--porcelain"],ROOT)),"ax_diagnostics":args.ax_diagnostics,"runs":{}}
     adapter=build/"native-rust-adapter"
     shutil.copytree(ROOT/"adapters/native_rust",adapter,dirs_exist_ok=True)
     cargo=adapter/"Cargo.toml"
     cargo.write_text(cargo.read_text().replace('"../../../zed-source/crates/gpui"',json.dumps(str(paths["upstream"]/"crates/gpui"))).replace('"../../../zed-source/crates/gpui_platform"',json.dumps(str(paths["upstream"]/"crates/gpui_platform"))))
     runtime=prepare_moonbit(paths["moonbit"],build,ROOT/"adapters/native_moonbit")
     env=os.environ.copy()
-    env.update(CARGO_TARGET_DIR=str(build/"native-rust"),GPUI_SCENARIOS=scenarios.decode(),GPUI_NATIVE_E2E="1",GPUI_NEGATIVE_CONTROL="1" if args.negative_control else "0")
+    env.update(CARGO_TARGET_DIR=str(build/"native-rust"),GPUI_SCENARIOS=scenarios.decode(),GPUI_NATIVE_E2E="1",GPUI_NEGATIVE_CONTROL="1" if args.negative_control else "0",GPUI_AX_DIAGNOSTICS="1" if args.ax_diagnostics else "0")
     configs={
         "upstream":{"build":["cargo","+1.98.1","build","--locked"]+([] if args.online else ["--offline"])+["--manifest-path",str(cargo)],"cwd":ROOT,"exe":build/"native-rust/debug/gpui-conformance-native-probe","toolchain":command(["rustc","+1.98.1","--version"])},
         "moonbit":{"build":["moon","build","--target","native","--deny-warn","conformance_probe"],"cwd":runtime,"exe":runtime/"_build/native/debug/build/conformance_probe/conformance_probe.exe","toolchain":command(["moon","version"])+"; "+command(["xcrun","clang","--version"]).splitlines()[0]},

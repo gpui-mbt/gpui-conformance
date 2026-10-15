@@ -16,6 +16,7 @@ int main(int argc, const char **argv) {
     @autoreleasepool {
         // This read-only call never prompts or modifies TCC.
         BOOL trusted = AXIsProcessTrusted();
+        BOOL diagnostics = [NSProcessInfo.processInfo.environment[@"GPUI_AX_DIAGNOSTICS"] isEqual:@"1"];
         NSMutableDictionary *result = [@{@"protocol": @1, @"ax_trusted": @(trusted),
                                         @"permission_prompted": @NO} mutableCopy];
         if (argc != 2) {
@@ -60,6 +61,11 @@ int main(int argc, const char **argv) {
                     NSMutableDictionary *appStatus = [NSMutableDictionary dictionary];
                     id axWindows = attribute(app, kAXWindowsAttribute, appStatus);
                     result[@"ax_application_attribute_status"] = appStatus;
+                    if (diagnostics) {
+                        CFArrayRef appNames = NULL;
+                        result[@"ax_application_names_error"] = @(AXUIElementCopyAttributeNames(app, &appNames));
+                        if (appNames) result[@"ax_application_attribute_names"] = CFBridgingRelease(appNames);
+                    }
                     NSMutableArray *matched = [NSMutableArray array], *windowStatuses = [NSMutableArray array], *candidates = [NSMutableArray array];
                     NSUInteger matches = 0;
                     if ([axWindows isKindOfClass:NSArray.class] && [axWindows count] <= 16) {
@@ -71,8 +77,15 @@ int main(int argc, const char **argv) {
                             status[@"AXUIElementGetPid"] = @(AXUIElementGetPid(axWindow, &owner));
                             id title = attribute(axWindow, kAXTitleAttribute, status), role = attribute(axWindow, kAXRoleAttribute, status);
                             [windowStatuses addObject:status];
-                            if (owner == pid) [candidates addObject:@{@"pid":@(owner),@"title":[title isKindOfClass:NSString.class] ? title : NSNull.null,
-                                                                      @"role":[role isKindOfClass:NSString.class] ? role : NSNull.null}];
+                            if (owner == pid) {
+                                CFArrayRef names = NULL;
+                                AXError namesError = diagnostics ? AXUIElementCopyAttributeNames(axWindow, &names) : kAXErrorAttributeUnsupported;
+                                NSMutableDictionary *candidate = [@{@"pid":@(owner),@"title":[title isKindOfClass:NSString.class] ? title : NSNull.null,
+                                    @"role":[role isKindOfClass:NSString.class] ? role : NSNull.null,
+                                    @"same_application_element":@(CFEqual(axWindow,app)),@"attribute_names_error":@(namesError)} mutableCopy];
+                                if (names) candidate[@"attribute_names"] = CFBridgingRelease(names);
+                                [candidates addObject:candidate];
+                            }
                             if (owner != pid || ![title isEqual:ready[@"title"]] || ![role isEqual:(__bridge NSString *)kAXWindowRole]) continue;
                             id position = attribute(axWindow, kAXPositionAttribute, status), size = attribute(axWindow, kAXSizeAttribute, status);
                             CGPoint point = CGPointZero; CGSize dimensions = CGSizeZero; CGRect cgBounds = CGRectZero;

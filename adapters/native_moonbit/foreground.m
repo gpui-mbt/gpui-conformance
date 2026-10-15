@@ -61,6 +61,16 @@ int32_t conformance_fixture_checkpoint(void) {
     struct timespec now;
     if (clock_gettime(CLOCK_REALTIME, &now)) return 0;
     NSRect bounds = window.contentView.bounds;
+    BOOL diagnostics = [env[@"GPUI_AX_DIAGNOSTICS"] isEqual:@"1"];
+    NSArray *localWindows = diagnostics ? NSApp.accessibilityWindows : @[];
+    NSMutableArray *localWindowRoles = [NSMutableArray array];
+    for (id candidate in localWindows) {
+        if (localWindowRoles.count >= 16) break;
+        [localWindowRoles addObject:@{@"class":NSStringFromClass([candidate class]),
+                                     @"same_owned_window":@(candidate == window),
+                                     @"role":[candidate accessibilityRole] ?: NSNull.null,
+                                     @"title":[candidate accessibilityTitle] ?: NSNull.null}];
+    }
     NSDictionary *ready = @{
         @"protocol": @1, @"run_token": token, @"pid": @(getpid()),
         @"process_start_sec": @(info.pbi_start_tvsec), @"process_start_usec": @(info.pbi_start_tvusec),
@@ -72,6 +82,12 @@ int32_t conformance_fixture_checkpoint(void) {
         @"content_size": @[@(bounds.size.width), @(bounds.size.height)],
         @"scale": @(window.backingScaleFactor), @"visible": @YES, @"key": @NO,
         @"application_active": @NO, @"activation_policy": @1,
+        @"local_ax_read": @(diagnostics),
+        @"local_ax": @{@"application_role":diagnostics ? (NSApp.accessibilityRole ?: NSNull.null) : NSNull.null,
+                        @"window_role":diagnostics ? (window.accessibilityRole ?: NSNull.null) : NSNull.null,
+                        @"window_title":diagnostics ? (window.accessibilityTitle ?: NSNull.null) : NSNull.null,
+                        @"window_class":NSStringFromClass(window.class),
+                        @"application_windows":localWindowRoles},
     };
     NSData *data = [NSJSONSerialization dataWithJSONObject:ready options:0 error:nil];
     NSString *readyPath = [directory stringByAppendingPathComponent:@"ready.json"];
