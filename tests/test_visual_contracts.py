@@ -11,7 +11,9 @@ import zlib
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from evaluate_native_images import evaluate
-from native_images import exact_comparison, frame_bytes, png_bytes, retained_frames, validate_diff
+from native_images import (diff_command, exact_comparison, frame_bytes, png_bytes, retained_frames,
+                           require_ordered, runtime_inventory, validate_analysis_metadata, validate_diff,
+                           validate_diff_invocation, verify_runtime_inventory)
 
 
 def frame(width=2, height=1, scale=2):
@@ -104,6 +106,74 @@ class VisualContractTests(unittest.TestCase):
         for threshold in (True, -.1, 1.1, math.nan, math.inf):
             with tempfile.TemporaryDirectory() as directory, self.assertRaises(ValueError):
                 evaluate(directory, directory, Path(directory) / "output", threshold)
+
+    def test_runtime_inventory_rejects_deleted_entries_changed_exports_and_extra_code(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            exports = root / "package.json"
+            exports.write_text('{"exports":"./real.mjs"}')
+            (root / "real.mjs").write_text("export const pinned = true")
+            inventory = runtime_inventory(root)
+            verify_runtime_inventory(root, inventory)
+            with self.assertRaises(ValueError):
+                verify_runtime_inventory(root, inventory[:-1])
+            exports.write_text('{"exports":"./other.mjs"}')
+            with self.assertRaises(ValueError):
+                verify_runtime_inventory(root, inventory)
+            exports.write_text('{"exports":"./real.mjs"}')
+            (root / "extra.mjs").write_text("export const injected = true")
+            with self.assertRaises(ValueError):
+                verify_runtime_inventory(root, inventory)
+
+    def test_runtime_symlink_routes_are_bound_and_external_targets_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "runtime"
+            root.mkdir()
+            (root / "a.mjs").write_text("a")
+            (root / "b.mjs").write_text("b")
+            route = root / "entry.mjs"
+            route.symlink_to("a.mjs")
+            inventory = runtime_inventory(root)
+            route.unlink()
+            route.symlink_to("b.mjs")
+            with self.assertRaises(ValueError):
+                verify_runtime_inventory(root, inventory)
+            outside = Path(directory) / "outside.mjs"
+            outside.write_text("outside")
+            route.unlink()
+            route.symlink_to(outside)
+            with self.assertRaises(ValueError):
+                runtime_inventory(root)
+
+    def test_analyzer_identity_threshold_and_exact_diagnostic_command_are_required(self):
+        pins = {"entrypoint": "runtime/packages/markup/dist/png-diff.mjs"}
+        report = {"schema_version": 1, "kind": "retained-native-image-evaluation", "native_execution": "not-rerun",
+                  "suite_dirty": False, "suite_revision": "a" * 40,
+                  "qualification": "analysis of the recorded source revisions only",
+                  "output_directory": "/original/output", "toolchain": {"directory": "/original/toolchain"},
+                  "pixelmatch_per_pixel_threshold": 0.0}
+        report["diff_execution"] = {"command": diff_command("/original/toolchain", "/original/output", 0.0, pins),
+                                    "pid": 1, "returncode": 0, "timed_out": False,
+                                    "started_at": "2026-10-15T00:00:00+00:00", "finished_at": "2026-10-15T00:00:01+00:00"}
+        validate_diff_invocation(report, pins)
+        for key, value in (("suite_revision", "not-a-revision"), ("pixelmatch_per_pixel_threshold", True),
+                           ("pixelmatch_per_pixel_threshold", math.nan), ("native_execution", "fresh")):
+            candidate = dict(report, **{key: value})
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate_analysis_metadata(candidate)
+        for command in (["/usr/bin/true"], report["diff_execution"]["command"] + ["--ignore-region", "0,0,1x1"],
+                        diff_command("/foreign/toolchain", "/original/output", 0.0, pins),
+                        diff_command("/original/toolchain", "/foreign/output", 0.0, pins)):
+            candidate = dict(report, diff_execution=dict(report["diff_execution"], command=command))
+            with self.assertRaises(ValueError):
+                validate_diff_invocation(candidate, pins)
+
+    def test_build_execution_order_uses_aware_instants_across_offsets(self):
+        require_ordered("2026-10-15T10:00:00+09:00", "2026-10-15T02:00:00+00:00")
+        with self.assertRaises(ValueError):
+            require_ordered("2026-10-15T01:00:00+00:00", "2026-10-15T02:00:00+02:00")
+        with self.assertRaises(ValueError):
+            require_ordered("2026-10-15T01:00:00", "2026-10-15T02:00:00+00:00")
 
 
 if __name__ == "__main__":

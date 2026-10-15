@@ -3,17 +3,16 @@
 import argparse
 from pathlib import Path
 
-from comparator import digest, load_json, process_identity
-from native_images import exact_comparison, frame_bytes, png_bytes, retained_frames, validate_diff, verify_toolchain
+from comparator import digest, load_json, process_identity, sha
+from native_images import diff_command, exact_comparison, frame_bytes, png_bytes, retained_frames, validate_analysis_metadata, validate_diff, validate_diff_invocation, verify_toolchain
 
 
 def verify_report(directory, evidence, toolchain):
     directory, evidence, toolchain = (Path(p).resolve() for p in (directory, evidence, toolchain))
     report = load_json(directory / "report.json")
-    if (report.get("schema_version") != 1 or report.get("kind") != "retained-native-image-evaluation" or
-            report.get("native_execution") != "not-rerun" or report.get("suite_dirty") is not False or
-            report.get("status") not in ("pass", "mismatch")):
-        raise ValueError("report is unverified or has an invalid analysis identity")
+    validate_analysis_metadata(report)
+    if report.get("status") not in ("pass", "mismatch"):
+        raise ValueError("report is unverified")
     receipt = verify_toolchain(toolchain)
     if report["toolchain"]["pins"] != receipt["pins"] or report["toolchain"]["receipt_sha256"] != digest((toolchain / "toolchain.json").read_bytes()):
         raise ValueError("visual toolchain receipt binding differs")
@@ -37,7 +36,7 @@ def verify_report(directory, evidence, toolchain):
         raise ValueError("exact whole-frame comparison differs")
     status = exact["status"]
     if not exact["metadata_differences"]:
-        process_identity(report["diff_execution"])
+        validate_diff_invocation(report, receipt["pins"], receipt["build"])
         artifacts = report["diagnostic_artifacts"]
         paths = [a["path"] for a in artifacts]
         if len(paths) != len(set(paths)) or not {"diff.stdout", "diff.stderr"}.issubset(paths):

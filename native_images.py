@@ -1,6 +1,9 @@
 """Strict retained-RGBA analysis. This module never captures a screen or launches a GUI."""
+from datetime import datetime
 import json
 import math
+import os
+import stat
 from pathlib import Path
 import struct
 import zlib
@@ -98,6 +101,74 @@ def validate_diff(value, width, height):
     return value
 
 
+def runtime_inventory(directory):
+    """Cover every installed byte and every symlink route; never follow outside the runtime."""
+    directory = Path(directory).resolve()
+    result = []
+    for parent, directories, files in os.walk(directory, followlinks=False):
+        parent = Path(parent)
+        for name in sorted(directories + files):
+            path = parent / name
+            relative = str(path.relative_to(directory))
+            if path.is_symlink():
+                if not path.resolve(strict=True).is_relative_to(directory):
+                    raise ValueError("runtime symlink escapes its isolated directory: " + relative)
+                result.append({"path": relative, "kind": "symlink", "target": os.readlink(path)})
+            elif path.is_file():
+                result.append({"path": relative, "kind": "file", "sha256": digest(path.read_bytes()),
+                               "mode": stat.S_IMODE(path.stat().st_mode)})
+            elif not path.is_dir():
+                raise ValueError("unsupported runtime file kind: " + relative)
+        directories[:] = [name for name in directories if not (parent / name).is_symlink()]
+    return sorted(result, key=lambda item: item["path"])
+
+
+def verify_runtime_inventory(directory, expected):
+    if not isinstance(expected, list) or not expected or runtime_inventory(directory) != expected:
+        raise ValueError("complete runtime code, dependency, or symlink inventory differs")
+
+
+def validate_threshold(value):
+    if type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1:
+        raise ValueError("pixelmatch per-pixel threshold must be finite and between zero and one")
+    return value
+
+
+def diff_command(toolchain, output, threshold, pins):
+    return ["node", str(Path(toolchain) / pins["entrypoint"]), str(Path(output) / "upstream.png"),
+            str(Path(output) / "moonbit.png"), "--threshold", str(validate_threshold(threshold)),
+            "--json", "--output-dir", str(Path(output) / "diff")]
+
+
+def validate_analysis_metadata(report):
+    if (type(report.get("schema_version")) is not int or report["schema_version"] != 1 or
+            report.get("kind") != "retained-native-image-evaluation" or report.get("native_execution") != "not-rerun" or
+            report.get("suite_dirty") is not False or not sha(report.get("suite_revision"), 40) or
+            report.get("qualification") != "analysis of the recorded source revisions only"):
+        raise ValueError("invalid retained image analysis identity")
+    validate_threshold(report["pixelmatch_per_pixel_threshold"])
+    original_output = Path(report["output_directory"])
+    original_toolchain = Path(report["toolchain"]["directory"])
+    if not original_output.is_absolute() or not original_toolchain.is_absolute():
+        raise ValueError("recorded analysis/toolchain paths must be absolute")
+    return original_output, original_toolchain
+
+
+def require_ordered(first, second):
+    earlier, later = datetime.fromisoformat(first), datetime.fromisoformat(second)
+    if earlier.tzinfo is None or later.tzinfo is None or earlier > later:
+        raise ValueError("invalid visual build/execution chronology")
+
+
+def validate_diff_invocation(report, pins, build=None):
+    original_output, original_toolchain = validate_analysis_metadata(report)
+    process_identity(report["diff_execution"])
+    if report["diff_execution"]["command"] != diff_command(original_toolchain, original_output, report["pixelmatch_per_pixel_threshold"], pins):
+        raise ValueError("diagnostic command does not bind the pinned entrypoint, PNGs and threshold")
+    if build is not None:
+        require_ordered(build["finished_at"], report["diff_execution"]["started_at"])
+
+
 def verify_toolchain(directory):
     directory = Path(directory).resolve()
     receipt = load_json(directory / "toolchain.json")
@@ -106,11 +177,13 @@ def verify_toolchain(directory):
             receipt.get("status") != "ready" or receipt.get("suite_dirty") is not False or
             not sha(receipt.get("suite_revision"), 40)):
         raise ValueError("toolchain does not match the reviewed visual pin")
+    verify_runtime_inventory(directory / "runtime", receipt.get("runtime_inventory"))
+    if receipt["build"]["command"] != ["pnpm", "build:packages:js"] or receipt["moon_build"]["command"] != ["moon", "-C", "packages/vlmkit-markup", "build", "markup-core", "markup-core-api", "markup-core-cli", "--target", "js"]:
+        raise ValueError("visual preparation build command differs")
     for key in ("install", "moon_build", "build"):
         process_identity(receipt[key])
-    if (receipt["install"]["finished_at"] > receipt["moon_build"]["started_at"] or
-            receipt["moon_build"]["finished_at"] > receipt["build"]["started_at"]):
-        raise ValueError("visual build did not follow dependency preparation")
+    require_ordered(receipt["install"]["finished_at"], receipt["moon_build"]["started_at"])
+    require_ordered(receipt["moon_build"]["finished_at"], receipt["build"]["started_at"])
     artifacts = receipt.get("artifacts", [])
     paths = [item["path"] for item in artifacts]
     required = {pins["entrypoint"], "source.tar", "runtime/pnpm-lock.yaml", "install.stdout", "install.stderr", "build.stdout", "build.stderr", "moon_build.stdout", "moon_build.stderr",

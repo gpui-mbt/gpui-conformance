@@ -2,13 +2,12 @@
 """Evaluate already-retained native readbacks; never create a new native execution claim."""
 import argparse
 import json
-import math
 import os
 from pathlib import Path
 import zlib
 
 from comparator import digest, load_json, process_identity
-from native_images import exact_comparison, frame_bytes, png_bytes, retained_frames, validate_diff, verify_toolchain
+from native_images import diff_command, exact_comparison, frame_bytes, png_bytes, retained_frames, validate_diff, validate_diff_invocation, validate_threshold, verify_toolchain
 from run import artifact, command, execute
 
 
@@ -16,11 +15,10 @@ def evaluate(evidence, toolchain, output, threshold=0.0):
     evidence, toolchain, output = (Path(p).resolve() for p in (evidence, toolchain, output))
     if output.exists():
         raise ValueError("output already exists; prior evidence cannot be overwritten")
-    if type(threshold) not in (int, float) or not math.isfinite(threshold) or not 0 <= threshold <= 1:
-        raise ValueError("pixelmatch per-pixel threshold must be finite and between zero and one")
+    validate_threshold(threshold)
     output.mkdir(parents=True)
     report = {"schema_version": 1, "kind": "retained-native-image-evaluation", "status": "unverified",
-              "native_execution": "not-rerun", "evidence_directory": str(evidence),
+              "native_execution": "not-rerun", "evidence_directory": str(evidence), "output_directory": str(output),
               "qualification": "analysis of the recorded source revisions only",
               "policy": "identical complete RGBA8 bytes, physical dimensions and device scale; vlmkit is a diagnostic",
               "pixelmatch_per_pixel_threshold": threshold, "zlib": zlib.ZLIB_RUNTIME_VERSION,
@@ -48,10 +46,9 @@ def evaluate(evidence, toolchain, output, threshold=0.0):
             report["status"] = "mismatch"
             report["reason"] = "physical dimensions/device scale differ; no resampling or coerced PNG comparison"
         else:
-            argv = ["node", str(toolchain / receipt["pins"]["entrypoint"]), str(output / "upstream.png"), str(output / "moonbit.png"),
-                    "--threshold", str(threshold), "--json", "--output-dir", str(output / "diff")]
+            argv = diff_command(toolchain, output, threshold, receipt["pins"])
             report["diff_execution"] = execute(argv, os.environ.copy(), output / "diff.stdout", output / "diff.stderr", toolchain, 60)
-            process_identity(report["diff_execution"])
+            validate_diff_invocation(report, receipt["pins"], receipt["build"])
             value = validate_diff(load_json(output / "diff.stdout"), frames["upstream"]["width"], frames["upstream"]["height"])
             report["vlmkit"] = value
             report["status"] = "mismatch" if exact["status"] == "mismatch" or value["status"] == "changed" else "pass"

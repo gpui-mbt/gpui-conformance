@@ -9,7 +9,7 @@ import subprocess
 import tarfile
 
 from comparator import digest, load_json
-from native_images import PINS
+from native_images import PINS, runtime_inventory
 from run import artifact, command, execute
 
 
@@ -66,6 +66,7 @@ def main():
     files += sorted(runtime.glob("packages/*/dist/**/*.mjs"))
     files += sorted(runtime.glob("packages/vlmkit-markup/_build/js/debug/build/**/*.js"))
     receipt["artifacts"] = [artifact(p, output) for p in sorted(set(files))]
+    receipt["runtime_inventory"] = runtime_inventory(runtime)
     receipt["status"] = "ready"
     (output / "toolchain.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps({"status": "ready", "revision": pins["revision"], "artifacts": len(receipt["artifacts"])}))
