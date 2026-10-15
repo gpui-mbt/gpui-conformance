@@ -29,6 +29,13 @@ class PortableContractTests(unittest.TestCase):
             with self.subTest(field=field), self.assertRaises(ValueError):
                 validate_scenarios(corpus)
 
+    def test_fractional_grow_factors_require_finite_bounded_numbers(self):
+        for value in ([True, .25], [math.nan, .25], [math.inf, .25], [-1e-9, .25], [16.0001, 0], [.25]):
+            corpus = load_json(ROOT / "fractional_grow_scenarios.json")
+            corpus["cases"][0]["grow"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_scenarios(corpus)
+
     def test_invalid_routing_and_focus_inputs_rejected(self):
         for kind, field, value in (("route", "stop", [True, "capture"]), ("route", "points", []), ("focus", "focuses", [True]), ("focus", "key", "\n"), ("focus", "event", "arbitrary")):
             corpus = load_json(ROOT / "boundary_scenarios.json")
