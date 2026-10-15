@@ -1,5 +1,10 @@
 # Owned AX identity and accessory bundle diagnosis
 
+Follow-up: [external AX comparison and stock AppKit regression control](AX_COMPARISON_INVESTIGATION.md).
+The control separates hierarchy, packaging, event retrieval and publication
+timing without activating the existing regular-policy Button fixture. Native
+control execution remains unrun; external AX compatibility stays unverified.
+
 The bounded diagnostic distinguishes the local AppKit accessibility object
 from the external AX projection. On this Apple Silicon macOS 26.5.2 host,
 each fixture's own `NSApp.accessibilityWindows` contains its actual window
