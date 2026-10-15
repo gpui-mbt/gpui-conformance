@@ -135,13 +135,25 @@ equal to and above one, row/column placement, center/end leftovers, unequal
 bases, gaps and small positive factors. Run it with `run.py --scenarios
 fractional_grow_scenarios.json` and an explicit candidate revision.
 
-The baseline has six passes/eleven mismatches; the separately committed fix
-has sixteen passes/one mismatch. The partial-grow-with-gap case remains an
-explicit difference against the pinned dependency's gap accounting. It is
+That batch baseline has six passes/eleven mismatches; its separately committed
+fix has sixteen passes/one mismatch. The partial-grow-with-gap case was retained
+as an explicit difference against the pinned dependency's gap accounting. It is
 neither deleted nor classified as unsupported. All prior 21 executed headless
 cases and their controls are preserved. See
 [FRACTIONAL_GROW_RESULTS.md](FRACTIONAL_GROW_RESULTS.md) for exact revisions,
 retained real executions, the known difference and native limits.
+
+## Partial-grow gap-budget batch
+
+[gap_budget_scenarios.json](gap_budget_scenarios.json) adds 17 shared layouts
+for signed partial-grow budgets, row/column placement, center/end offsets,
+zero/asymmetric factors and unchanged controls. The baseline records six
+passes/eleven mismatches; the correction records 17 passes/zero mismatches.
+Its deliberate width control records zero passes/17 mismatches. All earlier
+38 measured headless cases now pass, including `grow-partial-with-gap`;
+the original unsupported IME and unverified native placeholders remain visible.
+See [GAP_BUDGET_RESULTS.md](GAP_BUDGET_RESULTS.md) for immutable revisions,
+raw-evidence indexes, reproduction commands and remaining coverage limits.
 
 ## Result contract
 
