@@ -1,4 +1,5 @@
 """Portable CI guards; published indexes never substitute for real artifacts."""
+import contextlib
 import copy
 import io
 import math
@@ -14,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 from comparator import STATUSES, compare, differences, load_json
 from contracts import validate_scenarios
 from run import prepare_moonbit
+import run_native
 
 
 class PortableContractTests(unittest.TestCase):
@@ -68,6 +70,20 @@ class PortableContractTests(unittest.TestCase):
             scenario[field] = value
             with self.subTest(kind=kind, field=field), self.assertRaises(ValueError):
                 validate_scenarios(corpus)
+
+    def test_native_runner_rejects_linux_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for mode in ([], ["--build-only"]):
+                with self.subTest(mode=mode):
+                    output = Path(directory) / ("native-output-" + str(len(mode)))
+                    argv = ["run_native.py", *mode, "--output", str(output)]
+                    with patch.object(sys, "argv", argv), \
+                         patch("run_native.platform.system", return_value="Linux"), \
+                         contextlib.redirect_stderr(io.StringIO()):
+                        with self.assertRaises(SystemExit) as error:
+                            run_native.main()
+                    self.assertEqual(error.exception.code, 2)
+                    self.assertFalse(output.exists())
 
     def test_native_preparation_does_not_mix_headless_sources(self):
         # This checks copying only, never invents executable oracle evidence.
