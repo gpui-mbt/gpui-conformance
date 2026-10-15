@@ -284,12 +284,50 @@ fn observe(s : Json) -> Json {
       // Execute the complete request-layout/prepaint/paint-snapshot path.
       ignore(checked(painted.paint_snapshot(1)))
       let output = painted.tree().nodes().map(node => bounds(node.bounds()))
+      let line_origins = optional(s, "layout_observation") == Some(
+        @json.to_json("line_origins"),
+      )
       if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
-        let first = array(output[1])
-        first[2] = @json.to_json(number(first[2]) + 1)
-        output[1] = Json::array(first)
+        if line_origins {
+          // Perturb the second child's cross-axis origin: for the decimal
+          // fixtures this simulates a wrong wrap line assignment.
+          let child_index = if output.length() > 2 { 2 } else { 1 }
+          let second = array(output[child_index])
+          let cross_axis = if optional(s, "direction") == Some(
+            @json.to_json("column"),
+          ) {
+            0
+          } else {
+            1
+          }
+          second[cross_axis] = @json.to_json(number(second[cross_axis]) + 1)
+          output[child_index] = Json::array(second)
+        } else {
+          let first = array(output[1])
+          first[2] = @json.to_json(number(first[2]) + 1)
+          output[1] = Json::array(first)
+        }
       }
-      row["observation"] = object([("bounds", @json.to_json(output))])
+      if line_origins {
+        let cross_axis = if optional(s, "direction") == Some(
+          @json.to_json("column"),
+        ) {
+          0
+        } else {
+          1
+        }
+        let origins : Array[Json] = []
+        let mut index = 0
+        for child_bounds in output {
+          if index > 0 {
+            origins.push(array(child_bounds)[cross_axis])
+          }
+          index = index + 1
+        }
+        row["observation"] = object([("line_origins", @json.to_json(origins))])
+      } else {
+        row["observation"] = object([("bounds", @json.to_json(output))])
+      }
     }
     "pointer" => {
       let element_tree = tree(s).tree()

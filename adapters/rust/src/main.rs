@@ -199,7 +199,21 @@ fn observe(s: &Value) -> Value {
                 )
                 .map(|selector| bounds(cx.debug_bounds(selector).expect("drawn selector")))
                 .collect();
-            result["observation"] = json!({"bounds":observed});
+            if s["layout_observation"] == "line_origins" {
+                // Decimal fixtures opt into a narrower projection because GPUI's
+                // TestApp snaps Pixels to its physical grid. This records each
+                // child's cross-axis line origin while ordinary cases compare
+                // the complete root and child rectangles.
+                let cross_axis = if s["direction"] == "column" { 0 } else { 1 };
+                let line_origins: Vec<_> = observed
+                    .iter()
+                    .skip(1)
+                    .map(|child| child[cross_axis].clone())
+                    .collect();
+                result["observation"] = json!({"line_origins":line_origins});
+            } else {
+                result["observation"] = json!({"bounds":observed});
+            }
         }
         "pointer" => {
             let mut hits = Vec::new();

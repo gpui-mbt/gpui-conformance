@@ -43,6 +43,8 @@ def validate_scenarios(scenarios):
         if kind == "layout":
             if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
                 raise ValueError("unknown layout direction/alignment")
+            if s.get("layout_observation", "bounds") not in ("bounds", "line_origins"):
+                raise ValueError("unknown bounded layout observation")
             if s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse"):
                 raise ValueError("unknown bounded flex wrapping mode")
             child_count = len(s["children"])
@@ -67,8 +69,8 @@ def validate_scenarios(scenarios):
                 for x in cross_maxima
             ) or any(limit is not None and minimum > limit for minimum, limit in zip(cross_minima, cross_maxima)):
                 raise ValueError("invalid bounded cross-axis maxima")
-        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross")):
-            raise ValueError("flex limit fields require a layout scenario")
+        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation")):
+            raise ValueError("layout-specific fields require a layout scenario")
         if kind == "pointer" and (s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse") or not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
         if kind == "key" and (not s.get("keys") or any(not isinstance(k, list) or len(k) != 6 or not isinstance(k[0], str) or len(k[0]) != 1 or any(type(x) is not bool for x in k[1:]) for k in s["keys"])):
@@ -121,6 +123,9 @@ def valid_observation(s, observation):
         steps = observation.get("steps")
         return observation.keys() == {"steps"} and isinstance(steps, list) and len(steps) == len(s["focuses"]) and all(isinstance(v, dict) and v.keys() == {"focused", "events"} and (v["focused"] is None or type(v["focused"]) is int and v["focused"] in (1, 2, 3)) and valid_event_trace(v["events"]) for v in steps) and any(v["events"] for v in steps)
     if kind == "layout":
+        if s.get("layout_observation", "bounds") == "line_origins":
+            origins = observation.get("line_origins")
+            return observation.keys() == {"line_origins"} and numbers(origins, len(s["children"]))
         return observation.keys() == {"bounds"} and isinstance(observation["bounds"], list) and len(observation["bounds"]) == len(s["children"]) + 1 and all(numbers(r, 4) for r in observation["bounds"])
     if kind == "pointer":
         return observation.keys() == {"targets"} and isinstance(observation["targets"], list) and len(observation["targets"]) == len(s["points"]) and all(x is None or type(x) is int and 2 <= x < len(s["children"]) + 2 for x in observation["targets"])

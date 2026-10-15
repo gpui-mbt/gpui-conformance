@@ -13,7 +13,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from comparator import STATUSES, compare, differences, load_json
-from contracts import validate_scenarios
+from contracts import valid_observation, validate_scenarios
 from run import prepare_moonbit
 import run_native
 
@@ -40,6 +40,24 @@ class PortableContractTests(unittest.TestCase):
         scenario["max_main"].append(None)
         with self.assertRaises(ValueError):
             validate_scenarios(too_many)
+
+    def test_layout_line_origin_projection_is_explicit_and_shape_checked(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        exact_fit = next(s for s in corpus["cases"] if s["id"] == "wrap-decimal-exact-fit")
+        self.assertTrue(valid_observation(exact_fit, {"line_origins": [0, 0]}))
+        self.assertFalse(valid_observation(exact_fit, {"line_origins": [0]}))
+        self.assertFalse(valid_observation(exact_fit, {"line_origins": [0, 0], "bounds": []}))
+
+        invalid_mode = copy.deepcopy(corpus)
+        invalid_mode["cases"][-1]["layout_observation"] = "rounded_bounds"
+        with self.assertRaises(ValueError):
+            validate_scenarios(invalid_mode)
+        non_layout_mode = copy.deepcopy(corpus)
+        pointer = next(s for s in non_layout_mode["cases"] if s["kind"] == "pointer")
+        pointer["layout_observation"] = "line_origins"
+        with self.assertRaises(ValueError):
+            validate_scenarios(non_layout_mode)
 
     def test_layout_auto_cross_dimension_and_stretch_are_bounded(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")

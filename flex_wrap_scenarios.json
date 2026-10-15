@@ -127,6 +127,7 @@
       "gap": 0,
       "children": [[50.1, 10], [50.2, 10]],
       "shrink": [0, 0],
+      "layout_observation": "line_origins",
       "wrap": "wrap"
     },
     {
@@ -136,8 +137,9 @@
       "width": 100.3,
       "height": 20,
       "gap": 0,
-      "children": [[50.1, 10], [50.2001, 10]],
+      "children": [[50.1, 10], [50.8, 10]],
       "shrink": [0, 0],
+      "layout_observation": "line_origins",
       "wrap": "wrap"
     }
   ]
