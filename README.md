@@ -209,6 +209,24 @@ headless cases pass. Native preparation remains build-only/unverified under
 the no-focus-disruption constraint. See [FLEX_LIMIT_RESULTS.md](FLEX_LIMIT_RESULTS.md)
 for exact identities, evidence indexes, reproduction and coverage limits.
 
+## Cross-axis min/max coverage
+
+The min/max corpus now has 39 shared layouts, including ten cases for auto cross
+sizes stretched under row/column maxima, explicit cross-axis clamping, zero
+versus unbounded maxima, minimum overflow, wrapped line-local caps,
+wrap-reverse alignment, and an uncapped control. This was a verified coverage
+gap, not an observed defect: both adapters and the engine already exposed the
+necessary cross-axis limits.
+
+Pinned Rust GPUI and the current gpui.mbt main match all 39 min/max cases. A
+second run combined all eight registered corpora and preserved 131 executed
+headless passes, zero mismatches, one unsupported IME row, and two unverified
+native rows. The deliberate width perturbation mismatched every focused min/max
+case, including all ten new cases. No engine code changed. Exact source/toolchain
+identities, scenario hashes, comparison results, and retained local artifact
+paths are in [CROSS_AXIS_LIMIT_RESULTS.md](CROSS_AXIS_LIMIT_RESULTS.md) and
+[the result index](results/cross-axis-limits-linux-x86_64-20261015.json).
+
 ## Flex `space-between` capability batch
 
 [justify_between_scenarios.json](justify_between_scenarios.json) adds six
