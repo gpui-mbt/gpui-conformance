@@ -39,21 +39,26 @@ def main():
         tar.extractall(runtime, filter="data")
     receipt = {"schema_version": 1, "status": "unverified", "pins": pins,
                "node": command(["node", "--version"]), "pnpm": command(["pnpm", "--version"]),
+               "moon": command(["moon", "version", "--all"]),
                "suite_revision": command(["git", "rev-parse", "HEAD"], Path(__file__).parent),
                "suite_dirty": bool(command(["git", "status", "--porcelain", "--untracked-files=no"], Path(__file__).parent))}
     install = ["pnpm", "install", "--frozen-lockfile", "--ignore-scripts", "--store-dir", str(args.store.resolve()), "--registry", "https://registry.npmjs.org"]
     if not args.online:
         install.append("--offline")
-    for name, argv in (("install", install), ("build", ["pnpm", "build:packages:js"])):
+    steps = (("install", install),
+             ("moon_build", ["moon", "-C", "packages/vlmkit-markup", "build", "markup-core", "markup-core-api", "markup-core-cli", "--target", "js"]),
+             ("build", ["pnpm", "build:packages:js"]))
+    for name, argv in steps:
         receipt[name] = execute(argv, os.environ.copy(), output / (name + ".stdout"), output / (name + ".stderr"), runtime, 180)
         if receipt[name]["returncode"] or receipt[name]["timed_out"]:
             (output / "toolchain.json").write_text(json.dumps(receipt, indent=2) + "\n")
             return 2
     if command(["git", "rev-parse", "HEAD"], source) != pins["revision"] or command(["git", "status", "--porcelain", "--untracked-files=no"], source):
         raise ValueError("reference source changed during visual preparation")
-    files = [output / "source.tar", runtime / "pnpm-lock.yaml"] + [output / (n + suffix) for n in ("install", "build") for suffix in (".stdout", ".stderr")]
+    files = [output / "source.tar", runtime / "pnpm-lock.yaml"] + [output / (n + suffix) for n in ("install", "moon_build", "build") for suffix in (".stdout", ".stderr")]
     files += sorted(runtime.glob("packages/*/dist/*.mjs"))
     files += sorted(runtime.glob("packages/*/dist/**/*.mjs"))
+    files += sorted(runtime.glob("packages/vlmkit-markup/_build/js/debug/build/**/*.js"))
     receipt["artifacts"] = [artifact(p, output) for p in sorted(set(files))]
     receipt["status"] = "ready"
     (output / "toolchain.json").write_text(json.dumps(receipt, indent=2) + "\n")

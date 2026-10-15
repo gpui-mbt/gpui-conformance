@@ -104,13 +104,16 @@ def verify_toolchain(directory):
     pins = load_json(PINS)
     if receipt.get("pins") != pins or receipt.get("status") != "ready":
         raise ValueError("toolchain does not match the reviewed visual pin")
-    for key in ("install", "build"):
+    for key in ("install", "moon_build", "build"):
         process_identity(receipt[key])
-    if receipt["install"]["finished_at"] > receipt["build"]["started_at"]:
+    if (receipt["install"]["finished_at"] > receipt["moon_build"]["started_at"] or
+            receipt["moon_build"]["finished_at"] > receipt["build"]["started_at"]):
         raise ValueError("visual build did not follow dependency preparation")
     artifacts = receipt.get("artifacts", [])
     paths = [item["path"] for item in artifacts]
-    required = {pins["entrypoint"], "source.tar", "runtime/pnpm-lock.yaml", "install.stdout", "install.stderr", "build.stdout", "build.stderr"}
+    required = {pins["entrypoint"], "source.tar", "runtime/pnpm-lock.yaml", "install.stdout", "install.stderr", "build.stdout", "build.stderr", "moon_build.stdout", "moon_build.stderr",
+                "runtime/packages/vlmkit-markup/_build/js/debug/build/markup-core-api/markup-core-api.js",
+                "runtime/packages/vlmkit-markup/_build/js/debug/build/markup-core-cli/markup-core-cli.js"}
     if len(set(paths)) != len(paths) or not required.issubset(paths):
         raise ValueError("visual toolchain artifacts are missing or duplicated")
     for item in artifacts:
