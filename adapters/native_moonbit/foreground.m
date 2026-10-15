@@ -47,6 +47,12 @@ int32_t conformance_fixture_checkpoint(void) {
     window.title = title;
     if (!window.isVisible) [window orderBack:nil];
     [NSApp updateWindows];
+    // Let AppKit's own opening/title notifications settle without activating
+    // the window or altering system animation settings.
+    double settle = NSProcessInfo.processInfo.systemUptime + 0.25;
+    while (NSProcessInfo.processInfo.systemUptime < settle) {
+        [NSRunLoop.currentRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+    }
     struct proc_bsdinfo info = {0};
     char path[PROC_PIDPATHINFO_MAXSIZE] = {0};
     if (proc_pidinfo(getpid(), PROC_PIDTBSDINFO, 0, &info, sizeof(info)) != sizeof(info) ||

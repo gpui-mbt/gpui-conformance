@@ -106,6 +106,7 @@ fn main() {
             let resized_state=fixture_state("resized");
             cx.update_window(*handle, |_, window, _| window.remove_window()).unwrap();
             let live_after=cx.update(|cx| cx.windows().contains(&*handle));
+            cx.background_executor().timer(Duration::from_millis(150)).await;
             let closed=fixture_state("closed");
             let rows=json!([
                 {"id":window_scenario["id"],"layer":"native-window","status":"observed",
