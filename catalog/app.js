@@ -169,6 +169,7 @@ async function init() {
   };
   for (const control of [search, suiteFilter, statusFilter]) control.addEventListener("input", refresh);
   for (const control of [suiteFilter, statusFilter]) control.addEventListener("change", refresh);
+  document.getElementById("filters").addEventListener("submit", event => event.preventDefault());
   document.getElementById("filters").addEventListener("reset", () => setTimeout(refresh, 0));
   refresh();
 }

@@ -55,6 +55,10 @@ def load_json(path: str) -> dict[str, Any]:
     return json.loads((ROOT / path).read_text(encoding="utf-8"))
 
 
+def pixel_status(recorded_status: str | None) -> str:
+    return {"equal": "pass", "different": "difference"}.get(recorded_status, "unverified")
+
+
 def recorded_date(path: str) -> str:
     match = re.search(r"(20\d{6})", Path(path).name)
     if not match:
@@ -225,7 +229,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     current_pins = load_json("pins.json")
     browser_inventory = load_json("web/examples.json")
     raster = browser["raster_comparison"]
-    browser_status = "pass" if raster.get("status") == "equal" else "difference"
+    browser_status = pixel_status(raster.get("status"))
     changed = raster["changed_pixels"]
     total = raster["total_pixels"]
     examples = browser_inventory

@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.build_test_catalog import build_catalog
+from scripts.build_test_catalog import build_catalog, pixel_status
 
 
 class TestCatalogData(unittest.TestCase):
@@ -27,6 +27,11 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(case["source_url"].startswith("https://github.com/") for case in data["cases"]))
         self.assertTrue(all(case["result_url"].endswith("cross-axis-limits-linux-x86_64-20261015.json") for case in data["cases"]))
         self.assertTrue(all(case["comparison_url"] is None for case in data["cases"]))
+
+    def test_unknown_browser_pixel_status_fails_closed(self):
+        self.assertEqual(pixel_status("different"), "difference")
+        self.assertEqual(pixel_status("equal"), "pass")
+        self.assertEqual(pixel_status("pending"), "unverified")
 
     def test_browser_report_separates_execution_from_pixel_difference(self):
         browser = self.data["browser"]
