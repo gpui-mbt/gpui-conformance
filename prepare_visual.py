@@ -28,12 +28,16 @@ def main():
             command(["git", "rev-parse", "HEAD^{tree}"], source) != pins["source_tree"] or
             command(["git", "status", "--porcelain", "--untracked-files=no"], source)):
         raise ValueError("vlmkit source must be clean at the reviewed immutable pin")
-    if load_json(source / "package.json")["version"] != pins["version"] or digest((source / "pnpm-lock.yaml").read_bytes()) != pins["lock_sha256"]:
+    if (load_json(source / "package.json")["version"] != pins["version"] or
+            digest((source / "pnpm-lock.yaml").read_bytes()) != pins["lock_sha256"] or
+            digest((source / "LICENSE").read_bytes()) != pins["license_sha256"]):
         raise ValueError("vlmkit package/lock differs")
     output.mkdir(parents=True)
     runtime = output / "runtime"
     runtime.mkdir()
     archive = subprocess.check_output(["git", "archive", "HEAD"], cwd=source)
+    if digest(archive) != pins["archive_sha256"]:
+        raise ValueError("pinned vlmkit source archive differs")
     (output / "source.tar").write_bytes(archive)
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
         tar.extractall(runtime, filter="data")

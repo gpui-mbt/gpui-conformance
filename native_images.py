@@ -120,6 +120,8 @@ def verify_toolchain(directory):
         path = (directory / item["path"]).resolve()
         if not path.is_relative_to(directory) or digest(path.read_bytes()) != item["sha256"]:
             raise ValueError("visual toolchain artifact differs: " + item["path"])
+    if digest((directory / "source.tar").read_bytes()) != pins["archive_sha256"]:
+        raise ValueError("visual source archive differs from the immutable pin")
     if digest((directory / "runtime/pnpm-lock.yaml").read_bytes()) != pins["lock_sha256"]:
         raise ValueError("visual dependency lock differs")
     return receipt
