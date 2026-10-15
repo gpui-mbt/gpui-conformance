@@ -1,0 +1,2920 @@
+{
+  "schema_version": 1,
+  "corpus": "native_scenarios.json",
+  "platform": {
+    "os": "Darwin",
+    "architecture": "arm64",
+    "release": "25.5.0",
+    "macos": "26.5.2"
+  },
+  "qualification": "Summary only. Retained raw executable/build/ready/observer/ack/control artifacts are required. AX semantic behavior, desktop screenshot mapping and external input remain unverified.",
+  "executions": {
+    "ax-element-diagnostic": {
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "17958befac5e1d3380d4bcac838b7df58fadeb85",
+        "suite_dirty": false,
+        "ax_diagnostics": true,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "31595426-8126-449e-a4c7-f8c9cdc9e380",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 10186,
+              "started_at": "2026-10-15T08:29:04.734411+00:00",
+              "finished_at": "2026-10-15T08:29:07.629825+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "e0ecdde47cab2d9ce0e45b5816baaee84846a5d146216fc91d1dea334185fa51"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "f193a1979ce3f9dd16e4c5105a0da8cd1c276b2c7d625312dce13da48b595cc0"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "803943daddfd9f12ce087c9662ceea74df0e94a3fb5aee02fdc33eb455a5ed9a"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 10204,
+              "started_at": "2026-10-15T08:29:08.519527+00:00",
+              "finished_at": "2026-10-15T08:29:08.834966+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer"
+              ],
+              "pid": 10249,
+              "started_at": "2026-10-15T08:29:09.658710+00:00",
+              "finished_at": "2026-10-15T08:29:09.977576+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/upstream/probe"
+              ],
+              "pid": 10252,
+              "started_at": "2026-10-15T08:29:09.978054+00:00",
+              "finished_at": "2026-10-15T08:29:12.408791+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "upstream/ready.json",
+                "sha256": "6b41a3d4304a2e0e135e5d35652ac44380742f180ef94cc5baa7c8e6207fe4b5"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "upstream/stale-start.json",
+                    "sha256": "ce1a8ca3fa562f09ee8836405cfed714ce17945c359ed9c8a8a8ab01558878e6"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/upstream/stale-start.json"
+                    ],
+                    "pid": 10253,
+                    "started_at": "2026-10-15T08:29:11.448525+00:00",
+                    "finished_at": "2026-10-15T08:29:11.831565+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "upstream/invalid-window.json",
+                    "sha256": "1f05888e87ce4646ec1dde16658a7ef9771f3800015d91984727debc7bbe8e7c"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/upstream/invalid-window.json"
+                    ],
+                    "pid": 10254,
+                    "started_at": "2026-10-15T08:29:11.832194+00:00",
+                    "finished_at": "2026-10-15T08:29:11.858740+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "upstream/invalid-pid.json",
+                    "sha256": "dad4b1e00b96cc51ea7dc216d366a9be1ab541bf4469b732f3117ee1781bdc56"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/upstream/invalid-pid.json"
+                    ],
+                    "pid": 10255,
+                    "started_at": "2026-10-15T08:29:11.859249+00:00",
+                    "finished_at": "2026-10-15T08:29:11.884544+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/upstream/ready.json"
+                ],
+                "pid": 10256,
+                "started_at": "2026-10-15T08:29:11.884842+00:00",
+                "finished_at": "2026-10-15T08:29:11.969596+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "upstream/observer.stdout",
+                "sha256": "cf550164c94c45cc0fea3927200e666e388656a8ca23cebdc9dde364b1aaa7f3"
+              },
+              "stderr": {
+                "path": "upstream/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "upstream/ack.json",
+                "sha256": "7df17e218bd4be5ed7a49e2388986dbad24220163a2f8fd8bb8107454c56060f"
+              }
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "ba8c1e3c5e86ccf8e8551a464557070cc7ea25c3d07b43fda5d236e50f32259b"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "source_tree": "edb9307b76d731eafe2becd49c77c11b9097a100",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "2c01b7e6-60c7-4a1c-86e2-eef1952e279e",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-af3b4011-b555-48a5-9cda-cf59e8620301/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-af3b4011-b555-48a5-9cda-cf59e8620301/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-af3b4011-b555-48a5-9cda-cf59e8620301/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 10199,
+              "started_at": "2026-10-15T08:29:07.750732+00:00",
+              "finished_at": "2026-10-15T08:29:08.519165+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "5290cb0bb01030801e72c7bc8b65c6e2ad708ea32459156a9a07c7795278ce4e"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 10204,
+              "started_at": "2026-10-15T08:29:08.519527+00:00",
+              "finished_at": "2026-10-15T08:29:08.834966+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "803943daddfd9f12ce087c9662ceea74df0e94a3fb5aee02fdc33eb455a5ed9a"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 10207,
+              "started_at": "2026-10-15T08:29:08.835257+00:00",
+              "finished_at": "2026-10-15T08:29:09.657715+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "3a23eae57795d8c05432d176a35d893eb0b99272210d4d03b46ed81b3cf5b5f5"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "803943daddfd9f12ce087c9662ceea74df0e94a3fb5aee02fdc33eb455a5ed9a"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 10204,
+              "started_at": "2026-10-15T08:29:08.519527+00:00",
+              "finished_at": "2026-10-15T08:29:08.834966+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer"
+              ],
+              "pid": 10249,
+              "started_at": "2026-10-15T08:29:09.658710+00:00",
+              "finished_at": "2026-10-15T08:29:09.977576+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/probe"
+              ],
+              "pid": 10274,
+              "started_at": "2026-10-15T08:29:12.409830+00:00",
+              "finished_at": "2026-10-15T08:29:13.779411+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "moonbit/ready.json",
+                "sha256": "42e58a08f8fc3b5b1aab58caeab49120d84cb0c763ae73ae1c1f1d98d04a49d8"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "moonbit/stale-start.json",
+                    "sha256": "f8b43a5b581c7454026ec3c6050f65194953c7e40c3af9cc2228cb14b51baa5d"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/stale-start.json"
+                    ],
+                    "pid": 10275,
+                    "started_at": "2026-10-15T08:29:13.422805+00:00",
+                    "finished_at": "2026-10-15T08:29:13.448355+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "moonbit/invalid-window.json",
+                    "sha256": "ce2f82ced5e9b4221be4fe0a2bd257861f8dba4d6a64fad3a7af21b4fe2defe0"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/invalid-window.json"
+                    ],
+                    "pid": 10276,
+                    "started_at": "2026-10-15T08:29:13.448852+00:00",
+                    "finished_at": "2026-10-15T08:29:13.472802+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "moonbit/invalid-pid.json",
+                    "sha256": "b1b2beaf442e864a8290e0709957b2890f82a399eacb547da08effa9d20760c4"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/invalid-pid.json"
+                    ],
+                    "pid": 10277,
+                    "started_at": "2026-10-15T08:29:13.473239+00:00",
+                    "finished_at": "2026-10-15T08:29:13.497180+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/moonbit/ready.json"
+                ],
+                "pid": 10278,
+                "started_at": "2026-10-15T08:29:13.497477+00:00",
+                "finished_at": "2026-10-15T08:29:13.587389+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "moonbit/observer.stdout",
+                "sha256": "269b1467a85350c0f40d48167970645519ca25bda1af3b6a7f65ed62d87f7cc2"
+              },
+              "stderr": {
+                "path": "moonbit/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "moonbit/ack.json",
+                "sha256": "9f8e9a399df129ed591469b8133f99c1aba2b3826597d147671bd9c955bdb589"
+              }
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "084893e5b1edaea6adcedb91238fb565b260ce27077b258423cc0cdc75f02892"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        "observer_build": {
+          "execution": {
+            "command": [
+              "xcrun",
+              "clang",
+              "-fobjc-arc",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+              "-framework",
+              "AppKit",
+              "-framework",
+              "ApplicationServices",
+              "-o",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-element-diagnostic/observer"
+            ],
+            "pid": 10249,
+            "started_at": "2026-10-15T08:29:09.658710+00:00",
+            "finished_at": "2026-10-15T08:29:09.977576+00:00",
+            "returncode": 0,
+            "timed_out": false
+          },
+          "stdout": {
+            "path": "observer-build.stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "observer-build.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "executable": {
+            "path": "observer",
+            "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "initial": [
+                0,
+                0,
+                256.0,
+                192.0
+              ],
+              "resized": [
+                0,
+                0,
+                320.0,
+                224.0
+              ],
+              "live_before": true,
+              "live_after": false
+            },
+            "moonbit": {
+              "initial": [
+                0,
+                0,
+                256,
+                192
+              ],
+              "resized": [
+                0,
+                0,
+                320,
+                224
+              ],
+              "live_before": true,
+              "live_after": false
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "width": 512,
+              "height": 384,
+              "scale": 2.0,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "moonbit": {
+              "width": 512,
+              "height": 384,
+              "scale": 2,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 2,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "ax-bundle-diagnostic": {
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "167a3f9e4e35e2751fd512738a9b5f656c14c912",
+        "suite_dirty": false,
+        "ax_diagnostics": true,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "9fd64145-7797-4444-83d5-703d47742b6e",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 11623,
+              "started_at": "2026-10-15T08:35:45.572464+00:00",
+              "finished_at": "2026-10-15T08:35:46.298237+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "51a599134de80bff9aea15b2760ec38df87820ae4eb5b4fb72d5d6cbfcb6e602"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/Info.plist",
+              "sha256": "9e350abbe6048a6c4915f5e4a466efbbe2314c201e53421af5eafbd1907326d9"
+            },
+            "executable": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe",
+              "sha256": "f193a1979ce3f9dd16e4c5105a0da8cd1c276b2c7d625312dce13da48b595cc0"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "e50ad6287dc6e64b49b9b15d275db4e38aaa46c2b343dceda1bb5d13df96fc7d"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 11629,
+              "started_at": "2026-10-15T08:35:46.992604+00:00",
+              "finished_at": "2026-10-15T08:35:47.296734+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer"
+              ],
+              "pid": 11674,
+              "started_at": "2026-10-15T08:35:48.117469+00:00",
+              "finished_at": "2026-10-15T08:35:48.428330+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 11689,
+              "started_at": "2026-10-15T08:35:48.428819+00:00",
+              "finished_at": "2026-10-15T08:35:51.228698+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "upstream/ready.json",
+                "sha256": "f5e87c9f001acc3bf98fac56099373591bffcb424d1dcdc63a828cf99057b9fd"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "upstream/stale-start.json",
+                    "sha256": "c12eb872219c71c7901f872bb68a8f8105c715c7d937cf3f8cf7ab39255c2554"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/upstream/stale-start.json"
+                    ],
+                    "pid": 11711,
+                    "started_at": "2026-10-15T08:35:50.280969+00:00",
+                    "finished_at": "2026-10-15T08:35:50.642669+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "upstream/invalid-window.json",
+                    "sha256": "a8eaa07c631de61437adb6402dac2d0808dbf02331d5bef6849f3c061b9baf5e"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/upstream/invalid-window.json"
+                    ],
+                    "pid": 11712,
+                    "started_at": "2026-10-15T08:35:50.643372+00:00",
+                    "finished_at": "2026-10-15T08:35:50.688064+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "upstream/invalid-pid.json",
+                    "sha256": "acb248936f369fd56c84c6c4a51e4c8bad05ee03d3a5d017d988a436b7668bcb"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/upstream/invalid-pid.json"
+                    ],
+                    "pid": 11713,
+                    "started_at": "2026-10-15T08:35:50.688636+00:00",
+                    "finished_at": "2026-10-15T08:35:50.712936+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/upstream/ready.json"
+                ],
+                "pid": 11714,
+                "started_at": "2026-10-15T08:35:50.713291+00:00",
+                "finished_at": "2026-10-15T08:35:50.798814+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "upstream/observer.stdout",
+                "sha256": "1f1eb809d599510ff18e52593bc293c7fcbc2a51ca042a1e850315caa9dacfdd"
+              },
+              "stderr": {
+                "path": "upstream/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "upstream/ack.json",
+                "sha256": "a975db801e0424a89e3d93c2c762dc3506ce5563ae6b5b49d8ae609eb63fb39f"
+              }
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "17ae60c48ffdcec60a36370ce9599637344201a81af4c919e02747d6f8abd0af"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "source_tree": "edb9307b76d731eafe2becd49c77c11b9097a100",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "cb509e07-02bb-4ea0-83ea-6d2dd34e269c",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-0fd45487-0f7c-44d3-b957-28abd2f32e8f/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-0fd45487-0f7c-44d3-b957-28abd2f32e8f/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-0fd45487-0f7c-44d3-b957-28abd2f32e8f/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 11624,
+              "started_at": "2026-10-15T08:35:46.331085+00:00",
+              "finished_at": "2026-10-15T08:35:46.992248+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "41c3a4ecde1addfb04b84c98873aef86896db08ae5d3a09e21ccb0e6129e030b"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 11629,
+              "started_at": "2026-10-15T08:35:46.992604+00:00",
+              "finished_at": "2026-10-15T08:35:47.296734+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "e50ad6287dc6e64b49b9b15d275db4e38aaa46c2b343dceda1bb5d13df96fc7d"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 11632,
+              "started_at": "2026-10-15T08:35:47.297016+00:00",
+              "finished_at": "2026-10-15T08:35:48.116060+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/Info.plist",
+              "sha256": "807733fca8f40bd73ae3e802ec8ee43b6c52628b453850adacc64c71e172256b"
+            },
+            "executable": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe",
+              "sha256": "a10b32bf8c728c764d4fb2605925ae5e027e4baafd238cf996a16dddf2e89475"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "e50ad6287dc6e64b49b9b15d275db4e38aaa46c2b343dceda1bb5d13df96fc7d"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 11629,
+              "started_at": "2026-10-15T08:35:46.992604+00:00",
+              "finished_at": "2026-10-15T08:35:47.296734+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer"
+              ],
+              "pid": 11674,
+              "started_at": "2026-10-15T08:35:48.117469+00:00",
+              "finished_at": "2026-10-15T08:35:48.428330+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 11722,
+              "started_at": "2026-10-15T08:35:51.229915+00:00",
+              "finished_at": "2026-10-15T08:35:52.131052+00:00",
+              "returncode": -6,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "unverified",
+              "reason": "fixture did not exit normally"
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "da7e8b493ff4d2e365d48f0eae7d8e11c494d57beca3c0d8f1f14eba0d4523c6"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "873389069b5b03c54c6d6b70607ec0a9b862e3802b001d74eeaed98aaf7f6449"
+            }
+          }
+        },
+        "observer_build": {
+          "execution": {
+            "command": [
+              "xcrun",
+              "clang",
+              "-fobjc-arc",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+              "-framework",
+              "AppKit",
+              "-framework",
+              "ApplicationServices",
+              "-o",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-diagnostic/observer"
+            ],
+            "pid": 11674,
+            "started_at": "2026-10-15T08:35:48.117469+00:00",
+            "finished_at": "2026-10-15T08:35:48.428330+00:00",
+            "returncode": 0,
+            "timed_out": false
+          },
+          "stdout": {
+            "path": "observer-build.stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "observer-build.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "executable": {
+            "path": "observer",
+            "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "d6afa474a20679725607f68b390f8a5dd8cd5b42",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "unverified",
+            "reason": {
+              "moonbit": "process failed or timed out"
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "unverified",
+            "reason": {
+              "moonbit": "process failed or timed out"
+            }
+          }
+        ],
+        "summary": {
+          "pass": 0,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 2
+        }
+      }
+    },
+    "ax-bundle-fixed-positive": {
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "167a3f9e4e35e2751fd512738a9b5f656c14c912",
+        "suite_dirty": false,
+        "ax_diagnostics": true,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "1b5a22b7-1723-4365-a438-aa607d9b6a1a",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 16670,
+              "started_at": "2026-10-15T08:43:29.324796+00:00",
+              "finished_at": "2026-10-15T08:43:29.820949+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "949ddddebb29d517e2d07f3250e4eef1b7aca9230821552e7774b32b3741faa9"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/Info.plist",
+              "sha256": "d110fb749034f9ba214f9c9de9075b9bcde42e824497463a30e2b3d0c8666b75"
+            },
+            "executable": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe",
+              "sha256": "f193a1979ce3f9dd16e4c5105a0da8cd1c276b2c7d625312dce13da48b595cc0"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "ec3d312fb16ff49bb6eb701c99417ddece1e69ec0f59d74ae770d13bbf625052"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16676,
+              "started_at": "2026-10-15T08:43:30.742728+00:00",
+              "finished_at": "2026-10-15T08:43:31.066040+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer"
+              ],
+              "pid": 16721,
+              "started_at": "2026-10-15T08:43:31.838764+00:00",
+              "finished_at": "2026-10-15T08:43:32.202425+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 16724,
+              "started_at": "2026-10-15T08:43:32.203027+00:00",
+              "finished_at": "2026-10-15T08:43:34.933555+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "upstream/ready.json",
+                "sha256": "bd9504748fabbb1b988b9c966e805c622d73202ff5b39822e43c98088dc97e3d"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "upstream/stale-start.json",
+                    "sha256": "4b3ff04f597f11a33849f9a1c4583038a0989726065dc8e63604fbc0d7763ede"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/upstream/stale-start.json"
+                    ],
+                    "pid": 16727,
+                    "started_at": "2026-10-15T08:43:33.897197+00:00",
+                    "finished_at": "2026-10-15T08:43:34.274952+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "upstream/invalid-window.json",
+                    "sha256": "c1ec10aec1f7331da71e0060745e13f56fc5c7f993cd76526d86138389cdf92c"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/upstream/invalid-window.json"
+                    ],
+                    "pid": 16728,
+                    "started_at": "2026-10-15T08:43:34.276309+00:00",
+                    "finished_at": "2026-10-15T08:43:34.324310+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "upstream/invalid-pid.json",
+                    "sha256": "406e99d0d06470797bf45cefb7aa0d16827bc086a172c3d0782d151481aeb374"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/upstream/invalid-pid.json"
+                    ],
+                    "pid": 16729,
+                    "started_at": "2026-10-15T08:43:34.325003+00:00",
+                    "finished_at": "2026-10-15T08:43:34.346784+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/upstream/ready.json"
+                ],
+                "pid": 16730,
+                "started_at": "2026-10-15T08:43:34.347199+00:00",
+                "finished_at": "2026-10-15T08:43:34.437506+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "upstream/observer.stdout",
+                "sha256": "a3db94ad7478c410da0f8b76c990a7395f99d9de6e8a0f935097c65e68fa3693"
+              },
+              "stderr": {
+                "path": "upstream/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "upstream/ack.json",
+                "sha256": "5fdf74444297f2cd9b42958dede7aeb911d168d16c38cf3d9d0ef6ec69f5f57c"
+              }
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "7b4ea66d375188eadf3181feeb8e0b53389d08687da8a7efd2c69293f9014030"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "source_tree": "9ed17b986ff83f78b9a101b4dd65fa17cf950f8f",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "0db5e81e-e1d9-4453-83ff-f8c976b9cc0e",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-a0a83d5c-6d92-4205-b741-0a29b5cd0e73/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-a0a83d5c-6d92-4205-b741-0a29b5cd0e73/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-a0a83d5c-6d92-4205-b741-0a29b5cd0e73/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 16671,
+              "started_at": "2026-10-15T08:43:29.948135+00:00",
+              "finished_at": "2026-10-15T08:43:30.742379+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "f3d10e50ae51a049c87ecb09dc081797c143a52512230c5b2641c9a4d7942feb"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16676,
+              "started_at": "2026-10-15T08:43:30.742728+00:00",
+              "finished_at": "2026-10-15T08:43:31.066040+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "ec3d312fb16ff49bb6eb701c99417ddece1e69ec0f59d74ae770d13bbf625052"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 16679,
+              "started_at": "2026-10-15T08:43:31.066320+00:00",
+              "finished_at": "2026-10-15T08:43:31.836105+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/Info.plist",
+              "sha256": "10c352d4ccddcdb139614c88ab3918d89a7fecfb8a03861e532a85ded0a1dc20"
+            },
+            "executable": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe",
+              "sha256": "0e8bd635865ab4d6b0c37e3222c1fbe2e21b31d99b27ab4dd3cc3f99607118e3"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "ec3d312fb16ff49bb6eb701c99417ddece1e69ec0f59d74ae770d13bbf625052"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16676,
+              "started_at": "2026-10-15T08:43:30.742728+00:00",
+              "finished_at": "2026-10-15T08:43:31.066040+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer"
+              ],
+              "pid": 16721,
+              "started_at": "2026-10-15T08:43:31.838764+00:00",
+              "finished_at": "2026-10-15T08:43:32.202425+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 16731,
+              "started_at": "2026-10-15T08:43:34.934992+00:00",
+              "finished_at": "2026-10-15T08:43:36.566697+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "moonbit/ready.json",
+                "sha256": "b4ef42707e3bfb9045e876a6ccfd6d06ae53a7d20cecfba4cc93731b72eb61d6"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "moonbit/stale-start.json",
+                    "sha256": "4c9fafc383a2215f1a4c3e6b4e1ed8e031252f06b494b343fa5afa65b717fa04"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/stale-start.json"
+                    ],
+                    "pid": 16751,
+                    "started_at": "2026-10-15T08:43:36.238182+00:00",
+                    "finished_at": "2026-10-15T08:43:36.289465+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "moonbit/invalid-window.json",
+                    "sha256": "47f84e6a2ceb104cfec1603cabbdb709312f56b7565001ab582bdd4c1cd80af3"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/invalid-window.json"
+                    ],
+                    "pid": 16752,
+                    "started_at": "2026-10-15T08:43:36.290277+00:00",
+                    "finished_at": "2026-10-15T08:43:36.315274+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "moonbit/invalid-pid.json",
+                    "sha256": "2c0d153e2368039116e7a74ffdb60fa65fbc4d383e7c83bf39341899bf3a1d2a"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/invalid-pid.json"
+                    ],
+                    "pid": 16753,
+                    "started_at": "2026-10-15T08:43:36.315827+00:00",
+                    "finished_at": "2026-10-15T08:43:36.338940+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/moonbit/ready.json"
+                ],
+                "pid": 16754,
+                "started_at": "2026-10-15T08:43:36.339275+00:00",
+                "finished_at": "2026-10-15T08:43:36.425336+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "moonbit/observer.stdout",
+                "sha256": "fd84a2ce201de0b9fe09d5deebd31925c020c866b4a8a0da9db92d2ad496a88c"
+              },
+              "stderr": {
+                "path": "moonbit/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "moonbit/ack.json",
+                "sha256": "740fe5bea391e6ae68dc132040b7e6dde7d6783fcb62e91acbcd335bb361c130"
+              }
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "ae8e2fafd23c28aab3b56354fb0eb9409ee2ace9fdd6e2ff3e4150d009a582a4"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        "observer_build": {
+          "execution": {
+            "command": [
+              "xcrun",
+              "clang",
+              "-fobjc-arc",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+              "-framework",
+              "AppKit",
+              "-framework",
+              "ApplicationServices",
+              "-o",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-positive/observer"
+            ],
+            "pid": 16721,
+            "started_at": "2026-10-15T08:43:31.838764+00:00",
+            "finished_at": "2026-10-15T08:43:32.202425+00:00",
+            "returncode": 0,
+            "timed_out": false
+          },
+          "stdout": {
+            "path": "observer-build.stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "observer-build.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "executable": {
+            "path": "observer",
+            "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "initial": [
+                0,
+                0,
+                256.0,
+                192.0
+              ],
+              "resized": [
+                0,
+                0,
+                320.0,
+                224.0
+              ],
+              "live_before": true,
+              "live_after": false
+            },
+            "moonbit": {
+              "initial": [
+                0,
+                0,
+                256,
+                192
+              ],
+              "resized": [
+                0,
+                0,
+                320,
+                224
+              ],
+              "live_before": true,
+              "live_after": false
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "width": 512,
+              "height": 384,
+              "scale": 2.0,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "moonbit": {
+              "width": 512,
+              "height": 384,
+              "scale": 2,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 2,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "ax-bundle-fixed-negative": {
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "167a3f9e4e35e2751fd512738a9b5f656c14c912",
+        "suite_dirty": false,
+        "ax_diagnostics": true,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "21ab742d-2dcb-4893-b584-887ca3f668db",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/native-rust-adapter/Cargo.toml"
+              ],
+              "pid": 16933,
+              "started_at": "2026-10-15T08:44:00.097181+00:00",
+              "finished_at": "2026-10-15T08:44:00.591753+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "848129b2690d527e75938adcb3215e7ca0a57d6b0d6e75a8a76ce013beb85817"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/Info.plist",
+              "sha256": "481caad3e122a947ba5c759390fda2d883f68757cb5d2e25129f5f83607d165b"
+            },
+            "executable": {
+              "path": "upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe",
+              "sha256": "f193a1979ce3f9dd16e4c5105a0da8cd1c276b2c7d625312dce13da48b595cc0"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "208f4434b3f02fac8a633a8a471894f766c2a126d804f90fc7d1aad45bd7d68e"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16950,
+              "started_at": "2026-10-15T08:44:01.605632+00:00",
+              "finished_at": "2026-10-15T08:44:01.921309+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer"
+              ],
+              "pid": 16997,
+              "started_at": "2026-10-15T08:44:02.725146+00:00",
+              "finished_at": "2026-10-15T08:44:03.051020+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/upstream/GPUIUpstreamFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 17000,
+              "started_at": "2026-10-15T08:44:03.051510+00:00",
+              "finished_at": "2026-10-15T08:44:05.238777+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "upstream/ready.json",
+                "sha256": "632f7a8efe5803c81be6c2115454aecc3e76399c568c4b7ff312eb5e8c0691a1"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "upstream/stale-start.json",
+                    "sha256": "ee825fd4471b0c38716ed52ee846b2f046b3c0985458109cf1f4a6c413a098b0"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/upstream/stale-start.json"
+                    ],
+                    "pid": 17003,
+                    "started_at": "2026-10-15T08:44:04.475401+00:00",
+                    "finished_at": "2026-10-15T08:44:04.663869+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "upstream/invalid-window.json",
+                    "sha256": "78703ee81b63f8bc9a6e16fa64866b2796b996bfbd44f460df2abf7f20800e8d"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/upstream/invalid-window.json"
+                    ],
+                    "pid": 17004,
+                    "started_at": "2026-10-15T08:44:04.664374+00:00",
+                    "finished_at": "2026-10-15T08:44:04.688707+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "upstream/invalid-pid.json",
+                    "sha256": "e216baa88b5f402b00c1598f3a309bf6e483351c20068090c6df60a827cce82a"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/upstream/invalid-pid.json"
+                    ],
+                    "pid": 17005,
+                    "started_at": "2026-10-15T08:44:04.689261+00:00",
+                    "finished_at": "2026-10-15T08:44:04.713129+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "upstream/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "upstream/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/upstream/ready.json"
+                ],
+                "pid": 17006,
+                "started_at": "2026-10-15T08:44:04.713450+00:00",
+                "finished_at": "2026-10-15T08:44:04.803311+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "upstream/observer.stdout",
+                "sha256": "17c9d1d7cd3dd6c0e1329bb4822e6904713d8cc06e1378107416d321abee79aa"
+              },
+              "stderr": {
+                "path": "upstream/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "upstream/ack.json",
+                "sha256": "77c6fff5976c836d9ce6b89a8f755d7e4d6ea0a30cce7218afc96c7b24cd98e6"
+              }
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "f62645733d7136bdad0fdfdb4adf7839b264ee31014085bd95f5dd1024c6e4b6"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "source_tree": "9ed17b986ff83f78b9a101b4dd65fa17cf950f8f",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "execution_mode": "native",
+            "backend": "appkit-metal",
+            "fixture_protocol": 1,
+            "fixture_mode": "visible",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg; Apple clang version 21.0.0 (clang-2100.1.1.101)",
+            "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+            "run_token": "ab8119d4-ec2d-44e7-bc6f-fce25095db26",
+            "library_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-DGPUI_TESTING",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-90f09953-904c-4483-9978-2650b03fcdcc/platform/macos/native.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-90f09953-904c-4483-9978-2650b03fcdcc/platform/macos/accessibility.m",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/moonbit-runtime-90f09953-904c-4483-9978-2650b03fcdcc/platform/macos_text/core_text.c",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "QuartzCore",
+                "-framework",
+                "Metal",
+                "-framework",
+                "CoreText",
+                "-framework",
+                "CoreGraphics",
+                "-framework",
+                "CoreFoundation",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/libgpui_macos.dylib"
+              ],
+              "pid": 16935,
+              "started_at": "2026-10-15T08:44:00.835667+00:00",
+              "finished_at": "2026-10-15T08:44:01.605233+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "library_build_stdout": {
+              "path": "moonbit/library-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "library_build_stderr": {
+              "path": "moonbit/library-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "runtime_library": {
+              "path": "moonbit/libgpui_macos.dylib",
+              "sha256": "c1cf53e7666b92c91ec03b11a04a22c2fa3d9dfa659e060ac9fed91c244f0e4b"
+            },
+            "guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16950,
+              "started_at": "2026-10-15T08:44:01.605632+00:00",
+              "finished_at": "2026-10-15T08:44:01.921309+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "foreground_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "208f4434b3f02fac8a633a8a471894f766c2a126d804f90fc7d1aad45bd7d68e"
+            },
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 16953,
+              "started_at": "2026-10-15T08:44:01.921573+00:00",
+              "finished_at": "2026-10-15T08:44:02.720273+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "017f82e17c6f81a6638e340ff33d70e4647705443d2dc0ef5933282ee14e47c8"
+            },
+            "fixture_packaging": "app-bundle-v1",
+            "bundle_info_plist": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/Info.plist",
+              "sha256": "58781623bbc65334e4cf3d6a32f24523c2b349b4c21958bea0b5e1f1cdc9597a"
+            },
+            "executable": {
+              "path": "moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe",
+              "sha256": "61c3283b3b5e18ed6fea3740d26ced0344736a821469c5cd9ed365925a781602"
+            },
+            "fixture_guard": {
+              "path": "moonbit/foreground_guard.dylib",
+              "sha256": "208f4434b3f02fac8a633a8a471894f766c2a126d804f90fc7d1aad45bd7d68e"
+            },
+            "fixture_guard_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-dynamiclib",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_moonbit/foreground.m",
+                "-framework",
+                "AppKit",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/foreground_guard.dylib"
+              ],
+              "pid": 16950,
+              "started_at": "2026-10-15T08:44:01.605632+00:00",
+              "finished_at": "2026-10-15T08:44:01.921309+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "fixture_guard_build_stdout": {
+              "path": "moonbit/guard-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "fixture_guard_build_stderr": {
+              "path": "moonbit/guard-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build": {
+              "command": [
+                "xcrun",
+                "clang",
+                "-fobjc-arc",
+                "-Wall",
+                "-Wextra",
+                "-Werror",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+                "-framework",
+                "AppKit",
+                "-framework",
+                "ApplicationServices",
+                "-o",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer"
+              ],
+              "pid": 16997,
+              "started_at": "2026-10-15T08:44:02.725146+00:00",
+              "finished_at": "2026-10-15T08:44:03.051020+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer_executable": {
+              "path": "observer",
+              "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+            },
+            "observer_build_stdout": {
+              "path": "observer-build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "observer_build_stderr": {
+              "path": "observer-build.stderr",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/GPUIMoonbitFixture.app/Contents/MacOS/probe"
+              ],
+              "pid": 17007,
+              "started_at": "2026-10-15T08:44:05.239872+00:00",
+              "finished_at": "2026-10-15T08:44:06.672449+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "observer": {
+              "status": "pass",
+              "ready": {
+                "path": "moonbit/ready.json",
+                "sha256": "f1086d43cb4d84a389b47f9eab4e32a889990a3d1c5b010cc11c4b7665450ab7"
+              },
+              "negative_controls": [
+                {
+                  "name": "stale-start",
+                  "ready": {
+                    "path": "moonbit/stale-start.json",
+                    "sha256": "1b899ac9188aba5da0b03a888ac61428e34ed9f319a3d4d3140c7e0aa72f8fa3"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/stale-start.json"
+                    ],
+                    "pid": 17026,
+                    "started_at": "2026-10-15T08:44:06.322019+00:00",
+                    "finished_at": "2026-10-15T08:44:06.346046+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/stale-start.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/stale-start.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-window",
+                  "ready": {
+                    "path": "moonbit/invalid-window.json",
+                    "sha256": "7b91facb770290c32a0d861b9b71fe3e2056087e2d191a79b27afeb60cf40942"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/invalid-window.json"
+                    ],
+                    "pid": 17027,
+                    "started_at": "2026-10-15T08:44:06.346523+00:00",
+                    "finished_at": "2026-10-15T08:44:06.369678+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-window.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-window.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                },
+                {
+                  "name": "invalid-pid",
+                  "ready": {
+                    "path": "moonbit/invalid-pid.json",
+                    "sha256": "a3a93de507cdf064369220df633d73c515e6ae48c600cfb3171bd0391a6040b5"
+                  },
+                  "execution": {
+                    "command": [
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                      "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/invalid-pid.json"
+                    ],
+                    "pid": 17028,
+                    "started_at": "2026-10-15T08:44:06.370132+00:00",
+                    "finished_at": "2026-10-15T08:44:06.393512+00:00",
+                    "returncode": 0,
+                    "timed_out": false
+                  },
+                  "stdout": {
+                    "path": "moonbit/invalid-pid.stdout",
+                    "sha256": "7ffd45869ed407dfad1178aea85850e9639311e6edb2256516b06bbfd01eb600"
+                  },
+                  "stderr": {
+                    "path": "moonbit/invalid-pid.stderr",
+                    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+                  }
+                }
+              ],
+              "execution": {
+                "command": [
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer",
+                  "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/moonbit/ready.json"
+                ],
+                "pid": 17029,
+                "started_at": "2026-10-15T08:44:06.393837+00:00",
+                "finished_at": "2026-10-15T08:44:06.483738+00:00",
+                "returncode": 0,
+                "timed_out": false
+              },
+              "stdout": {
+                "path": "moonbit/observer.stdout",
+                "sha256": "a79bf80700071e4700a048f506b72da51d72214c3d06b9a603f8cdb5e085294d"
+              },
+              "stderr": {
+                "path": "moonbit/observer.stderr",
+                "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+              },
+              "ax_status": "unverified",
+              "ax_reason": "owned AX window not yet matched",
+              "ack": {
+                "path": "moonbit/ack.json",
+                "sha256": "efc309df6dadb4ba3509b2bad873b383e93e64c1a4f1fceff1473e0d57b390b7"
+              }
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "e322e21c17c39f2e6f0bfbc9f484eba9f930cd9b84caf5cec64af6030d03a0e6"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        "observer_build": {
+          "execution": {
+            "command": [
+              "xcrun",
+              "clang",
+              "-fobjc-arc",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/adapters/native_observer.m",
+              "-framework",
+              "AppKit",
+              "-framework",
+              "ApplicationServices",
+              "-o",
+              "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-ax-diagnostics/_build/ax-bundle-fixed-negative/observer"
+            ],
+            "pid": 16997,
+            "started_at": "2026-10-15T08:44:02.725146+00:00",
+            "finished_at": "2026-10-15T08:44:03.051020+00:00",
+            "returncode": 0,
+            "timed_out": false
+          },
+          "stdout": {
+            "path": "observer-build.stdout",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "observer-build.stderr",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "executable": {
+            "path": "observer",
+            "sha256": "6b0efd489e786a810d362063a640510c1e2c064a37076c0a6acc69331cba01c8"
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "fb0d9c74bb6b5afe29b20e532baedee7327151e6",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "0c0e5807a334d0e972fe2a43486de04f8d346d7681d2945278a6deda8da8ac55",
+        "cases": [
+          {
+            "id": "window-lifecycle",
+            "layer": "native-window",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "initial": [
+                0,
+                0,
+                256.0,
+                192.0
+              ],
+              "resized": [
+                0,
+                0,
+                320.0,
+                224.0
+              ],
+              "live_before": true,
+              "live_after": false
+            },
+            "moonbit": {
+              "initial": [
+                0,
+                0,
+                256,
+                192
+              ],
+              "resized": [
+                0,
+                0,
+                320,
+                224
+              ],
+              "live_before": true,
+              "live_after": false
+            }
+          },
+          {
+            "id": "native-pixels",
+            "layer": "native-gpu",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.samples[1][0]",
+                "upstream": 255,
+                "moonbit": 0
+              },
+              {
+                "path": "observation.samples[1][2]",
+                "upstream": 0,
+                "moonbit": 255
+              }
+            ],
+            "upstream": {
+              "width": 512,
+              "height": 384,
+              "scale": 2.0,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  255,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            },
+            "moonbit": {
+              "width": 512,
+              "height": 384,
+              "scale": 2,
+              "samples": [
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  255,
+                  255
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  255
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 1,
+          "mismatch": 1,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    }
+  }
+}

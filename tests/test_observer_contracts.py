@@ -3,7 +3,7 @@ import copy
 from datetime import datetime
 import unittest
 
-from observer_contracts import validate_ack, validate_frame_binding, validate_observation, validate_ready
+from observer_contracts import execution_root, validate_ack, validate_frame_binding, validate_observation, validate_ready
 
 
 TOKEN = "a740c390-c5f0-4db8-a281-40c8dd4b940a"
@@ -30,6 +30,33 @@ def observed():
 
 
 class ObserverContracts(unittest.TestCase):
+    def test_original_root_binds_flat_and_bundled_retained_executable(self):
+        for path in ("upstream/probe", "upstream/Fixture.app/Contents/MacOS/probe"):
+            run = {"execution":{"command":["/original/result/"+path]}, "executable":{"path":path}}
+            self.assertEqual(str(execution_root(run)), "/original/result")
+            for command in (["/foreign/probe"], ["/original/result/"+path,"extra"], ["relative/"+path], ["/original/../result/"+path]):
+                run["execution"]["command"] = command
+                with self.subTest(path=path,command=command), self.assertRaises(ValueError): execution_root(run)
+
+    def test_escaping_retained_executable_cannot_bind_original_root(self):
+        for path in ("/absolute/probe", "upstream/../probe", "probe"):
+            run = {"execution":{"command":["/original/result/upstream/probe"]}, "executable":{"path":path}}
+            with self.subTest(path=path), self.assertRaises(ValueError): execution_root(run)
+
+    def test_bundled_ready_requires_measured_runtime_identity(self):
+        run = {**RUN,"implementation":"upstream","fixture_packaging":"app-bundle-v1"}
+        r = ready(); r["executable"] = "/owned/Fixture.app/Contents/MacOS/probe"
+        identifier = "org.gpui-mbt.conformance.upstream."+TOKEN
+        r.update(local_ax_read=True,local_ax={"bundle_path":"/owned/Fixture.app",
+            "bundle_identifier":identifier,"running_bundle_identifier":identifier})
+        def validate(value): validate_ready(value,run,123,r["executable"],[256,192],START,END)
+        validate(r)
+        for field in ("bundle_path","bundle_identifier","running_bundle_identifier"):
+            changed = copy.deepcopy(r); changed["local_ax"][field] = "foreign"
+            with self.subTest(field=field), self.assertRaises(ValueError): validate(changed)
+        changed = copy.deepcopy(r); changed["local_ax_read"] = False
+        with self.assertRaises(ValueError): validate(changed)
+
     def validate(self, value):
         validate_ready(value, RUN, 123, "/owned/probe", [256, 192], START, END)
 
