@@ -117,5 +117,6 @@ cannot close Button issue 0024 or qualify GPUI AX semantics.
 1. `python3 -m unittest discover -s tests -p 'test_ax_regression.py' -v`: **PASS**, 8 tests (synthetic identity rejection, real owned-child cleanup and Linux guard).
 2. `python3 -m unittest discover -s tests -p 'test_*contracts.py' -v`: **PASS**, 52 existing contract tests.
 3. `python3 -m py_compile run_ax_regression.py tests/test_ax_regression.py` and `git diff --check`: **PASS**.
-4. `python3 run_ax_regression.py --output _build/ax-isolation-linux-guard`: exit **77**, native/AX **UNRUN**, summary **unverified**. See the committed [Linux guard receipt](results/ax-appkit-isolation-linux-20261015.json).
-5. macOS compile, native control matrix, engine rerun, external Button AXPress and independent review: **UNRUN** locally. CI has a separate macOS compile-only job; it launches no fixture and makes no AX call. Its result must be checked on the published HEAD.
+4. `python3 run_ax_regression.py --output _build/ax-isolation-linux-guard`: exit **77**, native/AX **UNRUN**, summary **unverified**. See the committed [Linux guard receipt](diagnostics/ax-appkit-isolation-linux-20261015.json).
+5. Native control matrix, engine rerun, external Button AXPress and independent review: **UNRUN**. The macOS compile-only CI job passed on initial public HEAD `73a9bd445622fd2462f7b1ff6b988bceb27e2c63`; it launches no fixture and makes no AX call. Check the latest HEAD separately.
+6. Initial CI's portable tests failed because the Linux receipt was placed in `results/`, whose JSON files are all conformance indexes requiring `executions`. The receipt now lives in `diagnostics/`; the existing index tests are unchanged. The 52 contracts and 8 regression tests were rerun on the corrected final file set.
