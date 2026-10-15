@@ -10,10 +10,10 @@ test "hello_world keeps the upstream six swatches and centered layout" {
   assert_eq(first.bounds().left(), 134.0)
   assert_eq(first.bounds().top(), 256.0)
   assert_eq(first.bounds().size().width(), 32.0)
-  assert_eq(first.background().unwrap(), color(255, 0, 0))
+  assert_eq(first.background().unwrap() == color(255, 0, 0), true)
   let last = tree.node(9).unwrap()
   assert_eq(last.bounds().left(), 334.0)
-  assert_eq(last.background().unwrap(), color(255, 255, 255))
+  assert_eq(last.background().unwrap() == color(255, 255, 255), true)
   assert_eq(frame.paint_snapshot(1.0).unwrap().items().length(), 7)
 }
 
