@@ -26,7 +26,7 @@ def validate_scenarios(scenarios):
                 raise ValueError("invalid bounded viewport")
         if kind in ("layout", "scene", "pointer", "key", "route", "focus"):
             children = s.get("children", [])
-            child_count = len(children) if isinstance(children, list) else 0
+            child_count = len(children) if isinstance(children, list) else -1
             if kind == "layout":
                 allowed_counts = (
                     tuple(range(5))
@@ -40,13 +40,15 @@ def validate_scenarios(scenarios):
             if kind == "layout":
                 direction = s.get("direction", "row")
                 main_index = 1 if direction == "column" else 0
-                valid_children = all(
+                valid_children = isinstance(children, list) and all(
                     isinstance(c, list) and len(c) == 2 and c[main_index] is not None
                     and all(x is None or type(x) in (int, float) and math.isfinite(x) and 0 <= x <= 4096 for x in c)
                     for c in children
                 )
             else:
-                valid_children = all(numbers(c, 2, True) and max(c) <= 4096 for c in children)
+                valid_children = isinstance(children, list) and all(
+                    numbers(c, 2, True) and max(c) <= 4096 for c in children
+                )
             if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or child_count not in allowed_counts or not valid_children:
                 raise ValueError("first slice requires bounded children (two or three for layout/pointer; space-between layouts allow zero through four) and nonnegative gap")
         if kind == "layout":

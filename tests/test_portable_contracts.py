@@ -47,6 +47,13 @@ class PortableContractTests(unittest.TestCase):
             with self.subTest(scenario_id=scenario_id), self.assertRaises(ValueError):
                 validate_scenarios(invalid)
 
+        for malformed_children in ({}, None, "invalid"):
+            invalid = copy.deepcopy(corpus)
+            scenario = next(s for s in invalid["cases"] if s["id"] == "justify-between-empty")
+            scenario["children"] = malformed_children
+            with self.subTest(children=malformed_children), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+
     def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")
         validate_scenarios(corpus)
