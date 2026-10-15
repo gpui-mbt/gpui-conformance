@@ -2,3 +2,5 @@ _build/
 __pycache__/
 *.pyc
 .wrangler/
+
+/catalog/data.json
