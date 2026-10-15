@@ -116,6 +116,9 @@ runtime bundle identities; both flags require explicit `--observe-visible`.
 The exact retained executable is launched as an owned child, with the same
 deadlines and strict match. See [the measured diagnostic results](AX_DIAGNOSTIC_RESULTS.md)
 and the separately evidenced correction for existing Accessory policy.
+The [follow-up investigation](AX_PROJECTION_INVESTIGATION.md) separates recorded
+facts from unresolved causes and adds local unignored-element, indexed-query
+and current-session diagnostics. These fields do not qualify AX association.
 
 ### Portable CI checks
 
