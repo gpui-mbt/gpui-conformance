@@ -1,0 +1,102 @@
+name: Browser example ports
+on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/browser-examples.yml'
+      - '.github/workflows/browser-lab-cloudflare.yml'
+      - 'wrangler.browser-lab.jsonc'
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: read
+concurrency:
+  group: browser-examples-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  matched-examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pin source revisions
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p = json.load(open('web/examples.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('gpui=' + p['moonbit']['revision'], file=out)
+              print('zed=' + p['upstream']['revision'], file=out)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.gpui }}
+          path: _sources/gpui
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+      - name: Install MoonBit and record the actual compiler
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
+          bash "$RUNNER_TEMP/install-moon.sh"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Host and catalog contracts
+        run: node --test web/tests/contracts.test.mjs
+      - name: Compile and unit-test the actual MoonBit port
+        run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
+      - name: Install fixed Rust toolchain and matching bindings generator
+        run: |
+          rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+          curl -fL --retry 3 https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz -o "$RUNNER_TEMP/bindgen.tar.gz"
+          echo "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  $RUNNER_TEMP/bindgen.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/bindgen.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            _build/rust-target
+          key: browser-wasm-${{ runner.os }}-20261014-${{ hashFiles('web/rust/Cargo.lock', 'web/examples.json') }}
+      - name: Compile unchanged upstream GPUI hello_world to WASM
+        env:
+          CARGO_BUILD_JOBS: '2'
+        run: |
+          mkdir -p _build/browser-example-evidence
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed 2>&1 | tee _build/browser-example-evidence/rust-build.log
+      - name: Install browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Execute both compiled runtimes on one isolated origin
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
+      - name: Measure screenshot differences without claiming native parity
+        run: |
+          python3 -m pip install Pillow==12.0.0
+          python3 web/scripts/compare_screenshots.py _build/browser-example-evidence
+          python3 web/scripts/analyze_screenshots.py _build/browser-example-evidence --font _build/browser-lab/moonbit/IBMPlexSans-Regular.ttf --baseline web/evidence/20261015
+          python3 -m unittest discover -s web/tests -p 'test_pixel_regions.py' -v
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-example-evidence
+          path: |
+            _build/browser-lab
+            _build/browser-example-evidence
+          if-no-files-found: warn

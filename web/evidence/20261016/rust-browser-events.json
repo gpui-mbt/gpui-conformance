@@ -1,0 +1,40 @@
+[
+  {
+    "type": "pointerdown",
+    "x": 150,
+    "y": 271.9906005859375,
+    "trusted": true,
+    "target": "CANVAS",
+    "time": 1287.7599999979138
+  },
+  {
+    "type": "pointerup",
+    "x": 150,
+    "y": 271.9906005859375,
+    "trusted": true,
+    "target": "CANVAS",
+    "time": 1288.335000000894
+  },
+  {
+    "type": "click",
+    "x": 150,
+    "y": 271,
+    "trusted": true,
+    "target": "CANVAS",
+    "time": 1288.664999999106
+  },
+  {
+    "type": "keydown",
+    "key": "Enter",
+    "trusted": true,
+    "target": "TEXTAREA",
+    "time": 1291.1499999985099
+  },
+  {
+    "type": "keyup",
+    "key": "Enter",
+    "trusted": true,
+    "target": "TEXTAREA",
+    "time": 1293.3950000032783
+  }
+]

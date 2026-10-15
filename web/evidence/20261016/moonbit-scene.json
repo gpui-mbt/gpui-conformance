@@ -1,0 +1,300 @@
+{
+  "metadata": {
+    "id": "hello_world",
+    "width": 500,
+    "height": 500,
+    "text": "Hello, World!",
+    "font_family": "IBM Plex Sans",
+    "font_size": 20,
+    "line_height": 32,
+    "interactive": false
+  },
+  "frame": {
+    "ok": true,
+    "snapshot": {
+      "schema_version": 1,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 500,
+        "height": 500
+      },
+      "scale": 1,
+      "resources": [],
+      "clip_chains": [],
+      "items": [
+        {
+          "kind": "quad",
+          "id": 1,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 500,
+            "height": 500
+          },
+          "color": {
+            "red": 80,
+            "green": 80,
+            "blue": 80,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 4,
+          "bounds": {
+            "x": 134,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 255,
+            "green": 0,
+            "blue": 0,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 5,
+          "bounds": {
+            "x": 174,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 0,
+            "green": 128,
+            "blue": 0,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 6,
+          "bounds": {
+            "x": 214,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 0,
+            "green": 0,
+            "blue": 255,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 7,
+          "bounds": {
+            "x": 254,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 255,
+            "green": 255,
+            "blue": 0,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 8,
+          "bounds": {
+            "x": 294,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 0,
+            "green": 0,
+            "blue": 0,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 9,
+          "bounds": {
+            "x": 334,
+            "y": 256,
+            "width": 32,
+            "height": 32
+          },
+          "color": {
+            "red": 255,
+            "green": 255,
+            "blue": 255,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 2,
+          "bounds": {
+            "x": 192.5,
+            "y": 212,
+            "width": 115,
+            "height": 32
+          },
+          "text": "Hello, World!",
+          "font_size": 20,
+          "color": {
+            "red": 255,
+            "green": 255,
+            "blue": 255,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        }
+      ]
+    },
+    "decorations": [
+      {
+        "id": 1,
+        "radius": 0,
+        "border": "#0000ff",
+        "border_width": 1,
+        "border_style": "solid",
+        "shadow": true
+      },
+      {
+        "id": 4,
+        "radius": 6,
+        "border": "#ffffff",
+        "border_width": 1,
+        "border_style": "dashed"
+      },
+      {
+        "id": 5,
+        "radius": 6,
+        "border": "#ffffff",
+        "border_width": 1,
+        "border_style": "dashed"
+      },
+      {
+        "id": 6,
+        "radius": 6,
+        "border": "#ffffff",
+        "border_width": 1,
+        "border_style": "dashed"
+      },
+      {
+        "id": 7,
+        "radius": 6,
+        "border": "#ffffff",
+        "border_width": 1,
+        "border_style": "dashed"
+      },
+      {
+        "id": 8,
+        "radius": 6,
+        "border": "#ffffff",
+        "border_width": 1,
+        "border_style": "dashed"
+      },
+      {
+        "id": 9,
+        "radius": 6,
+        "border": "#000000",
+        "border_width": 1,
+        "border_style": "dashed"
+      }
+    ],
+    "conformance": "unverified",
+    "host_extensions": [
+      "rounded_border",
+      "dashed_border",
+      "shadow",
+      "font_metrics"
+    ]
+  },
+  "textWidth": 115,
+  "scale": 1
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "hello_world_blob": "d18cb048726d6953edef9ea482d92bac05993d33"
+  },
+  "moonbit": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "01818aa4e96fc21d1676f747a6b23d91445648a1"
+  },
+  "examples": [
+    {"id":"hello_world","title":"Hello world","rust_route":"hello-world","source":"crates/gpui/examples/hello_world.rs","moonbit":"implemented","width":500,"height":500,"interactive":false},
+    {"id":"text","title":"Styled text","rust_route":"text","source":"crates/gpui/examples/text.rs","moonbit":"not_implemented"},
+    {"id":"text_layout","title":"Text layout","rust_route":"text-layout","source":"crates/gpui/examples/text_layout.rs","moonbit":"not_implemented"},
+    {"id":"text_wrapper","title":"Text wrapping","rust_route":"text-wrapper","source":"crates/gpui/examples/text_wrapper.rs","moonbit":"not_implemented"},
+    {"id":"input","title":"Text input","rust_route":"input","source":"crates/gpui/examples/input.rs","moonbit":"not_implemented"},
+    {"id":"dynamic_fonts","title":"Dynamic fonts","rust_route":"dynamic-fonts","source":"crates/gpui_web/examples/hello_web/dynamic_fonts.rs","moonbit":"not_implemented"},
+    {"id":"hello_web","title":"Prime sieve","rust_route":"prime-sieve","source":"crates/gpui_web/examples/hello_web/main.rs","moonbit":"not_implemented"}
+  ]
+}
