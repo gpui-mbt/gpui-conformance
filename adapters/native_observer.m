@@ -82,7 +82,9 @@ int main(int argc, const char **argv) {
                                 AXError namesError = diagnostics ? AXUIElementCopyAttributeNames(axWindow, &names) : kAXErrorAttributeUnsupported;
                                 NSMutableDictionary *candidate = [@{@"pid":@(owner),@"title":[title isKindOfClass:NSString.class] ? title : NSNull.null,
                                     @"role":[role isKindOfClass:NSString.class] ? role : NSNull.null,
-                                    @"same_application_element":@(CFEqual(axWindow,app)),@"attribute_names_error":@(namesError)} mutableCopy];
+                                    @"same_application_element":@(CFEqual(axWindow,app)),
+                                    @"attribute_names_queried":@(diagnostics),
+                                    @"attribute_names_error":diagnostics ? @(namesError) : NSNull.null} mutableCopy];
                                 if (names) candidate[@"attribute_names"] = CFBridgingRelease(names);
                                 [candidates addObject:candidate];
                             }
