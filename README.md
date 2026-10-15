@@ -127,6 +127,22 @@ order, including its element ID and phase. Empty no-hit/blur steps are allowed
 inside a case containing observed callbacks; an entirely empty case cannot
 establish a pass. Portable CI checks contracts/indexes without framework execution.
 
+## Fractional flex-grow batch
+
+[fractional_grow_scenarios.json](fractional_grow_scenarios.json) adds 17 layout
+cases using the existing adapters: fractional and zero factors, totals below,
+equal to and above one, row/column placement, center/end leftovers, unequal
+bases, gaps and small positive factors. Run it with `run.py --scenarios
+fractional_grow_scenarios.json` and an explicit candidate revision.
+
+The baseline has six passes/eleven mismatches; the separately committed fix
+has sixteen passes/one mismatch. The partial-grow-with-gap case remains an
+explicit difference against the pinned dependency's gap accounting. It is
+neither deleted nor classified as unsupported. All prior 21 executed headless
+cases and their controls are preserved. See
+[FRACTIONAL_GROW_RESULTS.md](FRACTIONAL_GROW_RESULTS.md) for exact revisions,
+retained real executions, the known difference and native limits.
+
 ## Result contract
 
 `comparison.json` has one row per shared scenario with `pass`, `mismatch`,
