@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime
 import re
 import uuid
+from fixture_contracts import validate_native_fixture
 from contracts import validate_scenarios, valid_observation
 
 PREFIX = "GPUI_CONFORMANCE "
@@ -78,6 +79,14 @@ def evidence(run, root, implementation, scenarios_hash, expected_revision, expec
         output = json.loads(lines[0])
         if output["implementation"] != implementation or output["run_token"] != run["run_token"]:
             raise ValueError("adapter execution challenge differs")
+        if "fixture_protocol" in run or "native_fixture" in output:
+            if type(run["fixture_protocol"]) is not int or run["fixture_protocol"] != 1:
+                raise ValueError("unknown native fixture evidence protocol")
+            read_artifact("fixture_guard")
+            process_identity(run["fixture_guard_build"])
+            read_artifact("fixture_guard_build_stdout")
+            read_artifact("fixture_guard_build_stderr")
+            validate_native_fixture(output.get("native_fixture"), run["execution"]["pid"])
         cases = output["cases"]
         if len({case["id"] for case in cases}) != len(cases):
             raise ValueError("duplicate case IDs")
