@@ -25,8 +25,9 @@ retains full manifests and comparisons. An index without its raw artifacts
 cannot establish a pass.
 
 The `.app` experiment retains the exact executable and `Info.plist`, including
-a nonce-distinct ID and `LSUIElement=true`. Both `NSBundle.mainBundle` and the
-owned `NSRunningApplication` must report that ID and bundle path. Launch uses
+a nonce-distinct ID and `LSUIElement=true`. `NSBundle.mainBundle` must report
+the expected ID and bundle path, and the owned `NSRunningApplication` the same
+ID. Launch uses
 the exact executable through owned `Popen`; it does not install/register the
 bundle or invoke `open`, activate a window, alter signing/security, or prompt
 for permission. Relocatable replay binds the absolute execution command to
