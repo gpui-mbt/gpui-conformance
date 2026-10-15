@@ -61,6 +61,17 @@ def validate_observation(value, ready):
         raise ValueError("unknown AX status")
     if value["ax_status"] == "pass" and (value["ax_trusted"] is not True or type(value.get("ax_matching_windows")) is not int or value["ax_matching_windows"] != 1):
         raise ValueError("AX pass lacks one trusted owned window")
+    if value["ax_status"] == "pass":
+        ax_windows = value.get("ax_windows")
+        if not isinstance(ax_windows, list) or len(ax_windows) != 1:
+            raise ValueError("AX pass lacks retained matched window fields")
+        ax = ax_windows[0]
+        if type(ax.get("pid")) is not int or ax["pid"] != ready["pid"] or ax.get("title") != ready["title"] or ax.get("role") != "AXWindow":
+            raise ValueError("AX window ownership/title/role differs")
+        for key, fields in (("position", ("X", "Y")), ("size", ("Width", "Height"))):
+            actual = ax.get(key)
+            if not isinstance(actual, list) or len(actual) != 2 or any(type(x) not in (int,float) or not math.isfinite(x) for x in actual) or any(abs(x-bounds[field]) >= 1 for x,field in zip(actual,fields)):
+                raise ValueError("retained AX and WindowServer bounds differ")
 
 
 def validate_ack(value, ready):

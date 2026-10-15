@@ -80,7 +80,11 @@ class ObserverContracts(unittest.TestCase):
 
     def test_one_trusted_owned_ax_window(self):
         o = observed(); o.update(ax_status="pass",ax_trusted=True,ax_matching_windows=1)
+        o["ax_windows"] = [{"pid":123,"title":ready()["title"],"role":"AXWindow","position":[0,0],"size":[256,214]}]
         validate_observation(o,ready())
+        for key,value in (("pid",124),("title","foreign"),("role","AXButton"),("position",[10,0]),("size",[0,214])):
+            changed = copy.deepcopy(o); changed["ax_windows"][0][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): validate_observation(changed,ready())
 
     def test_permission_prompt_cannot_qualify(self):
         o = observed(); o["permission_prompted"] = True

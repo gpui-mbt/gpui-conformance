@@ -4,9 +4,11 @@
 #include <sys/proc_info.h>
 #include <math.h>
 
-static id attribute(AXUIElementRef element, CFStringRef key) {
+static id attribute(AXUIElementRef element, CFStringRef key, NSMutableDictionary *statuses) {
     CFTypeRef value = NULL;
-    if (AXUIElementCopyAttributeValue(element, key, &value) != kAXErrorSuccess) return nil;
+    AXError error = AXUIElementCopyAttributeValue(element, key, &value);
+    statuses[(__bridge NSString *)key] = @(error);
+    if (error != kAXErrorSuccess) return nil;
     return CFBridgingRelease(value);
 }
 
@@ -55,17 +57,22 @@ int main(int argc, const char **argv) {
                 if (owned && trusted) {
                     AXUIElementRef app = AXUIElementCreateApplication(pid);
                     AXUIElementSetMessagingTimeout(app, 1.0);
-                    id axWindows = attribute(app, kAXWindowsAttribute);
+                    NSMutableDictionary *appStatus = [NSMutableDictionary dictionary];
+                    id axWindows = attribute(app, kAXWindowsAttribute, appStatus);
+                    result[@"ax_application_attribute_status"] = appStatus;
+                    NSMutableArray *matched = [NSMutableArray array], *windowStatuses = [NSMutableArray array];
                     NSUInteger matches = 0;
                     if ([axWindows isKindOfClass:NSArray.class] && [axWindows count] <= 16) {
                         for (id object in axWindows) {
                             if (CFGetTypeID((__bridge CFTypeRef)object) != AXUIElementGetTypeID()) continue;
                             AXUIElementRef axWindow = (__bridge AXUIElementRef)object;
                             pid_t owner = 0;
-                            AXUIElementGetPid(axWindow, &owner);
-                            id title = attribute(axWindow, kAXTitleAttribute), role = attribute(axWindow, kAXRoleAttribute);
+                            NSMutableDictionary *status = [NSMutableDictionary dictionary];
+                            status[@"AXUIElementGetPid"] = @(AXUIElementGetPid(axWindow, &owner));
+                            id title = attribute(axWindow, kAXTitleAttribute, status), role = attribute(axWindow, kAXRoleAttribute, status);
+                            [windowStatuses addObject:status];
                             if (owner != pid || ![title isEqual:ready[@"title"]] || ![role isEqual:(__bridge NSString *)kAXWindowRole]) continue;
-                            id position = attribute(axWindow, kAXPositionAttribute), size = attribute(axWindow, kAXSizeAttribute);
+                            id position = attribute(axWindow, kAXPositionAttribute, status), size = attribute(axWindow, kAXSizeAttribute, status);
                             CGPoint point = CGPointZero; CGSize dimensions = CGSizeZero; CGRect cgBounds = CGRectZero;
                             BOOL valid = position && size &&
                                 CFGetTypeID((__bridge CFTypeRef)position) == AXValueGetTypeID() &&
@@ -73,8 +80,12 @@ int main(int argc, const char **argv) {
                                 AXValueGetValue((__bridge AXValueRef)position, kAXValueCGPointType, &point) &&
                                 AXValueGetValue((__bridge AXValueRef)size, kAXValueCGSizeType, &dimensions) &&
                                 CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)window[(__bridge NSString *)kCGWindowBounds], &cgBounds);
-                            if (valid && fabs(point.x-cgBounds.origin.x)<1 && fabs(point.y-cgBounds.origin.y)<1 &&
-                                fabs(dimensions.width-cgBounds.size.width)<1 && fabs(dimensions.height-cgBounds.size.height)<1) matches++;
+                            if (valid && isfinite(point.x) && isfinite(point.y) && isfinite(dimensions.width) && isfinite(dimensions.height)) {
+                                [matched addObject:@{@"pid":@(owner),@"title":title,@"role":role,
+                                                     @"position":@[@(point.x),@(point.y)],@"size":@[@(dimensions.width),@(dimensions.height)]}];
+                                if (fabs(point.x-cgBounds.origin.x)<1 && fabs(point.y-cgBounds.origin.y)<1 &&
+                                    fabs(dimensions.width-cgBounds.size.width)<1 && fabs(dimensions.height-cgBounds.size.height)<1) matches++;
+                            }
                         }
                     }
                     CFRelease(app);
@@ -83,6 +94,8 @@ int main(int argc, const char **argv) {
                         result[@"ax_reason"] = @"one owned AX window matches nonce title, PID, role and WindowServer bounds";
                     }
                     result[@"ax_matching_windows"] = @(matches);
+                    result[@"ax_windows"] = matched;
+                    result[@"ax_window_attribute_status"] = windowStatuses;
                 }
             }
         }
