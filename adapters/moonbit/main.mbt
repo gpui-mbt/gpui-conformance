@@ -113,8 +113,24 @@ fn tree(s : Json) -> @element.Prepainted {
     let height = number(dimensions[1])
     let item = @layout.FlexItem::new(
       (i + 2).to_uint64(),
-      checked(@layout.Dimension::points(width)),
-      checked(@layout.Dimension::points(height)),
+      checked(
+        @layout.Dimension::points(
+          if direction is @layout.Column {
+            height
+          } else {
+            width
+          },
+        ),
+      ),
+      checked(
+        @layout.Dimension::points(
+          if direction is @layout.Column {
+            width
+          } else {
+            height
+          },
+        ),
+      ),
       checked(@primitives.Size::new(width, height)),
     )
     let item = checked(
