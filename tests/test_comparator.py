@@ -1,7 +1,8 @@
 """Adversarial checks using a real retained run, never synthetic goldens.
 
-Usage: python3 tests/test_comparator.py --evidence _build/baseline-03
-The evidence directory is copied before each deliberately damaged test.
+Usage: python3 tests/test_comparator.py --evidence _build/baseline
+For a non-default corpus, pass both --corpus and --expected-summary. The
+evidence directory is copied before each deliberately damaged test.
 """
 import argparse
 import json
@@ -12,12 +13,62 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from comparator import PREFIX, compare, digest, load_json
+from comparator import PREFIX, STATUSES, compare, digest, load_json
 from contracts import validate_scenarios
+
+
+LEGACY_SUMMARY = {"pass": 6, "mismatch": 2, "unsupported": 1, "unverified": 2}
+SUITE_ROOT = Path(__file__).resolve().parents[1]
+
+
+def read_scenarios(path):
+    scenarios = load_json(path)
+    if not isinstance(scenarios, dict):
+        raise ValueError("scenario corpus must be a JSON object")
+    try:
+        validate_scenarios(scenarios)
+    except (AttributeError, KeyError, TypeError) as exc:
+        raise ValueError(f"malformed scenario corpus: {exc}") from exc
+    return scenarios
+
+
+def read_expected_summary(path, scenario_count):
+    summary = load_json(path)
+    if not isinstance(summary, dict) or set(summary) != set(STATUSES):
+        raise ValueError("expected summary must define exactly: " + ", ".join(STATUSES))
+    if any(type(summary[key]) is not int or summary[key] < 0 for key in STATUSES):
+        raise ValueError("expected summary counts must be nonnegative integers")
+    if sum(summary.values()) != scenario_count:
+        raise ValueError("expected summary counts must add up to the scenario corpus size")
+    return summary
+
+
+def checker_configuration(evidence_dir, corpus_path=None, summary_path=None):
+    """Load an explicit corpus/summary pair and bind both to retained evidence."""
+    if (corpus_path is None) != (summary_path is None):
+        raise ValueError("--corpus and --expected-summary must be supplied together")
+
+    retained = read_scenarios(Path(evidence_dir) / "scenarios.json")
+    if corpus_path is None:
+        expected = read_scenarios(SUITE_ROOT / "scenarios.json")
+        if retained != expected:
+            raise ValueError("non-default evidence requires explicit --corpus and --expected-summary")
+        return expected, dict(LEGACY_SUMMARY)
+
+    expected = read_scenarios(corpus_path)
+    if expected != retained:
+        raise ValueError("explicit corpus differs from retained evidence scenarios")
+    first_slice = read_scenarios(SUITE_ROOT / "scenarios.json")
+    if expected["cases"][:len(first_slice["cases"])] != first_slice["cases"]:
+        raise ValueError("explicit corpus must retain the original first-slice cases in canonical order")
+    summary = read_expected_summary(summary_path, len(expected["cases"]))
+    return expected, summary
 
 
 class ComparatorTests(unittest.TestCase):
     evidence_dir = None
+    expected_scenarios = None
+    expected_summary = None
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -25,6 +76,7 @@ class ComparatorTests(unittest.TestCase):
         shutil.copytree(self.evidence_dir, self.root)
         self.manifest = load_json(self.root / "manifest.json")
         self.scenarios = load_json(self.root / "scenarios.json")
+        self.assertEqual(self.scenarios, self.expected_scenarios)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -45,9 +97,76 @@ class ComparatorTests(unittest.TestCase):
         path.write_text(PREFIX + json.dumps(payload) + "\n")
         run["stdout"]["sha256"] = digest(path.read_bytes())
 
-    def test_real_baseline_has_measured_passes_and_mismatches(self):
+    def test_real_evidence_matches_expected_summary(self):
         result = self.compare()
-        self.assertEqual(result["summary"], {"pass":6,"mismatch":2,"unsupported":1,"unverified":2})
+        self.assertEqual(result["summary"], self.expected_summary)
+
+    def test_default_configuration_stays_bound_to_original_corpus(self):
+        if self.expected_scenarios == read_scenarios(SUITE_ROOT / "scenarios.json"):
+            scenarios, summary = checker_configuration(self.evidence_dir)
+            self.assertEqual(scenarios, self.expected_scenarios)
+            self.assertEqual(summary, LEGACY_SUMMARY)
+        else:
+            with self.assertRaisesRegex(ValueError, "non-default evidence"):
+                checker_configuration(self.evidence_dir)
+
+    def test_explicit_configuration_requires_both_inputs(self):
+        with self.assertRaisesRegex(ValueError, "supplied together"):
+            checker_configuration(self.evidence_dir, corpus_path=self.root / "scenarios.json")
+
+    def test_explicit_configuration_rejects_duplicate_scenario_ids(self):
+        with tempfile.TemporaryDirectory() as temp:
+            corpus = load_json(self.root / "scenarios.json")
+            corpus["cases"].append(dict(corpus["cases"][0]))
+            corpus_path = Path(temp) / "scenarios.json"
+            summary_path = Path(temp) / "summary.json"
+            corpus_path.write_text(json.dumps(corpus))
+            summary_path.write_text(json.dumps(self.expected_summary))
+            with self.assertRaisesRegex(ValueError, "duplicate scenario ID"):
+                checker_configuration(self.evidence_dir, corpus_path, summary_path)
+
+    def test_explicit_configuration_rejects_missing_corpus_cases(self):
+        with tempfile.TemporaryDirectory() as temp:
+            corpus = load_json(self.root / "scenarios.json")
+            corpus["cases"].pop()
+            corpus_path = Path(temp) / "scenarios.json"
+            summary_path = Path(temp) / "summary.json"
+            corpus_path.write_text(json.dumps(corpus))
+            summary_path.write_text(json.dumps(self.expected_summary))
+            with self.assertRaisesRegex(ValueError, "differs from retained evidence"):
+                checker_configuration(self.evidence_dir, corpus_path, summary_path)
+
+    def test_explicit_configuration_requires_original_fixture_prefix(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "evidence"
+            root.mkdir()
+            corpus = load_json(self.root / "scenarios.json")
+            corpus["cases"] = corpus["cases"][1:]
+            (root / "scenarios.json").write_text(json.dumps(corpus))
+            corpus_path = Path(temp) / "corpus.json"
+            summary_path = Path(temp) / "summary.json"
+            corpus_path.write_text(json.dumps(corpus))
+            summary_path.write_text(json.dumps({"pass": len(corpus["cases"]), "mismatch": 0, "unsupported": 0, "unverified": 0}))
+            with self.assertRaisesRegex(ValueError, "original first-slice cases"):
+                checker_configuration(root, corpus_path, summary_path)
+
+    def test_explicit_configuration_rejects_malformed_summary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            summary = dict(self.expected_summary)
+            del summary["unverified"]
+            summary_path = Path(temp) / "summary.json"
+            summary_path.write_text(json.dumps(summary))
+            with self.assertRaisesRegex(ValueError, "exactly"):
+                checker_configuration(self.evidence_dir, self.root / "scenarios.json", summary_path)
+
+    def test_explicit_configuration_rejects_incomplete_summary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            summary = dict(self.expected_summary)
+            summary["unverified"] += 1
+            summary_path = Path(temp) / "summary.json"
+            summary_path.write_text(json.dumps(summary))
+            with self.assertRaisesRegex(ValueError, "add up"):
+                checker_configuration(self.evidence_dir, self.root / "scenarios.json", summary_path)
 
     def test_paint_color_divergence_detected(self):
         self.edit_output("moonbit", lambda p: p["cases"][2]["observation"]["quads"][0]["rgba"].__setitem__(0, 33))
@@ -193,6 +312,14 @@ class ComparatorTests(unittest.TestCase):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--evidence", type=Path, required=True)
+    parser.add_argument("--corpus", type=Path, help="Explicit scenario corpus matching the retained evidence")
+    parser.add_argument("--expected-summary", type=Path, help="JSON status counts for the explicit corpus")
     args, unittest_args = parser.parse_known_args()
     ComparatorTests.evidence_dir = args.evidence.resolve()
+    try:
+        (ComparatorTests.expected_scenarios,
+         ComparatorTests.expected_summary) = checker_configuration(
+             ComparatorTests.evidence_dir, args.corpus, args.expected_summary)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        parser.error(str(exc))
     unittest.main(argv=[sys.argv[0], *unittest_args])
