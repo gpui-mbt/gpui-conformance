@@ -26,7 +26,7 @@ try {
       const example = selectExample(catalog, $('fixture').value);
       $('rust-source').href = `https://github.com/${catalog.upstream.repository}/blob/${catalog.upstream.revision}/${example.source}`;
       $('moon-source').hidden = example.moonbit !== 'implemented';
-      $('moon-source').href = 'https://github.com/gpui-mbt/gpui-conformance/blob/feat/browser-side-by-side-lab/web/moonbit/hello_world/hello_world.mbt';
+      $('moon-source').href = `https://github.com/gpui-mbt/gpui-conformance/blob/${build.lab_revision}/web/moonbit/hello_world/hello_world.mbt`;
       const moon = moonbitExampleUrl(location.href, example);
       if (!moon) {
         $('notice').textContent = `${example.title}: MoonBit port not implemented. Neither runtime is substituted.`;

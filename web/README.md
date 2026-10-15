@@ -27,9 +27,10 @@ behavior is added.
 
 **Scope boundary:** rounded/dashed borders and shadow drawing are explicit
 Canvas host extensions, not additions to the published SceneSnapshot API.
-The dash phase, Canvas shadow kernel, font measurement, shaping, and
-rasterization are not qualified against the Rust renderer. A matching scene
-or screenshot of the candidate alone does not yield a conformance pass.
+The dash lengths, seam and corner parameterization follow the pinned GPUI
+shader. Exact border coverage, the Canvas shadow kernel, font measurement,
+shaping and rasterization remain unqualified. A matching scene or screenshot
+of the candidate alone does not yield a conformance pass.
 
 ## Other upstream examples
 
@@ -63,8 +64,11 @@ source and upstream platform/renderer implementations remain unchanged.
 Builds use disposable archives; original source checkouts remain read-only.
 The standalone dependency lock is retained in `web/rust/Cargo.lock` and Cargo
 uses `--locked`. The measured Rust/MoonBit compilers, binding generator,
-source pins, font digest, WASM/binding file digests and lockfile accompany the
+source pins, lab commit and tracked-dirty state, font digest, WASM/binding file digests and lockfile accompany the
 site in `build-manifest.json`. The MoonBit compiler is measured, not pinned.
+The MoonBit source link uses the recorded lab commit so it survives deletion
+of the feature branch. For a dirty local build, that link identifies its base
+commit; use a clean commit for a published artifact.
 Existing output directories are rejected instead of deleting previous work.
 
 For browser evidence (install Playwright as in `browser-examples.yml`):
@@ -93,7 +97,7 @@ Differences are measured without tolerance or masking and are never promoted
 to native conformance. Captures are integer-coordinate 500×500 browser page
 regions, without image rescaling; raw canvas bounds, clip coordinates and
 equal fractional offsets are recorded. They are not intrinsic canvas readbacks.
-Text shaping, border dash phase, shadows, other
+Text shaping, exact border coverage, shadows, other
 examples, IME, hardware GPU browsers and native parity remain separate work.
 
 [The pixel investigation](PIXEL_ANALYSIS_20261016.md) accounts for all 1,641
@@ -120,6 +124,10 @@ The `browser-lab-cloudflare.yml` manual workflow first builds and tests the
 pair, then publishes to the dedicated Worker `gpui-conformance-browser-lab`.
 It requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the
 `browser-lab-cloudflare` GitHub environment (or repository secrets).
+Select `feat/browser-side-by-side-lab` before integration, or `main` after
+the PR is merged. Other refs cannot publish. A preflight job checks that both
+credentials are present before starting the Rust/MoonBit build; the same
+environment applies to the publishing job.
 The old Pages workflow is disabled with an explicit explanation; it cannot
 overwrite the existing published site. Once a Cloudflare URL exists, an
 existing Pages site can link to it as a top-level navigation. An unisolated
@@ -127,5 +135,11 @@ Pages iframe is not presented as a working shared-memory runtime host.
 Neither workflow runs deployment on push or pull request.
 
 Current execution evidence and deployment status are recorded in the PR.
+The original [2026-10-15 results](RESULTS_20261015.md) are retained as the
+baseline. The [2026-10-16 correction and complete spatial accounting](PIXEL_ANALYSIS_20261016.md)
+measure **1,532 / 250,000 unequal pixels (0.6128%)**: text 856, rounded corners
+377, straight dashed borders 299. Execution passes; exact pixel equality
+remains **different**. A successful build or CI run does not mean deployment
+has run.
 The browser work leaves `pins.json`, native adapters, runners, existing
 conformance scenarios and `harness.yml` unchanged.

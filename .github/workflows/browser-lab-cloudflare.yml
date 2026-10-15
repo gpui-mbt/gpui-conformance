@@ -7,12 +7,28 @@ concurrency:
   group: browser-lab-cloudflare
   cancel-in-progress: false
 jobs:
+  preflight:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feat/browser-side-by-side-lab'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: browser-lab-cloudflare
+    steps:
+      - name: Require Cloudflare credentials before compiling the pair
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo '::error::Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in the browser-lab-cloudflare environment or repository secrets.'
+            exit 1
+          fi
   build:
-    if: github.ref == 'refs/heads/feat/browser-side-by-side-lab'
+    needs: preflight
     uses: ./.github/workflows/browser-examples.yml
   publish:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: browser-lab-cloudflare
     steps:
       - uses: actions/checkout@v4

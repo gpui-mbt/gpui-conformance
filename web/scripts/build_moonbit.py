@@ -63,6 +63,8 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
         shutil.copy2(font_dir / "license.txt", staging / "moonbit/font-license.txt")
         # Record the measured compiler, not an invented reproducibility claim.
         manifest = {"upstream": catalog["upstream"], "moonbit": catalog["moonbit"],
+                    "lab_revision": run(["git", "rev-parse", "HEAD"], WEB.parent, True),
+                    "lab_tracked_dirty": bool(run(["git", "status", "--porcelain", "--untracked-files=no"], WEB.parent, True)),
                     "compiler": version, "runtime_sha256": hashlib.sha256(runtime.read_bytes()).hexdigest(),
                     "font_sha256": hashlib.sha256((font_dir / "IBMPlexSans-Regular.ttf").read_bytes()).hexdigest(),
                     "implemented": ["hello_world"], "rust_bundled": False,

@@ -55,6 +55,10 @@ try {
     }), paired, {timeout:60000});
   }
   await waitForNewDocuments();
+  assert.match(manifest.lab_revision, /^[0-9a-f]{40}$/);
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/hello_world/hello_world.mbt`);
+  assert.equal(typeof manifest.lab_tracked_dirty, 'boolean');
   const moon = page.frameLocator('#moon-frame');
   await moon.locator('html[data-runtime-status="ready"]').waitFor({ timeout: 30000 });
   const frame = await moon.locator('html').evaluate(() => globalThis.gpuiExample);

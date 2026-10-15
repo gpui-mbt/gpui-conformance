@@ -157,5 +157,6 @@ image hashes. A MoonBit build initially failed because the old source worktree
 pointed at a removed Git directory; a clean clone at the same pin built
 successfully. Neither failure is reported as a passing test.
 
-CI run URLs and final conclusions are recorded on the correction PR. Neither
-PR #19 nor this correction is merged or deployed by this work.
+PR #19 tracks integration of the correction, final CI and deployment status.
+No native or pixel-equality pass is inferred from the browser execution or
+the spatial accounting.
