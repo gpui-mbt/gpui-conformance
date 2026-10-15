@@ -69,3 +69,5 @@ exact RGBA comparisons. No implementation was copied or modified. The owning
 repository declares MIT; full license/source/tree/lock/archive hashes are pinned
 in `visual_pins.json`. Original retained native execution licenses/identities
 remain unchanged and are not relabeled as a new native capture.
+
+The `space-between` capability batch adds six original `justify_between_scenarios.json` inputs and uses GPUI's public `.justify_between()` builder through the existing independent headless `Render` adapter. The MoonBit adapter calls the new `JustifyContent::space_between()` API. No upstream implementation, copied tests, golden geometry, or Taffy code is used. Actual baseline and candidate observations, zero/one-child guards, wrapped line-local distribution, overflow fallback, toolchain/source identities and negative-control evidence are recorded in `JUSTIFY_BETWEEN_RESULTS.md` and retained under `_build/justify-between-final-*`.

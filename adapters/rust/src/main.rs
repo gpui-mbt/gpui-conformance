@@ -64,6 +64,7 @@ impl Render for View {
         root = match self.scenario["justify"].as_str().unwrap_or("start") {
             "center" => root.justify_center(),
             "end" => root.justify_end(),
+            "space-between" => root.justify_between(),
             _ => root.justify_start(),
         };
         root = match self.scenario["align"].as_str().unwrap_or("start") {
@@ -79,7 +80,7 @@ impl Render for View {
             .enumerate()
         {
             let trace = self.trace.clone();
-            let selector = ["a", "b", "c"][i];
+            let selector = ["a", "b", "c", "d"][i];
             let mut child = div()
                 .id(i + 2)
                 .debug_selector(move || selector.into())
@@ -197,7 +198,7 @@ fn observe(s: &Value) -> Value {
             result["observation"] = json!({"quads":quads});
         }
         "layout" => {
-            let selectors = ["a", "b", "c"];
+            let selectors = ["a", "b", "c", "d"];
             let observed: Vec<_> = std::iter::once("root")
                 .chain(
                     selectors
