@@ -59,6 +59,14 @@ Each manifest records the clean suite commit above, the pinned upstream and
 candidate revisions, and their source-tree identities. The negative controls
 are intentional evidence and should not be interpreted as candidate failures.
 
+The retained legacy-engine diagnostic at
+`../gpui-conformance-wrap-baseline-20261015/_build/flex-wrap-old-engine-20261015/comparison.json`
+uses gpui.mbt `71da96d9f8eaed89f42937d4edcd3eb2122cfb54` with the original
+five-case wrap diagnostic: 4 mismatches and the explicit-nowrap regression
+passes. Its manifest records suite revision `cdd3cdadf605346ed2b90a59d461697582b8751c`
+with `suite_dirty=true`; treat it as a scoped legacy diagnostic, not a clean
+full-corpus baseline.
+
 Local CI-equivalent checks passed: portable contract tests (18), visual
 contracts (13), fixture contracts (8), observer contracts (16), Rust adapter
 formatting, plus engine `moon fmt --check`, all-target `moon check --deny-warn`,
