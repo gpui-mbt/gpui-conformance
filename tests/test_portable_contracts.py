@@ -20,9 +20,43 @@ import run_native
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
+
+    def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        invalid_wrap = copy.deepcopy(corpus)
+        invalid_wrap["cases"][0]["wrap"] = "wrap_always"
+        with self.assertRaises(ValueError):
+            validate_scenarios(invalid_wrap)
+        too_many = copy.deepcopy(corpus)
+        scenario = too_many["cases"][0]
+        scenario["children"].append([10, 10])
+        scenario["grow"].append(0)
+        scenario["shrink"].append(0)
+        scenario["min_main"].append(0)
+        scenario["max_main"].append(None)
+        with self.assertRaises(ValueError):
+            validate_scenarios(too_many)
+
+    def test_layout_auto_cross_dimension_and_stretch_are_bounded(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        scenario = next(s for s in corpus["cases"] if s["id"] == "wrap-auto-cross-stretch-minimum")
+        validate_scenarios(corpus)
+        scenario["align"] = "not-stretch"
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
+        scenario["align"] = "stretch"
+        scenario["children"][0][0] = None
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
+        pointer_corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        pointer = next(s for s in pointer_corpus["cases"] if s["kind"] == "pointer")
+        pointer["children"][0][1] = None
+        with self.assertRaises(ValueError):
+            validate_scenarios(pointer_corpus)
 
     def test_unknown_alignment_and_invalid_flex_factors_rejected(self):
         for field, value in (("justify", "arbitrary"), ("direction", "diagonal"), ("align", "unsafe"), ("grow", [-1, 0]), ("shrink", [1])):
@@ -144,7 +178,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():

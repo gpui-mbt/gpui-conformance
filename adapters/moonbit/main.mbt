@@ -39,6 +39,22 @@ fn number(value : Json) -> Double {
 }
 
 ///|
+fn dimension(value : Json) -> @layout.Dimension {
+  match value {
+    Null => @layout.Dimension::auto()
+    _ => checked(@layout.Dimension::points(number(value)))
+  }
+}
+
+///|
+fn dimension_fallback(value : Json) -> Double {
+  match value {
+    Null => 0.0
+    _ => number(value)
+  }
+}
+
+///|
 fn string(value : Json) -> String {
   match value {
     String(value) => value
@@ -98,10 +114,17 @@ fn tree(s : Json) -> @element.Prepainted {
   let align = match optional(s, "align") {
     Some(String("center")) => @layout.AlignItems::center()
     Some(String("end")) => @layout.AlignItems::end()
+    Some(String("stretch")) => @layout.AlignItems::stretch()
     _ => @layout.AlignItems::start()
+  }
+  let wrap = match optional(s, "wrap") {
+    Some(String("wrap")) => @layout.FlexWrap::wrap()
+    Some(String("wrap_reverse")) => @layout.FlexWrap::wrap_reverse()
+    _ => @layout.FlexWrap::no_wrap()
   }
   let style = checked(
     @layout.FlexTreeStyle::new(direction)
+    .with_wrap(wrap)
     .with_justify(justify)
     .with_align(align)
     .with_gap(number(field(s, "gap"))),
@@ -109,28 +132,12 @@ fn tree(s : Json) -> @element.Prepainted {
   let mut root = @element.Element::root(1, style).with_focusable(true)
   for i, child in array(field(s, "children")) {
     let dimensions = array(child)
-    let width = number(dimensions[0])
-    let height = number(dimensions[1])
+    let width = dimension_fallback(dimensions[0])
+    let height = dimension_fallback(dimensions[1])
     let item = @layout.FlexItem::new(
       (i + 2).to_uint64(),
-      checked(
-        @layout.Dimension::points(
-          if direction is @layout.Column {
-            height
-          } else {
-            width
-          },
-        ),
-      ),
-      checked(
-        @layout.Dimension::points(
-          if direction is @layout.Column {
-            width
-          } else {
-            height
-          },
-        ),
-      ),
+      if direction is @layout.Column { dimension(dimensions[1]) } else { dimension(dimensions[0]) },
+      if direction is @layout.Column { dimension(dimensions[0]) } else { dimension(dimensions[1]) },
       checked(@primitives.Size::new(width, height)),
     )
     let item = checked(
@@ -152,6 +159,22 @@ fn tree(s : Json) -> @element.Prepainted {
           None => 0.0
         },
         match optional(s, "max_main") {
+          Some(value) =>
+            match array(value)[i] {
+              Null => None
+              limit => Some(number(limit))
+            }
+          None => None
+        },
+      ),
+    )
+    let item = checked(
+      item.with_cross_limits(
+        match optional(s, "min_cross") {
+          Some(value) => number(array(value)[i])
+          None => 0.0
+        },
+        match optional(s, "max_cross") {
           Some(value) =>
             match array(value)[i] {
               Null => None
