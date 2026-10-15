@@ -1,6 +1,6 @@
 {
   "name": "gpui-conformance-browser-lab",
-  "compatibility_date": "2026-10-15",
+  "compatibility_date": "2026-05-22",
   "workers_dev": true,
   "assets": {
     "directory": "./_build/browser-lab",

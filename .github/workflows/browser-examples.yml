@@ -4,6 +4,8 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/browser-examples.yml'
+      - '.github/workflows/browser-lab-cloudflare.yml'
+      - 'wrangler.browser-lab.jsonc'
   workflow_dispatch:
   workflow_call:
 permissions:
