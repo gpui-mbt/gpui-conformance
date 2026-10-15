@@ -190,18 +190,18 @@ fn tree(s : Json) -> @element.Prepainted {
       ).with_focusable(string(field(s, "kind")) == "focus"),
     )
   }
-  checked(
-    checked(
-      root.request_layout(
-        checked(
-          @primitives.Size::new(
-            number(field(s, "width")),
-            number(field(s, "height")),
-          ),
-        ),
-      ),
-    ).prepaint(),
+  let viewport = checked(
+    @primitives.Size::new(
+      number(field(s, "width")),
+      number(field(s, "height")),
+    ),
   )
+  let requested = match optional(s, "device_scale_factor") {
+    Some(scale) =>
+      checked(root.request_layout_with_device_scale(viewport, number(scale)))
+    None => checked(root.request_layout(viewport))
+  }
+  checked(requested.prepaint())
 }
 
 ///|
@@ -282,7 +282,11 @@ fn observe(s : Json) -> Json {
     "layout" => {
       let painted = tree(s)
       // Execute the complete request-layout/prepaint/paint-snapshot path.
-      ignore(checked(painted.paint_snapshot(1)))
+      let paint_scale = match optional(s, "device_scale_factor") {
+        Some(scale) => number(scale)
+        None => 1.0
+      }
+      ignore(checked(painted.paint_snapshot(paint_scale)))
       let output = painted.tree().nodes().map(node => bounds(node.bounds()))
       let line_origins = optional(s, "layout_observation") == Some(
         @json.to_json("line_origins"),

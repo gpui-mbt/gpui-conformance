@@ -59,6 +59,25 @@ class PortableContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_scenarios(non_layout_mode)
 
+    def test_layout_device_scale_is_bounded_and_layout_specific(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        scaled = copy.deepcopy(corpus)
+        scaled["cases"][-1]["device_scale_factor"] = 2
+        validate_scenarios(scaled)
+
+        for value in (None, True, 0, -1, math.nan, math.inf, 8.1):
+            invalid = copy.deepcopy(corpus)
+            invalid["cases"][-1]["device_scale_factor"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+
+        non_layout = copy.deepcopy(corpus)
+        pointer = next(s for s in non_layout["cases"] if s["kind"] == "pointer")
+        pointer["device_scale_factor"] = 2
+        with self.assertRaises(ValueError):
+            validate_scenarios(non_layout)
+
     def test_layout_auto_cross_dimension_and_stretch_are_bounded(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")
         scenario = next(s for s in corpus["cases"] if s["id"] == "wrap-auto-cross-stretch-minimum")

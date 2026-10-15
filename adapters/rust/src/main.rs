@@ -175,6 +175,14 @@ fn observe(s: &Value) -> Value {
     );
     let mut cx = VisualTestContext::from_window(*handle, &app);
     cx.run_until_parked();
+    if kind == "layout" && !s["device_scale_factor"].is_null() {
+        let actual_scale = cx.update(|window, _| window.scale_factor());
+        assert_eq!(
+            actual_scale,
+            n(&s["device_scale_factor"]),
+            "the conformance fixture requires the declared GPUI TestWindow scale"
+        );
+    }
     match kind {
         "scene" => {
             let quads = cx.update(|window, _| {
