@@ -12,6 +12,84 @@ static id attribute(AXUIElementRef element, CFStringRef key, NSMutableDictionary
     return CFBridgingRelease(value);
 }
 
+static NSDictionary *candidateIdentity(id object, AXUIElementRef app, pid_t pid,
+                                       NSMutableDictionary *status, BOOL namesRequested) {
+    if (CFGetTypeID((__bridge CFTypeRef)object) != AXUIElementGetTypeID()) return nil;
+    AXUIElementRef element = (__bridge AXUIElementRef)object;
+    pid_t owner = 0;
+    AXError error = AXUIElementGetPid(element, &owner);
+    status[@"AXUIElementGetPid"] = @(error);
+    // A target's AXWindows array is not authority to read a foreign process.
+    if (error != kAXErrorSuccess || owner != pid) return nil;
+    id title = attribute(element, kAXTitleAttribute, status);
+    id role = attribute(element, kAXRoleAttribute, status);
+    NSMutableDictionary *candidate = [@{@"pid":@(owner),
+        @"title":[title isKindOfClass:NSString.class] ? title : NSNull.null,
+        @"role":[role isKindOfClass:NSString.class] ? role : NSNull.null,
+        @"same_application_element":@(CFEqual(element, app)),
+        @"attribute_names_queried":@(namesRequested), @"attribute_names_error":NSNull.null} mutableCopy];
+    if (namesRequested) {
+        CFArrayRef names = NULL;
+        candidate[@"attribute_names_error"] = @(AXUIElementCopyAttributeNames(element, &names));
+        if (names) candidate[@"attribute_names"] = CFBridgingRelease(names);
+    }
+    return candidate;
+}
+
+static NSDictionary *sessionSnapshot(void) {
+    NSDictionary *session = CFBridgingRelease(CGSessionCopyCurrentDictionary());
+    NSMutableDictionary *result = [@{@"available":@(session != nil)} mutableCopy];
+    // Retain only advisory booleans, never the session's usernames or IDs.
+    NSDictionary *keys = @{@"on_console":(__bridge NSString *)kCGSessionOnConsoleKey,
+        @"login_done":(__bridge NSString *)kCGSessionLoginDoneKey,
+        @"screen_locked_marker":@"CGSSessionScreenIsLocked"};
+    for (NSString *key in keys) {
+        id value = session[keys[key]];
+        result[key] = value && CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID() ? value : NSNull.null;
+    }
+    return result;
+}
+
+static BOOL candidateMatches(NSDictionary *candidate, NSString *title) {
+    return candidate && ![candidate[@"same_application_element"] boolValue] &&
+        [candidate[@"title"] isEqual:title] &&
+        [candidate[@"role"] isEqual:(__bridge NSString *)kAXWindowRole];
+}
+
+static NSDictionary *indexedWindows(AXUIElementRef app, pid_t pid, id singleValue) {
+    CFIndex count = 0;
+    AXError countError = AXUIElementGetAttributeValueCount(app, kAXWindowsAttribute, &count);
+    NSMutableDictionary *result = [@{@"count_error":@(countError),
+        @"reported_count":countError == kAXErrorSuccess ? @(count) : NSNull.null,
+        @"copy_queried":@NO, @"copy_error":NSNull.null} mutableCopy];
+    // This second public API is diagnostic only; it cannot qualify a match.
+    if (countError != kAXErrorSuccess || count < 0 || count > 16) return result;
+    if (count == 0) { result[@"candidates"] = @[]; return result; }
+    CFArrayRef values = NULL;
+    result[@"copy_queried"] = @YES;
+    AXError error = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, count, &values);
+    result[@"copy_error"] = @(error);
+    NSArray *objects = CFBridgingRelease(values);
+    if (error != kAXErrorSuccess || ![objects isKindOfClass:NSArray.class] || objects.count > 16) return result;
+    result[@"returned_count"] = @(objects.count);
+    NSMutableArray *candidates = [NSMutableArray array];
+    for (NSUInteger index = 0; index < objects.count; index++) {
+        NSMutableDictionary *status = [NSMutableDictionary dictionary];
+        NSDictionary *identity = candidateIdentity(objects[index], app, pid, status, NO);
+        NSMutableDictionary *candidate = [@{@"index":@(index), @"attribute_status":status,
+            @"owned":@(identity != nil)} mutableCopy];
+        if (identity) {
+            [candidate addEntriesFromDictionary:identity];
+            candidate[@"same_as_single_value_at_index"] =
+                [singleValue isKindOfClass:NSArray.class] && index < [singleValue count] ?
+                @(CFEqual((__bridge CFTypeRef)objects[index], (__bridge CFTypeRef)singleValue[index])) : NSNull.null;
+        }
+        [candidates addObject:candidate];
+    }
+    result[@"candidates"] = candidates;
+    return result;
+}
+
 int main(int argc, const char **argv) {
     @autoreleasepool {
         // This read-only call never prompts or modifies TCC.
@@ -55,6 +133,7 @@ int main(int argc, const char **argv) {
                 if (window) result[@"window"] = window;
                 result[@"ax_status"] = @"unverified";
                 result[@"ax_reason"] = trusted ? @"owned AX window not yet matched" : @"AXIsProcessTrusted returned false for this observer";
+                if (owned && diagnostics) result[@"ax_session_before"] = sessionSnapshot();
                 if (owned && trusted) {
                     AXUIElementRef app = AXUIElementCreateApplication(pid);
                     AXUIElementSetMessagingTimeout(app, 1.0);
@@ -70,25 +149,14 @@ int main(int argc, const char **argv) {
                     NSUInteger matches = 0;
                     if ([axWindows isKindOfClass:NSArray.class] && [axWindows count] <= 16) {
                         for (id object in axWindows) {
-                            if (CFGetTypeID((__bridge CFTypeRef)object) != AXUIElementGetTypeID()) continue;
                             AXUIElementRef axWindow = (__bridge AXUIElementRef)object;
-                            pid_t owner = 0;
                             NSMutableDictionary *status = [NSMutableDictionary dictionary];
-                            status[@"AXUIElementGetPid"] = @(AXUIElementGetPid(axWindow, &owner));
-                            id title = attribute(axWindow, kAXTitleAttribute, status), role = attribute(axWindow, kAXRoleAttribute, status);
+                            NSDictionary *candidate = candidateIdentity(object, app, pid, status, diagnostics);
                             [windowStatuses addObject:status];
-                            if (owner == pid) {
-                                CFArrayRef names = NULL;
-                                AXError namesError = diagnostics ? AXUIElementCopyAttributeNames(axWindow, &names) : kAXErrorAttributeUnsupported;
-                                NSMutableDictionary *candidate = [@{@"pid":@(owner),@"title":[title isKindOfClass:NSString.class] ? title : NSNull.null,
-                                    @"role":[role isKindOfClass:NSString.class] ? role : NSNull.null,
-                                    @"same_application_element":@(CFEqual(axWindow,app)),
-                                    @"attribute_names_queried":@(diagnostics),
-                                    @"attribute_names_error":diagnostics ? @(namesError) : NSNull.null} mutableCopy];
-                                if (names) candidate[@"attribute_names"] = CFBridgingRelease(names);
-                                [candidates addObject:candidate];
-                            }
-                            if (owner != pid || ![title isEqual:ready[@"title"]] || ![role isEqual:(__bridge NSString *)kAXWindowRole]) continue;
+                            if (!candidate) continue;
+                            [candidates addObject:candidate];
+                            id title = candidate[@"title"], role = candidate[@"role"];
+                            if (!candidateMatches(candidate, ready[@"title"])) continue;
                             id position = attribute(axWindow, kAXPositionAttribute, status), size = attribute(axWindow, kAXSizeAttribute, status);
                             CGPoint point = CGPointZero; CGSize dimensions = CGSizeZero; CGRect cgBounds = CGRectZero;
                             BOOL valid = position && size &&
@@ -98,12 +166,17 @@ int main(int argc, const char **argv) {
                                 AXValueGetValue((__bridge AXValueRef)size, kAXValueCGSizeType, &dimensions) &&
                                 CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)window[(__bridge NSString *)kCGWindowBounds], &cgBounds);
                             if (valid && isfinite(point.x) && isfinite(point.y) && isfinite(dimensions.width) && isfinite(dimensions.height)) {
-                                [matched addObject:@{@"pid":@(owner),@"title":title,@"role":role,
+                                [matched addObject:@{@"pid":@(pid),@"title":title,@"role":role,
+                                                     @"same_application_element":@NO,
                                                      @"position":@[@(point.x),@(point.y)],@"size":@[@(dimensions.width),@(dimensions.height)]}];
                                 if (fabs(point.x-cgBounds.origin.x)<1 && fabs(point.y-cgBounds.origin.y)<1 &&
                                     fabs(dimensions.width-cgBounds.size.width)<1 && fabs(dimensions.height-cgBounds.size.height)<1) matches++;
                             }
                         }
+                    }
+                    if (diagnostics) {
+                        result[@"ax_indexed_windows"] = indexedWindows(app, pid, axWindows);
+                        result[@"ax_session_after"] = sessionSnapshot();
                     }
                     CFRelease(app);
                     if (matches == 1) {

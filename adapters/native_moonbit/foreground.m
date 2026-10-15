@@ -62,6 +62,7 @@ int32_t conformance_fixture_checkpoint(void) {
     if (clock_gettime(CLOCK_REALTIME, &now)) return 0;
     NSRect bounds = window.contentView.bounds;
     BOOL diagnostics = [env[@"GPUI_AX_DIAGNOSTICS"] isEqual:@"1"];
+    id unignored = diagnostics ? NSAccessibilityUnignoredAncestor(window) : nil;
     NSArray *localWindows = diagnostics ? NSApp.accessibilityWindows : @[];
     NSMutableArray *localWindowRoles = [NSMutableArray array];
     for (id candidate in localWindows) {
@@ -84,6 +85,11 @@ int32_t conformance_fixture_checkpoint(void) {
         @"application_active": @NO, @"activation_policy": @1,
         @"local_ax_read": @(diagnostics),
         @"local_ax": @{@"application_role":diagnostics ? (NSApp.accessibilityRole ?: NSNull.null) : NSNull.null,
+                        @"window_is_accessibility_element":diagnostics ? @([window isAccessibilityElement]) : NSNull.null,
+                        @"window_parent_is_application":diagnostics ? @(window.accessibilityParent == NSApp) : NSNull.null,
+                        @"unignored_is_owned_window":diagnostics ? @(unignored == window) : NSNull.null,
+                        @"unignored_is_application":diagnostics ? @(unignored == NSApp) : NSNull.null,
+                        @"unignored_role":diagnostics ? ([unignored accessibilityRole] ?: NSNull.null) : NSNull.null,
                         @"window_role":diagnostics ? (window.accessibilityRole ?: NSNull.null) : NSNull.null,
                         @"window_title":diagnostics ? (window.accessibilityTitle ?: NSNull.null) : NSNull.null,
                         @"window_class":NSStringFromClass(window.class),

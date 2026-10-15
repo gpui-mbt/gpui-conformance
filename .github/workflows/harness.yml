@@ -39,3 +39,17 @@ jobs:
               -framework AppKit -framework ApplicationServices \
               -o "_build/ax-control-build/$source"
           done
+
+  native-observer-guards:
+    runs-on: macos-15
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Compile native observer and fixture helper without launching them
+        run: |
+          xcrun clang -fobjc-arc -Wall -Wextra -Werror adapters/native_observer.m -framework AppKit -framework ApplicationServices -o "$RUNNER_TEMP/native-observer"
+          xcrun clang -dynamiclib -fobjc-arc -Wall -Wextra -Werror adapters/native_moonbit/foreground.m -framework AppKit -o "$RUNNER_TEMP/foreground.dylib"
+      - name: Test candidate guards with mocked AX reads and no GUI
+        run: |
+          xcrun clang -fobjc-arc -Wall -Wextra -Werror tests/native_ax_observer_test.m -framework AppKit -framework ApplicationServices -o "$RUNNER_TEMP/native-ax-test"
+          "$RUNNER_TEMP/native-ax-test"
