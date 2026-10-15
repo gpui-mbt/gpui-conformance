@@ -1,0 +1,79 @@
+name: Test catalog Pages
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/catalog-pages.yml'
+      - 'catalog/**'
+      - 'scripts/build_test_catalog.py'
+      - 'tests/test_catalog_site.py'
+      - 'scenarios.json'
+      - '*_scenarios.json'
+      - 'results/cross-axis-limits-linux-x86_64-20261015.json'
+      - 'results/native-merged-macos-arm64-20261014.json'
+      - 'native_observer_status.json'
+      - 'pins.json'
+      - 'web/examples.json'
+      - 'web/evidence/20261016/result.json'
+      - 'web/PIXEL_ANALYSIS_20261016.md'
+      - 'web/README.md'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/catalog-pages.yml'
+      - 'catalog/**'
+      - 'scripts/build_test_catalog.py'
+      - 'tests/test_catalog_site.py'
+      - 'scenarios.json'
+      - '*_scenarios.json'
+      - 'results/cross-axis-limits-linux-x86_64-20261015.json'
+      - 'results/native-merged-macos-arm64-20261014.json'
+      - 'native_observer_status.json'
+      - 'pins.json'
+      - 'web/examples.json'
+      - 'web/evidence/20261016/result.json'
+      - 'web/PIXEL_ANALYSIS_20261016.md'
+      - 'web/README.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Generate catalog from registered scenarios and retained evidence
+        run: python3 scripts/build_test_catalog.py
+      - name: Validate generated catalog and evidence qualifications
+        run: python3 -m unittest discover -s tests -p 'test_catalog_site.py' -v
+      - name: Upload the static catalog only
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: catalog
+
+  deploy:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy catalog artifact to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
