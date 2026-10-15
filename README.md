@@ -109,6 +109,14 @@ identity and ready/ack lifecycle; see [its actual results](OBSERVER_READY_RESULT
 External AX window matching, semantic behavior, physical input and screenshot
 content binding remain unverified.
 
+Optional `--ax-diagnostics` reads only the owned fixture's local accessibility
+objects and the already bound external candidates' attribute names. Add
+`--bundle-fixtures` to stage private accessory `.app` fixtures with measured
+runtime bundle identities; both flags require explicit `--observe-visible`.
+The exact retained executable is launched as an owned child, with the same
+deadlines and strict match. See [the measured diagnostic results](AX_DIAGNOSTIC_RESULTS.md)
+and the separately evidenced correction for existing Accessory policy.
+
 ### Portable CI checks
 
 GitHub Actions runs `python3 -m unittest discover -s tests -p
