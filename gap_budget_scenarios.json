@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "gap-budget-no-gap-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 20,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-gap8",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-gap16",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 116,
+      "height": 20,
+      "gap": 16,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-gap32",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 132,
+      "height": 20,
+      "gap": 32,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-unit-grow-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "id": "gap-budget-zero-grow-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "gap-budget-column-gap8",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 20,
+      "height": 108,
+      "gap": 8,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ],
+      "direction": "column"
+    },
+    {
+      "id": "gap-budget-one-zero-factor",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0,
+        0.5
+      ]
+    },
+    {
+      "id": "gap-budget-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ],
+      "justify": "center"
+    },
+    {
+      "id": "gap-budget-end",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ],
+      "justify": "end"
+    },
+    {
+      "id": "gap-budget-zero-distribution",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 130,
+      "height": 20,
+      "gap": 30,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-exact-fit-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 48,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-shrink-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-above-unit-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.5,
+        1.5
+      ]
+    },
+    {
+      "id": "gap-budget-asymmetric",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 112,
+      "height": 20,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.125,
+        0.375
+      ]
+    },
+    {
+      "id": "gap-budget-large-gap64",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 164,
+      "height": 20,
+      "gap": 64,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    },
+    {
+      "id": "gap-budget-large-gap80",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 180,
+      "height": 20,
+      "gap": 80,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "grow": [
+        0.25,
+        0.25
+      ]
+    }
+  ]
+}

@@ -18,7 +18,7 @@ from run import prepare_moonbit
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -103,7 +103,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():

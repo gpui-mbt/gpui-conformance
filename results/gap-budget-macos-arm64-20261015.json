@@ -1,0 +1,3403 @@
+{
+  "schema_version": 1,
+  "scope": "Pinned partial-grow gap correction and preservation coverage; native preparation is build-only where applicable.",
+  "corpus": "gap_budget_scenarios.json",
+  "suite_revision": "3d28d4f6b8db42fe88862a6b891bb726e97789c1",
+  "baseline_revision": "1c34285b5520f933d7644ab23aef678b04072532",
+  "candidate_revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+  "executions": {
+    "gap-baseline": {
+      "directory": "_build/gap-baseline",
+      "manifest_sha256": "771d02ea0c1453e3127b9208fa70a521afbe1cd1a5c3bb472b61f5f22012fde3",
+      "comparison_sha256": "89903347b4397baa3b09022ff1d72a8faacccf09c68b906bdfe7c34b58ed5285",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "1c34285b5520f933d7644ab23aef678b04072532",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "3d28d4f6b8db42fe88862a6b891bb726e97789c1",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "45a6a470-6ce9-4858-8f34-a14c1abaa766",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 51680,
+              "started_at": "2026-10-15T04:38:59.204588+00:00",
+              "finished_at": "2026-10-15T04:39:01.812374+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "90169db73c3572a115c94260c7378d82763f3e7c29e2fab96bb6ed079bad19c9"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "1c8d0f3594e31c251ac28d60f271b51a4f32d8411d1b98d3c3d25d8e6b02657b"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-baseline/upstream/probe"
+              ],
+              "pid": 51705,
+              "started_at": "2026-10-15T04:39:01.888597+00:00",
+              "finished_at": "2026-10-15T04:39:02.470045+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "66559108efc76e80331be3f90a0b25d693585c1f725260b3bbdd144d45b64baf"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "1c34285b5520f933d7644ab23aef678b04072532",
+            "source_tree": "79a40160c832ec10aec9802a8cebe2a69d33001a",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "9aae2523-1842-4c2b-852b-9c8ecbdfede6",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 51712,
+              "started_at": "2026-10-15T04:39:02.513195+00:00",
+              "finished_at": "2026-10-15T04:39:03.010592+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "4a958bb66786ec894f192249fc271361325c007497edefc843cde732b8eaf246"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-baseline/moonbit/probe"
+              ],
+              "pid": 51765,
+              "started_at": "2026-10-15T04:39:03.011998+00:00",
+              "finished_at": "2026-10-15T04:39:03.374353+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "655584ce75a5b683a2455e8a66e43d4096d503b40c2c412bddac4d4937057d0f"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "1c34285b5520f933d7644ab23aef678b04072532",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+        "cases": [
+          {
+            "id": "gap-budget-no-gap-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  35.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  35,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap8",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 39.0,
+                "moonbit": 43
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  39.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap16",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 27.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 43.0,
+                "moonbit": 51
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 27.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  116.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  116,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  51,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap32",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 19.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 51.0,
+                "moonbit": 67
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 19.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  132.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ],
+                [
+                  51.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  132,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  67,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-unit-grow-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  50,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-grow-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-column-gap8",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][3]",
+                "upstream": 31.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][1]",
+                "upstream": 39.0,
+                "moonbit": 43
+              },
+              {
+                "path": "observation.bounds[2][3]",
+                "upstream": 31.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  108.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  31.0
+                ],
+                [
+                  0.0,
+                  39.0,
+                  10.0,
+                  31.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  108
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  35
+                ],
+                [
+                  0,
+                  43,
+                  10,
+                  35
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-one-zero-factor",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 42.0,
+                "moonbit": 50
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  42.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-center",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][0]",
+                "upstream": 19.0,
+                "moonbit": 15
+              },
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  19.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  15,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-end",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][0]",
+                "upstream": 38.0,
+                "moonbit": 30
+              },
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 77.0,
+                "moonbit": 73
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 31.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  38.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  77.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  30,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  73,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-distribution",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 50.0,
+                "moonbit": 65
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 20.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  130.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  50.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  130,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  65,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-exact-fit-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  48.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  48,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-shrink-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ],
+                [
+                  24.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  16,
+                  10
+                ],
+                [
+                  24,
+                  0,
+                  16,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-above-unit-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  65.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  65,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-asymmetric",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 26.0,
+                "moonbit": 28
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 34.0,
+                "moonbit": 36
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 38.0,
+                "moonbit": 44
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  112.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  26.0,
+                  10.0
+                ],
+                [
+                  34.0,
+                  0.0,
+                  38.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  112,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  28,
+                  10
+                ],
+                [
+                  36,
+                  0,
+                  44,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap64",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 3.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 67.0,
+                "moonbit": 99
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 3.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  164.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ],
+                [
+                  67.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  164,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  99,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap80",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 0.0,
+                "moonbit": 35
+              },
+              {
+                "path": "observation.bounds[2][0]",
+                "upstream": 80.0,
+                "moonbit": 115
+              },
+              {
+                "path": "observation.bounds[2][2]",
+                "upstream": 0.0,
+                "moonbit": 35
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  180.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ],
+                [
+                  80.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  180,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  115,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 6,
+          "mismatch": 11,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "gap-candidate-final": {
+      "directory": "_build/gap-candidate-final",
+      "manifest_sha256": "b4fbb60b81e677983f840bb18a42091e35c66bfbf0bdd8931e54a549b11e199e",
+      "comparison_sha256": "83000935a617047e3d7179f1b149b7c510710826a7ae106bf996418d15c96985",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": false,
+        "suite_revision": "3d28d4f6b8db42fe88862a6b891bb726e97789c1",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "6cd0b032-364a-4c45-bbfd-925991a97459",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 53695,
+              "started_at": "2026-10-15T04:41:33.955830+00:00",
+              "finished_at": "2026-10-15T04:41:34.625663+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "20e90108557aab7b38bd5c11899046b1e57abf18f7d2a66f1475aac3c5269618"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "1c8d0f3594e31c251ac28d60f271b51a4f32d8411d1b98d3c3d25d8e6b02657b"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-candidate-final/upstream/probe"
+              ],
+              "pid": 53699,
+              "started_at": "2026-10-15T04:41:34.681293+00:00",
+              "finished_at": "2026-10-15T04:41:35.104197+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "d026af175ee53b640441eee5df390cb95a1753bcbe9a4f7ee80a498928360da8"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "source_tree": "3a8cc3aaa2d492c44f363b0736015412e1ad0a77",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "fc9af7b1-75b1-4af1-8f00-154ae6dcf874",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 53721,
+              "started_at": "2026-10-15T04:41:35.144217+00:00",
+              "finished_at": "2026-10-15T04:41:35.587967+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "f79ad8b05dcfc8536dc2f63a5368a732e5f4e0bfccddf0fdcf40602062e12ed6"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-candidate-final/moonbit/probe"
+              ],
+              "pid": 53751,
+              "started_at": "2026-10-15T04:41:35.589690+00:00",
+              "finished_at": "2026-10-15T04:41:35.935576+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "9ff930c4a87c4b789f8a0d20d744f614ec7d98801ba1c6ac06b618f83b51cf1e"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+        "cases": [
+          {
+            "id": "gap-budget-no-gap-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  35.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  35,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap8",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  39.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  31,
+                  10
+                ],
+                [
+                  39,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap16",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  116.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  116,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  27,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  27,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap32",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  132.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ],
+                [
+                  51.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  132,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  19,
+                  10
+                ],
+                [
+                  51,
+                  0,
+                  19,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-unit-grow-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  50,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-grow-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-column-gap8",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  108.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  31.0
+                ],
+                [
+                  0.0,
+                  39.0,
+                  10.0,
+                  31.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  108
+                ],
+                [
+                  0,
+                  0,
+                  10,
+                  31
+                ],
+                [
+                  0,
+                  39,
+                  10,
+                  31
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-one-zero-factor",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  42.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  42,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-center",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  19.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  19,
+                  0,
+                  31,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-end",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  38.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  77.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  38,
+                  0,
+                  31,
+                  10
+                ],
+                [
+                  77,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-distribution",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  130.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  50.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  130,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  50,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-exact-fit-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  48.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  48,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-shrink-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ],
+                [
+                  24.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  16,
+                  10
+                ],
+                [
+                  24,
+                  0,
+                  16,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-above-unit-control",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  65.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  35,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  65,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-asymmetric",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  112.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  26.0,
+                  10.0
+                ],
+                [
+                  34.0,
+                  0.0,
+                  38.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  112,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  26,
+                  10
+                ],
+                [
+                  34,
+                  0,
+                  38,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap64",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  164.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ],
+                [
+                  67.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  164,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  3,
+                  10
+                ],
+                [
+                  67,
+                  0,
+                  3,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap80",
+            "layer": "headless-layout",
+            "status": "pass",
+            "differences": [],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  180.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ],
+                [
+                  80.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  180,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  0,
+                  10
+                ],
+                [
+                  80,
+                  0,
+                  0,
+                  10
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 17,
+          "mismatch": 0,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    },
+    "gap-negative-final": {
+      "directory": "_build/gap-negative-final",
+      "manifest_sha256": "361934ca987ff3ed5d27ddb4c9633b07f7ac6c23e750f95025a5b30cafcebcc6",
+      "comparison_sha256": "6c861d2cefd02b1adc84cf8197eb64472d4e041b6c9c14de9b5d79aa8fd28a39",
+      "manifest": {
+        "schema_version": 1,
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "negative_control": true,
+        "suite_revision": "3d28d4f6b8db42fe88862a6b891bb726e97789c1",
+        "suite_dirty": false,
+        "runs": {
+          "upstream": {
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "source_tree": "eb865ba992a7d5f47e64121bae7ed87092021d5e",
+            "dirty": false,
+            "version": "0.2.2",
+            "implementation": "upstream",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "a3b3e814-57a8-4da0-94e1-ab295c529922",
+            "build": {
+              "command": [
+                "cargo",
+                "+1.98.1",
+                "build",
+                "--locked",
+                "--offline",
+                "--manifest-path",
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/rust-adapter/Cargo.toml"
+              ],
+              "pid": 53772,
+              "started_at": "2026-10-15T04:41:36.294029+00:00",
+              "finished_at": "2026-10-15T04:41:36.488603+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "upstream/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "upstream/build.stderr",
+              "sha256": "fede3b71d979e37161af5ffeacecf1b79f1f16cdd0c901c6fdba8bfdf4d2b8d2"
+            },
+            "executable": {
+              "path": "upstream/probe",
+              "sha256": "1c8d0f3594e31c251ac28d60f271b51a4f32d8411d1b98d3c3d25d8e6b02657b"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-negative-final/upstream/probe"
+              ],
+              "pid": 53778,
+              "started_at": "2026-10-15T04:41:36.535849+00:00",
+              "finished_at": "2026-10-15T04:41:36.895718+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "upstream/stdout.log",
+              "sha256": "e672139f7137f71c9da62162287cd8d85557801f7829d4311ddc452c9d4e9874"
+            },
+            "stderr": {
+              "path": "upstream/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          },
+          "moonbit": {
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "source_tree": "3a8cc3aaa2d492c44f363b0736015412e1ad0a77",
+            "dirty": false,
+            "version": "0.7.2",
+            "implementation": "moonbit",
+            "platform": {
+              "os": "Darwin",
+              "architecture": "arm64",
+              "release": "25.5.0",
+              "macos": "26.5.2"
+            },
+            "toolchain": "moon 0.1.20261012 (748b63c 2026-10-12)\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+            "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+            "run_token": "feefa7d6-1fa3-41a4-8b05-4f14c8925d73",
+            "build": {
+              "command": [
+                "moon",
+                "build",
+                "--target",
+                "native",
+                "--deny-warn",
+                "conformance_probe"
+              ],
+              "pid": 53783,
+              "started_at": "2026-10-15T04:41:36.938146+00:00",
+              "finished_at": "2026-10-15T04:41:37.356105+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "build_stdout": {
+              "path": "moonbit/build.stdout",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "build_stderr": {
+              "path": "moonbit/build.stderr",
+              "sha256": "3296649e96d0c0dc1d62f6a57cbf27145972d10e1157048598931329062461a5"
+            },
+            "executable": {
+              "path": "moonbit/probe",
+              "sha256": "290059f0a729639407b209ebed1e8801a71b3d4d29b954b711e9534aa1d87e5d"
+            },
+            "execution": {
+              "command": [
+                "/Users/fu2hito/Documents/Codex/2026-10-14/task-2/conformance-gap/_build/gap-negative-final/moonbit/probe"
+              ],
+              "pid": 53817,
+              "started_at": "2026-10-15T04:41:37.357385+00:00",
+              "finished_at": "2026-10-15T04:41:37.726436+00:00",
+              "returncode": 0,
+              "timed_out": false
+            },
+            "stdout": {
+              "path": "moonbit/stdout.log",
+              "sha256": "bb04cf3b7ed48bd7c77c8ecbbc95edcc88023094c4d5961d3e3364ecf92f6f8f"
+            },
+            "stderr": {
+              "path": "moonbit/stderr.log",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      },
+      "comparison": {
+        "schema_version": 1,
+        "platform": {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "release": "25.5.0",
+          "macos": "26.5.2"
+        },
+        "pins": {
+          "schema_version": 1,
+          "upstream": {
+            "repository": "https://github.com/zed-industries/zed",
+            "revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+            "package": "crates/gpui",
+            "version": "0.2.2"
+          },
+          "moonbit": {
+            "repository": "https://github.com/gpui-mbt/gpui.mbt",
+            "revision": "5db9dbee4d688141ac6e47097af1230191e07db4",
+            "version": "0.7.2",
+            "baseline_revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438"
+          }
+        },
+        "scenarios_sha256": "e8f2f092b717414da088787d71aa67c54c1052f7ca3310b9438abdb5bcfa71ea",
+        "cases": [
+          {
+            "id": "gap-budget-no-gap-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 35.0,
+                "moonbit": 36
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  100.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  35.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  100,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  35,
+                  0,
+                  35,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap8",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 32
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  39.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  32,
+                  10
+                ],
+                [
+                  39,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap16",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 27.0,
+                "moonbit": 28
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  116.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  27.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  116,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  28,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  27,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-gap32",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 19.0,
+                "moonbit": 20
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  132.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ],
+                [
+                  51.0,
+                  0.0,
+                  19.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  132,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  20,
+                  10
+                ],
+                [
+                  51,
+                  0,
+                  19,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-unit-grow-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 50.0,
+                "moonbit": 51
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  50.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  51,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  50,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-grow-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-column-gap8",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 10.0,
+                "moonbit": 11
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  108.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  10.0,
+                  31.0
+                ],
+                [
+                  0.0,
+                  39.0,
+                  10.0,
+                  31.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  20,
+                  108
+                ],
+                [
+                  0,
+                  0,
+                  11,
+                  31
+                ],
+                [
+                  0,
+                  39,
+                  10,
+                  31
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-one-zero-factor",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  42.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  42,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-center",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 32
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  19.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  58.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  19,
+                  0,
+                  32,
+                  10
+                ],
+                [
+                  58,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-end",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 31.0,
+                "moonbit": 32
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  38.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ],
+                [
+                  77.0,
+                  0.0,
+                  31.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  38,
+                  0,
+                  32,
+                  10
+                ],
+                [
+                  77,
+                  0,
+                  31,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-zero-distribution",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  130.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  50.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  130,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  50,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-exact-fit-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 20.0,
+                "moonbit": 21
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  48.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ],
+                [
+                  28.0,
+                  0.0,
+                  20.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  48,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  21,
+                  10
+                ],
+                [
+                  28,
+                  0,
+                  20,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-shrink-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 16.0,
+                "moonbit": 17
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  40.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ],
+                [
+                  24.0,
+                  0.0,
+                  16.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  40,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  17,
+                  10
+                ],
+                [
+                  24,
+                  0,
+                  16,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-above-unit-control",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 35.0,
+                "moonbit": 36
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  108.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  35.0,
+                  10.0
+                ],
+                [
+                  43.0,
+                  0.0,
+                  65.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  108,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  36,
+                  10
+                ],
+                [
+                  43,
+                  0,
+                  65,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-asymmetric",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 26.0,
+                "moonbit": 27
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  112.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  26.0,
+                  10.0
+                ],
+                [
+                  34.0,
+                  0.0,
+                  38.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  112,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  27,
+                  10
+                ],
+                [
+                  34,
+                  0,
+                  38,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap64",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 3.0,
+                "moonbit": 4
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  164.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ],
+                [
+                  67.0,
+                  0.0,
+                  3.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  164,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  4,
+                  10
+                ],
+                [
+                  67,
+                  0,
+                  3,
+                  10
+                ]
+              ]
+            }
+          },
+          {
+            "id": "gap-budget-large-gap80",
+            "layer": "headless-layout",
+            "status": "mismatch",
+            "differences": [
+              {
+                "path": "observation.bounds[1][2]",
+                "upstream": 0.0,
+                "moonbit": 1
+              }
+            ],
+            "upstream": {
+              "bounds": [
+                [
+                  0.0,
+                  0.0,
+                  180.0,
+                  20.0
+                ],
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ],
+                [
+                  80.0,
+                  0.0,
+                  0.0,
+                  10.0
+                ]
+              ]
+            },
+            "moonbit": {
+              "bounds": [
+                [
+                  0,
+                  0,
+                  180,
+                  20
+                ],
+                [
+                  0,
+                  0,
+                  1,
+                  10
+                ],
+                [
+                  80,
+                  0,
+                  0,
+                  10
+                ]
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "pass": 0,
+          "mismatch": 17,
+          "unsupported": 0,
+          "unverified": 0
+        }
+      }
+    }
+  }
+}
