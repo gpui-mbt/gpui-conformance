@@ -58,3 +58,14 @@ partial-factor budgets. Taffy's Cargo.toml declares MIT; its locked crate
 SHA-256 is `c034e05f6ee85a12daa63863c2245797715075c70649947aa0da54f3f2ab1d0f`.
 GPUI's owning package remains Apache-2.0. The separate MoonBit engine change
 records this dependency inspection in its own provenance metadata.
+
+The retained-image analyzer uses f4ah6o/vlmkit at
+`b6ff83bb5f357e4ea3225af717479c6be74b2328` (0.23.2), read-only. Inspected:
+`packages/vlmkit-markup/src/png-diff.ts` and its tests, the semantic-policy
+runtime, `packages/vlmkit-core/src/heatmap.ts`, `png-utils.ts`, workspace export
+maps, package manifests and lockfile. It invokes the actual built PNG-diff CLI,
+without browser/AI options, and consumes structured JSON alongside authoritative
+exact RGBA comparisons. No implementation was copied or modified. The owning
+repository declares MIT; full license/source/tree/lock/archive hashes are pinned
+in `visual_pins.json`. Original retained native execution licenses/identities
+remain unchanged and are not relabeled as a new native capture.
