@@ -14,9 +14,16 @@ from contracts import validate_scenarios
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
+
+    def test_unknown_alignment_and_invalid_flex_factors_rejected(self):
+        for field, value in (("justify", "arbitrary"), ("direction", "diagonal"), ("align", "unsafe"), ("grow", [-1, 0]), ("shrink", [1])):
+            corpus = load_json(ROOT / "boundary_scenarios.json")
+            corpus["cases"][0][field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                validate_scenarios(corpus)
 
     def test_duplicate_scenario_ids_rejected(self):
         corpus = load_json(ROOT / "scenarios.json")

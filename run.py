@@ -89,6 +89,7 @@ def main():
     parser.add_argument("--moonbit-source", type=Path, default=ROOT.parent / "gpui-reference")
     parser.add_argument("--candidate-revision", help="Explicit full SHA for a separately committed gpui.mbt candidate")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--scenarios", type=Path, default=ROOT / "scenarios.json", help="Shared scenario corpus; the original first slice remains the default")
     parser.add_argument("--online", action="store_true", help="Allow Cargo dependency downloads into configured CARGO_HOME")
     parser.add_argument("--negative-control", action="store_true", help="Perturb the MoonBit adapter's measured layout width by one pixel")
     args = parser.parse_args()
@@ -104,7 +105,7 @@ def main():
         pins["moonbit"]["revision"] = args.candidate_revision
     sources = {"upstream": args.upstream_source.resolve(), "moonbit": args.moonbit_source.resolve()}
     identities = {name: source(path, pins[name]["revision"], name, pins[name]["version"]) for name, path in sources.items()}
-    scenarios = (ROOT / "scenarios.json").read_bytes()
+    scenarios = args.scenarios.read_bytes()
     validate_scenarios(json.loads(scenarios))
     (out / "scenarios.json").write_bytes(scenarios)
     host = {"os": platform.system(), "architecture": platform.machine(), "release": platform.release(),

@@ -52,6 +52,19 @@ impl Render for View {
                     event.is_held
                 ]));
             });
+        if self.scenario["direction"] == "column" {
+            root = root.flex_col();
+        }
+        root = match self.scenario["justify"].as_str().unwrap_or("start") {
+            "center" => root.justify_center(),
+            "end" => root.justify_end(),
+            _ => root.justify_start(),
+        };
+        root = match self.scenario["align"].as_str().unwrap_or("start") {
+            "center" => root.items_center(),
+            "end" => root.items_end(),
+            _ => root.items_start(),
+        };
         for (i, dimensions) in self.scenario["children"]
             .as_array()
             .unwrap()
@@ -65,7 +78,9 @@ impl Render for View {
                 .w(px(n(&dimensions[0])))
                 .h(px(n(&dimensions[1])))
                 .min_w(px(0.))
-                .flex_shrink(1.)
+                .flex_grow(self.scenario["grow"].get(i).map(n).unwrap_or(0.))
+                .flex_shrink(self.scenario["shrink"].get(i).map(n).unwrap_or(1.))
+                .min_h(px(0.))
                 .bg(rgb(0x204060))
                 .on_mouse_down(MouseButton::Left, move |_, _, _| {
                     trace.borrow_mut().push(json!(i + 2))

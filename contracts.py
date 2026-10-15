@@ -27,6 +27,12 @@ def validate_scenarios(scenarios):
         if kind in ("layout", "scene", "pointer", "key"):
             if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or len(s.get("children", [])) != 2 or any(not numbers(c, 2, True) or max(c) > 4096 for c in s["children"]):
                 raise ValueError("first slice requires two bounded children and nonnegative gap")
+        if kind == "layout":
+            if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end") or s.get("align", "start") not in ("start", "center", "end"):
+                raise ValueError("unknown layout direction/alignment")
+            for field, default in (("grow", [0, 0]), ("shrink", [1, 1])):
+                if not numbers(s.get(field, default), 2, True) or max(s.get(field, default)) > 16:
+                    raise ValueError("invalid bounded flex factors")
         if kind == "pointer" and (not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
         if kind == "key" and (not s.get("keys") or any(not isinstance(k, list) or len(k) != 6 or not isinstance(k[0], str) or len(k[0]) != 1 or any(type(x) is not bool for x in k[1:]) for k in s["keys"])):
