@@ -46,6 +46,8 @@ def main():
                "moon": command(["moon", "version", "--all"]),
                "suite_revision": command(["git", "rev-parse", "HEAD"], Path(__file__).parent),
                "suite_dirty": bool(command(["git", "status", "--porcelain", "--untracked-files=no"], Path(__file__).parent))}
+    if receipt["suite_dirty"]:
+        raise ValueError("visual preparation tracked source is dirty")
     install = ["pnpm", "install", "--frozen-lockfile", "--ignore-scripts", "--store-dir", str(args.store.resolve()), "--registry", "https://registry.npmjs.org"]
     if not args.online:
         install.append("--offline")

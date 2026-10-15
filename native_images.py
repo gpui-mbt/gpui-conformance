@@ -5,7 +5,7 @@ from pathlib import Path
 import struct
 import zlib
 
-from comparator import PREFIX, compare, digest, load_json, process_identity
+from comparator import PREFIX, compare, digest, load_json, process_identity, sha
 
 PINS = Path(__file__).with_name("visual_pins.json")
 
@@ -102,7 +102,9 @@ def verify_toolchain(directory):
     directory = Path(directory).resolve()
     receipt = load_json(directory / "toolchain.json")
     pins = load_json(PINS)
-    if receipt.get("pins") != pins or receipt.get("status") != "ready":
+    if (receipt.get("schema_version") != 1 or receipt.get("pins") != pins or
+            receipt.get("status") != "ready" or receipt.get("suite_dirty") is not False or
+            not sha(receipt.get("suite_revision"), 40)):
         raise ValueError("toolchain does not match the reviewed visual pin")
     for key in ("install", "moon_build", "build"):
         process_identity(receipt[key])

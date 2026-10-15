@@ -27,6 +27,8 @@ def evaluate(evidence, toolchain, output, threshold=0.0):
               "suite_revision": command(["git", "rev-parse", "HEAD"], Path(__file__).parent),
               "suite_dirty": bool(command(["git", "status", "--porcelain", "--untracked-files=no"], Path(__file__).parent))}
     try:
+        if report["suite_dirty"]:
+            raise ValueError("image evaluator tracked source is dirty")
         receipt = verify_toolchain(toolchain)
         report["toolchain"] = {"directory": str(toolchain), "receipt_sha256": digest((toolchain / "toolchain.json").read_bytes()), "pins": receipt["pins"]}
         manifest, comparison, frames = retained_frames(evidence)
