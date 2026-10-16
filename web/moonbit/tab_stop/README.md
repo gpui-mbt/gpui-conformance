@@ -19,7 +19,7 @@ The candidate uses genuine `Element → request_layout_with_device_scale →
 prepaint → paint_snapshot` and portable `SceneSnapshot` items. Text-marker
 quads become text items with their genuine bounds and inherited clip IDs.
 
-Core pin: public `eb968228bbea56aff13721dc427875c2dacffc14`, tree
+Initial independently tested core pin: public `eb968228bbea56aff13721dc427875c2dacffc14`, tree
 `ae9072d350ef6d1546e408226218ec08efc96552`. Local source commit
 `a2718fcbf92dbbfd53f756642cc95813a402c431` has that same tree; initial package
 tests used a disposable archive of the local commit. Final suite builds use a
@@ -135,3 +135,8 @@ and `moon build --target js --release`. `build_moonbit.py` also tests/builds all
 registered candidate packages without running Rust or a browser. Historical
 Rust-only packaging tests use an immutable old catalog fixture; normal current
 packaging includes tab_stop and rejects duplicate `--extra-example tab_stop`.
+
+Current site builds use the exact published core in `../../examples.json`. The drag
+session integration advances that pin to `fc53cb382c66f68bfc1b3e1cc72d01056cd3c625`, tree
+`c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9`; this does not relabel the initial local or
+retained tab-stop evidence above. A fresh strict paired regression is required.

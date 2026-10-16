@@ -59,13 +59,17 @@ function provenance() {
   return {build,catalog};
 }
 
-test('source-only baseline keeps current exact pins and absent matched candidate entry',async()=>{
-  const catalog=JSON.parse(await readFile(new URL('../examples.json',import.meta.url)));
+test('historical source-only baseline retains exact pins and rejects the current matched candidate',async()=>{
+  const historical=await readFile(new URL('./fixtures/drag-drop-rust-only-catalog-e278fce4.json',import.meta.url));
+  assert.equal(sha256(historical),'1253dd309c2ef1b652d249929bc2d7a3878f767a05e98dc6af7797326cb19c5b');
+  const catalog=JSON.parse(historical);
+  const current=JSON.parse(await readFile(new URL('../examples.json',import.meta.url)));
+  assert.equal(current.examples.find(entry=>entry.id==='drag_drop').moonbit,'implemented');
   assert.deepEqual(COLORS,[[0,0,255,255],[255,0,0,255],[0,128,0,255]]);
   assert.deepEqual(catalog.moonbit,ENGINE);assert(!catalog.examples.some(entry=>entry.id==='drag_drop'));
   const record=JSON.parse(await readFile(new URL('../oracles/drag_drop.json',import.meta.url)));
   assert.equal(record.source_blob,DRAG_DROP.sourceBlob);assert.equal(record.source_sha256,DRAG_DROP.sourceSha256);
-  const {build,catalog:synthetic}=provenance();assertProvenance(build,synthetic);assert.equal(provenanceNegativeControls(build,synthetic).length,9);
+  const {build,catalog:synthetic}=provenance();assertProvenance(build,synthetic);assert.throws(()=>assertProvenance(build,current));assert.equal(provenanceNegativeControls(build,synthetic).length,9);
   const candidate=structuredClone(synthetic);candidate.examples.push({id:'drag_drop',moonbit:'implemented'});assert.throws(()=>assertProvenance(build,candidate));
 });
 test('strict current-checkout binding rejects historical relabels, dirty files and changed catalog bytes',()=>{
@@ -96,8 +100,9 @@ test('PNG decoder rejects corrupt and wrongly sized original samples',()=>{
   assert.throws(()=>decodePng(small.stdout));
 });
 
-test('dedicated workflow retains failures, captures Rust only and leaves existing source guards alone',async()=>{
-  const workflow=await readFile(new URL('../../.github/workflows/drag-drop-oracle.yml',import.meta.url),'utf8');
+test('historical dedicated workflow remains immutable Rust-only evidence',async()=>{
+  const workflow=await readFile(new URL('./fixtures/drag-drop-rust-only-workflow-e278fce4.yml',import.meta.url),'utf8');
+  assert.equal(sha256(workflow),'5cc9503a50823a57dabbaa2792fc372ea7dc11d0c622db511af4981dea15ec79');
   assert.match(workflow,/--oracle-only --extra-example drag_drop/);assert.match(workflow,/timeout-minutes: 75/);
   assert.match(workflow,/Pillow==12\.0\.0/);assert.match(workflow,/playwright@1\.56\.1/);
   assert.match(workflow,/verify-drag-drop-results\.mjs/);assert.match(workflow,/if: always\(\)/);

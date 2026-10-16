@@ -131,12 +131,14 @@ gpui_web = { path = "../.." }
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, "already has an implemented"):
                 module.selected_examples(catalog, module.extra_oracle_records([name]), True)
 
-    def test_drag_drop_oracle_is_explicit_and_absent_from_matched_gallery(self):
+    def test_drag_drop_historical_oracle_is_explicit_and_absent_from_historical_gallery(self):
         record, = module.extra_oracle_records(["drag_drop"])
         self.assertEqual(record["source_blob"], "8f038ef3308fee9b097e7289665c9fa47cd6945b")
         self.assertEqual(record["source_sha256"], "4011afde7c64fac2559b78918e6fdabdc563fe9f7591c74425d72da906dcc47a")
         self.assertEqual(record["candidate"], "not_implemented")
-        catalog = json.loads((module.WEB / "examples.json").read_text())
+        raw = (Path(__file__).parent / "fixtures/drag-drop-rust-only-catalog-e278fce4.json").read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), "1253dd309c2ef1b652d249929bc2d7a3878f767a05e98dc6af7797326cb19c5b")
+        catalog = json.loads(raw)
         self.assertFalse(any(entry["id"] == "drag_drop" for entry in catalog["examples"]))
         self.assertEqual(module.selected_examples(catalog, [record], True), ["drag_drop"])
         self.assertNotIn("drag_drop", module.selected_examples(catalog, []))
@@ -148,6 +150,16 @@ gpui_web = { path = "../.." }
         catalog = json.loads((module.WEB / "examples.json").read_text())
         self.assertIn("tab_stop", module.selected_examples(catalog, []))
         record, = module.extra_oracle_records(["tab_stop"])
+        for oracle_only in (False, True):
+            with self.subTest(oracle_only=oracle_only), self.assertRaisesRegex(ValueError, "already has an implemented"):
+                module.selected_examples(catalog, [record], oracle_only)
+
+    def test_implemented_drag_drop_cannot_relabel_a_historical_extra_oracle(self):
+        catalog = json.loads((module.WEB / "examples.json").read_text())
+        self.assertIn("drag_drop", module.selected_examples(catalog, []))
+        self.assertEqual(module.selected_examples(catalog, [], False, ["drag_drop"]), ["drag_drop"])
+        record, = module.extra_oracle_records(["drag_drop"])
+        self.assertEqual(record["candidate"], "not_implemented")
         for oracle_only in (False, True):
             with self.subTest(oracle_only=oracle_only), self.assertRaisesRegex(ValueError, "already has an implemented"):
                 module.selected_examples(catalog, [record], oracle_only)

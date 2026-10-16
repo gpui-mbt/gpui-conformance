@@ -136,3 +136,23 @@ A successful verifier reports `rust_source_profile_verified`, with candidate
 global capture, touch, OS drag, foreign payloads, rejecting predicates,
 nested/overlapping targets, internal grip values, other browsers/GPUs/viewports/
 DPRs and candidate/full-image/text/native parity remain outside this baseline.
+
+
+## Historical baseline retained after candidate integration
+
+The introduction and engine pin above describe exact source-only suite head
+`e278fce408aab28127560e1f250f11c030e8d042`, tree
+`1cd3e18b31a4d2d8651871c0ab078c8059e7a702`. Its actual unchanged Rust
+[CI run38945456947](https://github.com/gpui-mbt/gpui-conformance/actions/runs/38945456947)
+passed: 54 operations, 54 stable states and 108 original PNGs. Artifact12067400103
+SHA-256 is `66e7c1ad7a5f6a07693bfd43e87ddd92753ad552fccc706ce28e268f1c368681`.
+That run does not include a MoonBit candidate.
+
+Exact original catalog/workflow bytes are preserved in hash-checked fixtures
+`tests/fixtures/drag-drop-rust-only-catalog-e278fce4.json` and
+`tests/fixtures/drag-drop-rust-only-workflow-e278fce4.yml`. The original comparator,
+runner, verifier and source-only record keep their strict historical contracts;
+they reject the current implemented catalog rather than relabel the old result.
+The new active candidate uses normal implemented-subset packaging and a separate
+[paired harness](DRAG_DROP_PAIR.md). Its actual independent execution must pass
+before any bounded agreement is claimed.

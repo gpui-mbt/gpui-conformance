@@ -14,7 +14,7 @@ Source: `zed-industries/zed`, revision
 The MoonBit implementation is `moonbit/hello_world/hello_world.mbt`. It uses
 **gpui.mbt Element → request_layout → prepaint → SceneSnapshot**, rather than a
 JavaScript recreation of the demo or hardcoded layout results. The candidate
-library is pinned to `eb968228bbea56aff13721dc427875c2dacffc14` in
+library is pinned to `fc53cb382c66f68bfc1b3e1cc72d01056cd3c625` in
 `examples.json`; native/headless `pins.json` remains untouched.
 
 The port retains the 500×500 logical viewport, gray background, centered
@@ -282,14 +282,14 @@ Checked 2026-10-16 against upstream main
 `32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
 Rust example files**, with identical blob IDs. This count excludes asset/support
-subdirectories. Nine of these now have source-derived browser counterparts: hello_world, text,
-text_layout, text_wrapper, input, tree, scrollable, focus_visible and tab_stop. The two additional counterparts,
+subdirectories. Ten of these now have source-derived browser counterparts: hello_world, text,
+text_layout, text_wrapper, input, tree, scrollable, focus_visible, tab_stop and drag_drop. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-The catalog has eleven counterparts, each retaining its own verification status. Eleven
+The catalog has twelve counterparts, each retaining its own verification status. Twelve
 entries therefore do **not** mean all upstream examples are covered.
 
-The remaining 32 top-level examples are: a11y, active_state_bug, anchor,
-animation, data_table, drag_drop, gif_viewer, gradient,
+The remaining 31 top-level examples are: a11y, active_state_bug, anchor,
+animation, data_table, gif_viewer, gradient,
 grid_layout, image_gallery, image_loading, layer_shell, list_example,
 mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
 ownership_post, painting, paths_bench, pattern, popover, set_menus,
@@ -303,6 +303,15 @@ core group-prefix traversal and owner-preserving geometry refresh. See
 input contracts and local tests. Historical Rust-only discovery retains its own
 original source/executable/PNG provenance in [TAB_STOP_ORACLE.md](TAB_STOP_ORACLE.md).
 The new candidate has no paired browser or native qualification yet.
+
+The unchanged `drag_drop.rs` now has a typed core `DragSession` candidate, with
+real source layout and one-shot drop delivery, signed preview placement, and an
+explicit Canvas `shadow_md` extension. See [moonbit/drag_drop/README.md](moonbit/drag_drop/README.md)
+and [DRAG_DROP_PAIR.md](DRAG_DROP_PAIR.md). The independently verified Rust-only
+baseline remains immutable; the active pair requires fresh original screenshots
+and trusted input from both current runtimes. Catalog entries remain unverified
+unless their own measurements are explicitly published. Full-image/text/native
+and GPU shadow-kernel parity are not claimed.
 
 ## Build and verify the actual pairs
 
