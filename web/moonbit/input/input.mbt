@@ -161,22 +161,39 @@ pub fn input_pointer(x : Double, y : Double, shift : Bool) -> Bool {
 }
 
 ///|
-fn select_at(position : @primitives.Point, shift : Bool) -> Bool {
+fn select_at(
+  position : @primitives.Point,
+  shift : Bool,
+  hit_test~ : (@text.TextDocument, @primitives.Point) -> Result[
+    @text_layout.TextHit,
+    @text_field.TextFieldError,
+  ] = hit,
+) -> Bool {
   // The pinned TextField exposes click/Shift-click rather than a drag API.
   // Reuse that validated path to retain its anchor, scroll offset, UTF-16
   // cursor stops and edit history throughout the example-local gesture.
-  update(
-    @primitives.PointerButtonPressed(
-      position~,
-      button=@primitives.Primary,
-      modifiers=@primitives.Modifiers::new(
-        shift~,
-        control=false,
-        alt=false,
-        meta=false,
+  match
+    current().handle_input(
+      @primitives.PointerButtonPressed(
+        position~,
+        button=@primitives.Primary,
+        modifiers=@primitives.Modifiers::new(
+          shift~,
+          control=false,
+          alt=false,
+          meta=false,
+        ),
       ),
-    ),
-  )
+      measure,
+      admit,
+      hit_test,
+    ) {
+    Ok((field, _)) => {
+      field_state.val = Some(field)
+      true
+    }
+    Err(_) => false
+  }
 }
 
 ///|
@@ -189,15 +206,41 @@ pub fn input_pointer_move(x : Double, y : Double) -> Bool {
     Ok(value) => value
     Err(_) => return false
   }
-  // A captured pointer can leave both field and canvas. Clamp to the field's
-  // closed edges; TextField maps through its current horizontal scroll offset
-  // and keeps the moving head visible without changing the original anchor.
-  let bounds = current().bounds()
+  // Use an in-bounds event to enter TextField's validated selection path,
+  // but retain the captured position for the hit callback. Clamping the hit
+  // itself to the viewport would make horizontally hidden text unreachable.
+  let content = current().content_bounds()
   let clamped = @primitives.Point::new(
-    point.x().max(bounds.left()).min(bounds.right()),
-    point.y().max(bounds.top()).min(bounds.bottom()),
+    point.x().max(content.left()).min(content.right()),
+    point.y().max(content.top()).min(content.bottom()),
   ).unwrap()
-  select_at(clamped, true)
+  select_at(clamped, true, hit_test=fn(document, layout_point) {
+    // Match the single-line upstream example's above/below behavior while
+    // retaining UTF-16 model offsets instead of its UTF-8 byte offsets.
+    if point.y() < content.top() || point.y() > content.bottom() {
+      let offset = if point.y() < content.top() {
+        0
+      } else {
+        document.utf16_length()
+      }
+      return match
+        @text_layout.TextHit::new(document, offset, 0, offset, true, true) {
+        Ok(value) => Ok(value)
+        Err(_) => Err(@text_field.HitTestFailed)
+      }
+    }
+    // layout_point already includes TextField's scroll and text-origin
+    // transform. Restore only the distance removed by viewport clamping.
+    let captured = match
+      @primitives.Point::new(
+        layout_point.x() + point.x() - clamped.x(),
+        layout_point.y(),
+      ) {
+      Ok(value) => value
+      Err(_) => return Err(@text_field.HitTestFailed)
+    }
+    hit(document, captured)
+  })
 }
 
 ///|

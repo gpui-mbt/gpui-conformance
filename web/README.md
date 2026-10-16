@@ -415,15 +415,16 @@ The browser cancels the canvas's native mouse-focus action before focusing its
 transport textarea. Pointer capture delivers movement and release outside the
 canvas; cancellation, capture loss, blur, reset and page exit end the gesture.
 MoonBit owns the active selection gesture and reuses the pinned TextField's
-validated Shift-click path for drag updates, including horizontal scroll and
-clamping to field bounds. This is an example-local adapter, not a new library
+validated Shift-click path for drag updates. Hit testing retains captured
+coordinates beyond the horizontal viewport, accounts for horizontal scroll,
+and maps dragging above/below the single line to its document start/end. This is an example-local adapter, not a new library
 pointer API.
 
 The paired Chromium regression suite enters editing through trusted visible
 canvas clicks, including Reset, rather than directly focusing the hidden
 textarea. It covers click-to-type, caret placement, trusted copy/cut, directional
 and Shift drag ranges, outside release, capture loss, blur cleanup, supplementary
-Unicode and scrolled text. Pointer cancellation is tested with a synthetic
+Unicode, scrolled/offscreen text and above/below-line endpoints. Pointer cancellation is tested with a synthetic
 PointerEvent; it is not hardware-touch evidence.
 
 The upstream uses grapheme segmentation; this port currently exposes scalar

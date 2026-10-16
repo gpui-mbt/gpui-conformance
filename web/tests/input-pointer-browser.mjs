@@ -119,6 +119,21 @@ export async function checkInputPointers(page, moon) {
   await page.keyboard.press('Control+x');
   assert.equal((await state()).text,'abcdefghijklmnopqrstuvwxyz01234567');
 
+  await reset('abcdefghijklmnopqrstuvwxyz0123456789');
+  await page.keyboard.press('Home');
+  assert.equal((await state()).scrollOffset,0);
+  await drag(12,600);
+  assert.deepEqual(await selection(),[0,36],'Captured drag must reach text beyond the right viewport');
+  assert((await state()).scrollOffset>0);
+  await drag(288,-300);
+  assert.deepEqual(await selection(),[36,0],'Captured drag must reach text beyond the left viewport');
+  assert.equal((await state()).scrollOffset,0);
+  await drag(48,48,120);
+  assert.deepEqual(await selection(),[3,36],'Dragging below a single line selects to its end');
+  await page.keyboard.press('Home');
+  await drag(48,48,10);
+  assert.deepEqual(await selection(),[3,0],'Dragging above a single line selects to its start');
+
   const events=await moon.locator('html').evaluate(() => [...gpuiExample.inputEvents]);
   assert(events.some(e=>e.type==='pointermove' && e.trusted));
   assert(events.some(e=>e.type==='pointercancel'));
@@ -126,5 +141,5 @@ export async function checkInputPointers(page, moon) {
   await reset();
   return {events,checked:['trusted click-to-type and Reset-to-type','caret placement and trusted copy/cut',
     'forward/backward/Shift drag selection','outside release and capture loss','synthetic pointer cancellation',
-    'blur cleanup and subsequent click','supplementary Unicode boundaries','horizontally scrolled selection']};
+    'blur cleanup and subsequent click','supplementary Unicode boundaries','horizontally scrolled and offscreen selection','above/below-line endpoints']};
 }
