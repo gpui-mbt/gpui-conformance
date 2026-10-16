@@ -102,10 +102,19 @@
       "title": "Prime sieve",
       "rust_route": "prime-sieve",
       "source": "crates/gpui_web/examples/hello_web/main.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
-        "Background work"
-      ]
+        "Background work",
+        "Preset selection",
+        "Progress",
+        "History"
+      ],
+      "width": 640,
+      "height": 560,
+      "interactive": true,
+      "candidate_source": "web/moonbit/hello_web/hello_web.mbt",
+      "source_blob": "31f30431e2a15963d7277047d0301e2510a90616",
+      "implementation_note": "Actual MoonBit brute-force computation in browser Web Workers, with gpui.mbt layout, pointer dispatch and SceneSnapshot. Worker scheduling, fonts and Canvas rounded fills are explicit host extensions; conformance and performance equivalence unverified."
     }
   ]
 }

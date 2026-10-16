@@ -101,13 +101,49 @@ The catalog labels text_wrapper as implemented and unverified. It has no
 retained catalog result, measurement date or thumbnail; the hello_world
 1,532-pixel difference is never attached to either new text example.
 
+## Implemented port: `hello_web` (Prime sieve)
+
+The fourth counterpart follows unchanged upstream
+`crates/gpui_web/examples/hello_web/main.rs` at the pinned revision (source blob
+recorded in `examples.json`). The original 640×560 viewport, 10M/50M/100M
+presets, 12 half-open chunks, progress bar/dots, accumulated history, colors
+and labels are preserved. Despite its title, the upstream computation is a
+brute-force 6k±1 primality test, and the MoonBit port executes that same algorithm.
+It never substitutes saved counts or a smaller range for a selected preset.
+
+MoonBit owns the application state, count algorithm, chunk partitioning,
+preset/start actions, stale/duplicate-result checks, progress and history.
+Its real gpui.mbt Element tree supplies layout, pointer dispatch and
+SceneSnapshot output. Canvas only supplies font measurements/rounded fills
+and browser pointer coordinates. A bounded pool of 2–12 module Web Workers
+imports the compiled MoonBit runtime and computes the 12 real chunks; the
+browser host handles scheduling, message transport and teardown. The displayed
+thread count is the candidate's actual pool capacity, not a claim of scheduler
+or thread-count equality with Rust. Workers are terminated when exhausted,
+on errors and on pagehide. A worker error is visibly terminal until reload.
+
+Browser E2E runs the full 10M preset and verifies 664,579 primes, all 12
+contiguous chunk ranges, progress/history and resource cleanup. It executes
+the unchanged upstream WASM with a trusted browser click and retains both the
+actual rendered result and OCR confirming its count. Selection of 50M/100M,
+repeated clicks while running, restart and leaving during a run are covered;
+the full 50M/100M computations are not exercised by CI. Unit tests cover
+primality, half-open boundaries, stale/duplicate messages and worker errors.
+
+Elapsed milliseconds are CPU-task observations including host scheduling.
+They are separate from load timing, are not renderer-startup benchmarks and
+do not establish a performance ranking. Exact pixel equality, font shaping,
+native parity, browser scheduler equivalence, keyboard accessibility and
+full 50M/100M execution remain unverified. The catalog must keep this example
+implemented/unverified with no borrowed hello_world result.
+
 ## Other upstream examples
 
-`text`, `input`, `dynamic_fonts`, and `hello_web` (Prime sieve)
+`text`, `input`, and `dynamic_fonts`
 retain their real upstream names and source paths. They remain marked
 **gpui.mbt not implemented**. Selecting one clears both old runtimes; it never
 loads a substitute. Text input needs editing, selection and IME independently,
-and Prime sieve must execute real background work rather than replay counts.
+while dynamic fonts needs independent missing-glyph and font-loading behavior.
 
 ## Build and verify the actual pairs
 
@@ -125,8 +161,8 @@ python3 web/scripts/serve.py _build/browser-lab
 
 Open `http://127.0.0.1:8080/`. Rust WASM is under `rust/`; MoonBit JS is
 under `moonbit/`. Both iframe URLs use the same origin and the selected upstream logical viewport
-(500×500 for hello_world, 800×600 for text_layout and text_wrapper). There is no external runtime URL or substitute Rust image.
-The Rust loader compiles and starts the actual upstream `hello_world`, `text_layout` and `text_wrapper` binaries
+(500×500 for hello_world, 800×600 for text_layout/text_wrapper and 640×560 for Prime sieve). There is no external runtime URL or substitute Rust image.
+The Rust loader compiles and starts the actual upstream `hello_world`, `text_layout`, `text_wrapper` and `hello_web` binaries
 from the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
 source and upstream platform/renderer implementations remain unchanged.
 Builds use disposable archives; original source checkouts remain read-only.
