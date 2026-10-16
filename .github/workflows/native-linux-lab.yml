@@ -36,7 +36,7 @@ jobs:
             libpango1.0-dev libx11-xcb-dev libxcb-randr0-dev libxcb-render0-dev \
             libxcb-shape0-dev libxcb-xfixes0-dev libxcb-composite0-dev \
             libxcb-cursor-dev libxcb-icccm4-dev libxcb-ewmh-dev \
-            xvfb openbox wmctrl imagemagick weston x11-utils
+            xvfb openbox wmctrl xdotool imagemagick weston x11-utils
           rustup toolchain install 1.98.1 --profile minimal
           moon version --all
           rustc +1.98.1 --version
