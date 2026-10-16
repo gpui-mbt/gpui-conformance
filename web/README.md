@@ -74,8 +74,19 @@ keyboard events cycle the upstream five families. Wheel/arrow input controls
 a host-side viewport clip/translation; that operation is **not** a native
 gpui.mbt scroll implementation. The upstream uses GPUI hit testing, event
 dispatch and overflow scrolling, so interactive/native equivalence is not
-established by this adapter. The 20-column grid intentionally overflows its
-horizontal viewport as in the upstream source.
+established by this adapter. Grid rows use the available 888-pixel inner width;
+the original 62-pixel cell bases shrink through gpui.mbt flex resolution, with
+browser-measured text minima. The final row retains upstream's flexible empty
+cells. All 20 columns fit the 920-pixel viewport with the tested font choices.
+
+The ASCII type-scale phrase wraps within its 900-pixel padded content width.
+The host supplies shaped-prefix measurements, while MoonBit chooses word breaks
+(with character fallback), creates every line as a real Element, and computes
+specimen heights and the scroll extent from the resulting layout. Per-specimen
+frame diagnostics retain the complete chosen lines. Font changes remeasure and
+reflow the specimens and clamp a prior scroll offset to the new content extent.
+This remains a fixture-local wrapping adapter; Canvas prefix measurements are
+only a proxy for native glyph advances, and broader text semantics are unverified.
 
 The browser workflow captures both 920×720 outputs and the candidate scene,
 then exercises the font cycle and scroll with trusted browser events. Image
