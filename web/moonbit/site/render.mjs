@@ -10,6 +10,15 @@ export function validateFrame(frame) {
     if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
     if (item.kind === 'text' && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
+  const clips = new Map((snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
+  for (const rects of clips.values()) {
+    if (!Array.isArray(rects) || rects.some(b => ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0)) throw new Error('Invalid scene clip');
+  }
+  for (const item of snapshot.items) if (item.clip_chain_id != null && !clips.has(item.clip_chain_id)) throw new Error('Unknown scene clip');
+  const texts = new Set(snapshot.items.filter(i => i.kind === 'text').map(i => i.id));
+  for (const style of frame.text_styles || []) {
+    if (!texts.has(style.id) || ![400,800].includes(style.weight) || !['normal','italic'].includes(style.style) || !['none','underline','line_through'].includes(style.decoration)) throw new Error('Invalid host text style');
+  }
   const quads = new Map(snapshot.items.filter(i => i.kind === 'quad').map(i => [i.id, i]));
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
@@ -72,6 +81,8 @@ export function drawFrame(context, frame, metadata, scale) {
   validateFrame(frame);
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
+  const textStyles = new Map((frame.text_styles || []).map(style => [style.id, style]));
+  const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   context.save();
   try {
     context.setTransform(scale, 0, 0, scale, 0, 0);
@@ -83,14 +94,26 @@ export function drawFrame(context, frame, metadata, scale) {
         const b = item.bounds;
         const c = item.color;
         const style = styles.get(item.id);
+        for (const rect of clips.get(item.clip_chain_id) || []) {
+          context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
+        }
         context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
         if (item.kind === 'text') {
-          context.font = `${item.font_size}px "${metadata.font_family}"`;
+          const textStyle = textStyles.get(item.id);
+          context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"`;
           context.textAlign = 'left'; context.textBaseline = 'alphabetic';
           const metrics = context.measureText(item.text);
           const ascent = metrics.fontBoundingBoxAscent ?? metrics.actualBoundingBoxAscent;
           const descent = metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent;
-          context.fillText(item.text, b.x, b.y + (b.height - ascent - descent) / 2 + ascent);
+          const baseline = (b.height - ascent - descent) / 2 + ascent;
+          context.fillText(item.text, b.x, b.y + baseline);
+          if (textStyle && textStyle.decoration !== 'none') {
+            // Geometry follows pinned text_system/line.rs; Canvas font metrics and
+            // rasterization remain explicit host extensions, not a conformance pass.
+            const y = textStyle.decoration === 'underline'
+              ? baseline + descent * 0.618 : ((ascent * 0.5) + baseline) * 0.5;
+            context.fillRect(b.x, b.y + y, metrics.width, 1);
+          }
         } else {
           context.beginPath(); context.roundRect(b.x, b.y, b.width, b.height, style?.radius || 0);
           if (style?.shadow) {

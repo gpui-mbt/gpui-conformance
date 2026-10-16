@@ -1,8 +1,10 @@
 try {
   if (!crossOriginIsolated) throw new Error('Shared-memory WASM requires COOP/COEP response headers on the whole comparison site.');
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  if (example !== 'hello_world') throw new Error(`Rust example not bundled: ${example}`);
-  const bindings = await import('./hello_world.js');
+  const modules = {hello_world: './hello_world.js', text_layout: './text_layout.js'};
+  if (!modules[example]) throw new Error(`Rust example not bundled: ${example}`);
+  document.title = `${example} · gpui.rs`;
+  const bindings = await import(modules[example]);
   await bindings.default();
   globalThis.wasmBindings = bindings;
   await new Promise((resolve, reject) => {

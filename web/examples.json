@@ -10,12 +10,96 @@
     "revision": "01818aa4e96fc21d1676f747a6b23d91445648a1"
   },
   "examples": [
-    {"id":"hello_world","title":"Hello world","rust_route":"hello-world","source":"crates/gpui/examples/hello_world.rs","moonbit":"implemented","width":500,"height":500,"interactive":false},
-    {"id":"text","title":"Styled text","rust_route":"text","source":"crates/gpui/examples/text.rs","moonbit":"not_implemented"},
-    {"id":"text_layout","title":"Text layout","rust_route":"text-layout","source":"crates/gpui/examples/text_layout.rs","moonbit":"not_implemented"},
-    {"id":"text_wrapper","title":"Text wrapping","rust_route":"text-wrapper","source":"crates/gpui/examples/text_wrapper.rs","moonbit":"not_implemented"},
-    {"id":"input","title":"Text input","rust_route":"input","source":"crates/gpui/examples/input.rs","moonbit":"not_implemented"},
-    {"id":"dynamic_fonts","title":"Dynamic fonts","rust_route":"dynamic-fonts","source":"crates/gpui_web/examples/hello_web/dynamic_fonts.rs","moonbit":"not_implemented"},
-    {"id":"hello_web","title":"Prime sieve","rust_route":"prime-sieve","source":"crates/gpui_web/examples/hello_web/main.rs","moonbit":"not_implemented"}
+    {
+      "id": "hello_world",
+      "title": "Hello world",
+      "rust_route": "hello-world",
+      "source": "crates/gpui/examples/hello_world.rs",
+      "moonbit": "implemented",
+      "width": 500,
+      "height": 500,
+      "interactive": false,
+      "features": [
+        "Flex layout",
+        "Color",
+        "Rounded borders"
+      ],
+      "candidate_source": "web/moonbit/hello_world/hello_world.mbt"
+    },
+    {
+      "id": "text",
+      "title": "Styled text",
+      "rust_route": "text",
+      "source": "crates/gpui/examples/text.rs",
+      "moonbit": "not_implemented",
+      "features": [
+        "Typography",
+        "Font switching"
+      ]
+    },
+    {
+      "id": "text_layout",
+      "title": "Text layout",
+      "rust_route": "text-layout",
+      "source": "crates/gpui/examples/text_layout.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Text alignment",
+        "Underline",
+        "Strikethrough",
+        "Styled spans",
+        "Clipping"
+      ],
+      "candidate_source": "web/moonbit/text_layout/text_layout.mbt",
+      "width": 800,
+      "height": 600,
+      "interactive": false,
+      "source_blob": "07f560ab6ed163da4c613cb57311fc4c5784a15b",
+      "implementation_note": "gpui.mbt layout and SceneSnapshot with explicit Canvas font-style and text-decoration host extensions; conformance unverified."
+    },
+    {
+      "id": "text_wrapper",
+      "title": "Text wrapping",
+      "rust_route": "text-wrapper",
+      "source": "crates/gpui/examples/text_wrapper.rs",
+      "moonbit": "not_implemented",
+      "features": [
+        "Wrapping",
+        "Ellipsis",
+        "Line clamp"
+      ]
+    },
+    {
+      "id": "input",
+      "title": "Text input",
+      "rust_route": "input",
+      "source": "crates/gpui/examples/input.rs",
+      "moonbit": "not_implemented",
+      "features": [
+        "Editing",
+        "Selection",
+        "IME"
+      ]
+    },
+    {
+      "id": "dynamic_fonts",
+      "title": "Dynamic fonts",
+      "rust_route": "dynamic-fonts",
+      "source": "crates/gpui_web/examples/hello_web/dynamic_fonts.rs",
+      "moonbit": "not_implemented",
+      "features": [
+        "Font loading"
+      ]
+    },
+    {
+      "id": "hello_web",
+      "title": "Prime sieve",
+      "rust_route": "prime-sieve",
+      "source": "crates/gpui_web/examples/hello_web/main.rs",
+      "moonbit": "not_implemented",
+      "features": [
+        "Background work"
+      ]
+    }
   ]
 }

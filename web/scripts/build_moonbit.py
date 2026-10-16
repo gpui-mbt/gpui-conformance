@@ -37,6 +37,12 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
     digest = hashlib.sha1(b"blob " + str(len(source)).encode() + b"\0" + source).hexdigest()
     if digest != catalog["upstream"]["hello_world_blob"]:
         raise ValueError("upstream hello_world.rs does not match the recorded source blob")
+    implemented = [example for example in catalog["examples"] if example.get("moonbit") == "implemented"]
+    for example in implemented:
+        if example.get("source_blob"):
+            actual = run(["git", "rev-parse", f"HEAD:{example['source']}"], upstream, True)
+            if actual != example["source_blob"]:
+                raise ValueError(f"upstream source blob mismatch for {example['id']}")
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="gpui-web-", dir=out.parent) as work:
         candidate = Path(work) / "candidate"
@@ -44,30 +50,37 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
         archive = subprocess.run(["git", "archive", "HEAD"], cwd=gpui, check=True, stdout=subprocess.PIPE).stdout
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(candidate, filter="data")
-        package = "examples/conformance_hello_world"
-        shutil.copytree(WEB / "moonbit/hello_world", candidate / package)
         version = run(["moon", "version", "--all"], candidate, True)
-        run(["moon", "test", package, "--target", "js"], candidate)
-        run(["moon", "build", package, "--target", "js", "--release"], candidate)
-        runtime = candidate / "_build/js/release/build" / package / "conformance_hello_world.js"
-        if not runtime.is_file():
-            raise ValueError(f"expected generated ESM module missing: {runtime}")
+        runtimes = {}
+        for example in implemented:
+            name = example["id"]
+            package = f"examples/conformance_{name}"
+            shutil.copytree(WEB / "moonbit" / name, candidate / package)
+            run(["moon", "test", package, "--target", "js"], candidate)
+            run(["moon", "build", package, "--target", "js", "--release"], candidate)
+            runtime = candidate / "_build/js/release/build" / package / f"conformance_{name}.js"
+            if not runtime.is_file():
+                raise ValueError(f"expected generated ESM module missing: {runtime}")
+            runtimes[name] = runtime
         staging = Path(work) / "site"
         staging.mkdir()
         for name in ["index.html", "style.css", "app.js", "routing.mjs", "examples.json"]:
             shutil.copy2(WEB / name, staging / name)
         shutil.copytree(WEB / "moonbit/site", staging / "moonbit")
-        shutil.copy2(runtime, staging / "moonbit/runtime.mjs")
+        for name, runtime in runtimes.items():
+            shutil.copy2(runtime, staging / "moonbit" / ("runtime.mjs" if name == "hello_world" else f"{name}.mjs"))
         font_dir = upstream / "assets/fonts/ibm-plex-sans"
-        shutil.copy2(font_dir / "IBMPlexSans-Regular.ttf", staging / "moonbit")
+        for font_name in ["IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf"]:
+            shutil.copy2(font_dir / font_name, staging / "moonbit")
         shutil.copy2(font_dir / "license.txt", staging / "moonbit/font-license.txt")
         # Record the measured compiler, not an invented reproducibility claim.
         manifest = {"upstream": catalog["upstream"], "moonbit": catalog["moonbit"],
                     "lab_revision": run(["git", "rev-parse", "HEAD"], WEB.parent, True),
                     "lab_tracked_dirty": bool(run(["git", "status", "--porcelain", "--untracked-files=no"], WEB.parent, True)),
-                    "compiler": version, "runtime_sha256": hashlib.sha256(runtime.read_bytes()).hexdigest(),
+                    "compiler": version, "runtime_sha256": hashlib.sha256(runtimes["hello_world"].read_bytes()).hexdigest(),
                     "font_sha256": hashlib.sha256((font_dir / "IBMPlexSans-Regular.ttf").read_bytes()).hexdigest(),
-                    "implemented": ["hello_world"], "rust_bundled": False,
+                    "implemented": list(runtimes),
+                    "runtime_sha256_by_example": {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in runtimes.items()}, "rust_bundled": False,
                     "comparison_status": "unverified", "moonbit_unit_tests": "passed"}
         (staging / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         check_source(gpui, catalog["moonbit"]["revision"])

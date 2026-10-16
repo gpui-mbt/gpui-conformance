@@ -153,6 +153,46 @@ try {
     report.verified.push('same-origin compiled Rust WASM and MoonBit JS', '500x500 viewports', 'six rendered swatch RGB probes', 'trusted browser click/key delivery; static swatches retained');
   }
   await page.screenshot({ path: join(evidence, 'hello-world-pair.png'), fullPage: true });
+  await page.selectOption('#fixture', 'text_layout');
+  await waitForNewDocuments();
+  const textFrame = await moon.locator('html').evaluate(() => globalThis.gpuiExample);
+  assert.equal(textFrame.metadata.id, 'text_layout');
+  assert.deepEqual([textFrame.metadata.width,textFrame.metadata.height], [800,600]);
+  assert.equal(textFrame.frame.snapshot.items.filter(i => i.kind === 'text').length,15);
+  assert.equal(textFrame.frame.snapshot.clip_chains.length,2);
+  assert.equal(textFrame.frame.conformance,'unverified');
+  assert.equal(textFrame.frame.text_styles.filter(s=>s.decoration==='underline').length,3);
+  assert.equal(textFrame.frame.text_styles.filter(s=>s.decoration==='line_through').length,3);
+  for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+    const bounds = await page.locator('#' + side + '-frame').boundingBox();
+    assert.deepEqual([bounds.width,bounds.height],[800,600]);
+  }
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/text_layout/text_layout.mbt`);
+  await writeFile(join(evidence,'text-layout-moonbit-scene.json'),JSON.stringify(textFrame,null,2));
+  await moon.locator('canvas').screenshot({path:join(evidence,'text-layout-moonbit.png')});
+  if (paired) {
+    assert(report.requests.some(r => r.url.endsWith('/rust/text_layout_bg.wasm') && r.status===200), 'Actual text_layout WASM response required');
+    // A canvas existing is insufficient: wait for dark ink in the first text line.
+    const rustCanvas = page.frameLocator('#rust-frame').locator('canvas');
+    let ink = false;
+    for (let attempt=0; attempt<100 && !ink; attempt++) {
+      const buffer=await rustCanvas.screenshot();
+      ink = await page.evaluate(async url => {
+        const img=new Image(); img.src=url; await img.decode();
+        const c=document.createElement('canvas');c.width=800;c.height=600;
+        const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+        const pixels=ctx.getImageData(16,16,120,26).data;
+        for(let i=0;i<pixels.length;i+=4) if(pixels[i]<100 && pixels[i+1]<100 && pixels[i+2]<100) return true;
+        return false;
+      },'data:image/png;base64,'+buffer.toString('base64'));
+      if (ink) await writeFile(join(evidence,'text-layout-rust.png'),buffer);
+      else await page.waitForTimeout(200);
+    }
+    assert(ink,'Upstream text_layout must render actual dark text ink');
+  }
+  report.operations.push({action:'select text_layout',candidate:'15 text scene items, decorated runs and clip chains',rust:paired?'actual WASM and text ink verified':'not_run',comparison:'unverified'});
+  await page.screenshot({path:join(evidence,'text-layout-pair.png'),fullPage:true});
   await page.selectOption('#fixture', 'input');
   assert.equal(await page.locator('#moon-frame').isVisible(), false);
   assert.equal(await page.locator('#moon-frame').getAttribute('src'), null);
