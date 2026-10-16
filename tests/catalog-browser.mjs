@@ -131,7 +131,7 @@ try {
       nodes.filter(node => node.textContent === 'ライブ比較を開く').map(node => node.href).sort());
     assert.deepEqual(comparisonLinks, labBase ? implemented.map(id => `${labBase}/?example=${id}`).sort() : []);
     assert.equal(await page.locator('#case-list a').evaluateAll(nodes =>
-      nodes.filter(node => node.textContent === 'ライブ比較').length), labBase ? 3 : 0);
+      nodes.filter(node => node.textContent === 'ライブ比較').length), labBase ? implemented.length : 0);
     assert.deepEqual(looseRequests, [], 'A coherent release must never request loose JS, CSS, or JSON');
     assert.deepEqual(errors, []);
     return { revision: data.revision, release: await page.locator('meta[name="catalog-release"]').getAttribute('content') };
