@@ -309,15 +309,15 @@ alternating order, rapid reload, missing ports, failures, timeout and rejected
 stale/spoofed messages. These tests establish instrumentation behavior only;
 they never supply conformance results or Rust/MoonBit speed measurements.
 
-## Implemented port: \`dynamic_fonts\`
+## Implemented port: `dynamic_fonts`
 
 The fifth counterpart follows unchanged upstream
-\`crates/gpui_web/examples/hello_web/dynamic_fonts.rs\` (source blob
-\`33d4d6cc1721b24f86241ae53a417313c4ae0ed3\`), with its 900×500
+`crates/gpui_web/examples/hello_web/dynamic_fonts.rs` (source blob
+`33d4d6cc1721b24f86241ae53a417313c4ae0ed3`), with its 900×500
 viewport, dark background, IBM Plex Sans, Devanagari and emoji samples,
 download/status messaging, and original Google Fonts raw-TTF URL.
 
-\`moonbit/dynamic_fonts/dynamic_fonts.mbt\` uses gpui.mbt Element →
+`moonbit/dynamic_fonts/dynamic_fonts.mbt` uses gpui.mbt Element →
 request_layout → prepaint → SceneSnapshot to position seven text rows.
 Browser-measured text widths are inputs; positioning and SceneSnapshot
 emission are MoonBit outputs. The initial font is the bundled upstream
@@ -330,7 +330,7 @@ font is **not** bundled. Source attribution and the upstream SIL OFL note
 remain visible.
 
 **Evidence boundary:** the browser does not expose GPUI's
-\`on_missing_glyphs\` callback or Cosmic Text's \`add_fonts\`. A known Devanagari
+`on_missing_glyphs` callback or Cosmic Text's `add_fonts`. A known Devanagari
 range probe and the browser's FontFace/Canvas fallback are explicit host
 extensions. Their triggering and shaping behavior are not equivalent to
 the native GPUI text system. Loaded status confirms FontFace registration,
