@@ -371,6 +371,14 @@ def run_visible(args, out, executables, manifest, scenarios, token):
                    if role == "moonbit" else ewmh_move_resize(windows[role]["id"], x, 40, width, height))
             for role, x in (("upstream", 40), ("moonbit", 80 + width))
         }
+        # The nested Weston client cursor is composited into the captured pixels, not GPUI's scene.
+        park = subprocess.run(["xdotool", "mousemove", "0", "0"],
+                              capture_output=True, text=True, check=False, timeout=5)
+        manifest["pointer_park"] = {"command": ["xdotool", "mousemove", "0", "0"],
+                                    "returncode": park.returncode,
+                                    "stderr": park.stderr.strip()}
+        if park.returncode != 0:
+            manifest["reasons"].append("could not park X11 pointer outside both captured viewports")
         first = wait_frames(logs, token, spawned, started_at, width, height, args.start_timeout)
         manifest["time_from_process_spawn_to_frame_poll_ms"] = first
         if len(first) != 2:
