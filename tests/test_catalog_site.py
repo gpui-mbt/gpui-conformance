@@ -72,9 +72,9 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 3)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 3)
-        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["hello_web"])
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 2)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 4)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "hello_web"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
@@ -96,8 +96,24 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "hello_web"}
+            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "hello_web"}
         ))
+
+    def test_typography_is_interactive_without_inheriting_hello_world_evidence(self):
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            text = next(e for e in build_catalog("catalog-test-revision")["browser_examples"] if e["id"] == "text")
+        self.assertTrue(text["implemented"])
+        self.assertEqual((text["width"], text["height"], text["interactive"]), (920, 720, True))
+        self.assertEqual(text["comparison_url"], f"{base}/?example=text")
+        self.assertEqual(text["source_path"], "crates/gpui/examples/text.rs")
+        self.assertEqual(text["implementation"]["source_url"],
+                         "https://github.com/gpui-mbt/gpui-conformance/blob/catalog-test-revision/web/moonbit/text/text.mbt")
+        self.assertEqual(text["status"], "unverified")
+        self.assertEqual(text["execution"], "unverified")
+        self.assertFalse(text["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+            self.assertIsNone(text[key], key)
 
     def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
         base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
@@ -210,7 +226,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 4)
+        self.assertEqual(self.data["browser"]["implemented_count"], 5)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -240,7 +256,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text_layout", "text_wrapper", "hello_web"},
+            {"hello_world", "text", "text_layout", "text_wrapper", "hello_web"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):
