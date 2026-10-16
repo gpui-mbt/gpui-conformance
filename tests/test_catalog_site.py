@@ -84,9 +84,9 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 3)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 3)
-        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["hello_web"])
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 2)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 4)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["input", "hello_web"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
@@ -108,7 +108,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "hello_web"}
+            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "input", "hello_web"}
         ))
 
     def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
