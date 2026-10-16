@@ -10,6 +10,16 @@ export function validateFrame(frame) {
     if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
     if (item.kind === 'text' && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
+  if (frame.scroll) {
+    const s = frame.scroll;
+    if (![s.first_id,s.top,s.height,s.y,s.max].every(Number.isFinite) ||
+        !Number.isInteger(s.first_id) || s.first_id < 2 || s.top < 0 ||
+        s.height <= 0 || s.y < 0 || s.y > s.max || s.max > 100000)
+      throw new Error('Invalid scroll extension');
+  }
+  if (frame.font_button && !['x','y','width','height'].every(key =>
+      Number.isFinite(frame.font_button[key]) && frame.font_button[key] >= 0))
+    throw new Error('Invalid font button extension');
   const clips = new Map((snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   for (const rects of clips.values()) {
     if (!Array.isArray(rects) || rects.some(b => ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0)) throw new Error('Invalid scene clip');
@@ -96,6 +106,13 @@ export function drawFrame(context, frame, metadata, scale) {
     for (const item of frame.snapshot.items) {
       context.save();
       try {
+        if (frame.scroll && item.id >= frame.scroll.first_id) {
+          // Do not pretend GPUI scroll clipping is a native SceneSnapshot API.
+          context.beginPath();
+          context.rect(0, frame.scroll.top, metadata.width, frame.scroll.height);
+          context.clip();
+          context.translate(0, -frame.scroll.y);
+        }
         const b = item.bounds;
         const c = item.color;
         const style = styles.get(item.id);

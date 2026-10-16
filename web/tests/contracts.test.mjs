@@ -7,7 +7,7 @@ const catalog = JSON.parse(await readFile(new URL('../examples.json', import.met
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
   assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text_layout', 'text_wrapper', 'hello_web']);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'hello_web']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -139,4 +139,31 @@ test('rounded fills are explicit validated host extensions and never implicit sc
   f.rounded_fills[0].id=999;assert.throws(()=>validateFrame(f));
   f.rounded_fills[0].id=1;f.rounded_fills[0].radius=17;assert.throws(()=>validateFrame(f));
   f.rounded_fills[0].radius=NaN;assert.throws(()=>validateFrame(f));
+});
+
+test('text uses its pinned, interactive upstream typography pair', async () => {
+  const example = selectExample(catalog,'text');
+  assert.equal(example.source,'crates/gpui/examples/text.rs');
+  assert.equal(example.candidate_source,'web/moonbit/text/text.mbt');
+  assert.deepEqual([example.width,example.height,example.interactive],[920,720,true]);
+  assert.match(example.source_blob,/^[0-9a-f]{40}$/);
+  assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=text');
+  assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=text');
+  const source=await readFile(new URL('../../web/moonbit/text/text.mbt',import.meta.url),'utf8');
+  for(const fragment of ['text_characters()', 'text_scales()', 'request_layout','prepaint','paint_snapshot','text_frame']) {
+    assert(source.includes(fragment),'Missing typography component: '+fragment);
+  }
+});
+test('scroll extension clips only body items and rejects out-of-range geometry', () => {
+  const f=frame();
+  f.snapshot.items.push({id:100,kind:'quad',bounds:{x:0,y:60,width:12,height:16},
+    color:{red:0,green:0,blue:0,alpha:255}});
+  f.scroll={first_id:100,top:52,height:668,y:50,max:100};
+  const calls=[];
+  const ctx=new Proxy({}, {get:(_obj,key)=>(...args)=>calls.push([key,...args])});
+  drawFrame(ctx,f,{width:920,height:720},1);
+  assert.deepEqual(calls.filter(c=>c[0]==='translate'),[['translate',0,-50]]);
+  assert(calls.some(c=>JSON.stringify(c)==='["rect",0,52,920,668]'));
+  f.scroll.y=101;
+  assert.throws(()=>validateFrame(f),/scroll/);
 });
