@@ -14,6 +14,7 @@ from scripts.build_test_catalog import (
     BROWSER_RESULT_PATH,
     BROWSER_THUMBNAIL_ASSET,
     BROWSER_THUMBNAIL_SOURCE,
+    TEXT_CAPTURE_MANIFEST,
     ROOT,
     browser_lab_comparison_url,
     build_catalog,
@@ -160,7 +161,7 @@ class TestCatalogData(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate browser example IDs"):
             validate_browser_inventory(load_json(BROWSER_RESULT_PATH), inventory)
 
-    def test_new_ports_do_not_inherit_retained_result_or_preview(self):
+    def test_new_ports_keep_own_previews_without_inheriting_hello_world_result(self):
         examples = {example["id"]: example for example in self.data["browser_examples"]}
         hello = examples["hello_world"]
         for example_id in ("text_layout", "text_wrapper"):
@@ -181,8 +182,14 @@ class TestCatalogData(unittest.TestCase):
                 self.assertEqual(new_port["status"], "unverified")
                 self.assertEqual(new_port["execution"], "unverified")
                 self.assertFalse(new_port["evidence_available"])
-                for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+                for key in ("result_url", "result_date", "changed_pixels", "total_pixels"):
                     self.assertIsNone(new_port[key], key)
+                self.assertEqual((new_port["thumbnail"]["width"], new_port["thumbnail"]["height"]), (800, 600))
+                self.assertNotEqual(new_port["thumbnail"]["sha256"], hello["thumbnail"]["sha256"])
+                self.assertIn(example_id, new_port["thumbnail"]["url"])
+                self.assertEqual(new_port["thumbnail"]["capture_revision"], "422f94adda8be205248f370a335785a9d5940118")
+                self.assertIn("422f94adda8be205248f370a335785a9d5940118", new_port["thumbnail"]["capture_source_url"])
+                self.assertIn("38848834623", new_port["thumbnail"]["capture_run_url"])
         self.assertTrue(hello["evidence_available"])
         self.assertEqual(hello["status"], "difference")
         self.assertEqual(hello["execution"], "passed")
@@ -195,6 +202,7 @@ class TestCatalogData(unittest.TestCase):
     def test_build_capability_is_not_per_example_measurement(self):
         # A build containing all three ports cannot give either new port the
         # legacy file's single hello_world comparison, for equal or different.
+        expected_previews = {item["id"]: item["thumbnail"] for item in build_catalog("test")["browser_examples"]}
         for pixel_result in ("equal", "different"):
             browser = deepcopy(load_json(BROWSER_RESULT_PATH))
             browser["build"]["implemented"].extend(("text_layout", "text_wrapper"))
@@ -210,8 +218,9 @@ class TestCatalogData(unittest.TestCase):
                     self.assertEqual(new_port["status"], "unverified")
                     self.assertEqual(new_port["execution"], "unverified")
                     self.assertFalse(new_port["evidence_available"])
-                    for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+                    for key in ("result_url", "result_date", "changed_pixels", "total_pixels"):
                         self.assertIsNone(new_port[key], key)
+                    self.assertEqual(new_port["thumbnail"], expected_previews[example_id])
 
     def test_browser_ports_preserve_the_full_143_row_coverage_catalog(self):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
@@ -263,6 +272,33 @@ class TestCatalogData(unittest.TestCase):
         with patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
             with self.assertRaisesRegex(ValueError, "thumbnail does not match"):
                 build_catalog("test")
+
+    def test_text_previews_match_original_captures_and_report(self):
+        manifest = load_json(TEXT_CAPTURE_MANIFEST)
+        report_bytes = (ROOT / manifest["result_path"]).read_bytes()
+        self.assertEqual(hashlib.sha256(report_bytes).hexdigest(), manifest["result_sha256"])
+        self.assertEqual(json.loads(report_bytes)["build"]["lab_revision"], manifest["source_run"]["build_revision"])
+        for entry in manifest["examples"]:
+            candidate = (ROOT / entry["moonbit"]["path"]).read_bytes()
+            self.assertEqual(candidate, (ROOT / entry["asset_path"]).read_bytes())
+            for side in ("moonbit", "rust"):
+                self.assertEqual(hashlib.sha256((ROOT / entry[side]["path"]).read_bytes()).hexdigest(), entry[side]["sha256"])
+        self.assertEqual({entry["id"] for entry in manifest["examples"]}, {"text_layout", "text_wrapper"})
+
+    def test_text_preview_provenance_and_digest_mismatches_fail_closed(self):
+        for problem in ("report", "image", "dimensions", "build", "asset", "duplicate"):
+            manifest = deepcopy(load_json(TEXT_CAPTURE_MANIFEST))
+            if problem == "report": manifest["result_sha256"] = "wrong"
+            elif problem == "image": manifest["examples"][0]["rust"]["sha256"] = "wrong"
+            elif problem == "dimensions": manifest["examples"][0]["moonbit"]["width"] = 1
+            elif problem == "build": manifest["source_run"]["build_revision"] = "wrong"
+            elif problem == "asset": manifest["examples"][0]["asset_path"] = BROWSER_THUMBNAIL_ASSET
+            else: manifest["examples"].append(deepcopy(manifest["examples"][0]))
+            real_load = load_json
+            def patched_load(path):
+                return manifest if path == TEXT_CAPTURE_MANIFEST else real_load(path)
+            with self.subTest(problem=problem), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
+                with self.assertRaises(ValueError): build_catalog("test")
 
     def test_gallery_preserves_full_coverage_catalog_and_labels_missing_previews(self):
         html = (ROOT / "catalog/index.html").read_text()
