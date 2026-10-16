@@ -48,24 +48,7 @@ jobs:
           git -C gpui-reference checkout "$(python3 -c 'import json;print(json.load(open("pins.json"))["moonbit"]["revision"])')"
           git -C zed-source status --porcelain
           git -C gpui-reference status --porcelain
-      - name: Start bounded owned X11 display and WM
-        env:
-          DISPLAY: :99
-          LIBGL_ALWAYS_SOFTWARE: "1"
-          GALLIUM_DRIVER: llvmpipe
-        run: |
-          mkdir -p _build/native-x11-system
-          Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset > _build/native-x11-system/xvfb.log 2>&1 &
-          echo "$!" > _build/native-x11-system/xvfb.pid
-          openbox > _build/native-x11-system/openbox.log 2>&1 &
-          echo "$!" > _build/native-x11-system/openbox.pid
-          for i in $(seq 1 40); do
-            if wmctrl -m >/dev/null 2>&1; then exit 0; fi
-            sleep .25
-          done
-          echo "No functioning X11 window manager" >&2
-          exit 1
-      - name: Attempt actual concurrent gpui.rs/X11 and gpui.mbt/Wayland GPU frames
+      - name: Start owned Xvfb/Openbox and attempt actual concurrent GPU frames
         id: live
         continue-on-error: true
         env:
@@ -74,6 +57,24 @@ jobs:
           GALLIUM_DRIVER: llvmpipe
           RUST_BACKTRACE: "1"
         run: |
+          mkdir -p _build/native-x11-system
+          Xvfb :99 -screen 0 1024x768x24 +extension GLX +render -noreset > _build/native-x11-system/xvfb.log 2>&1 &
+          xvfb_pid=$!
+          echo "$xvfb_pid" > _build/native-x11-system/xvfb.pid
+          trap 'kill "$openbox_pid" "$xvfb_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; then break; fi
+            sleep .25
+          done
+          xdpyinfo -display "$DISPLAY" >/dev/null
+          openbox > _build/native-x11-system/openbox.log 2>&1 &
+          openbox_pid=$!
+          echo "$openbox_pid" > _build/native-x11-system/openbox.pid
+          for i in $(seq 1 60); do
+            if wmctrl -m >/dev/null 2>&1; then break; fi
+            sleep .25
+          done
+          wmctrl -m
           set +e
           python3 native_lab/launcher.py \
             --upstream-source "$GITHUB_WORKSPACE/zed-source" \
