@@ -92,10 +92,19 @@
       "title": "Dynamic fonts",
       "rust_route": "dynamic-fonts",
       "source": "crates/gpui_web/examples/hello_web/dynamic_fonts.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
-        "Font loading"
-      ]
+        "Devanagari glyph fallback",
+        "One-shot runtime font download",
+        "FontFace registration",
+        "Loading and failure states"
+      ],
+      "width": 900,
+      "height": 500,
+      "interactive": false,
+      "candidate_source": "web/moonbit/dynamic_fonts/dynamic_fonts.mbt",
+      "source_blob": "33d4d6cc1721b24f86241ae53a417313c4ae0ed3",
+      "implementation_note": "MoonBit gpui.mbt Element -> layout -> prepaint -> SceneSnapshot. Missing-glyph detection and remote FontFace registration are explicit browser-host approximations; Cosmic Text shaping and pixel equivalence remain unverified."
     },
     {
       "id": "hello_web",

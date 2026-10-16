@@ -308,3 +308,34 @@ uses explicitly synthetic runtimes to exercise common-clock plumbing,
 alternating order, rapid reload, missing ports, failures, timeout and rejected
 stale/spoofed messages. These tests establish instrumentation behavior only;
 they never supply conformance results or Rust/MoonBit speed measurements.
+
+## Implemented port: \`dynamic_fonts\`
+
+The fifth counterpart follows unchanged upstream
+\`crates/gpui_web/examples/hello_web/dynamic_fonts.rs\` (source blob
+\`33d4d6cc1721b24f86241ae53a417313c4ae0ed3\`), with its 900×500
+viewport, dark background, IBM Plex Sans, Devanagari and emoji samples,
+download/status messaging, and original Google Fonts raw-TTF URL.
+
+\`moonbit/dynamic_fonts/dynamic_fonts.mbt\` uses gpui.mbt Element →
+request_layout → prepaint → SceneSnapshot to position seven text rows.
+Browser-measured text widths are inputs; positioning and SceneSnapshot
+emission are MoonBit outputs. The initial font is the bundled upstream
+IBM Plex Sans. When the known example text contains Devanagari, the host
+makes **one** request to the exact upstream TTF URL, validates the response,
+registers the returned bytes with FontFace, and redraws after completion.
+Network failure, HTTP errors, empty data and font-decoding errors are shown
+in the scene; no retries are made until a fresh page load. The remote
+font is **not** bundled. Source attribution and the upstream SIL OFL note
+remain visible.
+
+**Evidence boundary:** the browser does not expose GPUI's
+\`on_missing_glyphs\` callback or Cosmic Text's \`add_fonts\`. A known Devanagari
+range probe and the browser's FontFace/Canvas fallback are explicit host
+extensions. Their triggering and shaping behavior are not equivalent to
+the native GPUI text system. Loaded status confirms FontFace registration,
+**not** Devanagari glyph coverage or pixel parity. Remote CDN reachability,
+font rasterization, fallback order, emoji shaping, and macOS/native
+equivalence remain unverified. The paired browser test exercises a
+deterministic error route and a mocked FontFace-success route separately;
+neither is presented as real CDN/shaping conformance.
