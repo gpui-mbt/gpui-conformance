@@ -73,6 +73,8 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
         for font_name in ["IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf"]:
             shutil.copy2(font_dir / font_name, staging / "moonbit")
         shutil.copy2(font_dir / "license.txt", staging / "moonbit/font-license.txt")
+        shutil.copy2(upstream / "assets/fonts/lilex/Lilex-Regular.ttf", staging / "moonbit/Lilex-Regular.ttf")
+        shutil.copy2(upstream / "assets/fonts/lilex/OFL.txt", staging / "moonbit/Lilex-license.txt")
         # Record the measured compiler, not an invented reproducibility claim.
         manifest = {"upstream": catalog["upstream"], "moonbit": catalog["moonbit"],
                     "lab_revision": run(["git", "rev-parse", "HEAD"], WEB.parent, True),

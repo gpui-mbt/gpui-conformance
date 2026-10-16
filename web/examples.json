@@ -31,11 +31,17 @@
       "title": "Styled text",
       "rust_route": "text",
       "source": "crates/gpui/examples/text.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Typography",
         "Font switching"
-      ]
+      ],
+      "candidate_source": "web/moonbit/text/text.mbt",
+      "width": 920,
+      "height": 720,
+      "interactive": true,
+      "source_blob": "7fa2a157601277cb3c0d58de045f1d5a6f21ab2e",
+      "implementation_note": "Upstream typography with the original character grid, CJK/emoji and type-scale specimens; GPUI layout/SceneSnapshot with browser-host font fallback, scroll and pointer extensions. Interactive/browser parity is unverified."
     },
     {
       "id": "text_layout",
