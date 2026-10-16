@@ -97,9 +97,10 @@ not claim general native intrinsic-sizing equivalence.
 Shaping, ligatures, bidi, font fallback, kerning, exact Unicode line breaking,
 rasterization and native parity remain unverified.
 
-The catalog labels text_wrapper as implemented and unverified. It has no
-retained catalog result, measurement date or thumbnail; the hello_world
-1,532-pixel difference is never attached to either new text example.
+The catalog labels text_wrapper as implemented and unverified. It includes
+retained actual candidate/Rust screenshots with source-run provenance, without
+inferring a pixel-conformance result. The hello_world 1,532-pixel difference is
+never attached to either new text example.
 
 ## Implemented port: `hello_web` (Prime sieve)
 
