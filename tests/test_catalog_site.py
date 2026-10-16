@@ -69,6 +69,17 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(browser["changed_percent"], 0.6128)
         self.assertEqual(browser["native_conformance"], "unverified")
 
+    def test_catalog_ci_isolates_prs_and_serializes_deployments(self):
+        workflow = (ROOT / ".github/workflows/catalog-pages.yml").read_text()
+        self.assertIn(
+            "group: ${{ github.event_name == 'pull_request' && "
+            "format('catalog-pr-{0}', github.event.pull_request.number) || 'catalog-pages' }}",
+            workflow,
+        )
+        self.assertIn("cancel-in-progress: false", workflow)
+        self.assertIn("if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' "
+                      "&& github.ref == 'refs/heads/main')", workflow)
+
     def test_example_catalog_does_not_fabricate_interactive_routes(self):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
