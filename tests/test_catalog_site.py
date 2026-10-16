@@ -66,8 +66,8 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 5)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 1)
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 4)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 2)
         self.assertFalse(any(example["interactive"] for example in examples if example["implemented"]))
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
@@ -79,13 +79,18 @@ class TestCatalogData(unittest.TestCase):
         hello_world = next(example for example in examples if example["id"] == "hello_world")
         self.assertEqual(hello_world["comparison_url"], f"{base_url}/?example=hello_world")
         self.assertFalse(hello_world["interactive"])
-        text_layout = next(example for example in examples if example["id"] == "text_layout")
-        self.assertEqual(text_layout["comparison_url"], f"{base_url}/?example=text_layout")
-        self.assertFalse(text_layout["interactive"])
+        for example_id in ("text_layout", "text_wrapper"):
+            example = next(item for item in examples if item["id"] == example_id)
+            with self.subTest(example=example_id):
+                self.assertEqual(example["comparison_url"], f"{base_url}/?example={example_id}")
+                self.assertFalse(example["interactive"])
+                self.assertEqual((example["width"], example["height"]), (800, 600))
+                self.assertEqual(example["status"], "unverified")
+                self.assertFalse(example["evidence_available"])
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text_layout"}
+            if example["id"] not in {"hello_world", "text_layout", "text_wrapper"}
         ))
 
     def test_browser_lab_url_is_optional_and_fails_closed_for_unsafe_values(self):
@@ -140,7 +145,8 @@ class TestCatalogData(unittest.TestCase):
         browser = load_json(BROWSER_RESULT_PATH)
         inventory = deepcopy(load_json("web/examples.json"))
         self.assertEqual(browser["build"]["implemented"], ["hello_world"])
-        next(item for item in inventory["examples"] if item["id"] == "text_layout")["moonbit"] = "implemented"
+        for example_id in ("text_layout", "text_wrapper"):
+            next(item for item in inventory["examples"] if item["id"] == example_id)["moonbit"] = "implemented"
         validate_browser_inventory(browser, inventory)
 
     def test_duplicate_browser_ids_are_rejected(self):
@@ -149,44 +155,65 @@ class TestCatalogData(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate browser example IDs"):
             validate_browser_inventory(load_json(BROWSER_RESULT_PATH), inventory)
 
-    def test_new_port_does_not_inherit_retained_result_or_preview(self):
+    def test_new_ports_do_not_inherit_retained_result_or_preview(self):
         examples = {example["id"]: example for example in self.data["browser_examples"]}
         hello = examples["hello_world"]
-        new_port = examples["text_layout"]
-        self.assertTrue(new_port["implemented"])
-        self.assertEqual(new_port["implementation"]["status"], "implemented")
-        self.assertIn("/web/moonbit/text_layout/text_layout.mbt", new_port["implementation"]["source_url"])
-        self.assertEqual(new_port["status"], "unverified")
-        self.assertEqual(new_port["execution"], "unverified")
-        self.assertFalse(new_port["evidence_available"])
-        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
-            self.assertIsNone(new_port[key], key)
+        for example_id in ("text_layout", "text_wrapper"):
+            new_port = examples[example_id]
+            with self.subTest(example=example_id):
+                self.assertTrue(new_port["implemented"])
+                self.assertEqual(new_port["implementation"]["status"], "implemented")
+                self.assertEqual(new_port["implementation"]["source_url"], (
+                    "https://github.com/gpui-mbt/gpui-conformance/blob/catalog-test-revision/"
+                    f"web/moonbit/{example_id}/{example_id}.mbt"
+                ))
+                self.assertEqual(new_port["source_url"], (
+                    "https://github.com/zed-industries/zed/blob/"
+                    "5a5fbe79917971a4d52a96b6ddb04da198a5012e/"
+                    f"crates/gpui/examples/{example_id}.rs"
+                ))
+                self.assertEqual((new_port["width"], new_port["height"], new_port["interactive"]), (800, 600, False))
+                self.assertEqual(new_port["status"], "unverified")
+                self.assertEqual(new_port["execution"], "unverified")
+                self.assertFalse(new_port["evidence_available"])
+                for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+                    self.assertIsNone(new_port[key], key)
         self.assertTrue(hello["evidence_available"])
         self.assertEqual(hello["status"], "difference")
         self.assertEqual(hello["execution"], "passed")
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 2)
+        self.assertEqual(self.data["browser"]["implemented_count"], 3)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
-        # Even a build that contains two ports cannot give the second port the
-        # legacy file's single hello_world comparison, for either equal or different.
+        # A build containing all three ports cannot give either new port the
+        # legacy file's single hello_world comparison, for equal or different.
         for pixel_result in ("equal", "different"):
             browser = deepcopy(load_json(BROWSER_RESULT_PATH))
-            browser["build"]["implemented"].append("text_layout")
+            browser["build"]["implemented"].extend(("text_layout", "text_wrapper"))
             browser["raster_comparison"]["status"] = pixel_result
             real_load = load_json
             def patched_load(path):
                 return browser if path == BROWSER_RESULT_PATH else real_load(path)
             with self.subTest(pixel_result=pixel_result), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
                 examples = build_catalog("test")["browser_examples"]
-            new_port = next(item for item in examples if item["id"] == "text_layout")
-            self.assertEqual(new_port["status"], "unverified")
-            self.assertIsNone(new_port["result_url"])
-            self.assertIsNone(new_port["thumbnail"])
-            self.assertIsNone(new_port["changed_pixels"])
+            for example_id in ("text_layout", "text_wrapper"):
+                new_port = next(item for item in examples if item["id"] == example_id)
+                with self.subTest(example=example_id):
+                    self.assertEqual(new_port["status"], "unverified")
+                    self.assertEqual(new_port["execution"], "unverified")
+                    self.assertFalse(new_port["evidence_available"])
+                    for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+                        self.assertIsNone(new_port[key], key)
+
+    def test_browser_ports_preserve_the_full_143_row_coverage_catalog(self):
+        self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
+        self.assertEqual(
+            {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
+            {"hello_world", "text_layout", "text_wrapper"},
+        )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):
         for example in self.data["browser_examples"]:

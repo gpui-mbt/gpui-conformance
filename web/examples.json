@@ -62,12 +62,18 @@
       "title": "Text wrapping",
       "rust_route": "text-wrapper",
       "source": "crates/gpui/examples/text_wrapper.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Wrapping",
         "Ellipsis",
         "Line clamp"
-      ]
+      ],
+      "candidate_source": "web/moonbit/text_wrapper/text_wrapper.mbt",
+      "width": 800,
+      "height": 600,
+      "interactive": false,
+      "source_blob": "51e58fc7e394faa1954d4f8837946ef797406804",
+      "implementation_note": "MoonBit wrapping and truncation with gpui.mbt layout and SceneSnapshot; browser font metrics and grapheme segmentation are explicit host inputs. Shaping and conformance remain unverified."
     },
     {
       "id": "input",

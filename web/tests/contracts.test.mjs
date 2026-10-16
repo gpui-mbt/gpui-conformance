@@ -7,7 +7,7 @@ const catalog = JSON.parse(await readFile(new URL('../examples.json', import.met
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
   assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text_layout']);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text_layout', 'text_wrapper']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -78,6 +78,26 @@ test('text_layout routes the real second pair and retains its upstream viewport'
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
   assert.equal(rustExampleUrl('https://example.test/lab/', example), 'https://example.test/lab/rust/?example=text_layout');
   assert.match(example.source_blob, /^[0-9a-f]{40}$/);
+});
+
+test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
+  const example = selectExample(catalog, 'text_wrapper');
+  assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
+  assert.equal(catalog.moonbit.revision, '01818aa4e96fc21d1676f747a6b23d91445648a1');
+  assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
+  assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
+  assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
+  assert.match(example.source_blob, /^[0-9a-f]{40}$/);
+  assert.equal(rustExampleUrl('https://example.test/gpui-conformance/', example), 'https://example.test/gpui-conformance/rust/?example=text_wrapper');
+  assert.equal(moonbitExampleUrl('https://example.test/gpui-conformance/', example), 'https://example.test/gpui-conformance/moonbit/?example=text_wrapper');
+  // The link points to actual candidate source, not a substitute or generated frame.
+  const source = await readFile(new URL('../../' + example.candidate_source, import.meta.url), 'utf8');
+  assert.match(source, /request_layout/);
+  assert.match(source, /prepaint/);
+  assert.match(source, /snapshot/);
+  const app = await readFile(new URL('../app.js', import.meta.url), 'utf8');
+  assert(app.includes('catalog.upstream.revision}/${example.source}'));
+  assert(app.includes('build.lab_revision}/${example.candidate_source}'));
 });
 
 test('text styling and clipping are validated before drawing', () => {

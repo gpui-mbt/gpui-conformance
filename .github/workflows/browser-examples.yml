@@ -72,7 +72,7 @@ jobs:
             ~/.cargo/git
             _build/rust-target
           key: browser-wasm-${{ runner.os }}-20261014-${{ hashFiles('web/rust/Cargo.lock', 'web/examples.json') }}
-      - name: Compile unchanged upstream GPUI hello_world to WASM
+      - name: Compile unchanged implemented upstream GPUI examples to WASM
         env:
           CARGO_BUILD_JOBS: '2'
         run: |
