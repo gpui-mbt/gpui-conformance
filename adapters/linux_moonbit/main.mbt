@@ -104,7 +104,9 @@ fn main {
   let mut dirty = true
   let mut first_frame = false
 
+  lab_emit("starting", width, height, scale)
   let host = lab_required(@native.Host::start())
+  lab_emit("host_started", width, height, scale)
   let window = lab_required(
     host.create_window(width.to_int(), height.to_int(), "GPUI native lab — MoonBit"),
   )
