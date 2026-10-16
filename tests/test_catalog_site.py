@@ -12,6 +12,9 @@ from unittest.mock import patch
 from scripts.build_test_catalog import (
     BROWSER_LAB_BASE_URL_ENV,
     BROWSER_RESULT_PATH,
+    TEXT_RESULT_PATH,
+    PRIME_RESULT_PATH,
+    RETAINED_BROWSER_PINS,
     BROWSER_THUMBNAIL_ASSET,
     BROWSER_THUMBNAIL_SOURCE,
     TEXT_CAPTURE_MANIFEST,
@@ -82,11 +85,11 @@ class TestCatalogData(unittest.TestCase):
 
     def test_example_catalog_does_not_fabricate_interactive_routes(self):
         examples = self.data["browser_examples"]
-        self.assertEqual(len(examples), 8)
+        self.assertEqual(len(examples), 9)
         self.assertEqual(examples[0]["status"], "difference")
         self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 0)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 7)
-        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web"])
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 8)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
@@ -108,7 +111,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree"}
+            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable"}
         ))
 
     def test_typography_is_interactive_without_inheriting_hello_world_evidence(self):
@@ -139,6 +142,21 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(port["execution"], "unverified")
         self.assertFalse(port["evidence_available"])
         for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+            self.assertIsNone(port[key], key)
+
+    def test_scrollable_is_interactive_without_borrowed_evidence(self):
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            port = next(e for e in build_catalog("catalog-test-revision")["browser_examples"] if e["id"] == "scrollable")
+        self.assertTrue(port["implemented"])
+        self.assertEqual((port["width"], port["height"], port["interactive"]), (500, 500, True))
+        self.assertEqual(port["comparison_url"], f"{base}/?example=scrollable")
+        self.assertEqual(port["source_path"], "crates/gpui/examples/scrollable.rs")
+        self.assertTrue(port["implementation"]["source_url"].endswith("/web/moonbit/scrollable/scrollable.mbt"))
+        self.assertEqual(port["status"], "unverified")
+        self.assertEqual(port["execution"], "unverified")
+        self.assertFalse(port["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
             self.assertIsNone(port[key], key)
 
     def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
@@ -188,7 +206,7 @@ class TestCatalogData(unittest.TestCase):
             with self.assertRaises(ValueError):
                 build_catalog("catalog-test-revision")
 
-    def test_browser_inventory_must_match_retained_pins_and_keep_measured_ports(self):
+    def test_browser_inventory_pins_must_be_valid_and_keep_measured_ports(self):
         browser = load_json(BROWSER_RESULT_PATH)
         inventory = load_json("web/examples.json")
         validate_browser_inventory(browser, inventory)
@@ -205,6 +223,91 @@ class TestCatalogData(unittest.TestCase):
         changed_implementation["examples"][0]["moonbit"] = "not_implemented"
         with self.assertRaisesRegex(ValueError, "implemented browser examples"):
             validate_browser_inventory(browser, changed_implementation)
+
+    def test_current_inventory_and_retained_evidence_have_separate_pin_provenance(self):
+        inventory = load_json("web/examples.json")
+        browser = self.data["browser"]
+        self.assertEqual([pin["revision"] for pin in browser["pins"]],
+                         [RETAINED_BROWSER_PINS[kind]["revision"] for kind in ("upstream", "moonbit")])
+        self.assertEqual([pin["revision"] for pin in browser["current_pins"]],
+                         [inventory[kind]["revision"] for kind in ("upstream", "moonbit")])
+        self.assertFalse(browser["pins_match_current_inventory"])
+        self.assertEqual(browser["current_status"], "unverified")
+        self.assertTrue(browser["inventory_url"].endswith("/web/examples.json"))
+        previews = [example["thumbnail"] for example in self.data["browser_examples"] if example["thumbnail"]]
+        self.assertEqual(len(previews), 4)
+        for preview in previews:
+            self.assertEqual(preview["pins"], browser["pins"])
+            self.assertFalse(preview["pins_match_current_inventory"])
+            for pin in preview["pins"]:
+                self.assertTrue(pin["url"].endswith(f'/commit/{pin["revision"]}'))
+        for example in self.data["browser_examples"]:
+            if example["thumbnail"] and example["id"] != "hello_world":
+                self.assertIn("/web/evidence/", example["thumbnail"]["capture_report_url"])
+                self.assertIn(example["thumbnail"]["capture_revision"], example["thumbnail"]["capture_source_url"])
+
+    def test_valid_new_inventory_pins_do_not_rewrite_any_retained_report(self):
+        inventory = deepcopy(load_json("web/examples.json"))
+        inventory["upstream"]["revision"] = "a" * 40
+        inventory["moonbit"]["revision"] = "b" * 40
+        real_load = load_json
+        for path in (BROWSER_RESULT_PATH, TEXT_RESULT_PATH, PRIME_RESULT_PATH):
+            validate_browser_inventory(load_json(path), inventory, path)
+        with patch("scripts.build_test_catalog.load_json", side_effect=lambda path: inventory if path == "web/examples.json" else real_load(path)):
+            data = build_catalog("new-inventory")
+        self.assertEqual(data["browser"]["pins"], self.data["browser"]["pins"])
+        self.assertEqual(data["browser"]["changed_pixels"], 1532)
+        self.assertTrue(all(example["source_revision"] == "a" * 40 for example in data["browser_examples"]))
+        self.assertTrue(all("/" + "a" * 40 + "/" in example["source_url"] for example in data["browser_examples"]))
+
+    def test_historical_pin_changes_fail_closed_for_all_retained_reports(self):
+        real_load = load_json
+        for result_path in (BROWSER_RESULT_PATH, TEXT_RESULT_PATH, PRIME_RESULT_PATH):
+            for kind in ("upstream", "moonbit"):
+                for field, value in (("revision", "c" * 40), ("repository", "other/project")):
+                    changed = deepcopy(load_json(result_path))
+                    # A well-formed new pin must not relabel an older image.
+                    changed["build"][kind][field] = value
+                    with self.subTest(path=result_path, kind=kind, field=field), patch(
+                        "scripts.build_test_catalog.load_json",
+                        side_effect=lambda path: changed if path == result_path else real_load(path),
+                    ):
+                        with self.assertRaisesRegex(ValueError, f"retained browser {kind} pin"):
+                            build_catalog("test")
+
+    def test_matching_dependency_pins_do_not_verify_current_adapter_sources(self):
+        inventory = deepcopy(load_json("web/examples.json"))
+        inventory["moonbit"]["revision"] = RETAINED_BROWSER_PINS["moonbit"]["revision"]
+        real_load = load_json
+        with patch("scripts.build_test_catalog.load_json", side_effect=lambda path: inventory if path == "web/examples.json" else real_load(path)):
+            data = build_catalog("new-adapter-sources")
+        self.assertTrue(data["browser"]["pins_match_current_inventory"])
+        self.assertEqual(data["browser"]["current_status"], "unverified")
+        self.assertEqual(data["browser"]["pins"], self.data["browser"]["pins"])
+        self.assertEqual(sum(example["status"] == "unverified" for example in data["browser_examples"]), 8)
+
+    def test_each_retained_report_requires_its_own_measured_port(self):
+        inventory = load_json("web/examples.json")
+        for path, example_id in ((BROWSER_RESULT_PATH, "hello_world"),
+                                 (TEXT_RESULT_PATH, "text_layout"), (PRIME_RESULT_PATH, "hello_web")):
+            changed = deepcopy(load_json(path))
+            changed["build"]["implemented"].remove(example_id)
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, "measured implemented examples"):
+                validate_browser_inventory(changed, inventory, path)
+        with self.assertRaisesRegex(ValueError, "unknown retained browser report"):
+            validate_browser_inventory(load_json(BROWSER_RESULT_PATH), inventory, "unregistered/result.json")
+
+    def test_retained_browser_reports_and_manifests_keep_their_original_bytes(self):
+        digests = {
+            BROWSER_RESULT_PATH: "7a5d1362a79ddb28b559a7a21585dcf49f28ca9024b00a8c6604eb7397793a89",
+            TEXT_RESULT_PATH: "5aec5346d546eb449f13090a4e30e6c29ac852f848c4ce96c6c78943432210ab",
+            TEXT_CAPTURE_MANIFEST: "a8d589193f819812bf25185dd8603e0fa5911b590a225fc7015f2abde756495b",
+            PRIME_RESULT_PATH: "afb308ff25dd3f417bf76d05acd7b1e9a0a11ff8c6a7c885fbaf3e5b8575b726",
+            PRIME_CAPTURE_MANIFEST: "7b2b92be0c5ee957416b19fe7a4c8a3a20885bce8749cf7b7b469bb13e452755",
+        }
+        for path, digest in digests.items():
+            with self.subTest(path=path):
+                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
 
     def test_declared_implementations_may_exceed_retained_build(self):
         browser = load_json(BROWSER_RESULT_PATH)
@@ -255,7 +358,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 8)
+        self.assertEqual(self.data["browser"]["implemented_count"], 9)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -281,11 +384,11 @@ class TestCatalogData(unittest.TestCase):
                         self.assertIsNone(new_port[key], key)
                     self.assertEqual(new_port["thumbnail"], expected_previews[example_id])
 
-    def test_browser_ports_preserve_the_full_144_row_coverage_catalog(self):
-        self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 144)
+    def test_browser_ports_preserve_the_full_145_row_coverage_catalog(self):
+        self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 145)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree"},
+            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):

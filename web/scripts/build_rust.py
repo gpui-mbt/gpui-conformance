@@ -31,10 +31,12 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    if "tree" in examples:
-        path = os.path.relpath(source / "crates/gpui/examples/tree.rs", gallery)
-        manifest += f'\n[[bin]]\nname = "tree"\npath = "{path}"\n'
-        additional_bins.append({"name": "tree", "source": "crates/gpui/examples/tree.rs"})
+    for name in ["tree", "scrollable"]:
+        if name in examples:
+            relative = f"crates/gpui/examples/{name}.rs"
+            path = os.path.relpath(source / relative, gallery)
+            manifest += f'\n[[bin]]\nname = "{name}"\npath = "{path}"\n'
+            additional_bins.append({"name": name, "source": relative})
     (gallery / "Cargo.toml").write_text(manifest)
     shutil.copytree(original / ".cargo", gallery / ".cargo")
     shutil.copy2(WEB / "rust/Cargo.lock", gallery / "Cargo.lock")
@@ -45,9 +47,29 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
             "upstream_files_modified": False}
 
 
-def build(upstream: Path, site: Path, target: Path) -> None:
+def extra_oracle_records(names: list[str]) -> list[dict]:
+    """Opt-in unchanged Rust baselines never imply a candidate implementation."""
+    records = []
+    for name in names:
+        if name != "scrollable" or name in [record["id"] for record in records]:
+            raise ValueError(f"unknown or duplicate extra oracle: {name}")
+        record = json.loads((WEB / "oracles" / f"{name}.json").read_text())
+        if (record["id"] != name or record["source"] != f"crates/gpui/examples/{name}.rs"
+                or record["status"] != "rust_oracle_only" or record["candidate"] != "not_implemented"):
+            raise ValueError(f"invalid source identity for extra oracle: {name}")
+        records.append(record)
+    return records
+
+
+def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | None = None) -> None:
     catalog = json.loads((WEB / "examples.json").read_text())
     check_source(upstream, catalog["upstream"]["revision"])
+    oracle_records = extra_oracle_records(extra_examples or [])
+    for record in oracle_records:
+        if record["upstream_revision"] != catalog["upstream"]["revision"]:
+            raise ValueError(f"extra oracle revision mismatch: {record['id']}")
+        if run(["git", "rev-parse", f"HEAD:{record['source']}"], upstream, True) != record["source_blob"]:
+            raise ValueError(f"extra oracle source blob mismatch: {record['id']}")
     manifest_path = site / "build-manifest.json"
     manifest = json.loads(manifest_path.read_text())
     if manifest["upstream"] != catalog["upstream"] or (site / "rust").exists():
@@ -60,6 +82,10 @@ def build(upstream: Path, site: Path, target: Path) -> None:
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(source, filter="data")
         examples = [example["id"] for example in catalog["examples"] if example.get("moonbit") == "implemented"]
+        for record in oracle_records:
+            if record["id"] in examples:
+                raise ValueError(f"extra oracle already has an implemented catalog entry: {record['id']}")
+            examples.append(record["id"])
         gallery = Path(work) / "gallery"
         packaging = prepare_gallery(source, gallery, examples)
         command = ["cargo", f"+{TOOLCHAIN}", "build", "--locked", "--release",
@@ -81,6 +107,7 @@ def build(upstream: Path, site: Path, target: Path) -> None:
         check_source(upstream, catalog["upstream"]["revision"])
         manifest["rust_bundled"] = True
         manifest["rust_implemented"] = examples
+        manifest["rust_oracle_only"] = oracle_records
         manifest["rust"] = {
             "toolchain": run(["rustc", f"+{TOOLCHAIN}", "--version"], gallery, True),
             "bindings": run(["wasm-bindgen", "--version"], gallery, True),
@@ -101,8 +128,10 @@ if __name__ == "__main__":
     parser.add_argument("--upstream-source", required=True, type=Path)
     parser.add_argument("--site", type=Path, default=Path("_build/browser-lab"))
     parser.add_argument("--target-dir", type=Path, default=Path("_build/rust-target"))
+    parser.add_argument("--extra-example", action="append", choices=["scrollable"], default=[],
+                        help="also build an unchanged Rust-only oracle without claiming a MoonBit counterpart")
     args = parser.parse_args()
     try:
-        build(args.upstream_source.resolve(), args.site.resolve(), args.target_dir.resolve())
+        build(args.upstream_source.resolve(), args.site.resolve(), args.target_dir.resolve(), args.extra_example)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"upstream WASM build failed: {error}\n")

@@ -84,6 +84,7 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+          python3 -m pip install Pillow==12.0.0
       - name: Install OCR for real upstream Prime sieve result verification
         run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
       - name: Execute both compiled runtimes on one isolated origin
@@ -92,9 +93,11 @@ jobs:
         run: |
           node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
           node web/tests/load-timing-browser.mjs
+          node web/tests/scrollable-oracle-browser.mjs _build/browser-lab
+          node web/tests/scrollable-oracle-browser.mjs _build/browser-lab --candidate
+          node web/tests/compare-scrollable-results.mjs _build/browser-example-evidence
       - name: Measure screenshot differences without claiming native parity
         run: |
-          python3 -m pip install Pillow==12.0.0
           python3 web/scripts/compare_screenshots.py _build/browser-example-evidence
           python3 web/scripts/compare_text_layout.py _build/browser-example-evidence
           python3 web/scripts/analyze_screenshots.py _build/browser-example-evidence --font _build/browser-lab/moonbit/IBMPlexSans-Regular.ttf --baseline web/evidence/20261015

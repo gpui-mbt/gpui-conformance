@@ -1,0 +1,19 @@
+{
+  "id": "scrollable",
+  "source": "crates/gpui/examples/scrollable.rs",
+  "source_blob": "c81795618875aecf06e06043bd1709c48630b58f",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "width": 500,
+  "height": 500,
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "actual browser screenshots and delivered wheel events; no exported Rust state",
+  "unverified": [
+    "MoonBit comparison",
+    "native renderer parity",
+    "other DPRs",
+    "private Rust scroll offsets"
+  ],
+  "record_scope": "Historical Rust-only baseline from PR44 initial head3b2645a34154d9bdcec25541549cd12ce9d04b1f; current catalog independently declares the compiled counterpart."
+}
