@@ -66,6 +66,7 @@ try {
       const names = observed.files.map(file => new URL(file.url).pathname.split('/').at(-1));
       assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
         timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
+        timing.example === 'text_wrapper' ? ['text_wrapper.mjs', 'IBMPlexSans-Regular.ttf'] :
         ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
     }
     report.load_runs ||= [];
@@ -231,6 +232,93 @@ try {
   }
   report.operations.push({action:'select text_layout',candidate:'15 text scene items, decorated runs and clip chains',rust:paired?'actual WASM and text ink verified':'not_run',comparison:'unverified'});
   await page.screenshot({path:join(evidence,'text-layout-pair.png'),fullPage:true});
+  await page.selectOption('#fixture', 'text_wrapper');
+  await waitForNewDocuments();
+  const wrapperFrame = await moon.locator('html').evaluate(() => globalThis.gpuiExample);
+  assert.equal(wrapperFrame.metadata.id, 'text_wrapper');
+  assert.deepEqual([wrapperFrame.metadata.width,wrapperFrame.metadata.height],[800,600]);
+  assert.equal(wrapperFrame.frame.conformance,'unverified');
+  assert.equal(wrapperFrame.frame.runs.length,9);
+  const runs = wrapperFrame.frame.runs;
+  for(const index of [0,1]) {
+    assert.deepEqual(runs[index].lines,[runs[index].original_text], 'Visible-overflow flex samples retain their intrinsic text');
+    assert.equal(runs[index].truncated,false);
+    const measured = wrapperFrame.textWidth.prefixes[index].at(-1);
+    assert.equal(runs[index].content_width,Math.ceil(measured));
+    assert.equal(runs[index].box_bounds.width,Math.ceil(measured)+2);
+  }
+  assert.equal(runs[0].box_bounds.width+runs[1].box_bounds.width+runs[2].box_bounds.width+16,784);
+  assert(runs[3].truncated && runs[3].lines.length === 1 && runs[3].lines[0].endsWith('…'));
+  assert(runs[4].clamped && runs[4].lines.length === 2 && runs[4].lines.at(-1).endsWith('…'));
+  assert(runs[5].truncated && runs[5].lines.length === 1 && !runs[5].lines[0].endsWith('…'));
+  assert(runs[6].clamped && runs[6].lines.length === 3 && !runs[6].lines.at(-1).endsWith('…'));
+  assert.deepEqual(runs[7].lines,[runs[7].original_text]);
+  assert.equal(runs[7].truncated,false);
+  assert(runs[8].lines.length > 3 && !runs[8].truncated);
+  assert.equal(runs[8].lines.join(''),runs[8].original_text);
+  assert.match(runs[8].original_text,/你好世界/);
+  assert.match(runs[8].original_text,/こんにちは/);
+  assert.match(runs[8].original_text,/https:\/\/github.com\/zed-industries\/zed\/pull\/35724/);
+  assert.equal(wrapperFrame.frame.decorations.length,8);
+  assert.deepEqual(wrapperFrame.frame.decorations.map(d => d.border),
+    ['#ff0000','#ff0000','#ff0000','#0000ff','#0000ff','#008000','#008000','#000000']);
+  assert.equal(wrapperFrame.frame.snapshot.clip_chains.length,6);
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/text_wrapper/text_wrapper.mbt`);
+  for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+    const bounds=await page.locator('#'+side+'-frame').boundingBox();
+    assert.deepEqual([bounds.width,bounds.height],[800,600]);
+  }
+  await writeFile(join(evidence,'text-wrapper-moonbit-scene.json'),JSON.stringify(wrapperFrame,null,2));
+  async function wrapperInk(buffer) {
+    return page.evaluate(async url => {
+      const image=new Image(); image.src=url; await image.decode();
+      if(image.width !== 800 || image.height !== 600) throw new Error('Expected complete text_wrapper canvas');
+      const canvas=document.createElement('canvas');canvas.width=800;canvas.height=600;
+      const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+      const pixels=ctx.getImageData(0,0,800,600).data;
+      const counts={red:0,blue:0,green:0,dark:0,lowerDark:0};
+      for(let i=0;i<pixels.length;i+=4) {
+        const [r,g,b]=pixels.slice(i,i+3);
+        if(r>220 && g<35 && b<35) counts.red++;
+        if(r<35 && g<35 && b>220) counts.blue++;
+        if(r<35 && g>=100 && g<=155 && b<35) counts.green++;
+        if(r<100 && g<100 && b<100) {
+          counts.dark++;
+          if(i/4/800 >= 350) counts.lowerDark++;
+        }
+      }
+      return counts;
+    },'data:image/png;base64,'+buffer.toString('base64'));
+  }
+  const renderedWrapper = counts => counts.red>200 && counts.blue>1000 && counts.green>1000 && counts.dark>1000 && counts.lowerDark>50;
+  const candidateWrapper=await captureCanvas(moon.locator('canvas'),'text_wrapper_moonbit',800,600);
+  const candidateInk=await wrapperInk(candidateWrapper);
+  assert(renderedWrapper(candidateInk),'Candidate must draw actual colored borders and paragraph ink');
+  await writeFile(join(evidence,'text-wrapper-moonbit.png'),candidateWrapper);
+  let rustInk=null;
+  if(paired) {
+    assert(report.requests.some(r => r.url.endsWith('/rust/text_wrapper_bg.wasm') && r.status===200),'Actual text_wrapper WASM response required');
+    const rustCanvas=page.frameLocator('#rust-frame').locator('canvas');
+    for(let attempt=0;attempt<100;attempt++) {
+      const buffer=await captureCanvas(rustCanvas,'text_wrapper_rust',800,600);
+      rustInk=await wrapperInk(buffer);
+      if(renderedWrapper(rustInk)) {
+        await writeFile(join(evidence,'text-wrapper-rust.png'),buffer);
+        break;
+      }
+      await page.waitForTimeout(200);
+    }
+    assert(renderedWrapper(rustInk),'Upstream must draw actual colored borders and paragraph ink');
+  }
+  report.operations.push({action:'select text_wrapper',candidate:'MoonBit ellipsis, two/three-line clamps, nowrap and complete wrapped text verified',rust:paired?'actual WASM, colored borders and text ink verified':'not_run',ink:{candidate:candidateInk,rust:rustInk},comparison:'unverified'});
+  await page.screenshot({path:join(evidence,'text-wrapper-pair.png'),fullPage:true});
+  const wrapperUrl=await page.locator('#moon-frame').getAttribute('src');
+  await page.locator('#settings button').click();
+  await waitForNewDocuments();
+  assert.notEqual(await page.locator('#moon-frame').getAttribute('src'),wrapperUrl);
+  assert.deepEqual(await moon.locator('html').evaluate(() => gpuiExample.frame.runs),runs);
+  report.operations.push({action:'reload text_wrapper pair',result:'fresh runtimes and stable wrapping output'});
   await page.setViewportSize({width:1400,height:950});
   await page.selectOption('#fixture', 'input');
   assert.equal(await page.locator('#moon-frame').isVisible(), false);

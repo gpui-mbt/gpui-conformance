@@ -35,7 +35,7 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -61,7 +61,8 @@ BROWSER_FEATURES = {
     },
     "text_wrapper": {
         "title": "折り返しと省略表示",
-        "tags": ["テキスト", "折り返し", "省略記号", "多言語"],
+        "tags": ["テキスト", "折り返し", "省略記号", "行数制限", "多言語"],
+        "implementation_note": "測定済み文字幅を入力に example 内の MoonBit コードで折り返し・省略を計算し、gpui.mbt の layout と SceneSnapshot を使用。フォント測定と書記素分割は host 境界で、Unicode・描画の完全一致は未検証です。",
         "description": "長い単語、URL、日本語・中国語を含む文章の折り返しと省略を扱う上流の例です。",
     },
     "input": {
