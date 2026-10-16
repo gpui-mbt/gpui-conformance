@@ -36,6 +36,11 @@ x11-backend and kiosk-shell modules), Rust toolchain 1.98.1, MoonBit native,
 Wayland/EGL/GLES development headers and C toolchain. The launch needs
 working Mesa Vulkan/WGPU for gpui.rs and EGL/GLES for gpui.mbt.
 
+The copied gpui.mbt tree generates system-specific Wayland protocol C/H
+stubs with its own `scripts/prepare_ubuntu.sh` before native compilation.
+The four generated file digests and script stdout/stderr are retained; this
+step does not modify the checked-out source.
+
 Checkout the SHAs from the repository pins.json. Both source trees must be
 committed and clean, at the declared package versions. The runner archives
 the MoonBit tree into a disposable build tree and builds the Rust adapter
