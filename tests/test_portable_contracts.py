@@ -20,7 +20,7 @@ import run_native
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -53,6 +53,30 @@ class PortableContractTests(unittest.TestCase):
             scenario["children"] = malformed_children
             with self.subTest(children=malformed_children), self.assertRaises(ValueError):
                 validate_scenarios(invalid)
+
+    def test_distributed_spacing_has_real_adapter_mappings_and_bounded_shapes(self):
+        corpus = load_json(ROOT / "distributed_spacing_scenarios.json")
+        validate_scenarios(corpus)
+        self.assertEqual(len(corpus["cases"]), 24)
+        for mode in ("around", "evenly"):
+            with self.subTest(mode=mode):
+                subset = [s for s in corpus["cases"] if s["justify"] == f"space-{mode}"]
+                self.assertEqual(len(subset), 12)
+                self.assertEqual({len(s["children"]) for s in subset}, {0, 1, 2, 3})
+                self.assertTrue(all(s["device_scale_factor"] == 2 for s in subset))
+                self.assertIn(f'"space-{mode}" => root.justify_{mode}()',
+                              (ROOT / "adapters/rust/src/main.rs").read_text())
+                self.assertIn(f'Some(String("space-{mode}")) => @layout.JustifyContent::space_{mode}()',
+                              (ROOT / "adapters/moonbit/main.mbt").read_text())
+                four = copy.deepcopy(subset[0])
+                four["children"] = [[10, 10]] * 4
+                four["shrink"] = [0] * 4
+                validate_scenarios({"schema_version": 1, "cases": [four]})
+                for invalid_children in ({}, None, "invalid", [[10, 10]] * 5):
+                    invalid = copy.deepcopy(four)
+                    invalid["children"] = invalid_children
+                    with self.subTest(children=invalid_children), self.assertRaises(ValueError):
+                        validate_scenarios({"schema_version": 1, "cases": [invalid]})
 
     def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")
@@ -245,7 +269,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():

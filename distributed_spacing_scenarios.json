@@ -1,0 +1,599 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "justify-around-empty",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 40,
+      "gap": 8,
+      "children": [],
+      "shrink": [],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-singleton",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-row-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-column-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 108,
+      "gap": 8,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "direction": "column",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-three-items",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 132,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-overflow-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 4,
+      "children": [
+        [
+          30,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-oversize-singleton-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          60,
+          10
+        ]
+      ],
+      "shrink": [
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 48,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-wrap-line-local",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 32,
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "wrap": "wrap",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-wrap-reverse-column",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 32,
+      "height": 60,
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "direction": "column",
+      "wrap": "wrap_reverse",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-capped-grow-redistribution",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "grow": [
+        1,
+        1
+      ],
+      "max_main": [
+        20,
+        20
+      ],
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-around-fractional-grow-leftover",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 104,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-around",
+      "grow": [
+        0.25,
+        0.25
+      ],
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-empty",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 40,
+      "gap": 8,
+      "children": [],
+      "shrink": [],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-singleton",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-row-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 108,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-column-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 108,
+      "gap": 8,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "direction": "column",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-three-items",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 132,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-overflow-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 4,
+      "children": [
+        [
+          30,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-oversize-singleton-safe-start",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          60,
+          10
+        ]
+      ],
+      "shrink": [
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 48,
+      "height": 40,
+      "gap": 8,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-wrap-line-local",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 32,
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "wrap": "wrap",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-wrap-reverse-column",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 32,
+      "height": 60,
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ],
+        [
+          10,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "direction": "column",
+      "wrap": "wrap_reverse",
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-capped-grow-redistribution",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "grow": [
+        1,
+        1
+      ],
+      "max_main": [
+        20,
+        20
+      ],
+      "device_scale_factor": 2
+    },
+    {
+      "id": "justify-evenly-fractional-grow-leftover",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 104,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          10
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "justify": "space-evenly",
+      "grow": [
+        0.25,
+        0.25
+      ],
+      "device_scale_factor": 2
+    }
+  ]
+}
