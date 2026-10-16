@@ -623,6 +623,10 @@ try {
     editor.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'日本'})));
   assert.equal((await getInput()).text,'日本 語日本');
   assert.equal((await getInput()).composing,false);
+  await page.keyboard.type('!');
+  assert.equal((await getInput()).text,'日本 語日本!');
+  await page.keyboard.press('Control+z');
+  assert.equal((await getInput()).text,'日本 語日本');
   await page.keyboard.press('Control+z');
   assert.equal((await getInput()).text,'日本 語');
   await inputEditor.evaluate(editor => {
