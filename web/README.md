@@ -50,6 +50,13 @@ Font metrics, weight/style, and decoration drawing are explicit Canvas host
 extensions. Decoration formulas follow the pinned GPUI text renderer, but font
 shaping, rasterization, exact pixel equality and native parity remain unverified.
 
+[The text_layout exact RGB analysis](TEXT_LAYOUT_PIXEL_ANALYSIS_20261016.md)
+measures the original 800×600 PR #25 captures: 9,797 / 480,000
+unequal pixels, with regional counts and separate provenance. The browser CI
+now writes raw and visual text-layout differences and a JSON analysis in
+addition to the untouched hello_world comparator. Exact text-layout parity
+and independent Rust layout metrics remain unverified.
+
 The retained hello_world screenshot measurements apply only to hello_world.
 The catalog labels text_layout as implemented but unverified until its own
 retained comparison evidence exists. The build and E2E execute both real pairs,
