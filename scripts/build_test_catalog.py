@@ -37,7 +37,7 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", "hello_web"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", "dynamic_fonts", "hello_web"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -77,6 +77,7 @@ BROWSER_FEATURES = {
         "title": "動的フォント読み込み",
         "tags": ["フォント", "多言語", "非同期読み込み"],
         "description": "不足グリフを検知し、Devanagari フォントをダウンロードして再描画する上流の例です。",
+        "implementation_note": "MoonBit の layout・SceneSnapshot で表示。Canvas ホストは既知の Devanagari 文字から一度だけフォントを読み込みます。上流の欠落グリフ通知・Cosmic Text の同等性と描画一致は未検証です。",
     },
     "hello_web": {
         "title": "バックグラウンド計算",
