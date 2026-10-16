@@ -72,8 +72,8 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 3)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 3)
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 2)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 4)
         self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["hello_web"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
@@ -96,8 +96,22 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "hello_web"}
+            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "dynamic_fonts", "hello_web"}
         ))
+
+    def test_dynamic_fonts_is_implemented_but_has_no_borrowed_pixel_evidence(self):
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            port = next(e for e in build_catalog("catalog-test-revision")["browser_examples"] if e["id"] == "dynamic_fonts")
+        self.assertTrue(port["implemented"])
+        self.assertEqual((port["width"], port["height"], port["interactive"]), (900, 500, False))
+        self.assertEqual(port["comparison_url"], f"{base}/?example=dynamic_fonts")
+        self.assertEqual(port["source_path"], "crates/gpui_web/examples/hello_web/dynamic_fonts.rs")
+        self.assertEqual(port["status"], "unverified")
+        self.assertEqual(port["execution"], "unverified")
+        self.assertFalse(port["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+            self.assertIsNone(port[key], key)
 
     def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
         base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
@@ -210,7 +224,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 4)
+        self.assertEqual(self.data["browser"]["implemented_count"], 5)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -240,7 +254,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text_layout", "text_wrapper", "hello_web"},
+            {"hello_world", "text_layout", "text_wrapper", "dynamic_fonts", "hello_web"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):
