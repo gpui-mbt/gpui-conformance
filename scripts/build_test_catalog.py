@@ -29,6 +29,7 @@ SCENARIO_FILES = (
     "gap_budget_scenarios.json",
     "minmax_scenarios.json",
     "justify_between_scenarios.json",
+    "distributed_spacing_scenarios.json",
 )
 NATIVE_SCENARIO_PATH = "native_scenarios.json"
 NATIVE_RESULT_PATH = "results/native-merged-macos-arm64-20261014.json"

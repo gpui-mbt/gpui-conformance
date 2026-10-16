@@ -65,6 +65,8 @@ impl Render for View {
             "center" => root.justify_center(),
             "end" => root.justify_end(),
             "space-between" => root.justify_between(),
+            "space-around" => root.justify_around(),
+            "space-evenly" => root.justify_evenly(),
             _ => root.justify_start(),
         };
         root = match self.scenario["align"].as_str().unwrap_or("start") {
