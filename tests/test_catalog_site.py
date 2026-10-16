@@ -134,7 +134,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertIsNone(normalize_browser_lab_base_url(""))
         self.assertIsNone(normalize_browser_lab_base_url("  "))
         self.assertIsNone(browser_lab_comparison_url("hello_world", True, None))
-        self.assertIsNone(browser_lab_comparison_url("text", True, "https://gpui-conformance-browser-lab.account.workers.dev"))
+        self.assertIsNone(browser_lab_comparison_url("input", False, "https://gpui-conformance-browser-lab.account.workers.dev"))
         self.assertIsNone(browser_lab_comparison_url("hello_world", False, "https://gpui-conformance-browser-lab.account.workers.dev"))
         with self.assertRaises(ValueError):
             browser_lab_comparison_url("hello_world", True, "http://gpui-conformance-browser-lab.account.workers.dev")
