@@ -2,6 +2,7 @@ import { createHostTiming } from '../load-timing.mjs';
 const loadTiming = createHostTiming('moon');
 import { drawFrame } from './render.mjs';
 import { measureWrapperInputs, measureTypographyInputs } from './text-metrics.mjs';
+import { wheelDeltaPixels } from './text-wheel.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
@@ -70,7 +71,7 @@ try {
     });
     canvas.addEventListener('wheel', event => {
       event.preventDefault();
-      scrollY=Math.max(0,Math.min(lastFrame.scroll.max,scrollY+event.deltaY));
+      scrollY=Math.max(0,Math.min(lastFrame.scroll.max,scrollY+wheelDeltaPixels(event.deltaY,event.deltaMode,lastFrame.scroll.height)));
       render();
     },{passive:false});
     canvas.addEventListener('keydown',event=>{
