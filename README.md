@@ -6,7 +6,7 @@ runner creates no native windows. The separate native runner uses isolated,
 self-closing hidden AppKit/Metal accessory fixtures on an Apple Silicon Mac.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
-gpui.mbt `bb3fa1ef552ae22d372cfcea8723e99498aa5fe7` (current main). See [pins.json](pins.json).
+gpui.mbt `1a8a8048cda725252a3b4fe1d84722ffc7ebab5b` (distributed-spacing candidate). See [pins.json](pins.json).
 
 ## First coverage slice
 
@@ -290,3 +290,16 @@ upstream root Apache license. The runner links upstream workspace dependencies
 as development tools; none enters the MoonBit runtime. The upstream Zed tree
 also contains GPL application code, which is outside the suite's source scope.
 See [PROVENANCE.md](PROVENANCE.md) for the exact inspected paths and method.
+
+
+## Distributed `space-around` / `space-evenly` capability batch
+
+[distributed_spacing_scenarios.json](distributed_spacing_scenarios.json) adds
+24 complete-rectangle layout cases for the two previously absent modes. The
+pinned Rust oracle executes GPUI's public `.justify_around()` and
+`.justify_evenly()` builders. The engine baseline has 8 matches/16 differences;
+the new library implementation has 24 matches/zero differences. A real combined
+rerun preserves all prior 131 headless passes, for 155 total, while one unsupported
+IME and two unverified native rows remain visible. All 22 nonempty new cases
+reject a one-pixel measured-width negative control; the two empty controls have
+no child width to perturb. See [the exact scope and evidence](DISTRIBUTED_SPACING_RESULTS.md).

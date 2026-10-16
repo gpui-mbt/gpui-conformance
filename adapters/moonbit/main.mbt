@@ -110,6 +110,8 @@ fn tree(s : Json) -> @element.Prepainted {
     Some(String("center")) => @layout.JustifyContent::center()
     Some(String("end")) => @layout.JustifyContent::end()
     Some(String("space-between")) => @layout.JustifyContent::space_between()
+    Some(String("space-around")) => @layout.JustifyContent::space_around()
+    Some(String("space-evenly")) => @layout.JustifyContent::space_evenly()
     _ => @layout.JustifyContent::start()
   }
   let align = match optional(s, "align") {

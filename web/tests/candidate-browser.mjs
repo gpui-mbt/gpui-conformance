@@ -68,7 +68,7 @@ try {
       assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
         timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
         timing.example === 'text' ? ['text.mjs', 'Lilex-Regular.ttf'] :
-        ['text_wrapper', 'hello_web', 'input'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
+        ['text_wrapper', 'hello_web', 'input', 'dynamic_fonts'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
         ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
     }
     report.load_runs ||= [];
@@ -396,6 +396,17 @@ try {
   });
   const scrolled=await moon.locator('html').evaluate(()=>gpuiExample.frame.scroll);
   assert(scrolled.y>0 && scrolled.y<=scrolled.max);
+  // Synthetic line/page units test the host conversion; trusted wheel delivery is tested above.
+  const wheelModes=await textCanvas.evaluate(canvas => {
+    const before=gpuiExample.frame.scroll.y;
+    canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:2,deltaMode:1,bubbles:true,cancelable:true}));
+    const afterLine=gpuiExample.frame.scroll.y;
+    canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:1,deltaMode:2,bubbles:true,cancelable:true}));
+    const afterPage=gpuiExample.frame.scroll.y;
+    return {before,afterLine,afterPage,max:gpuiExample.frame.scroll.max,height:gpuiExample.frame.scroll.height};
+  });
+  assert(Math.abs(wheelModes.afterLine-Math.min(wheelModes.max,wheelModes.before+41.6))<0.01);
+  assert(Math.abs(wheelModes.afterPage-Math.min(wheelModes.max,wheelModes.afterLine+wheelModes.height))<0.01);
   await writeFile(join(evidence,'text-moonbit-scrolled.png'),await captureCanvas(textCanvas,'text_scrolled',920,720));
   const typographyFonts = [];
   for (let step = 0; step < 5; step++) {
@@ -458,6 +469,66 @@ try {
   report.operations.push({action:'select text, verify all twenty columns, complete measured wrapped phrases, five-font reflow and bottom scrolling',candidate:'all grid glyphs and complete multiline specimens fit the 920px viewport; trusted font-cycle and scroll clamp verified',comparison:'unverified'});
   report.operations.push({action:'select text, switch fonts with trusted pointer/key, scroll specimens' ,candidate:'920x720 compiled MoonBit scene and interaction state verified',rust:paired?'unchanged upstream text.rs WASM initialized and screenshot retained':'not_run',comparison:'unverified'});
   await page.screenshot({path:join(evidence,'text-pair.png'),fullPage:true});
+  // Deterministic HTTP failure: real CDN availability and shaping are not test assertions.
+  const fontRoute='**/notosansdevanagari/**';
+  await page.route(fontRoute,route=>route.fulfill({
+    status:503,body:'synthetic offline response',
+    headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin'},
+  }));
+  await page.selectOption('#fixture','dynamic_fonts');
+  await waitForNewDocuments();
+  await moon.locator('html').evaluate(async()=>{
+    const limit=performance.now()+15000;
+    while(gpuiExample.dynamic_fonts.phase==='downloading' && performance.now()<limit)
+      await new Promise(r=>setTimeout(r,50));
+    if(gpuiExample.dynamic_fonts.phase!=='failed') throw Error('Expected mocked font download failure');
+  });
+  let dynamic=await moon.locator('html').evaluate(()=>gpuiExample);
+  assert.deepEqual([dynamic.metadata.width,dynamic.metadata.height],[900,500]);
+  assert.equal(dynamic.frame.snapshot.items.filter(item=>item.kind==='text').length,7);
+  assert.equal(dynamic.dynamic_fonts.attempts,1);
+  assert.match(dynamic.dynamic_fonts.message,/Reload to retry/);
+  assert(dynamic.frame.snapshot.items.some(item=>item.kind==='text' && item.text.includes('Font loading failed')));
+  assert.equal(dynamic.frame.status_lines.join(''),dynamic.dynamic_fonts.message);
+  for(const item of dynamic.frame.snapshot.items.filter(item=>item.kind==='text'&&(item.id===6||(item.id>=61&&item.id<80)))) {
+    assert(item.bounds.x+item.bounds.width<=868+0.001,'Status text must stay inside its padded content area');
+  }
+  assert(dynamic.frame.host_extensions.includes('missing_glyph_probe'));
+  assert.equal(dynamic.frame.conformance,'unverified');
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    'https://github.com/gpui-mbt/gpui-conformance/blob/'+manifest.lab_revision+'/web/moonbit/dynamic_fonts/dynamic_fonts.mbt');
+  await writeFile(join(evidence,'dynamic-fonts-failure-scene.json'),JSON.stringify(dynamic,null,2));
+  await writeFile(join(evidence,'dynamic-fonts-failure-moonbit.png'),
+    await captureCanvas(moon.locator('canvas'),'dynamic_fonts_moonbit_failed',900,500));
+  if(paired) {
+    assert(report.requests.some(r=>r.url.endsWith('/rust/dynamic_fonts_bg.wasm')&&r.status===200),
+      'Actual unchanged Rust dynamic_fonts WASM required');
+    await writeFile(join(evidence,'dynamic-fonts-failure-rust.png'),
+      await captureCanvas(page.frameLocator('#rust-frame').locator('canvas'),'dynamic_fonts_rust_failed',900,500));
+  }
+  await page.unroute(fontRoute);
+  // A different known-valid TTF exercises FontFace registration only, NOT Devanagari glyph coverage.
+  const mockFont=await readFile(join(site,'moonbit','IBMPlexSans-Regular.ttf'));
+  await page.route(fontRoute,route=>route.fulfill({
+    status:200,contentType:'font/ttf',body:mockFont,
+    headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin'},
+  }));
+  await page.locator('#settings button').click();
+  await waitForNewDocuments();
+  await moon.locator('html').evaluate(async()=>{
+    const limit=performance.now()+15000;
+    while(gpuiExample.dynamic_fonts.phase==='downloading' && performance.now()<limit)
+      await new Promise(r=>setTimeout(r,50));
+    if(gpuiExample.dynamic_fonts.phase!=='loaded') throw Error('Expected mocked FontFace registration');
+  });
+  dynamic=await moon.locator('html').evaluate(()=>gpuiExample);
+  assert.equal(dynamic.dynamic_fonts.attempts,1);
+  assert(dynamic.frame.snapshot.items.some(item=>item.kind==='text' && item.text.includes('Font loaded.')));
+  await writeFile(join(evidence,'dynamic-fonts-mock-registered-scene.json'),JSON.stringify(dynamic,null,2));
+  await writeFile(join(evidence,'dynamic-fonts-mock-registered-moonbit.png'),
+    await captureCanvas(moon.locator('canvas'),'dynamic_fonts_moonbit_loaded',900,500));
+  await page.unroute(fontRoute);
+  report.operations.push({action:'select dynamic_fonts and reload',candidate:'one failed HTTP request followed by one successful mocked FontFace registration in new document',rust:paired?'unchanged dynamic_fonts WASM loaded, canvas captured':'not_run',comparison:'native glyph callback and actual Devanagari coverage unverified',font_test:'mocked transport, not production CDN'});
   // Real upstream Prime sieve, including actual 10M computation. This is a CPU
   // task result, never a renderer-startup measurement or a performance ranking.
   await page.selectOption('#fixture', 'hello_web');

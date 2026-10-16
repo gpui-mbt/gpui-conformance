@@ -7,7 +7,7 @@ const catalog = JSON.parse(await readFile(new URL('../examples.json', import.met
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
   assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'hello_web']);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -17,8 +17,9 @@ test('a selected example resolves the same pair under a GitHub Pages subpath', (
   assert.equal(moonbitExampleUrl('https://gpui-mbt.github.io/gpui-conformance/?example=hello_world', example), 'https://gpui-mbt.github.io/gpui-conformance/moonbit/?example=hello_world');
 });
 test('missing implementations and runtimes cannot be treated as a pair', () => {
-  const missing = catalog.examples.find(example => example.moonbit !== 'implemented');
-  assert(missing, 'At least one example should remain unimplemented');
+  // Both remaining holds (#34 and #37) land together, so no catalog entry is
+  // unimplemented anymore; keep the routing guard covered with a fixture.
+  const missing = { id: 'unimplemented_fixture', moonbit: 'not_implemented' };
   assert.equal(moonbitExampleUrl('https://example.test/lab/', missing), null);
   assert.equal(rustExampleUrl('https://example.test/lab/', missing), null);
 });
