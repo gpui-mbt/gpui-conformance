@@ -169,14 +169,14 @@ def has_event(records, name, width=None, height=None, scale=None):
     return False
 
 
-def wait_frames(logs, token, procs, width, height, timeout):
+def wait_frames(logs, token, procs, started_at, width, height, timeout):
     start = time.monotonic()
     first = {}
     while time.monotonic() - start < timeout:
         for role in ROLES:
             if role not in first and has_event(events(logs[role], role, token), "frame_ready",
                                                width, height, 1.0):
-                first[role] = round((time.monotonic() - start) * 1000)
+                first[role] = round((time.monotonic() - started_at[role]) * 1000)
         if len(first) == 2 or any(procs[role].poll() is not None for role in ROLES):
             break
         time.sleep(.05)
@@ -263,6 +263,9 @@ def run_visible(args, out, executables, manifest, scenarios, token):
     width, height = (scenarios["cases"][0][k] for k in ("width", "height"))
     resized = scenarios["cases"][0]["resize"]
     env = os.environ.copy()
+    rust_env = {**env, "XDG_SESSION_TYPE": "x11"}
+    rust_env.pop("WAYLAND_DISPLAY", None)
+    rust_env.pop("WAYLAND_SOCKET", None)
     runtime = out / "xdg-runtime"
     runtime.mkdir(mode=0o700)
     runtime.chmod(0o700)
@@ -288,9 +291,11 @@ def run_visible(args, out, executables, manifest, scenarios, token):
         if not (runtime / socket).is_socket():
             manifest["reasons"].append("owned Weston X11 compositor did not expose its Wayland socket")
             return
-        for role, run_env in (("upstream", env), ("moonbit", moon_env)):
+        started_at = {}
+        for role, run_env in (("upstream", rust_env), ("moonbit", moon_env)):
             child = spawn([str(executables[role])], {**run_env, **shared}, out, role)
             spawned[role] = child
+            started_at[role] = time.monotonic()
             manifest["processes"][role] = {"pid": child.pid, "executable_sha256": sha256(executables[role])}
         windows = {}
         for role, owner in (("upstream", spawned["upstream"]), ("moonbit", spawned["weston"])):
@@ -305,8 +310,8 @@ def run_visible(args, out, executables, manifest, scenarios, token):
             role: move_resize(windows[role]["id"], x, 40, width, height)
             for role, x in (("upstream", 40), ("moonbit", 80 + width))
         }
-        first = wait_frames(logs, token, spawned, width, height, args.start_timeout)
-        manifest["time_to_frame_poll_ms"] = first
+        first = wait_frames(logs, token, spawned, started_at, width, height, args.start_timeout)
+        manifest["time_from_process_spawn_to_frame_poll_ms"] = first
         if len(first) != 2:
             manifest["reasons"].append("both native processes did not report a correct-size, scale-1 frame")
             return
@@ -340,8 +345,19 @@ def run_visible(args, out, executables, manifest, scenarios, token):
             role: has_event(native[role], "resized", resized[0], resized[1], 1.0)
             for role in ROLES
         }
+        resized_images = {}
+        resize_sizes = {}
+        for role in ROLES:
+            image_path = out / f"{role}-resized.png"
+            if capture(windows[role]["id"], image_path):
+                resized_images[role] = {"path": image_path.name, "sha256": sha256(image_path)}
+                with Image.open(image_path) as image:
+                    resize_sizes[role] = list(image.size)
         manifest["resize"] = {"requested": resized, "event_confirmed": resize_confirmed,
-                              "status": "pass" if all(resize_confirmed.values()) else "unverified"}
+                              "captures": resized_images, "actual_capture_sizes": resize_sizes,
+                              "status": "pass" if all(resize_confirmed.values()) and
+                              all(resize_sizes.get(role) == resized for role in ROLES)
+                              else "unverified"}
         if manifest["resize"]["status"] != "pass":
             manifest["reasons"].append("requested resize was not confirmed by both native event streams")
     finally:
