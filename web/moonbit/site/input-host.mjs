@@ -13,6 +13,7 @@ export function createInputHost({runtime, canvas, render, onError = error => con
   let hostComposing = false;
   let cancellation = false;
   let suppressFinalInput = false;
+  let finalCompositionText = '';
   const events = [];
   const record = (type, extra = {}) => {
     events.push({type, ...extra});
@@ -43,13 +44,13 @@ export function createInputHost({runtime, canvas, render, onError = error => con
     hostComposing,
   });
   const api = {editor, events, readState, reset() {
-    hostComposing = false; cancellation = false; suppressFinalInput = false;
+    hostComposing = false; cancellation = false; suppressFinalInput = false; finalCompositionText = '';
     mutate(() => {runtime.input_reset(); return true;}, 'reset');
     record('reset');
   }};
   editor.addEventListener('compositionstart', event => {
     hostComposing = true; cancellation = false;
-    suppressFinalInput = false;
+    suppressFinalInput = false; finalCompositionText = '';
     record('compositionstart', {trusted:event.isTrusted});
   });
   editor.addEventListener('compositionupdate', event => {
@@ -63,11 +64,14 @@ export function createInputHost({runtime, canvas, render, onError = error => con
   editor.addEventListener('compositionend', event => {
     if (!hostComposing) return;
     hostComposing = false;
-    const committed = !cancellation;
+    // Empty compositionend is ambiguous across IMEs; cancel rather than delete
+    // an originally selected range without an explicit committed payload.
+    const committed = !cancellation && Boolean(event.data);
     mutate(() => runtime.input_finish(event.data || '', committed), 'compositionend');
     record('compositionend', {data:event.data, committed, trusted:event.isTrusted});
     cancellation = false;
-    suppressFinalInput = true;
+    suppressFinalInput = committed;
+    finalCompositionText = committed ? event.data : '';
     editor.value = '';
   });
   editor.addEventListener('keydown', event => {
@@ -78,6 +82,10 @@ export function createInputHost({runtime, canvas, render, onError = error => con
       }
       return;
     }
+    // A later trusted keyboard event starts a new edit, not a duplicate IME
+    // finalization; do not drop its first inserted character.
+    suppressFinalInput = false;
+    finalCompositionText = '';
     const platform = event.ctrlKey || event.metaKey;
     const shortcut = platform && ['a','z','y'].includes(event.key.toLowerCase());
     const nav = ['ArrowLeft','ArrowRight','Home','End','Backspace','Delete'].includes(event.key);
@@ -90,11 +98,11 @@ export function createInputHost({runtime, canvas, render, onError = error => con
   editor.addEventListener('beforeinput', event => {
     if (hostComposing || event.isComposing || event.inputType === 'insertCompositionText') return;
     if (suppressFinalInput) {
-      if (event.inputType === 'insertFromComposition' || event.inputType === 'insertText') {
-        event.preventDefault(); suppressFinalInput = false;
-        return;
-      }
+      const duplicate = (event.inputType === 'insertFromComposition' ||
+        event.inputType === 'insertText') && event.data === finalCompositionText;
       suppressFinalInput = false;
+      finalCompositionText = '';
+      if (duplicate) { event.preventDefault(); return; }
     }
     if (event.inputType === 'insertText' && event.data != null) {
       event.preventDefault();
@@ -106,7 +114,10 @@ export function createInputHost({runtime, canvas, render, onError = error => con
     // beforeinput may not be cancellable on some hosts; only an unhandled
     // browser value may be forwarded, and is immediately cleared.
     if (hostComposing || event.isComposing) return;
-    if (suppressFinalInput) {suppressFinalInput = false; editor.value = ''; return;}
+    if (suppressFinalInput && editor.value === finalCompositionText) {
+      suppressFinalInput = false; finalCompositionText = ''; editor.value = ''; return;
+    }
+    suppressFinalInput = false; finalCompositionText = '';
     if (editor.value) {
       const data = editor.value;
       editor.value = '';
