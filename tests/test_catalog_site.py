@@ -271,7 +271,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text", "text_layout", "text_wrapper", "hello_web"},
+            {"hello_world", "text", "text_layout", "text_wrapper", "input", "hello_web"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):
