@@ -67,6 +67,7 @@ try {
       const names = observed.files.map(file => new URL(file.url).pathname.split('/').at(-1));
       assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
         timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
+        timing.example === 'text' ? ['text.mjs', 'Lilex-Regular.ttf'] :
         ['text_wrapper', 'hello_web'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
         ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
     }
@@ -320,6 +321,43 @@ try {
   assert.notEqual(await page.locator('#moon-frame').getAttribute('src'),wrapperUrl);
   assert.deepEqual(await moon.locator('html').evaluate(() => gpuiExample.frame.runs),runs);
   report.operations.push({action:'reload text_wrapper pair',result:'fresh runtimes and stable wrapping output'});
+
+  // This pair exercises upstream text.rs rather than a text_layout substitute.
+  await page.selectOption('#fixture','text');
+  await waitForNewDocuments();
+  const typography=await moon.locator('html').evaluate(()=>gpuiExample);
+  assert.deepEqual([typography.metadata.id,typography.metadata.width,typography.metadata.height,typography.metadata.interactive],['text',920,720,true]);
+  assert.equal(typography.frame.font_index,0);
+  assert.equal(typography.frame.conformance,'unverified');
+  assert(typography.frame.scroll.max>0);
+  assert(typography.frame.snapshot.items.filter(item=>item.kind==='text').length>120);
+  assert(typography.metadata.runs.some(run=>run.text.includes('日本語')));
+  assert(typography.metadata.runs.some(run=>run.text.includes('👩‍💻')));
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/text/text.mbt`);
+  const textCanvas=moon.locator('canvas');
+  await writeFile(join(evidence,'text-moonbit-scene.json'),JSON.stringify(typography,null,2));
+  await writeFile(join(evidence,'text-moonbit.png'),await captureCanvas(textCanvas,'text_moonbit',920,720));
+  if(paired) {
+    assert(report.requests.some(r=>r.url.endsWith('/rust/text_bg.wasm')&&r.status===200),'Real text.rs WASM is required');
+    await writeFile(join(evidence,'text-rust.png'),await captureCanvas(page.frameLocator('#rust-frame').locator('canvas'),'text_rust',920,720));
+  }
+  await textCanvas.click({position:{x:25,y:25}});
+  assert.equal(await moon.locator('html').evaluate(()=>gpuiExample.frame.font_index),1);
+  await textCanvas.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await moon.locator('html').evaluate(()=>gpuiExample.frame.font_index),2);
+  await textCanvas.hover({position:{x:300,y:300}});
+  await page.mouse.wheel(0,350);
+  await page.waitForFunction(()=>{
+    const frame=document.getElementById('moon-frame')?.contentWindow?.gpuiExample?.frame;
+    return frame?.scroll?.y>0;
+  });
+  const scrolled=await moon.locator('html').evaluate(()=>gpuiExample.frame.scroll);
+  assert(scrolled.y>0 && scrolled.y<=scrolled.max);
+  await writeFile(join(evidence,'text-moonbit-scrolled.png'),await captureCanvas(textCanvas,'text_scrolled',920,720));
+  report.operations.push({action:'select text, switch fonts with trusted pointer/key, scroll specimens',candidate:'920x720 compiled MoonBit scene and interaction state verified',rust:paired?'unchanged upstream text.rs WASM initialized and screenshot retained':'not_run',comparison:'unverified'});
+  await page.screenshot({path:join(evidence,'text-pair.png'),fullPage:true});
   // Real upstream Prime sieve, including actual 10M computation. This is a CPU
   // task result, never a renderer-startup measurement or a performance ranking.
   await page.selectOption('#fixture', 'hello_web');
