@@ -3,19 +3,24 @@ export function validateFrame(frame) {
   const snapshot = frame.snapshot;
   if (snapshot?.schema_version !== 1 || !Array.isArray(snapshot.items) || !Array.isArray(frame.decorations)) throw new Error('Expected SceneSnapshot v1 and explicit host decorations');
   for (const item of snapshot.items) {
-    if (!['quad', 'text'].includes(item.kind)) throw new Error(`Unsupported scene item ${item.kind}`);
+    if (!['quad', 'text', 'text_run'].includes(item.kind)) throw new Error(`Unsupported scene item ${item.kind}`);
     const b = item.bounds;
     if (!b || ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0) throw new Error('Invalid scene bounds');
     const c = item.color;
     if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
-    if (item.kind === 'text' && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
+    if ((item.kind === 'text' || item.kind === 'text_run') && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
   const clips = new Map((snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   for (const rects of clips.values()) {
     if (!Array.isArray(rects) || rects.some(b => ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0)) throw new Error('Invalid scene clip');
   }
   for (const item of snapshot.items) if (item.clip_chain_id != null && !clips.has(item.clip_chain_id)) throw new Error('Unknown scene clip');
-  const texts = new Set(snapshot.items.filter(i => i.kind === 'text').map(i => i.id));
+  const texts = new Set(snapshot.items.filter(i => i.kind === 'text' || i.kind === 'text_run').map(i => i.id));
+  for (const item of snapshot.items.filter(i => i.kind === 'text_run')) {
+    const o = item.text_origin, t = item.transform;
+    if (!o || !t || ![o.x,o.y,t.a,t.b,t.c,t.d,t.tx,t.ty].every(Number.isFinite)) throw new Error('Invalid text run geometry');
+    if (t.a !== 1 || t.b !== 0 || t.c !== 0 || t.d !== 1) throw new Error('Unsupported text run transform');
+  }
   for (const style of frame.text_styles || []) {
     if (!texts.has(style.id) || ![400,800].includes(style.weight) || !['normal','italic'].includes(style.style) || !['none','underline','line_through'].includes(style.decoration)) throw new Error('Invalid host text style');
   }
@@ -103,7 +108,7 @@ export function drawFrame(context, frame, metadata, scale) {
           context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
         }
         context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
-        if (item.kind === 'text') {
+        if (item.kind === 'text' || item.kind === 'text_run') {
           const textStyle = textStyles.get(item.id);
           context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"`;
           context.textAlign = 'left'; context.textBaseline = 'alphabetic';
@@ -111,7 +116,13 @@ export function drawFrame(context, frame, metadata, scale) {
           const ascent = metrics.fontBoundingBoxAscent ?? metrics.actualBoundingBoxAscent;
           const descent = metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent;
           const baseline = (b.height - ascent - descent) / 2 + ascent;
-          context.fillText(item.text, b.x, b.y + baseline);
+          if (item.kind === 'text_run') {
+            const x = item.transform.tx + item.text_origin.x;
+            const y = item.transform.ty + item.text_origin.y + baseline;
+            context.fillText(item.text, x, y);
+          } else {
+            context.fillText(item.text, b.x, b.y + baseline);
+          }
           if (textStyle && textStyle.decoration !== 'none') {
             // Geometry follows pinned text_system/line.rs; Canvas font metrics and
             // rasterization remain explicit host extensions, not a conformance pass.
