@@ -82,3 +82,15 @@ and the upstream oracle remains `zed-industries/zed@d9afb21688e04f89d9e94d96d33e
 The ten-case coverage gap and full-suite preservation execution are documented
 in `CROSS_AXIS_LIMIT_RESULTS.md`; because all matched, no engine implementation
 change was made.
+
+
+The distributed-spacing batch adds 24 original finite, definite-size inputs for
+`space-around` and `space-evenly`. Rust invokes the pinned GPUI public builders;
+MoonBit invokes the corresponding new library APIs before request-layout,
+prepaint, and observed element bounds. No expected coordinates are emitted by
+the adapters. The measured/asserted GPUI test-window scale is 2, and the existing
+candidate device-scale boundary is requested explicitly. The added enum cases
+and arithmetic are independent MoonBit implementation, not copied upstream
+source. The earlier baseline adapter has no mappings for the unavailable modes
+and visibly retains its start fallback; those 16 differences measure missing
+capability rather than a defective pre-existing named mode.
