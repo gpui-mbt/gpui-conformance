@@ -340,6 +340,10 @@ try {
   assert.equal(dynamic.dynamic_fonts.attempts,1);
   assert.match(dynamic.dynamic_fonts.message,/Reload to retry/);
   assert(dynamic.frame.snapshot.items.some(item=>item.kind==='text' && item.text.includes('Font loading failed')));
+  assert.equal(dynamic.frame.status_lines.join(''),dynamic.dynamic_fonts.message);
+  for(const item of dynamic.frame.snapshot.items.filter(item=>item.kind==='text'&&(item.id===6||(item.id>=61&&item.id<80)))) {
+    assert(item.bounds.x+item.bounds.width<=868+0.001,'Status text must stay inside its padded content area');
+  }
   assert(dynamic.frame.host_extensions.includes('missing_glyph_probe'));
   assert.equal(dynamic.frame.conformance,'unverified');
   assert.equal(await page.locator('#moon-source').getAttribute('href'),

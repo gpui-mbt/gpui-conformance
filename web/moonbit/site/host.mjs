@@ -48,9 +48,23 @@ try {
       context.font = `${run.style || 'normal'} ${run.weight || 400} ${run.font_size || metadata.font_size}px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
       return context.measureText(run.text).width;
     }) : context.measureText(metadata.text).width;
+    let statusPrefixes;
+    if (dynamicFonts) {
+      const status = dynamicFonts.state.message;
+      context.save();
+      try {
+        context.font = `normal 400 16px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
+        let prefix = '';
+        statusPrefixes = [0];
+        for (const character of status) {
+          prefix += character;
+          statusPrefixes.push(context.measureText(prefix).width);
+        }
+      } finally { context.restore(); }
+    }
     const frame = JSON.parse(example === 'text_wrapper'
       ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
-      : dynamicFonts ? runtime.dynamic_fonts_frame(width, dynamicFonts.state.message, scale)
+      : dynamicFonts ? runtime.dynamic_fonts_frame(width, dynamicFonts.state.message, statusPrefixes, scale)
       : runtime[example + '_frame'](width, scale));
     drawFrame(context, frame, metadata, scale);
     // Expose actual candidate output for inspection, never fabricated oracle results.
