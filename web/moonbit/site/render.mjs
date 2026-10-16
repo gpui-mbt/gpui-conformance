@@ -1,3 +1,15 @@
+// Pinned gpui_macros/styles.rs presets only, not a caller-configurable shadow API.
+const sourceShadowLayers = {
+  shadow_sm: [
+    {offset_x:0,offset_y:1,blur:3,spread:0},
+    {offset_x:0,offset_y:1,blur:2,spread:-1},
+  ],
+  shadow_md: [
+    {offset_x:0,offset_y:4,blur:6,spread:-1},
+    {offset_x:0,offset_y:2,blur:4,spread:-2},
+  ],
+};
+
 export function validateFrame(frame) {
   if (!frame?.ok || frame.conformance !== 'unverified') throw new Error(frame?.error || 'Invalid example frame');
   const snapshot = frame.snapshot;
@@ -42,16 +54,22 @@ export function validateFrame(frame) {
   }
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
-    // Source focus ports need 3px/4px solid borders. Wider dashed strokes
+    // Source drag/focus ports need 2px/3px/4px solid borders. Wider dashed strokes
     // remain unsupported; this is an explicit Canvas host boundary, not a
     // rounded-border addition to the portable SceneSnapshot contract.
-    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,3,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width > 1 && Math.min(b.width,b.height) < 2*d.border_width)) throw new Error('Invalid host decoration');
+    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,2,3,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width > 1 && Math.min(b.width,b.height) < 2*d.border_width)) throw new Error('Invalid host decoration');
   }
   if (frame.shadows !== undefined && !Array.isArray(frame.shadows)) throw new Error('Invalid shadow extension');
   const shadowIds = new Set();
   for (const shadow of frame.shadows || []) {
     const b = quads.get(shadow?.id)?.bounds;
-    if (!b || shadow.kind !== 'shadow_sm' || Object.keys(shadow).some(key => !['id','kind'].includes(key)) || shadowIds.has(shadow.id) || Math.min(b.width,b.height) <= 2 || frame.decorations.some(style => style.id === shadow.id && style.shadow)) throw new Error('Invalid shadow extension');
+    const keys = shadow?.kind === 'shadow_md' ? ['id','kind','element_opacity'] : ['id','kind'];
+    if (!b || !['shadow_sm','shadow_md'].includes(shadow.kind) ||
+        Object.keys(shadow).length !== keys.length || keys.some(key => !Object.hasOwn(shadow,key)) ||
+        (shadow.kind === 'shadow_md' && (!Number.isFinite(shadow.element_opacity) || shadow.element_opacity < 0 || shadow.element_opacity > 1)) ||
+        shadowIds.has(shadow.id) || sourceShadowLayers[shadow.kind].some(({spread}) =>
+          ![b.width+2*spread,b.height+2*spread].every(size => Number.isFinite(size) && size > 0)) ||
+        frame.decorations.some(style => style.id === shadow.id && style.shadow)) throw new Error('Invalid shadow extension');
     shadowIds.add(shadow.id);
   }
   if (shadowIds.size) {
@@ -116,7 +134,7 @@ export function roundedDashSegments(b, radius, width) {
   return {perimeter, count, period, dash_length: 2 * width, dashes};
 }
 
-// Bound the explicit shadow_sm extension by the pinned GPUI scene ordering.
+// Bound the explicit shadow_sm/shadow_md extensions by pinned GPUI scene ordering.
 // window.rs inserts offset/spread shadow bounds WITHOUT the blur tail;
 // bounds_tree.rs assigns 1 + the maximum strictly intersecting order;
 // scene.rs batches equal-order Shadow before Quad, retaining insertion ties.
@@ -124,8 +142,8 @@ export function roundedDashSegments(b, radius, width) {
 // composite host operations; this does not reconstruct arbitrary GPUI layers,
 // parent-border continuations, border strips, or text atlas batches.
 function sourceShadowPaintCommands(frame, metadata, scale) {
-  const shadowIds = new Set((frame.shadows || []).map(style => style.id));
-  if (!shadowIds.size) return frame.snapshot.items.map(item => ({item}));
+  const shadowStyles = new Map((frame.shadows || []).map(style => [style.id,style]));
+  if (!shadowStyles.size) return frame.snapshot.items.map(item => ({item}));
   const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   const commands = [], inserted = [];
   const edges = b => ({left:b.x,top:b.y,right:b.x+b.width,bottom:b.y+b.height});
@@ -136,9 +154,11 @@ function sourceShadowPaintCommands(frame, metadata, scale) {
   const overlaps = (a,b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   for (const item of frame.snapshot.items) {
     const b = item.bounds;
-    for (const shadow of shadowIds.has(item.id) ? [[3,0],[2,-1],null] : [null]) {
-      const spread = shadow?.[1] || 0;
-      const primitive = edges(shadow ? {x:b.x-spread,y:b.y+1-spread,width:b.width+2*spread,height:b.height+2*spread} : b);
+    const shadowStyle = shadowStyles.get(item.id);
+    const shadowOpacity = shadowStyle?.kind === 'shadow_md' ? shadowStyle.element_opacity : item.opacity ?? 1;
+    for (const shadow of shadowStyle ? [...sourceShadowLayers[shadowStyle.kind],null] : [null]) {
+      const spread = shadow?.spread || 0;
+      const primitive = edges(shadow ? {x:b.x+shadow.offset_x-spread,y:b.y+shadow.offset_y-spread,width:b.width+2*spread,height:b.height+2*spread} : b);
       // Intersect inherited logical masks before covering the combined mask,
       // as Window::with_content_mask/snapped_content_mask do. Covering each
       // mask separately can manufacture an overlap across a fractional gap.
@@ -150,11 +170,11 @@ function sourceShadowPaintCommands(frame, metadata, scale) {
       if (!Object.values(bounds).every(Number.isFinite)) throw new Error('Invalid source shadow paint bounds');
       if (bounds.left >= bounds.right || bounds.top >= bounds.bottom) continue;
       const order = 1 + inserted.reduce((max, entry) => overlaps(bounds,entry.bounds) ? Math.max(max,entry.order) : max,0);
-      // Only the Shadow < Quad relation matters to these non-overlapping source
-      // controls. Text retains its later GPUI primitive-kind precedence.
+      // Source Shadow < Quad ties also apply to full-bounds border quads.
+      // Text retains its later GPUI primitive-kind precedence.
       const kind = shadow ? 0 : item.kind === 'quad' ? 1 : 4;
       inserted.push({bounds,order});
-      commands.push({item,shadow,order,kind,index:commands.length});
+      commands.push({item,shadow,shadowOpacity,order,kind,index:commands.length});
     }
   }
   return commands.sort((a,b) => a.order-b.order || a.kind-b.kind || a.index-b.index);
@@ -173,7 +193,7 @@ export function drawFrame(context, frame, metadata, scale) {
     context.setTransform(scale, 0, 0, scale, 0, 0);
     context.clearRect(0, 0, metadata.width, metadata.height);
     context.beginPath(); context.rect(0, 0, metadata.width, metadata.height); context.clip();
-    for (const {item,shadow} of commands) {
+    for (const {item,shadow,shadowOpacity} of commands) {
       context.save();
       try {
         if (frame.scroll && item.id >= frame.scroll.first_id) {
@@ -185,22 +205,22 @@ export function drawFrame(context, frame, metadata, scale) {
         }
         const b = item.bounds;
         const c = item.color;
-        context.globalAlpha = item.opacity ?? 1;
+        context.globalAlpha = shadow ? shadowOpacity : item.opacity ?? 1;
         const style = styles.get(item.id);
         for (const rect of clips.get(item.clip_chain_id) || []) {
           context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
         }
         context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
         if (shadow) {
-          const [blur,spread] = shadow;
+          const {offset_x,offset_y,blur,spread} = shadow;
           // Keep both source layers, opacity and clip. The offscreen caster
           // prevents its opaque fill from appearing in the viewport.
           context.fillStyle = '#000000';
           context.shadowColor = 'rgba(0,0,0,.1)';
           // Shadow lengths are device pixels in Canvas, unlike the path.
           context.shadowBlur = blur*scale;
-          context.shadowOffsetX = 4096*scale;
-          context.shadowOffsetY = scale;
+          context.shadowOffsetX = (4096+offset_x)*scale;
+          context.shadowOffsetY = offset_y*scale;
           context.beginPath();
           context.roundRect(b.x-spread-4096,b.y-spread,b.width+2*spread,b.height+2*spread,
             Math.max(0,(style?.radius || roundedFills.get(item.id) || 0)+spread));

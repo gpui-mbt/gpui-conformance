@@ -56,15 +56,16 @@ test('shadow lengths follow device scale independently from transformed caster p
 test('new preset rejects unsupported shape and values before any draw call',()=>{
   for(const mutation of [f=>f.shadows=null,f=>f.shadows={},f=>f.shadows=[null],f=>f.shadows[0].kind='shadow_lg',
     f=>f.shadows[0].id=60,f=>f.shadows[0].blur=3,f=>f.shadows.push({...f.shadows[0]}),f=>f.snapshot.items[0].bounds.height=2,
-    f=>f.decorations[0].border_width=2,f=>f.decorations[0].border_style='dashed',f=>f.snapshot.items[0].bounds.height=5,f=>f.decorations[0].shadow=true]) {
+    f=>f.decorations[0].border_width=2.5,f=>f.decorations[0].border_style='dashed',f=>f.snapshot.items[0].bounds.height=5,f=>f.decorations[0].shadow=true]) {
     const f=frame();mutation(f);let calls=0;
     assert.throws(()=>drawFrame(new Proxy({}, {get:()=>()=>calls++}),f,{width:800,height:600},1));assert.equal(calls,0);
   }
 });
 test('solid3px requires6px extent while existing1px dashed and4px solid stay accepted',()=>{
   const f=frame();f.shadows=[];f.snapshot.items[0].bounds.height=6;assert.doesNotThrow(()=>validateFrame(f));
-  for(const width of [1,4]){const old=frame();old.shadows=[];old.decorations[0].border_width=width;old.decorations[0].radius=6;old.decorations[0].border_style=width===1?'dashed':'solid';assert.doesNotThrow(()=>validateFrame(old));}
-  for(const width of [0,2,5,-1,NaN,Infinity,'3',null]){const bad=frame();bad.decorations[0].border_width=width;assert.throws(()=>validateFrame(bad));}
+  // Solid2px is now explicitly supported for drag_drop; fractional widths are not.
+  for(const width of [1,2,4]){const old=frame();old.shadows=[];old.decorations[0].border_width=width;old.decorations[0].radius=6;old.decorations[0].border_style=width===1?'dashed':'solid';assert.doesNotThrow(()=>validateFrame(old));}
+  for(const width of [0,2.5,5,-1,NaN,Infinity,'3',null]){const bad=frame();bad.decorations[0].border_width=width;assert.throws(()=>validateFrame(bad));}
 });
 
 // Real source groups have zero-gap opaque siblings. The shadow's blur tail

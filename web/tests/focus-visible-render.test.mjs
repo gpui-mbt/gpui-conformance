@@ -10,7 +10,10 @@ text_styles:[{id:2,weight:700,style:'normal',decoration:'none'}]});
 
 test('focus borders and bold700 remain explicit validated host extensions',()=>{
   assert.doesNotThrow(()=>validateFrame(frame()));
-  for(const width of [0,2,5,-1,NaN,Infinity,'4',null]) {
+  // The formerly rejected solid2px width is now a bounded drag_drop extension.
+  const dragBorder=frame();dragBorder.decorations[0].border_width=2;
+  assert.doesNotThrow(()=>validateFrame(dragBorder));
+  for(const width of [0,2.5,5,-1,NaN,Infinity,'4',null]) {
     const value=frame();value.decorations[0].border_width=width;
     assert.throws(()=>validateFrame(value),/decoration/);
   }
