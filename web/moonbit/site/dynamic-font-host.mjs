@@ -4,7 +4,7 @@ export const FONT_URL = 'https://fonts.gstatic.com/s/notosansdevanagari/v30/TuGo
 export const SAMPLE = 'नमस्ते 😀 दुनिया 👨‍👩‍👧‍👦 नमस्ते ❤️';
 export const WAITING = 'Waiting for a missing Devanagari glyph…';
 export const DOWNLOADING = 'Downloading Noto Sans Devanagari (219 KB)…';
-export const LOADED = 'Font loaded. The same text is now shaped by Cosmic Text.';
+export const LOADED = 'Font loaded. Canvas fallback active (Cosmic Text shaping unverified).';
 
 export function createDynamicFontHost({fetchFont, FontFaceType, fonts, onChange}) {
   let phase = 'waiting';
