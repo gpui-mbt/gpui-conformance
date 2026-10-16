@@ -108,8 +108,9 @@ execution. In particular the negative control, mismatched capture
 dimensions, absent GPU event, wrong run token and build-only result
 are tested. The optional Linux action additionally attempts to build
 both pinned engines, run Xvfb + Openbox + Weston, capture real frames
-and upload comparison.json plus build/runtime logs. CI marks a missing
-native observation UNVERIFIED; a green portable job is not a GPU pass.
+and upload comparison.json plus build/runtime logs. CI marks missing native observations UNVERIFIED, retains all logs, and fails
+native qualification when real GPU evidence is absent. Portable tests passing
+alone never constitute a GPU pass.
 Do not mark this native slice verified until its own real run is pass.
 
 ## Next qualifications (separate PRs)
