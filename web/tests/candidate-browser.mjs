@@ -105,12 +105,21 @@ try {
   });
   async function captureCanvas(locator, side, width = 500, height = 500) {
     await locator.scrollIntoViewIfNeeded();
+    // Center away from viewport edges: rounding a fractional bottom-edge origin
+    // up to an integer can otherwise truncate a 500px clip to 499px.
+    await locator.evaluate(canvas => canvas.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'}));
     const bounds = await locator.boundingBox();
     assert.equal(bounds.width, width); assert.equal(bounds.height, height);
     const clip = {x: Math.ceil(bounds.x), y: Math.ceil(bounds.y), width, height};
+    const viewport = page.viewportSize();
+    assert(clip.x >= 0 && clip.y >= 0 && clip.x + width <= viewport.width && clip.y + height <= viewport.height,
+      'The full integer clip must fit inside the viewport');
     report.captures ||= {};
     report.captures[side] = {bounds, clip, method:'integer CSS pixel page clip; no rescaling or masking'};
-    return page.screenshot({clip});
+    const buffer = await page.screenshot({clip});
+    assert.equal(buffer.readUInt32BE(16), width, 'PNG width must equal the complete fixture width');
+    assert.equal(buffer.readUInt32BE(20), height, 'PNG height must equal the complete fixture height');
+    return buffer;
   }
   await writeFile(join(evidence, 'moonbit.png'), await captureCanvas(moon.locator('canvas'), 'moonbit'));
   report.candidate = 'passed';
