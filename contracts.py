@@ -31,6 +31,7 @@ def validate_scenarios(scenarios):
                 allowed_counts = (
                     tuple(range(5))
                     if s.get("justify", "start") in ("space-between", "space-around", "space-evenly")
+                    or s.get("align_content", "stretch") in ("space-between", "space-around", "space-evenly")
                     else (2, 3)
                 )
             elif kind == "pointer":
@@ -50,11 +51,11 @@ def validate_scenarios(scenarios):
                     numbers(c, 2, True) and max(c) <= 4096 for c in children
                 )
             if not numbers([s.get("gap")], 1, True) or s["gap"] > 4096 or child_count not in allowed_counts or not valid_children:
-                raise ValueError("first slice requires bounded children (two or three for layout/pointer; distributed-justification layouts allow zero through four) and nonnegative gap")
+                raise ValueError("first slice requires bounded children (two or three for layout/pointer; distributed-alignment layouts allow zero through four) and nonnegative gap")
         if kind == "layout":
             if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end", "space-between", "space-around", "space-evenly") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
                 raise ValueError("unknown layout direction/alignment")
-            if s.get("align_content", "stretch") not in ("start", "center", "end", "stretch"):
+            if s.get("align_content", "stretch") not in ("start", "center", "end", "stretch", "space-between", "space-around", "space-evenly"):
                 raise ValueError("unknown bounded cross-line alignment")
             if s.get("layout_observation", "bounds") not in ("bounds", "line_origins"):
                 raise ValueError("unknown bounded layout observation")
