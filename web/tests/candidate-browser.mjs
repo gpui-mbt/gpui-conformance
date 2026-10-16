@@ -336,6 +336,45 @@ try {
   assert.equal(await page.locator('#moon-source').getAttribute('href'),
     `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/text/text.mbt`);
   const textCanvas=moon.locator('canvas');
+  async function assertTypographyLayout() {
+    const output = await moon.locator('html').evaluate(() => gpuiExample);
+    const items = output.frame.snapshot.items;
+    const glyphs = items.filter(item => item.kind === 'text' && item.id >= 500 && item.id < 700);
+    assert(glyphs.length > 120);
+    assert.equal(glyphs.filter(item => item.bounds.y === glyphs[0].bounds.y).length,20);
+    for (const glyph of glyphs) {
+      assert(glyph.bounds.x >= 16 - 1e-6 && glyph.bounds.x + glyph.bounds.width <= 904 + 1e-6,
+        `Font ${output.frame.font_index}: column glyph ${glyph.text} must fit the grid`);
+    }
+    assert.equal(output.frame.specimens.length,18);
+    for (const specimen of output.frame.specimens) {
+      const source = output.metadata.runs.find(run => run.id === 900 + specimen.index);
+      const box = items.find(item => item.id === specimen.box_id).bounds;
+      const lines = specimen.line_ids.map(id => items.find(item => item.id === id));
+      assert.equal(lines.map(line => line.text).join(''),source.text,'No phrase text may be lost');
+      assert.deepEqual(lines.map(line => line.text),specimen.lines);
+      assert(Math.abs(box.height - (lines.length * source.font_size * 1.3 + 20)) < 1e-6);
+      for (const line of lines) {
+        assert.equal(line.bounds.x,10);
+        assert(line.bounds.width <= specimen.content_width + 1e-6);
+        assert(line.bounds.y >= box.y + 10 - 1e-6);
+        assert(line.bounds.y + line.bounds.height <= box.y + box.height - 10 + 1e-6);
+      }
+    }
+    assert(output.frame.specimens[16].lines.length >= 2);
+    assert(output.frame.specimens[17].lines.length >= 2);
+    const measured = await textCanvas.evaluate(canvas => {
+      const context = canvas.getContext('2d');
+      return gpuiExample.frame.specimens.flatMap(specimen => specimen.line_ids.map(id => {
+        const line = gpuiExample.frame.snapshot.items.find(item => item.id === id);
+        context.font = `normal 400 ${line.font_size}px "${gpuiExample.metadata.font_family}"`;
+        return {text:line.text,width:context.measureText(line.text).width};
+      }));
+    });
+    for (const line of measured) assert(line.width <= 900 + 1e-6,`Actual Canvas line overflows: ${line.text}`);
+    return output;
+  }
+  await assertTypographyLayout();
   await writeFile(join(evidence,'text-moonbit-scene.json'),JSON.stringify(typography,null,2));
   await writeFile(join(evidence,'text-moonbit.png'),await captureCanvas(textCanvas,'text_moonbit',920,720));
   if(paired) {
@@ -344,9 +383,11 @@ try {
   }
   await textCanvas.click({position:{x:25,y:25}});
   assert.equal(await moon.locator('html').evaluate(()=>gpuiExample.frame.font_index),1);
+  await assertTypographyLayout();
   await textCanvas.focus();
   await page.keyboard.press('Enter');
   assert.equal(await moon.locator('html').evaluate(()=>gpuiExample.frame.font_index),2);
+  await assertTypographyLayout();
   await textCanvas.hover({position:{x:300,y:300}});
   await page.mouse.wheel(0,350);
   await page.waitForFunction(()=>{
@@ -356,7 +397,66 @@ try {
   const scrolled=await moon.locator('html').evaluate(()=>gpuiExample.frame.scroll);
   assert(scrolled.y>0 && scrolled.y<=scrolled.max);
   await writeFile(join(evidence,'text-moonbit-scrolled.png'),await captureCanvas(textCanvas,'text_scrolled',920,720));
-  report.operations.push({action:'select text, switch fonts with trusted pointer/key, scroll specimens',candidate:'920x720 compiled MoonBit scene and interaction state verified',rust:paired?'unchanged upstream text.rs WASM initialized and screenshot retained':'not_run',comparison:'unverified'});
+  const typographyFonts = [];
+  for (let step = 0; step < 5; step++) {
+    await textCanvas.hover({position:{x:300,y:300}});
+    await page.mouse.wheel(0,100000);
+    await page.waitForFunction(() => {
+      const scroll = document.getElementById('moon-frame').contentWindow.gpuiExample.frame.scroll;
+      return scroll.y === scroll.max;
+    });
+    const bottom = await assertTypographyLayout();
+    const final = bottom.frame.specimens.at(-1);
+    for(const id of final.line_ids) {
+      const bounds=bottom.frame.snapshot.items.find(item=>item.id===id).bounds;
+      assert(bounds.y-bottom.frame.scroll.y >= bottom.frame.scroll.top-1e-6);
+      assert(bounds.y+bounds.height-bottom.frame.scroll.y <= 720+1e-6);
+    }
+    typographyFonts.push({font_index:bottom.frame.font_index,family:bottom.metadata.font_family,
+      max_scroll:bottom.frame.scroll.max,last_prefix:bottom.textWidth.prefixes.at(-1).at(-1),
+      largest_lines:final.lines});
+    if(bottom.frame.font_index===0) {
+      await writeFile(join(evidence,'text-moonbit-end.png'),await captureCanvas(textCanvas,'text_end',920,720));
+      await writeFile(join(evidence,'text-moonbit-end-scene.json'),JSON.stringify(bottom,null,2));
+      const white = bottom.frame.specimens[16];
+      const whiteBox = bottom.frame.snapshot.items.find(item=>item.id===white.box_id).bounds;
+      const target = whiteBox.y - bottom.frame.scroll.top;
+      await page.mouse.wheel(0,target-bottom.frame.scroll.y);
+      await page.waitForFunction(target => {
+        const scroll=document.getElementById('moon-frame').contentWindow.gpuiExample.frame.scroll;
+        return Math.abs(scroll.y-target)<0.01;
+      },target);
+      const whiteVisible=await assertTypographyLayout();
+      for(const id of white.line_ids) {
+        const bounds=whiteVisible.frame.snapshot.items.find(item=>item.id===id).bounds;
+        assert(bounds.y-whiteVisible.frame.scroll.y >= 52-1e-6);
+        assert(bounds.y+bounds.height-whiteVisible.frame.scroll.y <= 720+1e-6);
+      }
+      await writeFile(join(evidence,'text-moonbit-largest-white.png'),await captureCanvas(textCanvas,'text_largest_white',920,720));
+      await page.mouse.wheel(0,100000);
+      await page.waitForFunction(() => {
+        const scroll=document.getElementById('moon-frame').contentWindow.gpuiExample.frame.scroll;
+        return scroll.y===scroll.max;
+      });
+    }
+    await textCanvas.focus();
+    await page.keyboard.press('Enter');
+    const reflowed=await assertTypographyLayout();
+    assert.equal(reflowed.frame.scroll.y,Math.min(bottom.frame.scroll.y,reflowed.frame.scroll.max));
+  }
+  assert.equal(new Set(typographyFonts.map(font=>font.font_index)).size,5);
+  assert(new Set(typographyFonts.map(font=>font.last_prefix)).size>1,'Actual selected-font measurements must change');
+  assert(new Set(typographyFonts.map(font=>font.max_scroll)).size>1,'Actual selected-font measurements must reflow content');
+  await writeFile(join(evidence,'text-font-reflow.json'),JSON.stringify(typographyFonts,null,2));
+  if(paired) {
+    const rustText=page.frameLocator('#rust-frame').locator('canvas');
+    await rustText.hover({position:{x:300,y:300}});
+    await page.mouse.wheel(0,100000);
+    await page.waitForTimeout(500);
+    await writeFile(join(evidence,'text-rust-end.png'),await captureCanvas(rustText,'text_rust_end',920,720));
+  }
+  report.operations.push({action:'select text, verify all twenty columns, complete measured wrapped phrases, five-font reflow and bottom scrolling',candidate:'all grid glyphs and complete multiline specimens fit the 920px viewport; trusted font-cycle and scroll clamp verified',comparison:'unverified'});
+  report.operations.push({action:'select text, switch fonts with trusted pointer/key, scroll specimens' ,candidate:'920x720 compiled MoonBit scene and interaction state verified',rust:paired?'unchanged upstream text.rs WASM initialized and screenshot retained':'not_run',comparison:'unverified'});
   await page.screenshot({path:join(evidence,'text-pair.png'),fullPage:true});
   // Real upstream Prime sieve, including actual 10M computation. This is a CPU
   // task result, never a renderer-startup measurement or a performance ranking.

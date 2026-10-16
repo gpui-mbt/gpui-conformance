@@ -1,7 +1,7 @@
 import { createHostTiming } from '../load-timing.mjs';
 const loadTiming = createHostTiming('moon');
 import { drawFrame } from './render.mjs';
-import { measureWrapperInputs } from './text-metrics.mjs';
+import { measureWrapperInputs, measureTypographyInputs } from './text-metrics.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
@@ -42,16 +42,16 @@ try {
     const width = content ? content.runs.map(run => {
       context.font = `${run.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
-    }) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
+    }) : isText ? measureTypographyInputs(context, metadata) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
       context.font = `${run.style} ${run.weight} ${run.font_size || metadata.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : context.measureText(metadata.text).width;
     const frame = JSON.parse(example === 'text_wrapper'
       ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
-      : isText ? runtime.text_frame(width, scrollY, fontIndex, scale)
+      : isText ? runtime.text_frame(width.widths, width.prefixes, scrollY, fontIndex, scale)
       : runtime[example + '_frame'](width, scale));
     drawFrame(context, frame, metadata, scale);
-    if (isText) lastFrame=frame;
+    if (isText) { lastFrame=frame; scrollY=frame.scroll.y; }
     // Expose actual candidate output for inspection, never fabricated oracle results.
     globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';

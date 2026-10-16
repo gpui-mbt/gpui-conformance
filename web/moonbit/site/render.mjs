@@ -14,7 +14,7 @@ export function validateFrame(frame) {
     const s = frame.scroll;
     if (![s.first_id,s.top,s.height,s.y,s.max].every(Number.isFinite) ||
         !Number.isInteger(s.first_id) || s.first_id < 2 || s.top < 0 ||
-        s.height <= 0 || s.y < 0 || s.y > s.max || s.max > 5000)
+        s.height <= 0 || s.y < 0 || s.y > s.max || s.max > 100000)
       throw new Error('Invalid scroll extension');
   }
   if (frame.font_button && !['x','y','width','height'].every(key =>
