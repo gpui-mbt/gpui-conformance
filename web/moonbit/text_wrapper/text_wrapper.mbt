@@ -314,6 +314,38 @@ fn box(
 }
 
 ///|
+// Pinned upstream style.rs defaults to overflow Visible/min-size auto. Taffy
+// 0.13 flexbox.rs measures MinContent for Visible, while Hidden has content min
+// zero (with a border-box floor). GPUI text.rs does not constrain wrapping or
+// truncation during its MinContent probe and ceil()s the measured text width.
+// Adapt these three fixture items to explicit limits, then let gpui.mbt perform
+// the real clamp/freeze/redistribute flex resolution. Broader intrinsic sizing
+// is not implemented here; no screenshot/native result coordinates are used.
+fn small_box(
+  index : Int32,
+  prefixes : Array[Array[Double]],
+) -> @element.Element {
+  let width = if index == 2 {
+    784.0
+  } else {
+    prefixes[index][prefixes[index].length() - 1].ceil() + 2.0
+  }
+  let minimum = if index == 2 { 2.0 } else { width }
+  @element.Element::new(
+    @layout.FlexItem::new(
+      (11 + index).to_uint64(),
+      @layout.Dimension::points(width).unwrap(),
+      @layout.Dimension::points(28.0).unwrap(),
+      @primitives.Size::new(0.0, 0.0).unwrap(),
+    )
+    .with_flex(0.0, 1.0)
+    .unwrap()
+    .with_main_limits(minimum, None)
+    .unwrap(),
+  )
+}
+
+///|
 fn small_row(prefixes : Array[Array[Double]]) -> @element.Element {
   let row = @layout.FlexTreeStyle::new(@layout.FlowDirection::row())
     .with_gap(8.0)
@@ -325,13 +357,8 @@ fn small_row(prefixes : Array[Array[Double]]) -> @element.Element {
   )
   let mut element = box(10, 28.0, 784.0, 0.0).with_children_style(row)
   for i = 0; i < 3; i = i + 1 {
-    let width = if i == 2 {
-      784.0
-    } else {
-      prefixes[i][prefixes[i].length() - 1] + 2.0
-    }
     element = element.with_child(
-      box((11 + i).to_uint64(), width, 28.0, 1.0)
+      small_box(i, prefixes)
       .with_background(Some(color(255, 255, 255)))
       .with_children_style(column),
     )
@@ -408,14 +435,9 @@ fn text_wrapper_tree(
     .unwrap(),
   )
   for i = 0; i < 3; i = i + 1 {
-    let width = if i == 2 {
-      784.0
-    } else {
-      prefixes[i][prefixes[i].length() - 1] + 2.0
-    }
     row = row.with_child(
       add_lines(
-        box((11 + i).to_uint64(), width, 28.0, 1.0)
+        small_box(i, prefixes)
         .with_background(Some(color(255, 255, 255)))
         .with_children_style(border_column),
         runs[i],
@@ -613,5 +635,5 @@ pub fn text_wrapper_frame(
     decorations = decorations +
       "{\"id\":\{id},\"radius\":0,\"border\":\{json_string(border)},\"border_width\":1,\"border_style\":\"solid\"}"
   }
-  "{\"ok\":true,\"snapshot\":\{snapshot.canonical_json()},\"decorations\":[\{decorations}],\"text_styles\":[],\"runs\":[\{diagnostics}],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"grapheme_segmentation\"],\"boundary\":\"Canvas shaped-prefix positions approximate native glyph advances; grapheme-safe boundaries differ from native scalar/glyph iteration; bidi, ligatures, fallback and native pixel parity are unverified\"}"
+  "{\"ok\":true,\"snapshot\":\{snapshot.canonical_json()},\"decorations\":[\{decorations}],\"text_styles\":[],\"runs\":[\{diagnostics}],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"grapheme_segmentation\"],\"boundary\":\"Canvas shaped-prefix positions approximate native glyph advances; grapheme-safe boundaries differ from native scalar/glyph iteration; bidi, ligatures, fallback, broader intrinsic sizing and native pixel parity are unverified\"}"
 }

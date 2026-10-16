@@ -240,6 +240,14 @@ try {
   assert.equal(wrapperFrame.frame.conformance,'unverified');
   assert.equal(wrapperFrame.frame.runs.length,9);
   const runs = wrapperFrame.frame.runs;
+  for(const index of [0,1]) {
+    assert.deepEqual(runs[index].lines,[runs[index].original_text], 'Visible-overflow flex samples retain their intrinsic text');
+    assert.equal(runs[index].truncated,false);
+    const measured = wrapperFrame.textWidth.prefixes[index].at(-1);
+    assert.equal(runs[index].content_width,Math.ceil(measured));
+    assert.equal(runs[index].box_bounds.width,Math.ceil(measured)+2);
+  }
+  assert.equal(runs[0].box_bounds.width+runs[1].box_bounds.width+runs[2].box_bounds.width+16,784);
   assert(runs[3].truncated && runs[3].lines.length === 1 && runs[3].lines[0].endsWith('…'));
   assert(runs[4].clamped && runs[4].lines.length === 2 && runs[4].lines.at(-1).endsWith('…'));
   assert(runs[5].truncated && runs[5].lines.length === 1 && !runs[5].lines[0].endsWith('…'));

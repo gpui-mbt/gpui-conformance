@@ -7,5 +7,9 @@ import {
 }
 
 supported_targets = "js"
+
 pkgtype(kind: "foreign_library")
-options(link: { "js": { "format": "esm" } })
+
+options(
+  link: { "js": { "format": "esm" } },
+)

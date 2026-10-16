@@ -190,19 +190,25 @@ test "frame rejects malformed and nonfinite host metrics" {
 }
 
 ///|
-test "actual element layout allocates shrinkable flex samples and border insets" {
+test "actual element layout respects visible intrinsic minima and hidden shrink" {
   let graphemes = fixture_texts().map(tokens)
   let advances = graphemes.map(chars => Array::make(chars.length(), 8.0))
   let prefixes = advances.map(prefixes_for)
   let budgets = content_budgets(prefixes)
-  assert_true(budgets[0] < 160.0)
-  assert_true(budgets[1] < 80.0)
+  assert_eq(budgets[0], 168.0)
+  assert_eq(budgets[1], 80.0)
+  assert_eq(budgets[2], 514.0)
+  assert_eq(budgets[0] + budgets[1] + budgets[2] + 6.0 + 16.0, 784.0)
   assert_true(budgets[2] < 784.0)
   assert_eq(budgets[3], 782.0)
   assert_eq(budgets[8], 784.0)
   let runs = graphemes.mapi((i, chars) => {
     prepare_run(chars, advances[i], prefixes[i], budgets[i], i, 8.0)
   })
+  for i = 0; i < 2; i = i + 1 {
+    assert_eq(runs[i].lines, [fixture_texts()[i]])
+    assert_true(!runs[i].truncated)
+  }
   let tree = text_wrapper_tree(prefixes, runs).tree()
   assert_eq(tree.node(10).unwrap().bounds().left(), 8.0)
   assert_eq(tree.node(10).unwrap().bounds().top(), 8.0)
@@ -219,4 +225,29 @@ test "actual element layout allocates shrinkable flex samples and border insets"
   // gpui::green() is HSL(120,100%,25%), not bright CSS lime.
   assert_true(frame.contains("\"border\":\"#008000\""))
   assert_true(!frame.contains("#00ff00"))
+}
+
+///|
+test "fractional measured widths ceil before visible automatic minimum limits" {
+  let graphemes = fixture_texts().map(tokens)
+  let advances = graphemes.map(chars => Array::make(chars.length(), 8.03))
+  let prefixes = advances.map(prefixes_for)
+  let budgets = content_budgets(prefixes)
+  assert_eq(budgets[0], 169.0)
+  assert_eq(budgets[1], 81.0)
+  assert_eq(budgets[2], 512.0)
+  assert_eq(budgets[0] + budgets[1] + budgets[2] + 6.0 + 16.0, 784.0)
+  let runs = graphemes.mapi((i, chars) => {
+    prepare_run(chars, advances[i], prefixes[i], budgets[i], i, 8.03)
+  })
+  let tree = text_wrapper_tree(prefixes, runs).tree()
+  for i = 0; i < 2; i = i + 1 {
+    assert_eq(runs[i].lines, [fixture_texts()[i]])
+    assert_true(!runs[i].truncated)
+    assert_eq(
+      tree.node((11 + i).to_uint64()).unwrap().bounds().size().width(),
+      budgets[i] + 2.0,
+    )
+  }
+  assert_eq(tree.node(13).unwrap().bounds().size().width(), budgets[2] + 2.0)
 }

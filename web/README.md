@@ -88,8 +88,12 @@ boundaries. Native scalar/glyph iteration can choose different boundaries
 from the port's indivisible graphemes; Canvas prefix widths are only a proxy
 for native glyph positions. The fixed paragraphs have no explicit newlines
 or leading indentation, and the helpers do not claim broader paragraph
-semantics. The small row uses candidate proportional flex shrink from
-measured preferred widths; native minimum-content sizing is unresolved.
+semantics. For the small row, the two visible-overflow flex samples use
+`ceil(measured text width)` plus borders as an explicit candidate minimum-main
+constraint, following upstream's automatic minimum-content measurement. The
+overflow-hidden third sample has a zero content minimum and absorbs shrink.
+The positions still come from gpui.mbt flex resolution; this adaptation does
+not claim general native intrinsic-sizing equivalence.
 Shaping, ligatures, bidi, font fallback, kerning, exact Unicode line breaking,
 rasterization and native parity remain unverified.
 
