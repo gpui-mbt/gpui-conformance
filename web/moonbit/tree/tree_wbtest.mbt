@@ -12,7 +12,14 @@ test "tree retains all 51 upstream nodes, padding, colors and paint order" {
     assert_eq(bounds.left(), offset.to_double() * 2.0)
     assert_eq(bounds.top(), offset.to_double() * 2.0)
     assert_eq(bounds.size().width(), 300.0 - offset.to_double() * 4.0)
-    assert_eq(bounds.size().height(), (index + 1).to_double() * 4.0)
+    assert_eq(
+      bounds.size().height(),
+      if offset == 0 {
+        300.0
+      } else {
+        (index + 1).to_double() * 4.0
+      },
+    )
     assert_true(node.background().unwrap() == tree_color(index))
   }
   assert_false(prepainted.overflow())
@@ -23,9 +30,20 @@ test "tree auto measurement follows hierarchy changes rather than fixed boxes" {
   for depth in [0, 1, 3, 12, 50, 63] {
     let prepainted = tree_layout(depth)
     let outer = prepainted.tree().node((depth + 2).to_uint64()).unwrap()
-    assert_eq(outer.bounds().size().height(), (depth + 1).to_double() * 4.0)
+    assert_eq(outer.bounds().size().height(), 300.0)
     assert_eq(outer.bounds().size().width(), 300.0)
-    assert_eq(prepainted.tree().node(2).unwrap().bounds().size().height(), 4.0)
+    assert_eq(
+      prepainted.tree().node(2).unwrap().bounds().size().height(),
+      if depth == 0 {
+        300.0
+      } else {
+        4.0
+      },
+    )
+    if depth > 0 {
+      let child = prepainted.tree().node((depth + 1).to_uint64()).unwrap()
+      assert_eq(child.bounds().size().height(), depth.to_double() * 4.0)
+    }
     assert_eq(
       prepainted.paint_snapshot(1.0).unwrap().items().length(),
       depth + 1,

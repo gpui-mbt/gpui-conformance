@@ -10,6 +10,13 @@ fn tree_color(index : Int32) -> @primitives.Color {
 }
 
 ///|
+fn tree_style() -> @layout.FlexTreeStyle {
+  @layout.FlexTreeStyle::new(@layout.FlowDirection::column())
+  .with_align(@layout.AlignItems::stretch())
+  .with_insets(@layout.Insets::all(2.0).unwrap(), @layout.Insets::zero())
+}
+
+///|
 fn tree_node(index : Int32) -> @element.Element {
   // Upstream uses block layout. A single-child column with auto main size and
   // stretched cross size preserves that block flow without precomputed bounds.
@@ -23,28 +30,27 @@ fn tree_node(index : Int32) -> @element.Element {
     .with_flex(0.0, 0.0)
     .unwrap(),
   )
-  .with_children_style(
-    @layout.FlexTreeStyle::new(@layout.FlowDirection::column())
-    .with_align(@layout.AlignItems::stretch())
-    .with_insets(@layout.Insets::all(2.0).unwrap(), @layout.Insets::zero()),
-  )
+  .with_children_style(tree_style())
   .with_background(Some(tree_color(index)))
 }
 
 ///|
 fn tree_layout(depth : Int32) -> @element.Prepainted {
-  // As in tree.rs, depth counts wrapping operations, not total colored nodes.
-  let mut inner = tree_node(0)
-  for index = 1; index <= depth; index = index + 1 {
-    inner = tree_node(index).with_child(inner)
-  }
-  @element.Element::root(
-    1,
-    @layout.FlexTreeStyle::new(@layout.FlowDirection::column()).with_align(
-      @layout.AlignItems::stretch(),
-    ),
+  // GPUI stretches an auto-sized window root to the viewport before layout
+  // (window.rs -> TaffyLayoutEngine::stretch_auto_size_to_fill). The colored
+  // outer block is that root, not a shrink-wrapped child of a synthetic root.
+  let mut root = @element.Element::root((depth + 2).to_uint64(), tree_style()).with_background(
+    Some(tree_color(depth)),
   )
-  .with_child(inner)
+  // As in tree.rs, depth counts wrapping operations, not total colored nodes.
+  if depth > 0 {
+    let mut inner = tree_node(0)
+    for index = 1; index < depth; index = index + 1 {
+      inner = tree_node(index).with_child(inner)
+    }
+    root = root.with_child(inner)
+  }
+  root
   .request_layout(@primitives.Size::new(300.0, 300.0).unwrap())
   .unwrap()
   .prepaint()

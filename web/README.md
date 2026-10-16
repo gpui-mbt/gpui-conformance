@@ -202,8 +202,12 @@ The MoonBit tree uses real auto-sized Elements, nested padding, stretched
 single-child columns, request_layout → prepaint → paint_snapshot. This
 single-child column composition represents the upstream block flow. There
 are no hardcoded scene rectangles, browser text measurements, fonts or new
-paint extensions. Recursive intrinsic measurement derives an outer height
-of 204 pixels and a 4-pixel-high innermost block. Unit tests cover all 51
+paint extensions. The colored outer block is the window root and fills the
+300×300 viewport. This mirrors the pinned `window.rs` call to
+`stretch_auto_size_to_fill` in `taffy.rs`: auto root dimensions stretch before
+layout, while explicitly sized roots retain their size. Recursive intrinsic
+measurement derives a 200-pixel-high first child and a 4-pixel-high innermost
+block. Unit tests cover all 51
 bounds/colors/paint positions and alternative depths 0, 1, 3, 12 and 63;
 they do not establish upstream equivalence at those alternative depths.
 The pinned library's bounded tree depth remains unchanged.
@@ -218,12 +222,18 @@ implementation remain pinned upstream bytes.
 
 The browser test captures the actual pair at an integer-aligned 300×300
 viewport, retains the candidate SceneSnapshot, checks all nested ring pixels
-and the unused background, and compares the complete RGBA image without
-masking or thresholds. Negative controls reject displaced bounds, missing
-nodes, wrong paint order and changed colors. Candidate-only execution must
+including the root-only bottom 96 rows, and compares the complete RGBA image
+without masking or thresholds. Negative controls reject displaced bounds,
+missing nodes, wrong paint order, changed colors and a shrink-wrapped root.
+The first actual Rust run exposed exactly 28,800 incorrect pixels from treating
+the window root as a 204-pixel-high child. The corrected Element root models
+upstream root sizing directly; no canvas-background workaround is used. Candidate-only execution must
 record Rust as not run. Exact image equality, when observed, applies only to
 that recorded browser run; native parity, arbitrary depth, display presentation
 and other rendering backends remain unverified. Catalog status stays unverified.
+Paired acceptance currently runs at DPR 1. A DPR 2 attempt was rejected because
+the pinned Rust backing canvas stayed 300×300 while the candidate was 600×600;
+no resampling is permitted and DPR 2 equivalence remains unverified.
 
 ## Upstream example inventory
 

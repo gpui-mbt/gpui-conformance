@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 
-// This contract is derived from the pinned tree.rs, not from candidate output.
+// This contract is derived from pinned tree.rs and GPUI's window-root semantics.
 // DEPTH is 50 wrapping operations around one padded red block: 51 paint items.
+// gpui/src/window.rs:3710-3724 calls stretch_auto_size_to_fill before layout;
+// gpui/src/taffy.rs:109-136 replaces auto ROOT dimensions with viewport lengths.
+// Consequently only the outermost block is 300x300; descendants stay auto-sized.
 export const TREE = Object.freeze({width:300, height:300, wraps:50, nodes:51, padding:2,
   sourceBlob:'891be4790a59ae258da3380d2ef54fba26979346'});
 const palette = [[255,0,0,255], [0,0,255,255], [0,128,0,255], [255,255,0,255]];
@@ -11,8 +14,9 @@ const colorKey = c => c.join(',');
 
 export function expectedTreeRings() {
   return Array.from({length:TREE.nodes}, (_, ordinal) => {
-    const bounds = {x:2*ordinal,y:2*ordinal,width:300-4*ordinal,height:204-4*ordinal};
-    const innerArea = ordinal < TREE.wraps ? (bounds.width-4)*(bounds.height-4) : 0;
+    const bounds = {x:2*ordinal,y:2*ordinal,width:300-4*ordinal,height:ordinal===0?300:204-4*ordinal};
+    const next=ordinal+1;
+    const innerArea = ordinal < TREE.wraps ? (300-4*next)*(204-4*next) : 0;
     return {ordinal, source_index:TREE.wraps-ordinal, bounds,
       rgba:[...palette[(TREE.wraps-ordinal)%4]], visible_pixels:bounds.width*bounds.height-innerArea};
   });
@@ -46,6 +50,7 @@ export function assertTreeScene(example, dpr=1) {
     assert.equal(item.clip_chain_id,null,`ring ${ordinal}: unexpected clip`);
   }
   return {nodes:TREE.nodes,wrapping_operations:TREE.wraps,padding:TREE.padding,
+    root_sizing:'auto window root stretched to full 300x300 viewport before layout',
     paint_order:'outer-to-inner',rings};
 }
 
@@ -82,24 +87,34 @@ export function inspectTreeImage(image,dpr=1) {
   const expected=reference(dpr);
   const rings=expectedTreeRings().map(r => ({...r,expected_pixels:r.visible_pixels*dpr*dpr,
     pixels:0,matching_pixels:0,mismatched_pixels:0,observed_colors:{}}));
-  const background={bounds:{x:0,y:204,width:300,height:96},rgba:white,
+  // This is a diagnostic subset of ring 0, not an extra region or unpainted
+  // background. It caught the old transparent-wrapper/shrinkwrapped-root bug.
+  const rootOnlyBottom={bounds:{x:0,y:204,width:300,height:96},rgba:[0,128,0,255],
+    subset_of_ring:0,
     expected_pixels:28800*dpr*dpr,pixels:0,matching_pixels:0,mismatched_pixels:0,observed_colors:{}};
   const colors={}; let mismatched=0; const first=[];
   for(let p=0;p<image.width*image.height;p++) {
     const actual=Array.from(image.data.subarray(4*p,4*p+4));
     const wanted=Array.from(expected.data.subarray(4*p,4*p+4));
     const key=colorKey(actual); colors[key]=(colors[key]||0)+1;
-    const region=expected.regions[p]<0 ? background : rings[expected.regions[p]];
+    const region=rings[expected.regions[p]];
+    assert(region,'The full viewport must be covered by the window-root quad');
     region.pixels++;
     region.observed_colors[key]=(region.observed_colors[key]||0)+1;
-    if(actual.some((v,i)=>v!==wanted[i])) {
+    const different=actual.some((v,i)=>v!==wanted[i]);
+    if(different) {
       mismatched++;region.mismatched_pixels++;
       if(first.length<12) first.push({x:p%image.width,y:Math.floor(p/image.width),expected:wanted,actual,ring:expected.regions[p]});
     } else region.matching_pixels++;
+    if(Math.floor(p/image.width)>=204*dpr) {
+      rootOnlyBottom.pixels++;
+      rootOnlyBottom.observed_colors[key]=(rootOnlyBottom.observed_colors[key]||0)+1;
+      if(different)rootOnlyBottom.mismatched_pixels++;else rootOnlyBottom.matching_pixels++;
+    }
   }
   return {status:mismatched?'failed':'passed',width:image.width,height:image.height,dpr,
     checked_pixels:image.width*image.height,matching_pixels:image.width*image.height-mismatched,
-    mismatched_pixels:mismatched,first_mismatches:first,palette_counts:colors,rings,background};
+    mismatched_pixels:mismatched,first_mismatches:first,palette_counts:colors,rings,root_only_bottom:rootOnlyBottom};
 }
 
 export function compareTreeImages(rust,moonbit,dpr=1) {
@@ -138,6 +153,7 @@ export function treeNegativeControls(example,actualImage,dpr=1) {
   assert.equal(inspectTreeImage(actualImage,dpr).status,'passed','negative controls need a verified real/synthetic baseline');
   const controls=[];
   for(const [name,mutate] of [
+    ['shrinkwrapped_root',e=>{e.frame.snapshot.items[0].bounds.height=204;}],
     ['shifted_layout',e=>{for(const q of e.frame.snapshot.items)q.bounds.x+=1;}],
     ['reordered_paint',e=>{const a=e.frame.snapshot.items;[a[0],a[1]]=[a[1],a[0]];}],
     ['missing_node',e=>{e.frame.snapshot.items.splice(25,1);}],
@@ -150,7 +166,7 @@ export function treeNegativeControls(example,actualImage,dpr=1) {
     controls.push({name,scene_rejected:sceneRejected,pixel_rejected:true,different_pixels:comparison.different_pixels,
       input:'intentionally mutated scene rendered by test-only rectangle fixture'});
   }
-  for(const [name,x,y] of [['recolored_pixel',100,100],['recolored_unused_background',0,299]]) {
+  for(const [name,x,y] of [['recolored_pixel',100,100],['recolored_root_only_bottom',0,299]]) {
     const bad={...actualImage,data:actualImage.data.slice()};
     bad.data[4*((y*dpr)*bad.width+x*dpr)+2]^=1;
     const comparison=compareTreeImages(actualImage,bad,dpr);

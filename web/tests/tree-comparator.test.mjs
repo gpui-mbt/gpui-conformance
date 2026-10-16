@@ -13,28 +13,45 @@ function fixture(dpr=1) {
 
 test('source-derived contract has 51 blocks, 50 rings, and a four-pixel-high red center',()=>{
   const rings=expectedTreeRings();assert.equal(rings.length,TREE.nodes);
-  assert.deepEqual(rings[0].bounds,{x:0,y:0,width:300,height:204});
+  assert.deepEqual(rings[0].bounds,{x:0,y:0,width:300,height:300});
+  assert.deepEqual(rings[1].bounds,{x:2,y:2,width:296,height:200});
   assert.deepEqual(rings[50].bounds,{x:100,y:100,width:100,height:4});
   assert.deepEqual(rings.slice(0,4).map(r=>r.rgba),[[0,128,0,255],[0,0,255,255],[255,0,0,255],[255,255,0,255]]);
-  assert.equal(rings.reduce((sum,r)=>sum+r.visible_pixels,0),61200);
+  assert.equal(rings[0].visible_pixels,30800);
+  assert.equal(rings.reduce((sum,r)=>sum+r.visible_pixels,0),90000);
   assert.equal(assertTreeScene(fixture()).nodes,51);
 });
 
 for(const dpr of [1,2]) {
-  test(`DPR ${dpr}: count every ring and every unused white pixel without masks`,()=>{
+  test(`DPR ${dpr}: count every ring and the root-only bottom region without masks`,()=>{
     const image=treeReferenceImage(dpr),result=compareTreeImages(image,image,dpr);
     assert.equal(result.status,'passed');assert.equal(result.different_pixels,0);
     assert.equal(result.checked_pixels,90000*dpr*dpr);
-    assert.equal(result.rust.background.matching_pixels,28800*dpr*dpr);
+    assert.equal(result.rust.root_only_bottom.matching_pixels,28800*dpr*dpr);
+    assert.equal(result.rust.root_only_bottom.subset_of_ring,0);
+    assert.deepEqual(result.rust.root_only_bottom.rgba,[0,128,0,255]);
     assert(result.rust.rings.every(r=>r.matching_pixels===r.expected_pixels));
-    assert.equal(Object.keys(result.rust.palette_counts).length,5);
+    assert.deepEqual(result.rust.palette_counts,{'0,128,0,255':44816*dpr*dpr,
+      '0,0,255,255':15600*dpr*dpr,'255,0,0,255':15184*dpr*dpr,'255,255,0,255':14400*dpr*dpr});
   });
   test(`DPR ${dpr}: reject shifted layout, reordered paint, missing nodes, and isolated pixel recolors`,()=>{
     const negatives=treeNegativeControls(fixture(dpr),treeReferenceImage(dpr),dpr);
-    assert.equal(negatives.length,5);assert(negatives.every(n=>n.pixel_rejected&&n.different_pixels>0));
-    assert(negatives.slice(0,3).every(n=>n.scene_rejected));
+    assert.equal(negatives.length,6);assert(negatives.every(n=>n.pixel_rejected&&n.different_pixels>0));
+    assert(negatives.slice(0,4).every(n=>n.scene_rejected));
+    assert.equal(negatives.find(n=>n.name==='shrinkwrapped_root').different_pixels,28800*dpr*dpr);
   });
 }
+
+test('regression: the old 204px shrinkwrapped root fails even when all inner rings match',()=>{
+  const bad=fixture();bad.frame.snapshot.items[0].bounds.height=204;
+  assert.throws(()=>assertTreeScene(bad),/ring 0: bounds/);
+  const goodImage=treeReferenceImage(),badImage=treeReferenceImage();
+  for(let y=204;y<300;y++)for(let x=0;x<300;x++)badImage.data.set([255,255,255,255],4*(y*300+x));
+  const comparison=compareTreeImages(goodImage,badImage);
+  assert.equal(comparison.status,'failed');assert.equal(comparison.different_pixels,28800);
+  assert.equal(comparison.moonbit.root_only_bottom.mismatched_pixels,28800);
+  assert(comparison.moonbit.rings.slice(1).every(r=>r.mismatched_pixels===0));
+});
 
 test('two identical wrong images cannot certify a wrong tree',()=>{
   const image=treeReferenceImage();image.data[0]=255;

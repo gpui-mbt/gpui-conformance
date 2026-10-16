@@ -57,7 +57,10 @@ export async function checkTreePair({page,evidence,paired=true}) {
       const bounds=await canvas.boundingBox();
       assert.deepEqual(bounds,{x:0,y:0,width:300,height:300},'Full canvas must start at the exact viewport origin');
       const backing=await canvas.evaluate(c=>({width:c.width,height:c.height}));
-      assert.deepEqual(backing,{width:300*dpr,height:300*dpr});
+      // Record sizing before rejecting it so unsupported upstream DPR behavior
+      // stays visible in failed evidence rather than being resized away.
+      result.captures[side]={url:runtimePage.url(),bounds,backing,dpr};
+      assert.deepEqual(backing,{width:300*dpr,height:300*dpr},`${side}: backing canvas must match device-pixel size without resampling`);
       if(side==='moonbit') {
         scene=await runtimePage.locator('html').evaluate(()=>globalThis.gpuiExample);
         await writeFile(join(evidence,`tree-moonbit-scene-${suffix}.json`),JSON.stringify(scene,null,2)+'\n');
