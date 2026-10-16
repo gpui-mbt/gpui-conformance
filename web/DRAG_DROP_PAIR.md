@@ -113,7 +113,7 @@ borrowing, altered original pixels, compiled assets, hosts/renderers/fonts,
 source/core pins, source-only relabeling and historical/dirty checkout identity.
 Unit fixtures are explicitly synthetic and cannot certify a runtime pair.
 
-The current evidence protocol is `drag_drop_paired_pointer_v2`; the unchanged
+The current evidence protocol is `drag_drop_paired_pointer_v3`; the unchanged
 54-operation behavior profile is preserved. Review of initial source commit
 `11f6fa0b6f07e3b9f095d234bf1f940a31c2c72e` found that document responses had been
 omitted by an extension-only filter. A source-only negative control reproduced
@@ -121,6 +121,54 @@ the gap for both runtimes before this correction. No browser pair had been
 qualified under that initial format. The correction requires the actual HTML
 entrypoints and tests missing/changed HTML, inline-script injection, document
 route/query ownership and the original current source bytes.
+
+## Source-generated worker responses and portable evidence
+
+The first actual current pair, run `38951347981` / job `117143210222`, failed
+under v2. Its original decoded log (SHA-256
+`c153e818aa970dc72212ef06eaa6a1995fc15d42ded00e4a1ff9601a02f1fbfd`)
+records an executed blob-script hash compared with an undefined file pin. Its
+URL-derived evidence filename contained a colon, so artifact upload also failed.
+No original current PNG, trusted-input or executed-response artifacts were
+available for independent review. The log-reported candidate capture is not
+qualified paired evidence, and no pixel mismatch was established by that failure.
+
+Version 3 retains this generated code and validates its exact source derivation:
+
+- The current locked dependency is `wasm_thread` 0.3.3, revision
+  `0cf96c7708dfb97ccf3da50347e25edcf75d6937`. The exact dependency lock and
+  [original 964-byte module template](https://github.com/zed-industries/wasm_thread/blob/0cf96c7708dfb97ccf3da50347e25edcf75d6937/src/wasm32/js/web_worker_module.js)
+  are retained source inputs. The copied fixture is licensed under the adjacent
+  original MIT license. Its SHA-256 is
+  `43f6beda7493508d3d8b6760d680195b08cc756db89e8aba6bbd5e1ce6da2ca4`.
+- The complete template must occur in the fresh actual served Rust WASM; both
+  original WASM and loader bytes must match the current build hashes. The expected
+  body is the exact single `WASM_BINDGEN_SHIM_URL` replacement implemented by
+  [the pinned source](https://github.com/zed-industries/wasm_thread/blob/0cf96c7708dfb97ccf3da50347e25edcf75d6937/src/wasm32/utils.rs#L40-L73),
+  using the fresh actual retained loader response URL, including its server port.
+- Each original blob-script body is reread separately and compared byte-for-byte
+  with that derivation. Blob origin must match the same current Rust document and
+  loader origin. Missing responses, changed/appended bodies, other runtimes,
+  stale loader URLs, unknown scripts and other generated-worker kinds fail closed.
+  Expected bytes never substitute for a failed browser body read.
+- Source caches the blob URL, so multiple requests for that URL are retained as
+  distinct original files and response IDs. Blobs have browser observations;
+  they do not get fabricated HTTP-server observations.
+- Every dynamic evidence filename uses a fixed ASCII prefix, response ordinal
+  and full SHA-256 of the JSON-encoded original identity. Raw URL/path text never
+  enters a filename. The original URL, resource type, response ID and runtime/
+  session binding remain in the report. Validators reconstruct filenames and
+  require unique IDs, so separators, colons, Unicode, escaped paths and collisions
+  from lossy slash replacement cannot overwrite or block artifact upload.
+
+For source diagnosis only, replacing the marker with the failed log's loader
+URL produces 1,000 bytes and SHA-256
+`1d49b54f3942aed12fce148a7409b23e44ac32a342b747acd5fece6d6b75a8fb`,
+exactly the logged digest. This reconstruction is not a recovered original
+response. Historical WASM was used only for source research, never as current
+runtime evidence. Fresh current v3 CI artifacts and independent review remain
+required. The HTML pins, fixed behavior profile and original pixel/input gates
+are unchanged.
 
 ## Claim boundary and CI budget
 

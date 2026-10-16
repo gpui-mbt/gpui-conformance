@@ -7,7 +7,8 @@ import {readFile,mkdir,readdir,writeFile} from 'node:fs/promises';
 import {resolve,join,sep,extname} from 'node:path';
 import {SOURCE_CONSTRAINTS,sha256,decodePng,discoverGeometry,makeProfile,assertPointerDelivery} from './drag-drop-comparator.mjs';
 import {PAIR_REVISION,SUITE_INPUTS,GRAPHICS_ARGS,captureBinding,inputEvidence,assertPairedProvenance as assertProvenance,
-  pairedProvenanceNegativeControls as provenanceNegativeControls,expectedRuntimeFiles,requiredRuntimeFiles,runtimeResponsePath,requiresRuntimeRetention} from './drag-drop-pair-comparator.mjs';
+  pairedProvenanceNegativeControls as provenanceNegativeControls,validateRuntimeResponses,assertExecutedBytes,runtimeResponsePath,requiresRuntimeRetention} from './drag-drop-pair-comparator.mjs';
+import {evidenceFilename} from './drag-drop-runtime-evidence.mjs';
 const args=process.argv.slice(2);assert(args.filter(arg=>!arg.startsWith('--')).length<=1&&args.filter(arg=>arg.startsWith('--')).every(arg=>arg==='--candidate')&&args.filter(arg=>arg==='--candidate').length<=1,'Only a site path and --candidate are accepted');
 const runtime=args.includes('--candidate')?'moonbit':'rust';
 const site=resolve(args.find(arg=>!arg.startsWith('--'))||'_build/drag-drop-browser-lab');
@@ -21,7 +22,7 @@ const result={status:'failed',runtime,candidate:'implemented',capture_session:ra
 await mkdir(evidence,{recursive:true});
 assert(!(await readdir(evidence)).some(name=>name.startsWith(`drag-drop-${runtime}-`)),'Choose a fresh evidence directory; original runtime evidence is never overwritten');
 let browser,server,page;
-const images={},responseTasks=[];let files={},responseId=0;
+const images={},responseTasks=[],retained={assets:{},responses:{}};let responseId=0;
 try {
   const manifestBytes=await readFile(join(site,'build-manifest.json')),catalogBytes=await readFile(join(site,'examples.json'));
   result.build=JSON.parse(manifestBytes);result.catalog=JSON.parse(catalogBytes);
@@ -33,15 +34,14 @@ try {
   }
   const decoder=await readFile(new URL('../scripts/decode_drag_drop_png.py',import.meta.url));
   await writeFile(join(evidence,`drag-drop-${runtime}-png-decoder.py`),decoder);result.decoder.sha256=sha256(decoder);
-  files=expectedRuntimeFiles(result.build,runtime);
   for(const path of SUITE_INPUTS) {
-    const bytes=await readFile(new URL('../../'+path,import.meta.url)),file=`drag-drop-${runtime}-suite-${path.replaceAll('/','_')}.bin`;
+    const bytes=await readFile(new URL('../../'+path,import.meta.url)),file=evidenceFilename(runtime,'suite',path);
     await writeFile(join(evidence,file),bytes);result.suite_inputs.push({path,file,sha256:sha256(bytes),bytes:bytes.length});
   }
-  for(const path of ['rust/unchanged-source/drag_drop.rs','rust/packaging-Cargo.toml',...Object.values(result.build.rust.embedded_fonts).map(font=>'rust/'+font.file)]) {
+  for(const path of ['rust/unchanged-source/drag_drop.rs','rust/packaging-Cargo.toml','rust/Cargo.lock',...Object.values(result.build.rust.embedded_fonts).map(font=>'rust/'+font.file)]) {
     const bytes=await readFile(join(site,path));assert.equal(sha256(bytes),result.build.rust.files[path.slice(5)]);
-    const file=`drag-drop-${runtime}-input-${path.replaceAll('/','_')}.bin`;await writeFile(join(evidence,file),bytes);
-    result.support_files.push({path,file,sha256:sha256(bytes),bytes:bytes.length,purpose:path.endsWith('.rs')?'Unchanged source input':path.endsWith('.toml')?'Relocated standalone package manifest':'Font bytes embedded in the compiled Rust WASM; not a separate browser font request'});
+    const file=evidenceFilename(runtime,'input',path);await writeFile(join(evidence,file),bytes);
+    result.support_files.push({path,file,sha256:sha256(bytes),bytes:bytes.length,purpose:path.endsWith('.rs')?'Unchanged source input':path.endsWith('.toml')?'Relocated standalone package manifest':path.endsWith('Cargo.lock')?'Pinned Rust dependency lock':'Font bytes embedded in the compiled Rust WASM; not a separate browser font request'});
   }
   const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.ttf':'font/ttf'};
   server=createServer(async(request,response)=>{
@@ -81,10 +81,10 @@ try {
     const path=runtimeResponsePath(response.url());
     if(requiresRuntimeRetention(response.url(),resource_type))responseTasks.push((async()=>{
       try {
-        const bytes=await response.body(),file=`drag-drop-${runtime}-asset-${path.replaceAll('/','_')}-response-${response_id}.bin`;
+        const bytes=await response.body(),file=evidenceFilename(runtime,'asset',response.url(),response_id);
         // Retain even unexpected/failed executable responses before checking pins.
-        await writeFile(join(evidence,file),bytes);result.runtime_responses.push({path,url:response.url(),status:response.status(),response_id,resource_type,file,sha256:sha256(bytes),bytes:bytes.length});
-        assert(Object.hasOwn(files,path),`Unpinned browser runtime dependency ${path}`);
+        await writeFile(join(evidence,file),bytes);result.runtime_responses.push({path,url:response.url(),status:response.status(),response_id,resource_type,file,sha256:sha256(bytes),bytes:bytes.length,binding:{runtime,session:result.capture_session}});
+        retained.assets[path]=bytes;retained.responses[response_id]=bytes;
       }catch(error){result.errors.push({kind:'runtime_response',url:response.url(),message:error.message});}
     })());
   });
@@ -163,9 +163,7 @@ try {
   result.discovered_geometry=discoverGeometry(images.initial);
   await execute(makeProfile(result.discovered_geometry),result.operations.length);
   await Promise.all(responseTasks);
-  for(const path of requiredRuntimeFiles(runtime))
-    assert(result.runtime_responses.some(response=>response.path===path),`Actual browser response required for ${path}`);
-  for(const response of result.runtime_responses){assert.equal(response.status,200);assert.equal(response.sha256,files[response.path]);}
+  validateRuntimeResponses(result);assertExecutedBytes(result,retained);
   assert.deepEqual(result.errors,[],'Runtime/console/network errors fail discovery');
   result.status=`${runtime}_profile_captured`;
   console.log(`CAPTURED: actual ${runtime} drag_drop 54-operation profile and original stable PNGs. Independent paired verification still required.`);
