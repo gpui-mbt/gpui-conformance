@@ -87,3 +87,13 @@ Rust capture failure when the build/browser setup succeeded, and evidence is
 always uploaded. The existing 45-minute matched-examples workflow does not run
 this full tab profile. Original failed and corrected Rust-only phases remain
 separately attributable through their source commits and retained artifacts.
+
+## First candidate paint discrepancy
+
+Actual paired run `38929962683` at candidate `1652518a` retained the complete
+unchanged-Rust capture and the first 27 stable candidate states, then rejected
+the candidate's exact-color group geometry. A later sibling's inline Canvas
+shadow darkened an earlier focused blue border. The original failure evidence
+is preserved. [The bounded paint-order correction](TAB_STOP_SHADOW_PAINT_ORDER.md)
+records the pinned-source rationale, mutation controls, local validation and
+remaining requirement for a fresh actual paired browser run.

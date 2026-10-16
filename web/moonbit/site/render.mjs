@@ -54,6 +54,15 @@ export function validateFrame(frame) {
     if (!b || shadow.kind !== 'shadow_sm' || Object.keys(shadow).some(key => !['id','kind'].includes(key)) || shadowIds.has(shadow.id) || Math.min(b.width,b.height) <= 2 || frame.decorations.some(style => style.id === shadow.id && style.shadow)) throw new Error('Invalid shadow extension');
     shadowIds.add(shadow.id);
   }
+  if (shadowIds.size) {
+    // This extension lowers an axis-aligned source example, not arbitrary
+    // retained GPUI layers/transforms or the legacy preview shadow model.
+    if (frame.scroll || frame.decorations.some(style => style.shadow) ||
+        new Set(snapshot.items.map(item => item.id)).size !== snapshot.items.length ||
+        snapshot.items.some(item => item.transform &&
+          !['a','b','c','d','tx','ty'].every((key, index) => item.transform[key] === [1,0,0,1,0,0][index])))
+      throw new Error('Unsupported source shadow paint geometry');
+  }
   return frame;
 }
 
@@ -107,20 +116,64 @@ export function roundedDashSegments(b, radius, width) {
   return {perimeter, count, period, dash_length: 2 * width, dashes};
 }
 
+// Bound the explicit shadow_sm extension by the pinned GPUI scene ordering.
+// window.rs inserts offset/spread shadow bounds WITHOUT the blur tail;
+// bounds_tree.rs assigns 1 + the maximum strictly intersecting order;
+// scene.rs batches equal-order Shadow before Quad, retaining insertion ties.
+// Canvas still approximates the GPU blur kernel. Existing item paints remain
+// composite host operations; this does not reconstruct arbitrary GPUI layers,
+// parent-border continuations, border strips, or text atlas batches.
+function sourceShadowPaintCommands(frame, metadata, scale) {
+  const shadowIds = new Set((frame.shadows || []).map(style => style.id));
+  if (!shadowIds.size) return frame.snapshot.items.map(item => ({item}));
+  const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
+  const commands = [], inserted = [];
+  const edges = b => ({left:b.x,top:b.y,right:b.x+b.width,bottom:b.y+b.height});
+  const intersect = (a,b) => ({left:Math.max(a.left,b.left),top:Math.max(a.top,b.top),
+    right:Math.min(a.right,b.right),bottom:Math.min(a.bottom,b.bottom)});
+  const cover = b => ({left:Math.floor(b.left*scale), top:Math.floor(b.top*scale),
+    right:Math.ceil(b.right*scale), bottom:Math.ceil(b.bottom*scale)});
+  const overlaps = (a,b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  for (const item of frame.snapshot.items) {
+    const b = item.bounds;
+    for (const shadow of shadowIds.has(item.id) ? [[3,0],[2,-1],null] : [null]) {
+      const spread = shadow?.[1] || 0;
+      const primitive = edges(shadow ? {x:b.x-spread,y:b.y+1-spread,width:b.width+2*spread,height:b.height+2*spread} : b);
+      // Intersect inherited logical masks before covering the combined mask,
+      // as Window::with_content_mask/snapped_content_mask do. Covering each
+      // mask separately can manufacture an overlap across a fractional gap.
+      let mask = edges({x:0,y:0,width:metadata.width,height:metadata.height});
+      for (const clip of clips.get(item.clip_chain_id) || []) mask = intersect(mask,edges(clip));
+      if (![...Object.values(primitive),...Object.values(mask)].every(Number.isFinite)) throw new Error('Invalid source shadow paint bounds');
+      if (mask.left >= mask.right || mask.top >= mask.bottom) continue;
+      const bounds = intersect(cover(primitive),cover(mask));
+      if (!Object.values(bounds).every(Number.isFinite)) throw new Error('Invalid source shadow paint bounds');
+      if (bounds.left >= bounds.right || bounds.top >= bounds.bottom) continue;
+      const order = 1 + inserted.reduce((max, entry) => overlaps(bounds,entry.bounds) ? Math.max(max,entry.order) : max,0);
+      // Only the Shadow < Quad relation matters to these non-overlapping source
+      // controls. Text retains its later GPUI primitive-kind precedence.
+      const kind = shadow ? 0 : item.kind === 'quad' ? 1 : 4;
+      inserted.push({bounds,order});
+      commands.push({item,shadow,order,kind,index:commands.length});
+    }
+  }
+  return commands.sort((a,b) => a.order-b.order || a.kind-b.kind || a.index-b.index);
+}
+
 export function drawFrame(context, frame, metadata, scale) {
   validateFrame(frame);
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
   const roundedFills = new Map((frame.rounded_fills || []).map(style => [style.id, style.radius]));
-  const shadows = new Set((frame.shadows || []).map(style => style.id));
   const textStyles = new Map((frame.text_styles || []).map(style => [style.id, style]));
   const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
+  const commands = sourceShadowPaintCommands(frame, metadata, scale);
   context.save();
   try {
     context.setTransform(scale, 0, 0, scale, 0, 0);
     context.clearRect(0, 0, metadata.width, metadata.height);
     context.beginPath(); context.rect(0, 0, metadata.width, metadata.height); context.clip();
-    for (const item of frame.snapshot.items) {
+    for (const {item,shadow} of commands) {
       context.save();
       try {
         if (frame.scroll && item.id >= frame.scroll.first_id) {
@@ -138,7 +191,21 @@ export function drawFrame(context, frame, metadata, scale) {
           context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
         }
         context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
-        if (item.kind === 'text' || item.kind === 'text_run') {
+        if (shadow) {
+          const [blur,spread] = shadow;
+          // Keep both source layers, opacity and clip. The offscreen caster
+          // prevents its opaque fill from appearing in the viewport.
+          context.fillStyle = '#000000';
+          context.shadowColor = 'rgba(0,0,0,.1)';
+          // Shadow lengths are device pixels in Canvas, unlike the path.
+          context.shadowBlur = blur*scale;
+          context.shadowOffsetX = 4096*scale;
+          context.shadowOffsetY = scale;
+          context.beginPath();
+          context.roundRect(b.x-spread-4096,b.y-spread,b.width+2*spread,b.height+2*spread,
+            Math.max(0,(style?.radius || roundedFills.get(item.id) || 0)+spread));
+          context.fill();
+        } else if (item.kind === 'text' || item.kind === 'text_run') {
           const textStyle = textStyles.get(item.id);
           context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
           context.textAlign = 'left'; context.textBaseline = 'alphabetic';
@@ -160,27 +227,6 @@ export function drawFrame(context, frame, metadata, scale) {
             context.fillRect(b.x, b.y + y, metrics.width, 1);
           }
         } else {
-          if (shadows.has(item.id)) {
-            // Source shadow_sm is two layers, not the legacy preview shadow.
-            // Canvas blur is an explicit approximation of the GPU kernel.
-            // Cast from offscreen and offset back so the opaque caster itself
-            // never darkens the fill. Spread -1 shrinks its box by 1px per edge.
-            for (const [blur,spread] of [[3,0],[2,-1]]) {
-              context.save();
-              try {
-                context.fillStyle = '#000000';
-                context.shadowColor = 'rgba(0,0,0,.1)';
-                // Shadow lengths are device pixels in Canvas, unlike the path.
-                context.shadowBlur = blur*scale;
-                context.shadowOffsetX = 4096*scale;
-                context.shadowOffsetY = scale;
-                context.beginPath();
-                context.roundRect(b.x-spread-4096,b.y-spread,b.width+2*spread,b.height+2*spread,
-                  Math.max(0,(style?.radius || roundedFills.get(item.id) || 0)+spread));
-                context.fill();
-              } finally { context.restore(); }
-            }
-          }
           context.beginPath(); context.roundRect(b.x, b.y, b.width, b.height, style?.radius || roundedFills.get(item.id) || 0);
           if (style?.shadow) {
             // Canvas blur is not the GPUI GPU shadow kernel; never turn this preview into a pixel pass.
