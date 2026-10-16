@@ -1,16 +1,18 @@
 import { createHostTiming } from '../load-timing.mjs';
 const loadTiming = createHostTiming('moon');
 import { drawFrame } from './render.mjs';
+import { measureWrapperInputs } from './text-metrics.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs'};
+  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  canvas.setAttribute('aria-label', metadata.id === 'text_layout' ? 'Upstream text_layout: aligned and decorated text with styled ABCD spans' : 'Hello, World! Six colored squares');
+  const labels = {hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes'};
+  canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   const font = new FontFace(metadata.font_family, 'url(./IBMPlexSans-Regular.ttf)');
   document.fonts.add(await font.load());
@@ -23,18 +25,29 @@ try {
   await document.fonts.ready;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas 2D is unavailable');
+  let prime;
+  if (example === 'hello_web') {
+    const { createPrimeHost } = await import('./prime-host.mjs');
+    prime = createPrimeHost({ runtime, canvas, render: () => render(), onFailure: cause => console.error(cause) });
+  }
   function render() {
     const scale = Math.min(devicePixelRatio || 1, 4);
     canvas.width = Math.round(metadata.width * scale); canvas.height = Math.round(metadata.height * scale);
     context.font = `${metadata.font_size}px "${metadata.font_family}"`;
-    const width = metadata.runs ? metadata.runs.map(run => {
+    const content = example === 'hello_web' ? JSON.parse(runtime.hello_web_content()) : null;
+    const width = content ? content.runs.map(run => {
+      context.font = `${run.font_size}px "${metadata.font_family}"`;
+      return context.measureText(run.text).width;
+    }) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
       context.font = `${run.style} ${run.weight} ${metadata.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : context.measureText(metadata.text).width;
-    const frame = JSON.parse(runtime[example + '_frame'](width, scale));
+    const frame = JSON.parse(example === 'text_wrapper'
+      ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
+      : runtime[example + '_frame'](width, scale));
     drawFrame(context, frame, metadata, scale);
     // Expose actual candidate output for inspection, never fabricated oracle results.
-    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale };
+    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();

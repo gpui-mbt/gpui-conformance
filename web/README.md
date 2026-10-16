@@ -59,18 +59,101 @@ and independent Rust layout metrics remain unverified.
 
 The retained hello_world screenshot measurements apply only to hello_world.
 The catalog labels text_layout as implemented but unverified until its own
-retained comparison evidence exists. The build and E2E execute both real pairs,
+retained comparison evidence exists. The build and E2E execute the real pair
 and retain separate text_layout candidate/Rust images and candidate scene output.
+
+## Implemented port: `text_wrapper`
+
+The third port follows the same pinned upstream revision and unchanged
+`crates/gpui/examples/text_wrapper.rs`; its source blob is recorded in
+`examples.json`. It retains the static 800×600 logical viewport, the three
+red-bordered flex/normal text boxes, blue single-line ellipsis and two-line
+ellipsis rows, green truncation rows including a three-line clamp, a black
+nowrap row, and the final wrapped multilingual paragraph. The source includes
+English, Chinese, Japanese, a long word and a URL. Page padding and gaps
+are 8 pixels; the three small samples use 16-pixel text in 26-pixel line boxes,
+and the remaining six runs use 20-pixel text in 32-pixel line boxes.
+
+`moonbit/text_wrapper/text_wrapper.mbt` makes the wrapping and elision
+decisions in MoonBit from browser-measured font inputs. It builds gpui.mbt
+Elements and uses request_layout → prepaint → SceneSnapshot for the final
+text items, boxes and clipping. The pinned candidate
+`01818aa4e96fc21d1676f747a6b23d91445648a1` has no text-wrapping API, so this
+is an example-local algorithm rather than a library capability claim.
+The host segments with `Intl.Segmenter('und', { granularity: 'grapheme' })`
+and measures individual grapheme advances, whole-string prefix widths, and
+the 16/20-pixel ellipsis widths. It does not choose line breaks. MoonBit uses
+the advances for truncation/clamping and the prefix positions for final
+wrapping, following the pinned source's word-character classification,
+CJK/URL break candidates, long-word fallback and trailing whitespace/ASCII
+punctuation trimming. The clamp limits are two lines with an ellipsis and
+three lines with an empty affix. Per-run frame diagnostics expose the
+original text, chosen lines, truncation/clamp flags, content budget and bounds.
+
+Browser font measurement and grapheme segmentation are explicit host
+boundaries. Native scalar/glyph iteration can choose different boundaries
+from the port's indivisible graphemes; Canvas prefix widths are only a proxy
+for native glyph positions. The fixed paragraphs have no explicit newlines
+or leading indentation, and the helpers do not claim broader paragraph
+semantics. For the small row, the two visible-overflow flex samples use
+`ceil(measured text width)` plus borders as an explicit candidate minimum-main
+constraint, following upstream's automatic minimum-content measurement. The
+overflow-hidden third sample has a zero content minimum and absorbs shrink.
+The positions still come from gpui.mbt flex resolution; this adaptation does
+not claim general native intrinsic-sizing equivalence.
+Shaping, ligatures, bidi, font fallback, kerning, exact Unicode line breaking,
+rasterization and native parity remain unverified.
+
+The catalog labels text_wrapper as implemented and unverified. It includes
+retained actual candidate/Rust screenshots with source-run provenance, without
+inferring a pixel-conformance result. The hello_world 1,532-pixel difference is
+never attached to either new text example.
+
+## Implemented port: `hello_web` (Prime sieve)
+
+The fourth counterpart follows unchanged upstream
+`crates/gpui_web/examples/hello_web/main.rs` at the pinned revision (source blob
+recorded in `examples.json`). The original 640×560 viewport, 10M/50M/100M
+presets, 12 half-open chunks, progress bar/dots, accumulated history, colors
+and labels are preserved. Despite its title, the upstream computation is a
+brute-force 6k±1 primality test, and the MoonBit port executes that same algorithm.
+It never substitutes saved counts or a smaller range for a selected preset.
+
+MoonBit owns the application state, count algorithm, chunk partitioning,
+preset/start actions, stale/duplicate-result checks, progress and history.
+Its real gpui.mbt Element tree supplies layout, pointer dispatch and
+SceneSnapshot output. Canvas only supplies font measurements/rounded fills
+and browser pointer coordinates. A bounded pool of 2–12 module Web Workers
+imports the compiled MoonBit runtime and computes the 12 real chunks; the
+browser host handles scheduling, message transport and teardown. The displayed
+thread count is the candidate's actual pool capacity, not a claim of scheduler
+or thread-count equality with Rust. Workers are terminated when exhausted,
+on errors and on pagehide. A worker error is visibly terminal until reload.
+
+Browser E2E runs the full 10M preset and verifies 664,579 primes, all 12
+contiguous chunk ranges, progress/history and resource cleanup. It executes
+the unchanged upstream WASM with a trusted browser click and retains both the
+actual rendered result and OCR confirming its count. Selection of 50M/100M,
+repeated clicks while running, restart and leaving during a run are covered;
+the full 50M/100M computations are not exercised by CI. Unit tests cover
+primality, half-open boundaries, stale/duplicate messages and worker errors.
+
+Elapsed milliseconds are CPU-task observations including host scheduling.
+They are separate from load timing, are not renderer-startup benchmarks and
+do not establish a performance ranking. Exact pixel equality, font shaping,
+native parity, browser scheduler equivalence, keyboard accessibility and
+full 50M/100M execution remain unverified. The catalog must keep this example
+implemented/unverified with no borrowed hello_world result.
 
 ## Other upstream examples
 
-`text`, `text_wrapper`, `input`, `dynamic_fonts`, and `hello_web` (Prime sieve)
+`text`, `input`, and `dynamic_fonts`
 retain their real upstream names and source paths. They remain marked
 **gpui.mbt not implemented**. Selecting one clears both old runtimes; it never
 loads a substitute. Text input needs editing, selection and IME independently,
-and Prime sieve must execute real background work rather than replay counts.
+while dynamic fonts needs independent missing-glyph and font-loading behavior.
 
-## Build and verify the actual pair
+## Build and verify the actual pairs
 
 Requires Python 3.12+, Node.js, MoonBit, Rustup, and clean checkouts of the
 exact candidate and upstream revisions in `examples.json`.
@@ -86,8 +169,8 @@ python3 web/scripts/serve.py _build/browser-lab
 
 Open `http://127.0.0.1:8080/`. Rust WASM is under `rust/`; MoonBit JS is
 under `moonbit/`. Both iframe URLs use the same origin and the selected upstream logical viewport
-(500×500 for hello_world, 800×600 for text_layout). There is no external runtime URL or substitute Rust image.
-The Rust loader compiles and starts the actual upstream `hello_world` and `text_layout` binaries
+(500×500 for hello_world, 800×600 for text_layout/text_wrapper and 640×560 for Prime sieve). There is no external runtime URL or substitute Rust image.
+The Rust loader compiles and starts the actual upstream `hello_world`, `text_layout`, `text_wrapper` and `hello_web` binaries
 from the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
 source and upstream platform/renderer implementations remain unchanged.
 Builds use disposable archives; original source checkouts remain read-only.
@@ -107,12 +190,16 @@ PLAYWRIGHT_ROOT=/path/to/playwright-install node web/tests/candidate-browser.mjs
 python3 web/scripts/compare_screenshots.py _build/browser-example-evidence
 ```
 
-The E2E serves under `/gpui-conformance/`, verifies real WASM loading, the
-same origin and cross-origin isolation, and samples six actual swatch RGB
-pixels in each rendered canvas. It retains both 500×500 screenshots, the
-whole comparison, narrow-layout screenshot, actual MoonBit scene, HTTP and
-console records, trusted browser click/key delivery traces, and operation
-results. Selecting a missing port clears both frames. Reload waits for fresh
+The E2E serves under `/gpui-conformance/` and verifies real WASM loading,
+the same origin and cross-origin isolation. For hello_world it samples six
+actual swatch RGB pixels in each rendered canvas and retains both 500×500
+screenshots, the whole comparison, narrow-layout screenshot, actual MoonBit
+scene, HTTP and console records, trusted browser click/key delivery traces,
+and operation results. Each text example has its own 800×600 candidate/Rust
+screenshots and candidate scene. text_wrapper also retains
+`text-wrapper-pair.png` and separate operation/load-run entries in `result.json`.
+These artifacts establish execution and inspectable differences; they do not
+supply a new catalog measurement. Selecting a missing port clears both frames. Reload waits for fresh
 iframe documents rather than accepting the old ready document. Click/Enter
 probes only establish browser delivery and unchanged static color probes;
 they do not establish GPUI application event semantics. This upstream example
@@ -123,7 +210,8 @@ when the GitHub Actions repository variable
 `CATALOG_BROWSER_LAB_BASE_URL` is set to the verified worker root URL. Leave the
 variable unset until the deployment URL is confirmed. The catalog link opens
 the static sample at `/?example=hello_world`; it does not make the sample
-interactive. text_layout links to its own static pair; missing ports remain unlinked.
+interactive. text_layout and text_wrapper each link to their own static pair;
+missing ports remain unlinked.
 
 `result.json` separates overall execution, candidate, Rust, verified items,
 unverified items and exact screenshot pixel differences. A missing Rust

@@ -62,12 +62,18 @@
       "title": "Text wrapping",
       "rust_route": "text-wrapper",
       "source": "crates/gpui/examples/text_wrapper.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Wrapping",
         "Ellipsis",
         "Line clamp"
-      ]
+      ],
+      "candidate_source": "web/moonbit/text_wrapper/text_wrapper.mbt",
+      "width": 800,
+      "height": 600,
+      "interactive": false,
+      "source_blob": "51e58fc7e394faa1954d4f8837946ef797406804",
+      "implementation_note": "MoonBit wrapping and truncation with gpui.mbt layout and SceneSnapshot; browser font metrics and grapheme segmentation are explicit host inputs. Shaping and conformance remain unverified."
     },
     {
       "id": "input",
@@ -96,10 +102,19 @@
       "title": "Prime sieve",
       "rust_route": "prime-sieve",
       "source": "crates/gpui_web/examples/hello_web/main.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
-        "Background work"
-      ]
+        "Background work",
+        "Preset selection",
+        "Progress",
+        "History"
+      ],
+      "width": 640,
+      "height": 560,
+      "interactive": true,
+      "candidate_source": "web/moonbit/hello_web/hello_web.mbt",
+      "source_blob": "31f30431e2a15963d7277047d0301e2510a90616",
+      "implementation_note": "Actual MoonBit brute-force computation in browser Web Workers, with gpui.mbt layout, pointer dispatch and SceneSnapshot. Worker scheduling, fonts and Canvas rounded fills are explicit host extensions; conformance and performance equivalence unverified."
     }
   ]
 }
