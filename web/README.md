@@ -418,6 +418,23 @@ existing Pages site can link to it as a top-level navigation. An unisolated
 Pages iframe is not presented as a working shared-memory runtime host.
 Neither workflow runs deployment on push or pull request.
 
+The reused Browser example ports workflow reports the Rust and MoonBit
+scrollable/focus-visible captures and retained-image comparisons as separate
+steps, so Actions exposes their elapsed times. Screenshot analysis still
+decodes each complete PNG with Chromium's `Image.decode`, `drawImage` and
+`getImageData`. The test runner transfers those RGBA bytes as one base64
+string instead of serializing a JavaScript number for every channel. This
+preserves the complete pixel buffer, stable-frame checks, source identity,
+trusted inputs and independent Pillow rechecks of the saved PNGs.
+
+`node web/tests/screenshot-rgba-browser.mjs` compares the new transport with
+the previous numeric-array path in real Chromium and retains full-buffer
+hashes and per-path timings in
+`_build/browser-example-evidence/screenshot-rgba-transport.json`. Timings are
+observations on that runner; a speed threshold is not a correctness gate.
+The manual deploy continues to build and pass the full browser workflow
+before publishing its compiled artifact.
+
 Current execution evidence and deployment status are recorded in the PR.
 The original [2026-10-15 results](RESULTS_20261015.md) are retained as the
 baseline. The [2026-10-16 correction and complete spatial accounting](PIXEL_ANALYSIS_20261016.md)
