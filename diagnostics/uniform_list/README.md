@@ -37,7 +37,9 @@ Partially visible rows extend into the window outside the smaller list. The
 recorded `window.content_mask()` and real edge clicks therefore distinguish
 list masking from surface clipping.
 
-`raw.schema.json` defines the raw document and its input corpus (`$defs.input`).
+`raw.schema.json` version 2 defines the raw document and its input corpus
+(`$defs.input`). Version 1 traces are rejected by the version 2 acceptance path;
+they are never relabeled or backfilled.
 `scenarios.json` is the exact machine-readable input:
 
 - Counts 0, 1, 50 and 1,000,000; viewports 13, 52, 300 and 350
@@ -49,9 +51,24 @@ list masking from surface clipping.
 - Press→omit→restore→release, and count-remove→numeric-index-reuse→release
 - No-down up, duplicate up, another-row release, outside release, clipped row portions and half-open right/bottom edges
 
+Each case explicitly retains the source5a test platform's **2x bootstrap**.
+`TestWindow::new` initializes scale 2.0 (`platform/test/window.rs:131–132`), and
+`App::open_window` draws synchronously before returning (`app.rs:1546–1552`).
+The first declared operation then calls the public
+`VisualTestContext::simulate_scale_factor_change(1.0)`, whose test-window resize
+callback preserves logical bounds and updates the actual platform scale. Every
+bootstrap frame/snapshot is checked at 2x; the transition and subsequent frames
+are checked against the declared 1x configuration. No bootstrap output is
+removed, and this remains test-platform evidence distinct from browser DPR1.
+
 Operation inputs retain raw GPUI pixel-wheel deltas. `set_offset.y` is a positive
 logical top request, converted to GPUI's negative offset. Raw output retains
 negative `scroll.offset` and positive `scroll.max_offset` without normalization.
+`operation_start.input` preserves the original parsed JSON operation values;
+`applied_input` separately records the typed f32 values actually delivered. The
+checker explicitly verifies this conversion. The original scenario file bytes
+are retained separately; JSON object reserialization is not represented as
+verbatim operation byte slices.
 `last_item_size.item` is the viewport size and `contents` the complete virtual
 extent; it is **not** an exposed prototype row size. Actual row/inner prepaint
 bounds establish the measured row height.
@@ -98,7 +115,11 @@ debug selector requires them. It records compiler/Cargo versions, command
 arguments, process/run IDs and timestamps, exact suite/upstream commit+tree,
 CI identity, executable and input hashes, stdout/stderr, lockfile, fixture,
 verifier, and relevant unchanged upstream implementation source files. It checks
-source cleanliness and identities again after execution. Failed build/output
+source cleanliness and identities again after execution. The one required
+`.github/workflows/uniform-list-diagnostic.yml` source file is narrowly mapped to
+`retained/workflows/uniform-list-diagnostic.yml` so artifact upload retains it
+without enabling hidden-file upload generally. Exact Git-blob checks still use
+the original source path. Failed build/output
 logs are retained; a failure is never labeled an observed passing run.
 
 The independent checker rereads `raw.json` and all manifest-bound files, rather
@@ -109,14 +130,47 @@ without all four source-binding arguments explicitly return `source_bound:false`
 and label their output as integrity/semantic inspection with source authenticity
 unqualified. The runner and dedicated CI provide all four arguments.
 
+## First actual run: retained failure, not a qualified baseline
+
+[Run 38965276052](https://github.com/gpui-mbt/gpui-conformance/actions/runs/38965276052)
+built and executed the Rust diagnostic successfully, but verification failed.
+The PR head was `582537dc0d33d05745daedae60c612de98bff3eb`; the actual CI merge
+checkout was `f441ff6f62688e86b6b22335801d0ba39bd83903`, tree
+`49b1f843697757f895d6be11003ee8fefbb54d53`. Original artifact 12073699424 is
+7,816,503 bytes, ZIP SHA-256
+`fc0add49bf18c233dea305be363c531d9ae8eeac36ba89b21f22ca22ef642939`.
+
+Three harness failures were independently identified:
+
+1. The verifier assumed 1x without configuring it, whereas all 76 actual frames
+   were at the pinned test platform's 2x default.
+2. The requested far-endpoint value 99,999,999 was parsed as f32 and reserialized
+   as 100,000,000 in the logged operation, breaking exact original-input binding.
+3. Artifact upload excluded the required workflow under the hidden `.github`
+   directory, leaving the downloaded manifest-bound bundle incomplete.
+
+Read-only inspection of the original 9 cases, 93 operation snapshots and 4,936
+trace events found no other range, geometry, mask, construction, clamp, axis or
+click discrepancy after separately explaining the two source-grounded numeric
+contracts above. This is descriptive analysis of an **unqualified 2x run**,
+not a passing rerun or repaired artifact. Its actual callback findings included
+row 3 after press→scroll while still visible, and no callback after either
+omit→restore or count-remove→numeric-index-reuse. Those are not asserted as
+corrected 1x outcomes before a new actual run.
+
+The original artifact and failure logs remain unchanged. Version 2 explicitly
+configures the scale transition, separates original/applied input, and retains
+the mapped workflow. A fresh actual version 2 run and independent complete
+artifact review remain required.
+
 ## Local qualification status
 
 A fresh offline lock resolution against source5a resolved 396 packages. Locked
 offline metadata for `x86_64-unknown-linux-gnu` succeeds. Full all-target offline
 metadata stopped on uncached `android_system_properties` 0.1.6. Neither metadata
 check is a compile check or runtime result. No full Rust build or
-actual GPUI execution has been performed locally. The dedicated CI execution
-and independent raw-artifact review are separate pending gates.
+actual GPUI execution has been performed locally. The corrected version 2 CI
+execution and independent raw-artifact review are separate pending gates.
 
 Unit tests use explicitly synthetic minimal checker inputs to test rejection
 of corrupted ranges, bounds, masks, IDs, counts, offsets, operation order and

@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "diagnostics/uniform_list"))
@@ -14,31 +15,37 @@ import verify
 
 def synthetic_checker_input():
     """Minimal hand-authored checker input, not an expected/observed Rust artifact."""
-    configuration = {"window": [420, 420], "list": [40, 50, 220, 52], "count": 50, "inner_height": 26}
-    scenario = {"id": "synthetic-checker-unit", "initial": configuration, "operations": []}
-    corpus = {"schema_version": 1, "coordinate_system": "synthetic checker unit", "cases": [scenario]}
+    configuration = {"window": [420, 420], "list": [40, 50, 220, 52], "count": 50, "inner_height": 26, "scale_factor": 2}
+    scale_operation = {"id": "configure-dpr-one", "action": "set_scale_factor", "scale_factor": 1}
+    scenario = {"id": "synthetic-checker-unit", "initial": configuration, "operations": [scale_operation]}
+    corpus = {"schema_version": 2, "coordinate_system": "synthetic checker unit", "cases": [scenario]}
     events = []
-    def emit(event):
-        events.append({"sequence": len(events), "operation": "initial", "frame": 1, "event": event})
-    emit({"type": "operation_start", "input": {"id": "initial", "action": "open_window"}})
-    emit({"type": "frame_start", "configuration": configuration})
-    emit({"type": "prepaint", "kind": "list", "item_id": None, "factory_call": None,
-          "bounds": [40, 50, 220, 52], "content_mask": [0, 0, 420, 420]})
-    for factory, ids in [(1, [0]), (2, [0]), (3, [0, 1])]:
-        emit({"type": "factory", "factory_call": factory, "range": [ids[0], ids[-1] + 1]})
-        for item in ids:
-            emit({"type": "constructed", "factory_call": factory, "item_id": item})
-        for item in ids:
+    def emit(event, operation, frame):
+        events.append({"sequence": len(events), "operation": operation, "frame": frame, "event": event})
+    for frame, scale, operation in [(1, 2, {"id": "initial", "action": "open_window"}), (2, 1, scale_operation)]:
+        config = configuration | {"scale_factor": scale}
+        def event(value): emit(value, operation["id"], frame)
+        event({"type": "operation_start", "input": operation,
+               **({"applied_input": operation} if frame == 2 else {})})
+        event({"type": "frame_start", "configuration": config})
+        event({"type": "prepaint", "kind": "list", "item_id": None, "factory_call": None,
+               "bounds": [40, 50, 220, 52], "content_mask": [0, 0, 420, 420]})
+        for factory, ids in [(1, [0]), (2, [0]), (3, [0, 1])]:
+            factory += (frame - 1) * 3
+            event({"type": "factory", "factory_call": factory, "range": [ids[0], ids[-1] + 1]})
+            for item in ids:
+                event({"type": "constructed", "factory_call": factory, "item_id": item})
+            for item in ids:
+                for kind in ("row", "inner"):
+                    event({"type": "request_layout", "kind": kind, "factory_call": factory, "item_id": item})
+        for item in [0, 1]:
             for kind in ("row", "inner"):
-                emit({"type": "request_layout", "kind": kind, "factory_call": factory, "item_id": item})
-    for item in [0, 1]:
-        for kind in ("row", "inner"):
-            emit({"type": "prepaint", "kind": kind, "factory_call": 3, "item_id": item,
-                  "bounds": [40, 50 + 26 * item, 220, 26], "content_mask": [40, 50, 220, 52]})
-    scroll = {"offset": [0, 0], "max_offset": [0, 1248], "last_item_size": {"item": [220, 52], "contents": [220, 1300]}}
-    emit({"type": "frame_end", "scroll": scroll, "window_size": [420, 420], "scale_factor": 1})
-    emit({"type": "operation_end", "configuration": configuration, "scroll": scroll, "list_bounds": [40, 50, 220, 52]})
-    raw = {"schema_version": 1, "layer": verify.LAYER, "fixture": "font-free-nested-auto-height",
+                event({"type": "prepaint", "kind": kind, "factory_call": frame * 3, "item_id": item,
+                       "bounds": [40, 50 + 26 * item, 220, 26], "content_mask": [40, 50, 220, 52]})
+        scroll = {"offset": [0, 0], "max_offset": [0, 1248], "last_item_size": {"item": [220, 52], "contents": [220, 1300]}}
+        event({"type": "frame_end", "scroll": scroll, "window_size": [420, 420], "scale_factor": scale})
+        event({"type": "operation_end", "configuration": config, "scroll": scroll, "list_bounds": [40, 50, 220, 52], "scale_factor": scale})
+    raw = {"schema_version": 2, "layer": verify.LAYER, "fixture": "font-free-nested-auto-height",
            "text_system": "NoopTextSystem; no text used", "upstream_revision": verify.UPSTREAM,
            "run_token": "synthetic-checker-only-0001", "input": corpus,
            "cases": [{"id": scenario["id"], "events": events}]}
@@ -70,7 +77,7 @@ class DiagnosticContracts(unittest.TestCase):
             ("prepaint", "inner", "bounds", [40, 50, 220, 25]),
             ("prepaint", "row", "content_mask", [0, 0, 420, 420]),
             ("prepaint", "list", "bounds", [40, 50, 220, 51]),
-            ("frame_end", None, "scale_factor", 2),
+            ("frame_end", None, "scale_factor", 3),
             ("frame_end", None, "window_size", [1, 1]),
             ("operation_end", None, "list_bounds", [0, 0, 420, 420]),
         ]
@@ -108,7 +115,7 @@ class DiagnosticContracts(unittest.TestCase):
             with self.assertRaises(ValueError): verify.verify_observations(raw, corpus)
 
     def test_wrong_engine_input_token_and_layer_rejected(self):
-        for field, value in [("upstream_revision", "d9afb21688e04f89d9e94d96d33eb530aef90886"),
+        for field, value in [("schema_version", 1), ("upstream_revision", "d9afb21688e04f89d9e94d96d33eb530aef90886"),
                              ("input", {}), ("run_token", "short"), ("layer", "unchanged-example"),
                              ("text_system", "real font shaping")]:
             raw, corpus = synthetic_checker_input()
@@ -168,24 +175,70 @@ class DiagnosticContracts(unittest.TestCase):
     def test_multiple_actual_frames_and_no_redraw_operation(self):
         raw, corpus = synthetic_checker_input()
         entries = raw["cases"][0]["events"]
-        frame = copy.deepcopy(entries[1:-1])
+        start = next(index for index, entry in enumerate(entries) if entry["operation"] == "configure-dpr-one")
+        frame = copy.deepcopy(entries[start + 1:-1])
         for entry in frame:
-            entry["frame"] = 2
+            entry["frame"] = 3
             event = entry["event"]
             if event.get("factory_call") is not None: event["factory_call"] += 3
         entries[-1:-1] = frame
-        entries[-1]["frame"] = 2
+        entries[-1]["frame"] = 3
         operation = {"id": "no-down", "action": "up", "position": [100, 60]}
         corpus["cases"][0]["operations"].append(operation)
         final = copy.deepcopy(entries[-1])
         final["operation"] = "no-down"
-        entries.append({"sequence": 0, "operation": "no-down", "frame": 2,
-                        "event": {"type": "operation_start", "input": operation}})
+        entries.append({"sequence": 0, "operation": "no-down", "frame": 3,
+                        "event": {"type": "operation_start", "input": operation, "applied_input": operation}})
         entries.append(final)
         for sequence, entry in enumerate(entries): entry["sequence"] = sequence
         summary = verify.verify_observations(raw, corpus)
-        self.assertEqual(len(summary["cases"][0]["operations"][0]["frames"]), 2)
-        self.assertEqual(summary["cases"][0]["operations"][1]["frames"], [])
+        self.assertEqual(len(summary["cases"][0]["operations"][1]["frames"]), 2)
+        self.assertEqual(summary["cases"][0]["operations"][2]["frames"], [])
+
+    def test_missing_reordered_or_wrong_scale_transition_rejected(self):
+        for mutate in (lambda case: case["operations"].clear(),
+                       lambda case: case["operations"].insert(0, {"id": "early-up", "action": "up", "position": [100, 60]}),
+                       lambda case: case["operations"][0].update(scale_factor=2),
+                       lambda case: case["initial"].update(scale_factor=1)):
+            _, corpus = synthetic_checker_input()
+            mutate(corpus["cases"][0])
+            with self.assertRaises(ValueError): verify.validate_scenarios(corpus)
+        for event_type in ("frame_end", "operation_end"):
+            raw, corpus = synthetic_checker_input()
+            event = next(entry["event"] for entry in raw["cases"][0]["events"]
+                         if entry["operation"] == "configure-dpr-one" and entry["event"]["type"] == event_type)
+            event["scale_factor"] = 2
+            with self.assertRaises(ValueError): verify.verify_observations(raw, corpus)
+        raw, corpus = synthetic_checker_input()
+        raw["cases"][0]["events"] = [entry for entry in raw["cases"][0]["events"] if entry["operation"] == "initial"]
+        with self.assertRaises(ValueError): verify.verify_observations(raw, corpus)
+
+    def test_original_and_applied_float_input_are_separate(self):
+        raw, corpus = synthetic_checker_input()
+        operation = {"id": "rounded-move", "action": "move", "position": [99999999, 0.1], "held": False}
+        applied = verify.applied_operation(operation)
+        self.assertEqual(applied["position"], [100000000, 0.10000000149011612])
+        self.assertEqual(verify.applied_operation({"id": "large", "action": "set_offset", "y": 99999999})["y"], 100000000)
+        corpus["cases"][0]["operations"].append(operation)
+        entries = raw["cases"][0]["events"]
+        end = copy.deepcopy(entries[-1])
+        end["operation"] = operation["id"]
+        entries.append({"sequence": len(entries), "operation": operation["id"], "frame": 2,
+                        "event": {"type": "operation_start", "input": copy.deepcopy(operation), "applied_input": applied}})
+        end["sequence"] = len(entries)
+        entries.append(end)
+        verify.verify_observations(raw, corpus)
+        for field, replacement in (("input", applied), ("applied_input", operation)):
+            modified = copy.deepcopy(raw)
+            modified["cases"][0]["events"][-2]["event"][field] = replacement
+            with self.assertRaises(ValueError): verify.verify_observations(modified, corpus)
+
+    def test_workflow_retention_mapping_is_narrow_and_nonhidden(self):
+        source = ".github/workflows/uniform-list-diagnostic.yml"
+        self.assertEqual(verify.retained_path(source), "retained/workflows/uniform-list-diagnostic.yml")
+        self.assertEqual(verify.retained_path("diagnostics/uniform_list/run.py"), "retained/diagnostics/uniform_list/run.py")
+        self.assertFalse(any(part.startswith(".") for part in Path(verify.retained_path(source)).parts))
+        self.assertNotIn("include-hidden-files: true", (ROOT / source).read_text())
 
     def test_bundle_retention_and_corruption_guards(self):
         raw, corpus = synthetic_checker_input()
@@ -200,7 +253,7 @@ class DiagnosticContracts(unittest.TestCase):
                 "retained/adapters/uniform_list_rust/src/main.rs": b"synthetic checker unit",
                 "retained/diagnostics/uniform_list/verify.py": b"synthetic checker unit",
             }
-            files.update({"retained/" + relative: (ROOT / relative).read_bytes() for relative in verify.RETAIN})
+            files.update({verify.retained_path(relative): (ROOT / relative).read_bytes() for relative in verify.RETAIN})
             files.update({"upstream/" + relative: b"synthetic checker unit" for relative in verify.UPSTREAM_RETAIN})
             files["retained/diagnostics/uniform_list/scenarios.json"] = files["scenarios.json"]
             files["build-Cargo.toml"] = files["retained/adapters/uniform_list_rust/Cargo.toml"].replace(
@@ -226,7 +279,8 @@ class DiagnosticContracts(unittest.TestCase):
                            lambda m: m["execution"].update(returncode=1),
                            lambda m: m["build"].update(timed_out=True),
                            lambda m: m["build"].update(command=["cargo", "build"]),
-                           lambda m: m["files"].pop("probe")):
+                           lambda m: m["files"].pop("probe"),
+                           lambda m: m["files"].pop(verify.retained_path(".github/workflows/uniform-list-diagnostic.yml"))):
                 modified = copy.deepcopy(manifest)
                 mutate(modified)
                 path.write_text(json.dumps(modified))
@@ -234,6 +288,21 @@ class DiagnosticContracts(unittest.TestCase):
             path.write_text(json.dumps(manifest))
             with self.assertRaises(ValueError): verify.verify_bundle(directory, "c" * 40)
             with self.assertRaises(ValueError): verify.verify_bundle(directory, suite_tree="c" * 40)
+            def independent_git(arguments, cwd=None, text=False):
+                if arguments[1] == "rev-parse": return "b" * 40 + "\n"
+                relative = arguments[2].split(":", 1)[1]
+                return files[verify.retained_path(relative)]
+            with patch.object(verify.subprocess, "check_output", side_effect=independent_git):
+                verify.verify_bundle(directory, "a" * 40, "b" * 40, suite_source=ROOT)
+                workflow = verify.retained_path(".github/workflows/uniform-list-diagnostic.yml")
+                (directory / workflow).write_bytes(b"mismatched relocated workflow")
+                changed = copy.deepcopy(manifest)
+                changed["files"][workflow] = {"sha256": verify.digest(directory / workflow), "size": (directory / workflow).stat().st_size}
+                path.write_text(json.dumps(changed))
+                with self.assertRaisesRegex(ValueError, "exact committed source"):
+                    verify.verify_bundle(directory, "a" * 40, "b" * 40, suite_source=ROOT)
+            (directory / workflow).write_bytes(files[workflow])
+            path.write_text(json.dumps(manifest))
             (directory / "raw.stderr").write_bytes(b"tampered")
             with self.assertRaises(ValueError): verify.verify_bundle(directory)
 

@@ -8,6 +8,7 @@ import hashlib
 import json
 import math
 import subprocess
+import struct
 from pathlib import Path
 
 UPSTREAM = "5a5fbe79917971a4d52a96b6ddb04da198a5012e"
@@ -20,9 +21,27 @@ RETAIN = ["adapters/uniform_list_rust/Cargo.toml", "adapters/uniform_list_rust/C
           "tests/test_uniform_list_diagnostic.py", ".github/workflows/uniform-list-diagnostic.yml"]
 UPSTREAM_RETAIN = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "crates/gpui/Cargo.toml",
     "crates/gpui/src/elements/uniform_list.rs", "crates/gpui/src/elements/div.rs",
-    "crates/gpui/src/element.rs", "crates/gpui/src/window.rs", "crates/gpui/src/app/test_context.rs",
+    "crates/gpui/src/element.rs", "crates/gpui/src/window.rs", "crates/gpui/src/app.rs", "crates/gpui/src/app/test_context.rs",
     "crates/gpui/src/platform/test/platform.rs", "crates/gpui/src/platform/test/window.rs",
     "crates/gpui/examples/uniform_list.rs"]
+
+
+def retained_path(relative):
+    # Only this allowlisted hidden source path is remapped for artifact upload.
+    if relative == ".github/workflows/uniform-list-diagnostic.yml":
+        return "retained/workflows/uniform-list-diagnostic.yml"
+    return "retained/" + relative
+
+
+def applied_operation(operation):
+    result = dict(operation)
+    def f32(value):
+        return struct.unpack("!f", struct.pack("!f", value))[0]
+    for field in ("y", "height", "scale_factor"):
+        if field in result: result[field] = f32(result[field])
+    for field in ("position", "delta", "size"):
+        if field in result: result[field] = [f32(value) for value in result[field]]
+    return result
 
 
 def require(condition, message):
@@ -53,7 +72,7 @@ def inside(position, rect):
 
 
 def validate_scenarios(scenarios):
-    require(scenarios.get("schema_version") == 1, "input schema")
+    require(scenarios.get("schema_version") == 2, "input schema")
     require(isinstance(scenarios.get("cases"), list) and scenarios["cases"], "missing cases")
     case_ids = set()
     for case in scenarios["cases"]:
@@ -62,11 +81,14 @@ def validate_scenarios(scenarios):
         config = dict(case["initial"])
         identifiers = {"initial"}
         validate_configuration(config)
+        require(config["scale_factor"] == 2, "source5a bootstrap scale must be2")
+        require(case["operations"] and case["operations"][0]["action"] == "set_scale_factor"
+                and case["operations"][0].get("scale_factor") == 1, "first operation must explicitly configure1x")
         for operation in case["operations"]:
             require(isinstance(operation.get("id"), str) and operation["id"] not in identifiers, "operation id")
             identifiers.add(operation["id"])
             action = operation["action"]
-            fields = {"set_offset": {"y"}, "set_count": {"count"}, "set_inner_height": {"height"},
+            fields = {"set_scale_factor": {"scale_factor"}, "set_offset": {"y"}, "set_count": {"count"}, "set_inner_height": {"height"},
                       "resize_list": {"height"}, "resize_window": {"size"}, "wheel": {"position", "delta"},
                       "move": {"position", "held"}, "down": {"position"}, "up": {"position"}}
             require(action in fields and set(operation) == {"id", "action"} | fields[action], "operation shape")
@@ -84,7 +106,8 @@ def validate_scenarios(scenarios):
 
 
 def validate_configuration(config):
-    require(set(config) == {"window", "list", "count", "inner_height"}, "configuration shape")
+    require(set(config) == {"window", "list", "count", "inner_height", "scale_factor"}, "configuration shape")
+    require(config["scale_factor"] in (1, 2), "supported explicit scale")
     require(type(config["count"]) is int and 0 <= config["count"] <= 1_000_000, "count bound")
     require(len(config["window"]) == 2 and len(config["list"]) == 4, "configuration dimensions")
     for value in [*config["window"], *config["list"], config["inner_height"]]:
@@ -95,6 +118,7 @@ def validate_configuration(config):
 def changed_configuration(config, operation):
     result = json.loads(json.dumps(config))
     action = operation["action"]
+    if action == "set_scale_factor": result["scale_factor"] = operation["scale_factor"]
     if action == "set_count": result["count"] = operation["count"]
     if action == "set_inner_height": result["inner_height"] = operation["height"]
     if action == "resize_list": result["list"][3] = operation["height"]
@@ -123,7 +147,7 @@ def verify_frame(events, config, label):
     end = events[-1]["event"]
     top = verify_scroll(end["scroll"], config, label)
     vector(end["window_size"], config["window"], label + " window")
-    close(end["scale_factor"], 1, label + " scale")
+    close(end["scale_factor"], config["scale_factor"], label + " scale")
     factories = [entry["event"] for entry in events if entry["event"]["type"] == "factory"]
     built = defaultdict(list)
     requested = defaultdict(lambda: defaultdict(list))
@@ -165,12 +189,12 @@ def verify_frame(events, config, label):
     require(sum(map(len, built.values())) <= len(visible_ids) + 2, label + " non-lazy construction")
     return {"frame": events[0]["frame"], "range": [first, last] if count else None,
             "prototype_calls": len(factories) - (1 if count else 0), "constructed_count": sum(map(len, built.values())),
-            "visible_ids": row_ids, "top": top, "rows": prepaint["row"]}
+            "visible_ids": row_ids, "top": top, "scale_factor": end["scale_factor"], "rows": prepaint["row"]}
 
 
 def verify_observations(raw, scenarios):
     validate_scenarios(scenarios)
-    require(raw.get("schema_version") == 1 and raw.get("layer") == LAYER, "raw layer/schema")
+    require(raw.get("schema_version") == 2 and raw.get("layer") == LAYER, "raw layer/schema")
     require(raw.get("fixture") == "font-free-nested-auto-height", "fixture")
     require(raw.get("upstream_revision") == UPSTREAM, "wrong engine pin")
     require(raw.get("text_system") == "NoopTextSystem; no text used", "text claim")
@@ -196,10 +220,12 @@ def verify_observations(raw, scenarios):
             require(start["sequence"] == previous_end + 1, label + " unassigned events")
             previous_end = end["sequence"]
             require(start["operation"] == end["operation"] == operation["id"] and start["sequence"] < end["sequence"], label + " operation boundary")
-            require(start["event"]["input"] == operation, label + " raw operation")
+            require(start["event"]["input"] == operation, label + " original parsed operation")
+            if operation["action"] != "open_window":
+                require(start["event"].get("applied_input") == applied_operation(operation), label + " applied f32 operation")
             interval = entries[start["sequence"]:end["sequence"] + 1]
             require(all(entry["operation"] == operation["id"] for entry in interval), label + " interleaved operation")
-            configuration = changed_configuration(configuration, operation)
+            configuration = changed_configuration(configuration, applied_operation(operation))
             frames = []
             pending = None
             for entry in interval:
@@ -219,6 +245,8 @@ def verify_observations(raw, scenarios):
                     pending = None
             require(pending is None and last_frame is not None, label + " missing complete frame")
             require(end["event"]["configuration"] == configuration, label + " snapshot config")
+            close(end["event"]["scale_factor"], configuration["scale_factor"], label + " snapshot scale")
+            close(last_frame["scale_factor"], configuration["scale_factor"], label + " last-frame scale")
             vector(end["event"]["list_bounds"], configuration["list"], label + " debug list bounds")
             top = verify_scroll(end["event"]["scroll"], configuration, label)
             maximum = max(0, configuration["count"] * configuration["inner_height"] - configuration["list"][3])
@@ -286,7 +314,7 @@ def verify_bundle(directory, suite_commit=None, suite_tree=None, suite_source=No
     for field in ("commit", "tree"):
         require(len(manifest["suite"][field]) == 40, "suite identity")
     required = {"raw.json", "raw.stderr", "scenarios.json", "probe", "toolchain.txt", "build.stdout", "build.stderr", "build-Cargo.toml"}
-    required |= {"retained/" + relative for relative in RETAIN}
+    required |= {retained_path(relative) for relative in RETAIN}
     required |= {"upstream/" + relative for relative in UPSTREAM_RETAIN}
     require(required <= set(manifest["files"]), "missing retained evidence")
     for relative, metadata in manifest["files"].items():
@@ -307,7 +335,7 @@ def verify_bundle(directory, suite_commit=None, suite_tree=None, suite_source=No
             require(tree == identity["tree"], "independent source tree mismatch")
             for relative in relatives:
                 expected = subprocess.check_output(["git", "show", identity["commit"] + ":" + relative], cwd=source)
-                require((directory / prefix / relative).read_bytes() == expected, "retained bytes differ from exact committed source: " + relative)
+                require((directory / (retained_path(relative) if prefix == "retained" else "upstream/" + relative)).read_bytes() == expected, "retained bytes differ from exact committed source: " + relative)
     require((directory / "probe").read_bytes().startswith(b"\x7fELF"), "probe is not a Linux executable")
     require((directory / "toolchain.txt").read_text().startswith("rustc 1.98.1 "), "compiler provenance")
     raw = json.loads((directory / "raw.json").read_text())

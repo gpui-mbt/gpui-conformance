@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import uuid
 
-from verify import LAYER, UPSTREAM, UPSTREAM_TREE, RETAIN, UPSTREAM_RETAIN, digest, require, validate_scenarios, verify_bundle
+from verify import LAYER, UPSTREAM, UPSTREAM_TREE, RETAIN, UPSTREAM_RETAIN, digest, require, retained_path, validate_scenarios, verify_bundle
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -76,7 +76,7 @@ def main():
     require(original.count(placeholder) == 1, "manifest dependency placeholder")
     (stage / "Cargo.toml").write_text(original.replace(placeholder, json.dumps(str(upstream / "crates/gpui"))))
     for relative in RETAIN:
-        destination = out / "retained" / relative
+        destination = out / retained_path(relative)
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(ROOT / relative, destination)
     for relative in UPSTREAM_RETAIN:

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:gpui-conformance:supplemental-uniform-list-raw:v1",
+  "$id": "urn:gpui-conformance:supplemental-uniform-list-raw:v2",
   "title": "Supplemental real-GPUI uniform-list raw observations",
   "description": "Coordinates are actual logical pixels. offset is negative when scrolled down; max_offset is positive. last_item_size.item is viewport size, not row size. Event frames are rooted in actual request_layout, not input count.",
   "type": "object",
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 2
     },
     "layer": {
       "const": "supplemental-headless-core-semantics"
@@ -111,18 +111,48 @@
         "inner_height": {
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "scale_factor": {
+          "enum": [
+            1,
+            2
+          ]
         }
       },
       "required": [
         "window",
         "list",
         "count",
-        "inner_height"
+        "inner_height",
+        "scale_factor"
       ],
       "additionalProperties": false
     },
     "operation": {
       "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "set_scale_factor"
+            },
+            "scale_factor": {
+              "enum": [
+                1,
+                2
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "scale_factor"
+          ],
+          "additionalProperties": false
+        },
         {
           "type": "object",
           "properties": {
@@ -625,6 +655,9 @@
                   "additionalProperties": false
                 }
               ]
+            },
+            "applied_input": {
+              "$ref": "#/$defs/operation"
             }
           },
           "required": [
@@ -652,13 +685,17 @@
               },
               "minItems": 4,
               "maxItems": 4
+            },
+            "scale_factor": {
+              "type": "number"
             }
           },
           "required": [
             "type",
             "configuration",
             "scroll",
-            "list_bounds"
+            "list_bounds",
+            "scale_factor"
           ],
           "additionalProperties": false
         },
@@ -721,7 +758,7 @@
       "type": "object",
       "properties": {
         "schema_version": {
-          "const": 1
+          "const": 2
         },
         "coordinate_system": {
           "type": "string"

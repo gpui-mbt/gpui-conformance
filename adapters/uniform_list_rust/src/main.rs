@@ -12,6 +12,7 @@ struct Configuration {
     list: [f32; 4],
     count: usize,
     inner_height: f32,
+    scale_factor: f32,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -32,6 +33,7 @@ struct Operation {
 #[derive(Clone, Copy, Deserialize, Serialize)]
 #[serde(tag = "action", rename_all = "snake_case")]
 enum Action {
+    SetScaleFactor { scale_factor: f32 },
     SetOffset { y: f32 },
     SetCount { count: usize },
     SetInnerHeight { height: f32 },
@@ -258,14 +260,15 @@ impl Render for Probe {
 fn snapshot(log: &SharedLog, scroll: &UniformListScrollHandle, cx: &mut VisualTestContext) {
     let list_bounds = cx.debug_bounds("diagnostic-list").map(bounds_value);
     let configuration = log.borrow().configuration.clone();
+    let scale_factor = cx.update(|window, _| window.scale_factor());
     record(
         log,
         json!({"type": "operation_end", "configuration": configuration,
-        "scroll": scroll_value(scroll), "list_bounds": list_bounds}),
+        "scroll": scroll_value(scroll), "list_bounds": list_bounds, "scale_factor": scale_factor}),
     );
 }
 
-fn observe(scenario: &Scenario) -> Result<Value, Box<dyn Error>> {
+fn observe(scenario: &Scenario, raw_scenario: &Value) -> Result<Value, Box<dyn Error>> {
     let mut app = TestAppContext::single();
     let log = Rc::new(RefCell::new(Log {
         events: Vec::new(),
@@ -292,10 +295,18 @@ fn observe(scenario: &Scenario) -> Result<Value, Box<dyn Error>> {
     let mut cx = VisualTestContext::from_window(*handle, &app);
     cx.run_until_parked();
     snapshot(&log, &scroll, &mut cx);
-    for operation in &scenario.operations {
+    for (operation_index, operation) in scenario.operations.iter().enumerate() {
         log.borrow_mut().operation = operation.id.clone();
-        record(&log, json!({"type": "operation_start", "input": operation}));
+        record(
+            &log,
+            json!({"type": "operation_start",
+            "input": raw_scenario["operations"][operation_index], "applied_input": operation}),
+        );
         match operation.action {
+            Action::SetScaleFactor { scale_factor } => {
+                log.borrow_mut().configuration.scale_factor = scale_factor;
+                cx.simulate_scale_factor_change(scale_factor);
+            }
             Action::SetOffset { y } => {
                 scroll
                     .0
@@ -360,18 +371,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         return Err("usage: gpui-uniform-list-diagnostic SCENARIOS_JSON RUN_TOKEN".into());
     }
     let raw_input: Value = serde_json::from_slice(&std::fs::read(&arguments[1])?)?;
-    if raw_input["schema_version"] != 1 {
+    if raw_input["schema_version"] != 2 {
         return Err("unsupported input schema".into());
     }
     let scenarios: Vec<Scenario> = serde_json::from_value(raw_input["cases"].clone())?;
     let observations = scenarios
         .iter()
-        .map(observe)
+        .enumerate()
+        .map(|(index, scenario)| observe(scenario, &raw_input["cases"][index]))
         .collect::<Result<Vec<_>, _>>()?;
     println!(
         "{}",
         serde_json::to_string(&json!({
-            "schema_version": 1, "layer": "supplemental-headless-core-semantics",
+            "schema_version": 2, "layer": "supplemental-headless-core-semantics",
             "fixture": "font-free-nested-auto-height", "text_system": "NoopTextSystem; no text used",
             "upstream_revision": UPSTREAM, "run_token": arguments[2],
             "input": raw_input, "cases": observations

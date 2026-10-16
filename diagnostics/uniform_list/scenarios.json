@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "coordinate_system": "logical pixels; positive set_offset.y means content moves up; wheel deltas are raw GPUI signed pixel deltas",
   "cases": [
     {
@@ -16,9 +16,15 @@
           300
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "offset-25",
           "action": "set_offset",
@@ -113,9 +119,15 @@
           300
         ],
         "count": 0,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "empty-wheel",
           "action": "wheel",
@@ -165,9 +177,15 @@
           300
         ],
         "count": 1,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "one-offset",
           "action": "set_offset",
@@ -221,9 +239,15 @@
           13
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "partial-offset",
           "action": "set_offset",
@@ -250,9 +274,15 @@
           52
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "exact-offset",
           "action": "set_offset",
@@ -279,9 +309,15 @@
           300
         ],
         "count": 1000000,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "far-offset",
           "action": "set_offset",
@@ -320,9 +356,15 @@
           300
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "start-100",
           "action": "set_offset",
@@ -440,9 +482,15 @@
           300
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "no-down-up",
           "action": "up",
@@ -629,9 +677,15 @@
           300
         ],
         "count": 50,
-        "inner_height": 26
+        "inner_height": 26,
+        "scale_factor": 2
       },
       "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
         {
           "id": "partial-top-row",
           "action": "set_offset",
