@@ -64,7 +64,7 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
             runtimes[name] = runtime
         staging = Path(work) / "site"
         staging.mkdir()
-        for name in ["index.html", "style.css", "app.js", "routing.mjs", "examples.json"]:
+        for name in ["index.html", "style.css", "app.js", "routing.mjs", "load-timing.mjs", "load-comparison.mjs", "examples.json"]:
             shutil.copy2(WEB / name, staging / name)
         shutil.copytree(WEB / "moonbit/site", staging / "moonbit")
         for name, runtime in runtimes.items():

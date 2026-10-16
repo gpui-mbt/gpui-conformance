@@ -53,6 +53,23 @@ try {
           iframe.contentDocument.documentElement.dataset.runtimeStatus === (side === 'moon' ? 'ready' : 'initialized');
       } catch { return false; }
     }), paired, {timeout:60000});
+    await page.waitForFunction(paired => globalThis.gpuiLoadComparison &&
+      ['moon', ...(paired ? ['rust'] : [])].every(side => gpuiLoadComparison.sides[side].status === 'complete'), paired, {timeout: 60000});
+    const timing = await page.evaluate(() => gpuiLoadComparison);
+    assert.equal(timing.firstPresentedFrame, 'unavailable');
+    assert.equal(timing.cache, 'normal-browser-cache-uncontrolled');
+    assert.equal(timing.example, await page.locator('#fixture').inputValue());
+    for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+      const observed = timing.sides[side];
+      for (const key of ['documentMs', 'payloadMs', 'runtimeSignalMs']) assert(Number.isFinite(observed[key]) && observed[key] >= 0, `${side} ${key} must come from actual Resource/Navigation Timing`);
+      assert(observed.runtimeSignalMs >= observed.payloadMs);
+      const names = observed.files.map(file => new URL(file.url).pathname.split('/').at(-1));
+      assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
+        timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
+        ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
+    }
+    report.load_runs ||= [];
+    report.load_runs.push(timing); // Observations only: not first-paint or benchmark evidence.
   }
   await waitForNewDocuments();
   assert.match(manifest.lab_revision, /^[0-9a-f]{40}$/);

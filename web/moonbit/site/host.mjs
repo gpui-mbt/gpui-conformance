@@ -1,3 +1,5 @@
+import { createHostTiming } from '../load-timing.mjs';
+const loadTiming = createHostTiming('moon');
 import { drawFrame } from './render.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
@@ -36,8 +38,12 @@ try {
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
+  const payloads = [modules[example], './IBMPlexSans-Regular.ttf'];
+  if (example === 'text_layout') payloads.push('./IBMPlexSans-Italic.ttf', './IBMPlexSans-SemiBold.ttf');
+  loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   window.addEventListener('resize', render);
 } catch (cause) {
+  loadTiming.fail();
   canvas.hidden = true; error.hidden = false;
   document.documentElement.dataset.runtimeStatus = 'failed';
   error.textContent = `gpui.mbt example failed: ${cause.message}. Build web assets with web/scripts/build_moonbit.py before serving the page.`;
