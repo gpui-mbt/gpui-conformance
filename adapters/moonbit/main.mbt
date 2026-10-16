@@ -121,6 +121,9 @@ fn tree(s : Json) -> @element.Prepainted {
     _ => @layout.AlignItems::start()
   }
   let align_content = match optional(s, "align_content") {
+    Some(String("space-between")) => @layout.AlignContent::space_between()
+    Some(String("space-around")) => @layout.AlignContent::space_around()
+    Some(String("space-evenly")) => @layout.AlignContent::space_evenly()
     Some(String("start")) => @layout.AlignContent::start()
     Some(String("center")) => @layout.AlignContent::center()
     Some(String("end")) => @layout.AlignContent::end()

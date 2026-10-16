@@ -6,7 +6,7 @@ runner creates no native windows. The separate native runner uses isolated,
 self-closing hidden AppKit/Metal accessory fixtures on an Apple Silicon Mac.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
-gpui.mbt `c0ba99d36bfe5793e3801d5e9430f6fb9d1d6326` (align-content candidate). See [pins.json](pins.json).
+gpui.mbt `b16210d9363aaac778d9c9240deadd392347b9d6` (distributed align-content candidate). See [pins.json](pins.json).
 
 ## First coverage slice
 
@@ -316,3 +316,15 @@ auto cross sizing. The baseline has 15 matches/21 differences; the candidate has
 A real combined rerun preserves all prior 155 headless passes, for 191 total;
 one unsupported IME and two unverified native rows remain visible. See
 [the exact scope and evidence](ALIGN_CONTENT_RESULTS.md).
+
+
+## Distributed wrapped-line content capability batch
+
+[content_distribution_scenarios.json](content_distribution_scenarios.json) adds
+42 full-rectangle cases for align-content space-between, space-around, and
+space-evenly using actual pinned GPUI public builders and the new library modes.
+The baseline has 20 matches/22 differences; the candidate has 42 matches/zero
+differences. The measured-width control detects all 39 nonempty cases; three
+empty controls remain passing. A real combined rerun retains all prior 191
+headless passes, for 233 total, with one unsupported IME and two unverified
+native cases unchanged. See [the exact scope and evidence](CONTENT_DISTRIBUTION_RESULTS.md).
