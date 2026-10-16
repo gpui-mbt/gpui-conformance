@@ -51,6 +51,42 @@ gpui_web = { path = "../.." }
             self.assertEqual(before, {str(path.relative_to(source)): path.read_bytes()
                                      for path in source.rglob("*") if path.is_file()})
 
+    def test_extra_oracle_is_explicitly_pinned_and_not_a_candidate(self):
+        records = module.extra_oracle_records(["scrollable"])
+        self.assertEqual(records[0]["source_blob"], "c81795618875aecf06e06043bd1709c48630b58f")
+        self.assertEqual(records[0]["upstream_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
+        self.assertEqual(records[0]["candidate"], "not_implemented")
+        self.assertEqual(module.extra_oracle_records([]), [])
+
+    def test_rejects_unknown_path_and_duplicate_extra_oracles(self):
+        for names in [["../outside"], ["other"], ["scrollable", "scrollable"]]:
+            with self.subTest(names=names), self.assertRaises(ValueError):
+                module.extra_oracle_records(names)
+
+    def test_registers_only_requested_additional_bins(self):
+        for requested in [["scrollable"], ["tree", "scrollable"]]:
+            with self.subTest(requested=requested), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source = root / "source"
+                original = source / module.GALLERY
+                (original / ".cargo").mkdir(parents=True)
+                (original / "Cargo.toml").write_text('[workspace]\n[package]\nname = "hello_web"\nversion = "0.1.0"\n')
+                for name in requested:
+                    example = source / f"crates/gpui/examples/{name}.rs"
+                    example.parent.mkdir(parents=True, exist_ok=True)
+                    example.write_text("// immutable source\n")
+                before = {str(path.relative_to(source)): path.read_bytes()
+                          for path in source.rglob("*") if path.is_file()}
+                record = module.prepare_gallery(source, root / "gallery", requested)
+                self.assertEqual([item["name"] for item in record["additional_bins"]], requested)
+                packaged = tomllib.loads((root / "gallery/Cargo.toml").read_text())
+                self.assertEqual([item["name"] for item in packaged["bin"]], requested)
+                for item in packaged["bin"]:
+                    self.assertEqual((root / "gallery" / item["path"]).resolve(),
+                                     source / f"crates/gpui/examples/{item['name']}.rs")
+                self.assertEqual(before, {str(path.relative_to(source)): path.read_bytes()
+                                         for path in source.rglob("*") if path.is_file()})
+
     def test_rejects_source_paths_outside_the_archived_upstream(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -235,6 +235,32 @@ Paired acceptance currently runs at DPR 1. A DPR 2 attempt was rejected because
 the pinned Rust backing canvas stayed 300×300 while the candidate was 600×600;
 no resampling is permitted and DPR 2 equivalence remains unverified.
 
+## Rust-only baseline: `scrollable`
+
+`web/oracles/scrollable.json` records the unchanged upstream `scrollable.rs`
+source blob `c81795618875aecf06e06043bd1709c48630b58f` at the same browser pin.
+`build_rust.py --extra-example scrollable` builds it without adding a claimed
+MoonBit counterpart to the catalog. The opt-in binary is recorded separately in
+`build-manifest.json` as `rust_oracle_only` with `candidate: not_implemented`.
+The normal Rust build still includes only implemented catalog examples.
+
+The baseline uses a direct 500×500 browser viewport at DPR 1, trusted wheel
+input, and full actual screenshots. Any text/border coordinates derived from
+those images describe observed movement; the unchanged example exposes no
+private scroll offsets or ScrollHandle telemetry. Browser event logs establish
+input delivery only. No CSS scroll container or JavaScript-computed scroll
+state stands in for GPUI behavior. The first execution of this oracle remains
+pending CI while its baseline harness is being introduced.
+
+Core integration is required for a faithful MoonBit counterpart: current
+`gpui.mbt` main `d4debae44d16bc9b6f631122b4b4164a3e1b64b5` has standalone
+`ScrollState`, but no scroll viewport, descendant translation or clipping in
+its Element lifecycle. Upstream `div.rs` applies the same wheel delta to each
+eligible ancestor, clamps offsets during prepaint, and applies inherited
+content masks to both painting and hit testing. A future candidate must test
+those semantics instead of assuming residual-delta scroll chaining. Native,
+other-DPR, private-state and MoonBit equivalence are not claimed by this baseline.
+
 ## Upstream example inventory
 
 Checked 2026-10-16 against upstream main
