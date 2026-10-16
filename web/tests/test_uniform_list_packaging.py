@@ -1,0 +1,84 @@
+"""Synthetic/static packaging tests only. No Rust or browser execution."""
+import hashlib
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import tempfile
+import tomllib
+import unittest
+from unittest.mock import patch
+
+SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
+sys.path.insert(0, str(SCRIPTS))
+import build_rust
+import prepare_uniform_list_site
+
+
+class UniformListPackagingTests(unittest.TestCase):
+    def test_exact_extra_oracle_and_no_matched_placeholder(self):
+        record, = build_rust.extra_oracle_records(["uniform_list"])
+        self.assertEqual(record["source_blob"], "4a2c4788b192d802ee3d51714c250e7c5a82db76")
+        self.assertEqual(record["source_sha256"], "939b065c2db96ce38400c0ea79a0dd74803aa27793698bb5d00f6652a58f4e3a")
+        self.assertEqual(record["upstream_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
+        self.assertEqual((record["width"], record["height"], record["dpr"]), (300, 300, 1))
+        catalog = json.loads((build_rust.WEB / "examples.json").read_text())
+        self.assertFalse(any(entry["id"] == "uniform_list" for entry in catalog["examples"]))
+        self.assertEqual(build_rust.selected_examples(catalog, [record], True), ["uniform_list"])
+        self.assertNotIn("uniform_list", build_rust.selected_examples(catalog, []))
+        with self.assertRaises(ValueError):
+            build_rust.extra_oracle_records(["uniform_list", "uniform_list"])
+        with self.assertRaises(ValueError):
+            build_rust.selected_examples(catalog, [], False, ["uniform_list"])
+
+    def test_relocates_exact_example_path_without_upstream_edits(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            original = source / build_rust.GALLERY
+            (original / ".cargo").mkdir(parents=True)
+            (original / "Cargo.toml").write_text('[workspace]\n[package]\nname="hello_web"\nversion="0.1.0"\n')
+            example = source / "crates/gpui/examples/uniform_list.rs"
+            example.parent.mkdir(parents=True)
+            example.write_text("// synthetic unchanged upstream input, not execution evidence\n")
+            before = {str(p.relative_to(source)): p.read_bytes() for p in source.rglob("*") if p.is_file()}
+            record = build_rust.prepare_gallery(source, root / "gallery", ["uniform_list"])
+            bins = tomllib.loads((root / "gallery/Cargo.toml").read_text())["bin"]
+            self.assertEqual(len(bins), 1)
+            self.assertEqual(bins[0]["name"], "uniform_list")
+            self.assertEqual((root / "gallery" / bins[0]["path"]).resolve(), example)
+            self.assertFalse(record["upstream_files_modified"])
+            self.assertEqual(before, {str(p.relative_to(source)): p.read_bytes() for p in source.rglob("*") if p.is_file()})
+
+    def test_static_site_records_unused_core_metadata_without_a_candidate_build(self):
+        calls = []
+        def run(args, cwd, capture):
+            calls.append(args)
+            if args[1] == "status":
+                return ""
+            return ("1" if args[-1] == "HEAD" else "2") * 40
+        with tempfile.TemporaryDirectory() as temporary, patch.object(prepare_uniform_list_site, "run", side_effect=run):
+            out = Path(temporary) / "site"
+            prepare_uniform_list_site.prepare(out)
+            manifest = json.loads((out / "build-manifest.json").read_text())
+            self.assertEqual(manifest["implemented"], [])
+            self.assertEqual(manifest["moonbit_execution"], "not_run")
+            self.assertEqual(manifest["comparison_status"], "not_run")
+            self.assertFalse(manifest["rust_bundled"])
+            self.assertEqual(manifest["moonbit"], json.loads((out / "examples.json").read_text())["moonbit"])
+            self.assertEqual(manifest["moonbit_host_files_sha256"]["load-timing.mjs"], hashlib.sha256((out / "load-timing.mjs").read_bytes()).hexdigest())
+            self.assertEqual(sorted(p.name for p in out.iterdir()), ["_headers", "build-manifest.json", "examples.json", "load-timing.mjs"])
+            self.assertTrue(all(command[0] == "git" for command in calls))
+            with self.assertRaisesRegex(ValueError, "output exists"):
+                prepare_uniform_list_site.prepare(out)
+
+    def test_dirty_suite_refused_before_preparation(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(prepare_uniform_list_site, "run", return_value=" M web/rust/host.mjs"):
+            out = Path(temporary) / "site"
+            with self.assertRaisesRegex(ValueError, "clean and committed"):
+                prepare_uniform_list_site.prepare(out)
+            self.assertFalse(out.exists())
+
+
+if __name__ == "__main__":
+    unittest.main()

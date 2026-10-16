@@ -32,7 +32,7 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop"]:
+    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list"]:
         if name in examples:
             relative = f"crates/gpui/examples/{name}.rs"
             path = os.path.relpath(source / relative, gallery)
@@ -52,7 +52,7 @@ def extra_oracle_records(names: list[str]) -> list[dict]:
     """Opt-in unchanged Rust baselines never imply a candidate implementation."""
     records = []
     for name in names:
-        if name not in {"scrollable", "focus_visible", "tab_stop", "drag_drop"} or name in [record["id"] for record in records]:
+        if name not in {"scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list"} or name in [record["id"] for record in records]:
             raise ValueError(f"unknown or duplicate extra oracle: {name}")
         record = json.loads((WEB / "oracles" / f"{name}.json").read_text())
         if (record["id"] != name or record["source"] != f"crates/gpui/examples/{name}.rs"
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     parser.add_argument("--upstream-source", required=True, type=Path)
     parser.add_argument("--site", type=Path, default=Path("_build/browser-lab"))
     parser.add_argument("--target-dir", type=Path, default=Path("_build/rust-target"))
-    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible", "tab_stop", "drag_drop"], default=[],
+    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list"], default=[],
                         help="also build an unchanged Rust-only oracle without claiming a MoonBit counterpart")
     parser.add_argument("--oracle-only", action="store_true",
                         help="build only explicitly named Rust-only oracles; requires --extra-example")
