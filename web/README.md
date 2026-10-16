@@ -89,6 +89,13 @@ probes only establish browser delivery and unchanged static color probes;
 they do not establish GPUI application event semantics. This upstream example
 has no interactive application controls.
 
+The generated test catalog can link its `hello_world` entry to this live lab
+when the GitHub Actions repository variable
+`CATALOG_BROWSER_LAB_BASE_URL` is set to the verified worker root URL. Leave the
+variable unset until the deployment URL is confirmed. The catalog link opens
+the static sample at `/?example=hello_world`; it does not make the sample
+interactive. Other examples remain unlinked until their MoonBit ports exist.
+
 `result.json` separates overall execution, candidate, Rust, verified items,
 unverified items and exact screenshot pixel differences. A missing Rust
 bundle fails `--require-rust`; one candidate screenshot cannot pass a pair.

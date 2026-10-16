@@ -52,6 +52,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Generate catalog from registered scenarios and retained evidence
+        # Optional repository variable; leave unset until the deployed worker URL is verified.
+        env:
+          CATALOG_BROWSER_LAB_BASE_URL: ${{ vars.CATALOG_BROWSER_LAB_BASE_URL }}
         run: python3 scripts/build_test_catalog.py
       - name: Validate generated catalog and evidence qualifications
         run: python3 -m unittest discover -s tests -p 'test_catalog_site.py' -v

@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "catalog"
@@ -32,6 +33,8 @@ NATIVE_RESULT_PATH = "results/native-merged-macos-arm64-20261014.json"
 RESULT_PATH = "results/cross-axis-limits-linux-x86_64-20261015.json"
 BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
+BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
+BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
 
 LAYER_LABELS = {
     "headless-layout": ("Headless · layout", "Layout", "固定配置、flex、wrap、min/max のレイアウト比較"),
@@ -75,6 +78,60 @@ def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any
     }
     if recorded_implemented != declared_implemented:
         raise ValueError("implemented browser examples differ from the retained result")
+
+
+def normalize_browser_lab_base_url(value: Any) -> str | None:
+    """Accept only an explicit HTTPS root URL for this worker; unset stays disabled."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a string URL")
+
+    candidate = value.strip()
+    if not candidate:
+        return None
+    if any(char.isspace() or ord(char) < 0x20 for char in candidate):
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain whitespace or control characters")
+    if "?" in candidate or "#" in candidate:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a root URL without query or fragment")
+
+    try:
+        parsed = urlsplit(candidate)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as error:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} is not a valid URL") from error
+
+    if parsed.scheme.lower() != "https" or not hostname:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must use HTTPS")
+    if parsed.username is not None or parsed.password is not None or port is not None:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain credentials or a port")
+    if parsed.path not in ("", "/") or parsed.query or parsed.fragment:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be the worker root without a path, query, or fragment")
+
+    labels = hostname.lower().split(".")
+    account_label = labels[1] if len(labels) == 4 else ""
+    if (
+        len(labels) != 4
+        or labels[0] != BROWSER_LAB_WORKER_NAME
+        or labels[2:] != ["workers", "dev"]
+        or not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", account_label)
+    ):
+        raise ValueError(
+            f"{BROWSER_LAB_BASE_URL_ENV} must match "
+            f"https://{BROWSER_LAB_WORKER_NAME}.<account>.workers.dev root URL"
+        )
+    return f"https://{hostname.lower()}"
+
+
+def browser_lab_comparison_url(example_id: str, implemented: bool, base_url: str | None) -> str | None:
+    """Link only the implemented static hello_world sample to the live lab."""
+    if example_id != "hello_world" or not implemented:
+        return None
+    normalized_base_url = normalize_browser_lab_base_url(base_url)
+    if normalized_base_url is None:
+        return None
+    return f"{normalized_base_url}/?example=hello_world"
 
 
 def recorded_date(path: str) -> str:
@@ -247,6 +304,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     current_pins = load_json("pins.json")
     browser_inventory = load_json("web/examples.json")
     validate_browser_inventory(browser, browser_inventory)
+    browser_lab_base_url = normalize_browser_lab_base_url(os.environ.get(BROWSER_LAB_BASE_URL_ENV))
     browser_build = browser["build"]
     browser_upstream = browser_build["upstream"]
     browser_moonbit = browser_build["moonbit"]
@@ -270,9 +328,9 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
             "inventory_url": source_url(revision, "web/examples.json"),
             "implemented": implemented,
             "interactive": bool(example.get("interactive", False)),
-            # No comparison page URL is assumed. A link is generated only when
-            # a real interactive example and an implemented port both exist.
-            "comparison_url": None,
+            # The live lab currently hosts a static hello_world sample, not an
+            # interactive example. Keep the link opt-in and limited to that port.
+            "comparison_url": browser_lab_comparison_url(example["id"], implemented, browser_lab_base_url),
             "suite_type": "browser",
         })
 
