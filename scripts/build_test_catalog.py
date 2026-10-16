@@ -37,7 +37,7 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", "hello_web"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", "input", "hello_web"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
