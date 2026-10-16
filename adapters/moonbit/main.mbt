@@ -120,6 +120,12 @@ fn tree(s : Json) -> @element.Prepainted {
     Some(String("stretch")) => @layout.AlignItems::stretch()
     _ => @layout.AlignItems::start()
   }
+  let align_content = match optional(s, "align_content") {
+    Some(String("start")) => @layout.AlignContent::start()
+    Some(String("center")) => @layout.AlignContent::center()
+    Some(String("end")) => @layout.AlignContent::end()
+    _ => @layout.AlignContent::stretch()
+  }
   let wrap = match optional(s, "wrap") {
     Some(String("wrap")) => @layout.FlexWrap::wrap()
     Some(String("wrap_reverse")) => @layout.FlexWrap::wrap_reverse()
@@ -130,6 +136,7 @@ fn tree(s : Json) -> @element.Prepainted {
     .with_wrap(wrap)
     .with_justify(justify)
     .with_align(align)
+    .with_align_content(align_content)
     .with_gap(number(field(s, "gap"))),
   )
   let mut root = @element.Element::root(1, style).with_focusable(true)
