@@ -24,7 +24,7 @@ standalone package, leaving every archived upstream file unmodified. The source
 file, relocated Cargo manifest, dependency lock, actual compiler/bindgen version,
 command, source revision/tree and completion UTC are retained.
 
-`prepare_uniform_list_site.py` copies static host inputs and the current catalog
+`prepare_uniform_list_site.py` copies static host inputs and the immutable source-only catalog fixture
 without running MoonBit. Its manifest explicitly records `implemented: []`,
 `moonbit_execution: not_run`, and `comparison_status: not_run`. Existing catalog
 entries and the core revision/tree are metadata only. They do not assert any
@@ -144,3 +144,17 @@ A verified artifact reports `rust_source_profile_verified`, candidate
 artifact review remains a separate gate. No native, text/OCR/full-image parity,
 factory/callback/internal-mask/click evidence, other viewports/DPRs or other
 browser/GPU claims are made.
+
+## Independent catalog metadata
+
+The Rust-only site uses the immutable, SHA-256-pinned catalog fixture at
+`web/tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json`, including its
+unused historical core metadata. It does not consume the live candidate registry.
+The preparer, Rust builder and current-checkout verifier independently select
+that exact fixture; its bytes are retained among the clean suite inputs. The
+builder permits this selection only for the explicit uniform-list oracle-only
+site and flags, and rejects altered site catalogs, fixture bytes or core metadata.
+Ordinary builds continue to use the live registry. A later candidate registration
+therefore cannot rewrite the baseline or imply candidate execution in this job.
+Current suite revision/tree and retained source hashes remain mandatory; old
+results still cannot be relabeled onto a new checkout.

@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "fc53cb382c66f68bfc1b3e1cc72d01056cd3c625",
-    "tree": "c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9"
+    "revision": "b9916950350b7d433ecca0d6fa88e39c957b8b6b",
+    "tree": "be95df375c707bd6cf961ef7959e93772b34a966"
   },
   "examples": [
     {
@@ -235,6 +235,26 @@
       ],
       "candidate_source": "web/moonbit/drag_drop/drag_drop.mbt",
       "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot and typed core DragSession for admission, activation, hit testing and one-shot delivery. Preview copies preserve the original typed payload. Browser pointer delivery, font metrics, signed preview placement and Canvas shadow_md are explicit host boundaries. Paired browser execution, native, touch, global capture, GPU shadow-kernel, text and full-image parity remain unverified."
+    },
+    {
+      "id": "uniform_list",
+      "title": "Uniform list",
+      "rust_route": "uniform-list",
+      "source": "crates/gpui/examples/uniform_list.rs",
+      "source_blob": "4a2c4788b192d802ee3d51714c250e7c5a82db76",
+      "moonbit": "implemented",
+      "width": 300,
+      "height": 300,
+      "interactive": true,
+      "features": [
+        "Measured auto-height rows",
+        "Lazy visible ranges and full extent",
+        "Stable row identity",
+        "Clipped wheel routing",
+        "Source-led glyph placement"
+      ],
+      "candidate_source": "web/moonbit/uniform_list/uniform_list.mbt",
+      "implementation_note": "Source-derived candidate using genuine core UniformList prototype measurement, lazy range construction, Element layout/prepaint/SceneSnapshot and clipped wheel/row routing. Browser font metrics, unhinted prefix measurements and hinted Canvas glyph rasterization are explicit host boundaries. Strict text-envelope comparison exposes known per-row right-edge raster differences (including Item 3); it is not a passed full-text comparison. Separately scoped placement/scroll/clip results require exact paired evidence. Factory/callback observations use a separate font-free GPUI diagnostic. Native, fractional translation, text and full-image parity remain unverified."
     }
   ]
 }

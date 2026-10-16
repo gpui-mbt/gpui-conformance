@@ -1,0 +1,86 @@
+[
+  [
+    "bounded_overconstruction",
+    "element/uniform_list.mbt",
+    "uniform_factory(list.spec, list.range)",
+    "uniform_factory(list.spec, { first: list.range.first, limit: (list.range.limit + 2).min(list.spec.count), ids: list.spec.ids, })"
+  ],
+  [
+    "first_index_plus_one",
+    "element/uniform_list.mbt",
+    "uniform_bounded_index((position / height).floor(), list.count)",
+    "uniform_bounded_index((position / height).floor() + 1.0, list.count)"
+  ],
+  [
+    "floor_tail_loss",
+    "element/uniform_list.mbt",
+    "((position + bounds.size().height()) / height).ceil(),",
+    "((position + bounds.size().height()) / height).floor(),"
+  ],
+  [
+    "hardcoded_metric",
+    "element/uniform_list.mbt",
+    "Some(size) => size.height()",
+    "Some(size) => { let _ = size; 26.0 }"
+  ],
+  [
+    "visible_only_extent",
+    "element/uniform_list.mbt",
+    "let content_height = height * list.count.to_double()",
+    "let content_height = (height * list.count.to_double()).min(bounds.size().height() + height)"
+  ],
+  [
+    "offset_reset",
+    "element/uniform_list.mbt",
+    "let position = scroll_clamp(list.requested, maximum)",
+    "let position = scroll_clamp(list.requested * 0.0, maximum)"
+  ],
+  [
+    "wrong_endpoint",
+    "element/uniform_list.mbt",
+    "rounded_scroll_limit(content_height - bounds.size().height())",
+    "rounded_scroll_limit(content_height)"
+  ],
+  [
+    "visible_slot_identity",
+    "element/uniform_list_click.mbt",
+    "          return Some({\n            index,\n            id,",
+    "          return Some({\n            index: index - list.range.first,\n            id,"
+  ],
+  [
+    "missing_ancestor_clip",
+    "element/scroll_viewport.mbt",
+    "if ancestor.scroll_viewport is Some(_) &&\n              !pointer_in_bounds(ancestor.bounds, position)",
+    "if ancestor.scroll_viewport is Some(_) && ancestor.uniform_list is None &&\n              !pointer_in_bounds(ancestor.bounds, position)"
+  ],
+  [
+    "closed_far_edge",
+    "element/scroll_viewport.mbt",
+    "position.x() < bounds.right() &&\n  position.y() >= bounds.top() &&\n  position.y() < bounds.bottom()",
+    "position.x() <= bounds.right() &&\n  position.y() >= bounds.top() &&\n  position.y() <= bounds.bottom()"
+  ],
+  [
+    "ignore_x_fallback",
+    "element/scroll_viewport.mbt",
+    "(0.0, if delta_y != 0.0 { delta_y } else { delta_x })",
+    "(0.0, delta_y)"
+  ],
+  [
+    "inherited_axis_dominance",
+    "element/scroll_viewport.mbt",
+    "(0.0, if delta_y != 0.0 { delta_y } else { delta_x })",
+    "(0.0, dy)"
+  ],
+  [
+    "retain_omitted_press",
+    "element/uniform_list_click.mbt",
+    "      if live {\n        false\n      } else {\n        self.cancel()\n      }",
+    "      if live {\n        false\n      } else {\n        false\n      }"
+  ],
+  [
+    "eager_all_n_resource",
+    "element/uniform_list.mbt",
+    "uniform_factory(list.spec, list.range)",
+    "uniform_factory(list.spec, { first: 0, limit: list.spec.count, ids: list.spec.ids, })"
+  ]
+]

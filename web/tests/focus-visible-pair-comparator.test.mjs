@@ -134,7 +134,7 @@ for(const [name,mutate] of [
 
 test('all paired provenance controls are recomputed against a valid unchanged fixture',()=>{
   const {build,catalog}=provenance(),before=clone({build,catalog});const controls=pairedProvenanceNegativeControls(build,catalog);
-  assert.equal(controls.length,10);assert(controls.every(c=>c.rejected));assert.deepEqual({build,catalog},before);
+  assert.equal(controls.length,11);assert(controls.every(c=>c.rejected));assert.deepEqual({build,catalog},before);
 });
 
 test('independent retained metadata validates while fabricated status/check measurements have no authority',()=>{

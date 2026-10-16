@@ -12,7 +12,7 @@ try {
   const git=args=>{const result=spawnSync('git',args,{encoding:'utf8',timeout:10000,maxBuffer:1024*1024});
     if(result.error)throw result.error;assert.equal(result.status,0,`Actual current Git context: ${result.stderr?.slice(0,2048)}`);return result.stdout.trim();};
   const checkout={revision:git(['rev-parse','HEAD']),tree:git(['rev-parse','HEAD^{tree}']),
-    trackedDirty:git(['status','--porcelain','--untracked-files=no'])!=='',catalogBytes:await readFile(resolve('web/examples.json'))};
+    trackedDirty:git(['status','--porcelain','--untracked-files=no'])!=='',catalogBytes:await readFile(resolve('web/tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json'))};
   const file='uniform-list-rust-result-dpr1.json',bytes=await readFile(join(directory,file)),report=JSON.parse(bytes);
   verification.input={file,sha256:sha256(bytes)};validateReport(report,'rust');
   verification.current_checkout=assertCurrentBuild(report,checkout);

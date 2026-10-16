@@ -83,7 +83,7 @@ test('capture binding and retained raw input reject swapped states and cross-run
   assert.deepEqual(inputEvidence(report),JSON.parse(retained.inputBytes));
 });
 test('historical source-only evidence cannot be relabeled as the current suite or catalog',()=>{
-  const {report}=fixture(),catalogBytes=readFileSync(new URL('../examples.json',import.meta.url));report.catalog_evidence.sha256=sha256(catalogBytes);
+  const {report}=fixture(),catalogBytes=readFileSync(new URL('./fixtures/uniform-list-rust-only-catalog-4b4a7047.json',import.meta.url));report.catalog_evidence.sha256=sha256(catalogBytes);
   const checkout={revision:report.build.lab_revision,tree:report.build.lab_tree,trackedDirty:false,catalogBytes};assertCurrentBuild(report,checkout);
   for(const change of [{revision:'0'.repeat(40)},{tree:'0'.repeat(40)},{trackedDirty:true},{catalogBytes:Buffer.from('{}')}])
     assert.throws(()=>assertCurrentBuild(report,{...checkout,...change}));

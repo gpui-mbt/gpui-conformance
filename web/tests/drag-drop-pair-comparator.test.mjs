@@ -76,12 +76,12 @@ let synthetic,measured;
 const fixtures=()=>synthetic??=syntheticPixels();
 const measurement=()=>measured??=validatePixels(fixtures().report,fixtures().retained);
 test('current pair binds the exact published reviewed additive drag-session core',()=>{
-  assert.equal(DRAG_CANDIDATE.revision,'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625');
-  assert.equal(DRAG_CANDIDATE.tree,'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9');
+  assert.equal(DRAG_CANDIDATE.revision,'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
+  assert.equal(DRAG_CANDIDATE.tree,'be95df375c707bd6cf961ef7959e93772b34a966');
 });
 test('paired exact current pins reject historical source-only claims',async()=>{
   const {report}=metadata();assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
-  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,18);
+  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,19);
   const absent=structuredClone(report.catalog);absent.examples=[];assert.throws(()=>assertPairedProvenance(report.build,absent));
   const historical=structuredClone(report.build),historicalCatalog=structuredClone(report.catalog);
   historical.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'eb968228bbea56aff13721dc427875c2dacffc14',tree:'ae9072d350ef6d1546e408226218ec08efc96552'};

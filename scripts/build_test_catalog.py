@@ -50,7 +50,7 @@ RETAINED_BROWSER_EXAMPLES = {
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -59,6 +59,11 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "uniform_list": {
+        "title": "可視範囲だけを作るリスト",
+        "tags": ["uniform list", "遅延構築", "行の測定", "安定した ID", "スクロールとクリップ"],
+        "description": "300×300 に 50 行を表示する上流例。コアが行を測定し、可視範囲だけを構築します。文字の右端には描画系による差があり、文字全体の一致は未達です。配置・スクロール・クリップの比較と分けて扱います。",
+    },
     "drag_drop": {
         "title": "型付きドラッグとドロップ",
         "tags": ["drag session", "2px 境界", "一度だけの drop", "半開区間", "半透明 preview"],

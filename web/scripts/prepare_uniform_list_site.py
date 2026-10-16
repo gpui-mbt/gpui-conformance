@@ -10,14 +10,14 @@ import json
 from pathlib import Path
 import shutil
 from build_moonbit import WEB, run
+from build_rust import uniform_list_oracle_catalog_bytes
 
 
 def prepare(out: Path) -> None:
-    catalog_bytes = (WEB / "examples.json").read_bytes()
+    # This source-only profile carries its own immutable metadata. Registering
+    # a candidate in the live catalog must not rewrite or disable this oracle.
+    catalog_bytes = uniform_list_oracle_catalog_bytes(WEB)
     catalog = json.loads(catalog_bytes)
-    historical = (WEB / "tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json").read_bytes()
-    if catalog_bytes != historical:
-        raise ValueError("source-only uniform-list site requires its immutable catalog")
     if run(["git", "status", "--porcelain", "--untracked-files=no"], WEB.parent, True):
         raise ValueError("tracked suite files must be clean and committed before preparing evidence")
     if out.exists():
@@ -25,8 +25,9 @@ def prepare(out: Path) -> None:
     revision = run(["git", "rev-parse", "HEAD"], WEB.parent, True)
     tree = run(["git", "rev-parse", "HEAD^{tree}"], WEB.parent, True)
     out.mkdir(parents=True)
-    for name in ["load-timing.mjs", "examples.json", "_headers"]:
+    for name in ["load-timing.mjs", "_headers"]:
         shutil.copy2(WEB / name, out / name)
+    (out / "examples.json").write_bytes(catalog_bytes)
     manifest = {
         "upstream": catalog["upstream"], "moonbit": catalog["moonbit"],
         "lab_revision": revision, "lab_tree": tree, "lab_tracked_dirty": False,

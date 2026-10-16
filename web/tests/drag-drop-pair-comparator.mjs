@@ -9,8 +9,8 @@ export {assertCurrentBuild};
 
 // Exact published identity for the independently reviewed additive drag-session core.
 export const DRAG_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'});
-export const PAIR_REVISION='drag_drop_paired_pointer_v3';
+  revision:'b9916950350b7d433ecca0d6fa88e39c957b8b6b',tree:'be95df375c707bd6cf961ef7959e93772b34a966'});
+export const PAIR_REVISION='drag_drop_paired_pointer_v4_uniform_list_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/drag-drop-host.mjs','moonbit/focus-visible-host.mjs','moonbit/tab-stop-host.mjs','load-timing.mjs'];
 export const HTML_ENTRYPOINTS=Object.freeze({
   rust:Object.freeze({path:'rust/index.html',source:'web/rust/index.html',sha256:'8f6806a2ae5f935a8212171af3890fb1460c5ab30a357032bf541222b2bd6669'}),
@@ -160,7 +160,8 @@ export function assertPairedProvenance(build,catalog) {
 }
 export function pairedProvenanceNegativeControls(build,catalog) {
   assertPairedProvenance(build,catalog);
-  return [['dirty_lab',b=>{b.lab_tracked_dirty=true;}],['wrong_core_commit',b=>{b.moonbit.revision='0'.repeat(40);}],
+  return [['previous_uniform_list_baseline_core',b=>{b.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'};}],
+    ['dirty_lab',b=>{b.lab_tracked_dirty=true;}],['wrong_core_commit',b=>{b.moonbit.revision='0'.repeat(40);}],
     ['historical_baseline_core',b=>{b.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'eb968228bbea56aff13721dc427875c2dacffc14',tree:'ae9072d350ef6d1546e408226218ec08efc96552'};}],
     ['wrong_core_tree',b=>{b.moonbit.tree='0'.repeat(40);}],['modified_source',b=>{b.rust.source_modified=true;}],
     ['wrong_source_tree',b=>{b.rust.source_tree='0'.repeat(40);}],

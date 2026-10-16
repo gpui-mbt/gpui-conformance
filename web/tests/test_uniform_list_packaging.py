@@ -22,7 +22,7 @@ class UniformListPackagingTests(unittest.TestCase):
         self.assertEqual(record["source_sha256"], "939b065c2db96ce38400c0ea79a0dd74803aa27793698bb5d00f6652a58f4e3a")
         self.assertEqual(record["upstream_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
         self.assertEqual((record["width"], record["height"], record["dpr"]), (300, 300, 1))
-        catalog = json.loads((build_rust.WEB / "examples.json").read_text())
+        catalog = json.loads(build_rust.uniform_list_oracle_catalog_bytes(build_rust.WEB))
         self.assertFalse(any(entry["id"] == "uniform_list" for entry in catalog["examples"]))
         self.assertEqual(build_rust.selected_examples(catalog, [record], True), ["uniform_list"])
         self.assertNotIn("uniform_list", build_rust.selected_examples(catalog, []))
@@ -71,6 +71,46 @@ class UniformListPackagingTests(unittest.TestCase):
             self.assertTrue(all(command[0] == "git" for command in calls))
             with self.assertRaisesRegex(ValueError, "output exists"):
                 prepare_uniform_list_site.prepare(out)
+
+    def test_isolated_oracle_uses_frozen_metadata_after_live_candidate_registration(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fixture = root / build_rust.UNIFORM_LIST_CATALOG
+            fixture.parent.mkdir(parents=True)
+            raw = build_rust.uniform_list_oracle_catalog_bytes(build_rust.WEB)
+            fixture.write_bytes(raw)
+            live = json.loads(raw)
+            live["moonbit"]["revision"] = "a" * 40
+            live["examples"].append({"id": "uniform_list", "moonbit": "implemented"})
+            (root / "examples.json").write_text(json.dumps(live))
+            for name in ["load-timing.mjs", "_headers"]:
+                (root / name).write_bytes((prepare_uniform_list_site.WEB / name).read_bytes())
+            site = root / "site"
+            def git(args, cwd, capture):
+                return "" if args[1] == "status" else "1" * 40
+            with patch.object(prepare_uniform_list_site, "WEB", root), patch.object(prepare_uniform_list_site, "run", side_effect=git):
+                prepare_uniform_list_site.prepare(site)
+            self.assertEqual((site / "examples.json").read_bytes(), raw)
+            manifest = json.loads((site / "build-manifest.json").read_text())
+            with patch.object(build_rust, "WEB", root):
+                self.assertEqual(build_rust.site_catalog(site, manifest, ["uniform_list"], True, None), json.loads(raw))
+                self.assertEqual(build_rust.site_catalog(site, {}, [], False, None), live)
+                for flags in [([], True, None), (["uniform_list"], False, None), (["uniform_list", "tree"], True, None), (["uniform_list"], True, ["uniform_list"])]:
+                    with self.assertRaisesRegex(ValueError, "requires only"):
+                        build_rust.site_catalog(site, manifest, *flags)
+                bad = {**manifest, "moonbit": {**manifest["moonbit"], "revision": "0" * 40}}
+                with self.assertRaisesRegex(ValueError, "metadata differs"):
+                    build_rust.site_catalog(site, bad, ["uniform_list"], True, None)
+                (site / "examples.json").write_text(json.dumps(live))
+                with self.assertRaisesRegex(ValueError, "catalog differs"):
+                    build_rust.site_catalog(site, manifest, ["uniform_list"], True, None)
+                fixture.write_bytes(raw + b" ")
+                with self.assertRaisesRegex(ValueError, "catalog bytes changed"):
+                    build_rust.uniform_list_oracle_catalog_bytes(root)
+            with patch.object(prepare_uniform_list_site, "WEB", root):
+                with self.assertRaisesRegex(ValueError, "catalog bytes changed"):
+                    prepare_uniform_list_site.prepare(root / "corrupt-site")
+                self.assertFalse((root / "corrupt-site").exists())
 
     def test_dirty_suite_refused_before_preparation(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(prepare_uniform_list_site, "run", return_value=" M web/rust/host.mjs"):

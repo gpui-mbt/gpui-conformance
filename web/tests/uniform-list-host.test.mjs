@@ -26,11 +26,11 @@ test('unknown Rust route fails before importing any generated code',async()=>{
   const result=await route('uniform_list_other');assert.deepEqual(result.imports,[]);assert.equal(result.html.dataset.runtimeStatus,'failed');
   assert.match(result.error.textContent,/not bundled/);
 });
-test('exact HTML and static-site preparer are retained while catalog has no list candidate',()=>{
+test('exact HTML and static-site preparer retain the frozen source-only catalog',()=>{
   const html=readFileSync(new URL('../rust/index.html',import.meta.url));assert.equal(sha256(html),HTML_ENTRYPOINTS.rust.sha256);
   assert.match(html.toString(),/<script type="module" src="\.\/host.mjs"><\/script>/);
   assert(SUITE_INPUTS.includes('web/scripts/prepare_uniform_list_site.py'));
-  const catalog=JSON.parse(readFileSync(new URL('../examples.json',import.meta.url)));
+  const catalog=JSON.parse(readFileSync(new URL('./fixtures/uniform-list-rust-only-catalog-4b4a7047.json',import.meta.url)));
   assert(!catalog.examples.some(example=>example.id==='uniform_list'));
-  const candidate=readFileSync(new URL('../moonbit/site/host.mjs',import.meta.url),'utf8');assert(!candidate.includes('uniform_list'));
+  assert(SUITE_INPUTS.includes('web/tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json')); // current clean fixture bytes are retained, independently of future candidates
 });

@@ -17,6 +17,31 @@ from build_moonbit import WEB, check_source, run
 
 TOOLCHAIN = "nightly-2026-10-14"
 GALLERY = Path("crates/gpui_web/examples/hello_web")
+UNIFORM_LIST_CATALOG = "tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json"
+UNIFORM_LIST_CATALOG_SHA256 = "f44de111e586b8597831e1317f6c9114637879ba4d3fe516ecfe2c7900e8b39b"
+
+
+def uniform_list_oracle_catalog_bytes(web: Path) -> bytes:
+    """Immutable baseline metadata, independently bound to the clean suite."""
+    raw = (web / UNIFORM_LIST_CATALOG).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != UNIFORM_LIST_CATALOG_SHA256:
+        raise ValueError("immutable uniform-list oracle catalog bytes changed")
+    return raw
+
+
+def site_catalog(site: Path, manifest: dict, extra_examples: list[str],
+                 oracle_only: bool, implemented_examples: list[str] | None) -> dict:
+    if manifest.get("site_kind") == "uniform_list_rust_oracle_only":
+        if not oracle_only or extra_examples != ["uniform_list"] or implemented_examples is not None:
+            raise ValueError("isolated uniform-list site requires only its explicit Rust oracle")
+        raw = uniform_list_oracle_catalog_bytes(WEB)
+        if (site / "examples.json").read_bytes() != raw:
+            raise ValueError("isolated uniform-list site catalog differs from immutable source")
+        catalog = json.loads(raw)
+        if manifest.get("moonbit") != catalog["moonbit"]:
+            raise ValueError("isolated uniform-list unused engine metadata differs")
+        return catalog
+    return json.loads((WEB / "examples.json").read_text())
 
 
 def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
@@ -89,7 +114,14 @@ def selected_examples(catalog: dict, records: list[dict], oracle_only: bool = Fa
 
 def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | None = None,
           oracle_only: bool = False, implemented_examples: list[str] | None = None) -> None:
-    catalog = json.loads((WEB / "examples.json").read_text())
+    manifest_path = site / "build-manifest.json"
+    manifest = None
+    if oracle_only and extra_examples == ["uniform_list"] and implemented_examples is None:
+        manifest = json.loads(manifest_path.read_text())
+        catalog = site_catalog(site, manifest, extra_examples, oracle_only, implemented_examples)
+    else:
+        # Preserve ordinary subset validation before reading/building a site.
+        catalog = json.loads((WEB / "examples.json").read_text())
     check_source(upstream, catalog["upstream"]["revision"])
     oracle_records = extra_oracle_records(extra_examples or [])
     examples = selected_examples(catalog, oracle_records, oracle_only, implemented_examples)
@@ -112,8 +144,10 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
                                    "source_sha256": hashlib.sha256((upstream / entry["source"]).read_bytes()).hexdigest(),
                                    "upstream_revision": catalog["upstream"]["revision"],
                                    "status": "implemented_subset", "candidate": "implemented"})
-    manifest_path = site / "build-manifest.json"
-    manifest = json.loads(manifest_path.read_text())
+    if manifest is None:
+        manifest = json.loads(manifest_path.read_text())
+    if manifest.get("site_kind") == "uniform_list_rust_oracle_only":
+        site_catalog(site, manifest, extra_examples or [], oracle_only, implemented_examples)
     if manifest["upstream"] != catalog["upstream"] or (site / "rust").exists():
         raise ValueError("site provenance mismatch or Rust output already exists")
     with tempfile.TemporaryDirectory(prefix="gpui-rust-", dir=site.parent) as work:
