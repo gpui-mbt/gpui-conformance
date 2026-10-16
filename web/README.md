@@ -615,3 +615,12 @@ side. They do not establish cross-runtime glyph identity or full text parity.
 The catalog remains unverified and does not borrow historical screenshots or
 results. See [the scoped pair](UNIFORM_LIST_PAIR.md) for exact provenance,
 strict mismatch records and the limits of any separately qualified result.
+
+## Source-only baseline under construction: `grid_layout`
+
+[The isolated grid-layout baseline](GRID_LAYOUT_ORACLE.md) registers only the
+unchanged source5a Rust example. It prepares original PNG and actual viewport
+resize evidence at 399/400/401/500×500 DPR1, measuring solid-color grid/span/gap
+and threshold behavior. Local synthetic tests do not establish runtime results;
+its dedicated CI build/capture and independent artifact review remain required.
+No grid MoonBit candidate or full-image/text/native parity is claimed.

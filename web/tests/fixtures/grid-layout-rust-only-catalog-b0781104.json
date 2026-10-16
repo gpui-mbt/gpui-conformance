@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "hello_world_blob": "d18cb048726d6953edef9ea482d92bac05993d33"
+  },
+  "moonbit": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "b9916950350b7d433ecca0d6fa88e39c957b8b6b",
+    "tree": "be95df375c707bd6cf961ef7959e93772b34a966"
+  },
+  "examples": [
+    {
+      "id": "hello_world",
+      "title": "Hello world",
+      "rust_route": "hello-world",
+      "source": "crates/gpui/examples/hello_world.rs",
+      "moonbit": "implemented",
+      "width": 500,
+      "height": 500,
+      "interactive": false,
+      "features": [
+        "Flex layout",
+        "Color",
+        "Rounded borders"
+      ],
+      "candidate_source": "web/moonbit/hello_world/hello_world.mbt"
+    },
+    {
+      "id": "text",
+      "title": "Styled text",
+      "rust_route": "text",
+      "source": "crates/gpui/examples/text.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Typography",
+        "Font switching"
+      ],
+      "candidate_source": "web/moonbit/text/text.mbt",
+      "width": 920,
+      "height": 720,
+      "interactive": true,
+      "source_blob": "7fa2a157601277cb3c0d58de045f1d5a6f21ab2e",
+      "implementation_note": "Upstream typography with the original character grid, CJK/emoji and type-scale specimens; GPUI layout/SceneSnapshot with browser-host font fallback, scroll and pointer extensions. Interactive/browser parity is unverified."
+    },
+    {
+      "id": "text_layout",
+      "title": "Text layout",
+      "rust_route": "text-layout",
+      "source": "crates/gpui/examples/text_layout.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Text alignment",
+        "Underline",
+        "Strikethrough",
+        "Styled spans",
+        "Clipping"
+      ],
+      "candidate_source": "web/moonbit/text_layout/text_layout.mbt",
+      "width": 800,
+      "height": 600,
+      "interactive": false,
+      "source_blob": "07f560ab6ed163da4c613cb57311fc4c5784a15b",
+      "implementation_note": "gpui.mbt layout and SceneSnapshot with explicit Canvas font-style and text-decoration host extensions; conformance unverified."
+    },
+    {
+      "id": "text_wrapper",
+      "title": "Text wrapping",
+      "rust_route": "text-wrapper",
+      "source": "crates/gpui/examples/text_wrapper.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Wrapping",
+        "Ellipsis",
+        "Line clamp"
+      ],
+      "candidate_source": "web/moonbit/text_wrapper/text_wrapper.mbt",
+      "width": 800,
+      "height": 600,
+      "interactive": false,
+      "source_blob": "51e58fc7e394faa1954d4f8837946ef797406804",
+      "implementation_note": "MoonBit wrapping and truncation with gpui.mbt layout and SceneSnapshot; browser font metrics and grapheme segmentation are explicit host inputs. Shaping and conformance remain unverified."
+    },
+    {
+      "id": "input",
+      "title": "Text input",
+      "rust_route": "input",
+      "source": "crates/gpui/examples/input.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Editing",
+        "Selection",
+        "IME"
+      ],
+      "width": 300,
+      "height": 300,
+      "interactive": true,
+      "candidate_source": "web/moonbit/input/input.mbt",
+      "source_blob": "106d06dc7e3ab225d0fda1aee009f601767b34da",
+      "implementation_note": "MoonBit TextField/TextComposition own edit, UTF-16 selection, undo/redo and composition; browser IME/Clipboard is host-only. Fixed scalar advance proxy, Japanese IME and pixel/native conformance unverified."
+    },
+    {
+      "id": "dynamic_fonts",
+      "title": "Dynamic fonts",
+      "rust_route": "dynamic-fonts",
+      "source": "crates/gpui_web/examples/hello_web/dynamic_fonts.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Devanagari glyph fallback",
+        "One-shot runtime font download",
+        "FontFace registration",
+        "Loading and failure states"
+      ],
+      "width": 900,
+      "height": 500,
+      "interactive": false,
+      "candidate_source": "web/moonbit/dynamic_fonts/dynamic_fonts.mbt",
+      "source_blob": "33d4d6cc1721b24f86241ae53a417313c4ae0ed3",
+      "implementation_note": "MoonBit gpui.mbt Element -> layout -> prepaint -> SceneSnapshot. Missing-glyph detection and remote FontFace registration are explicit browser-host approximations; Cosmic Text shaping and pixel equivalence remain unverified."
+    },
+    {
+      "id": "hello_web",
+      "title": "Prime sieve",
+      "rust_route": "prime-sieve",
+      "source": "crates/gpui_web/examples/hello_web/main.rs",
+      "moonbit": "implemented",
+      "features": [
+        "Background work",
+        "Preset selection",
+        "Progress",
+        "History"
+      ],
+      "width": 640,
+      "height": 560,
+      "interactive": true,
+      "candidate_source": "web/moonbit/hello_web/hello_web.mbt",
+      "source_blob": "31f30431e2a15963d7277047d0301e2510a90616",
+      "implementation_note": "Actual MoonBit brute-force computation in browser Web Workers, with gpui.mbt layout, pointer dispatch and SceneSnapshot. Worker scheduling, fonts and Canvas rounded fills are explicit host extensions; conformance and performance equivalence unverified."
+    },
+    {
+      "id": "tree",
+      "title": "Deep tree",
+      "rust_route": "tree",
+      "source": "crates/gpui/examples/tree.rs",
+      "source_blob": "891be4790a59ae258da3380d2ef54fba26979346",
+      "moonbit": "implemented",
+      "width": 300,
+      "height": 300,
+      "interactive": false,
+      "features": [
+        "51-level hierarchy",
+        "Intrinsic sizing",
+        "Nested padding",
+        "Paint order"
+      ],
+      "candidate_source": "web/moonbit/tree/tree.mbt",
+      "implementation_note": "Unchanged upstream default depth 50: 51 colored blocks with 2px padding. gpui.mbt auto measurement, layout and SceneSnapshot; block flow is represented by single-child stretched columns. Native and arbitrary-depth parity remain unverified."
+    },
+    {
+      "id": "scrollable",
+      "title": "Nested scrollable",
+      "rust_route": "scrollable",
+      "source": "crates/gpui/examples/scrollable.rs",
+      "source_blob": "c81795618875aecf06e06043bd1709c48630b58f",
+      "moonbit": "implemented",
+      "width": 500,
+      "height": 500,
+      "interactive": true,
+      "features": [
+        "Nested two-axis scroll viewports",
+        "Same-delta ancestor wheel propagation",
+        "Clipped paint and hit testing",
+        "Anonymous hover repaint behavior"
+      ],
+      "candidate_source": "web/moonbit/scrollable/scrollable.mbt",
+      "implementation_note": "Real gpui.mbt core viewport limits, wheel routing, descendant translation, scene clips and clipped pointer hits. Same-delta ancestor behavior and anonymous-hover invalidation follow unchanged upstream source. Browser text metrics/rasterization remain host extensions; native and full-pixel equivalence unverified."
+    },
+    {
+      "id": "focus_visible",
+      "title": "Focus-visible",
+      "rust_route": "focus-visible",
+      "source": "crates/gpui/examples/focus_visible.rs",
+      "source_blob": "c5b3d5dfec3a189d088a621baff55eb55a121b6c",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Keyboard and pointer focus modality",
+        "Flat tab traversal",
+        "Focus ownership",
+        "Focus-visible border precedence",
+        "Pointer and keyboard activation"
+      ],
+      "candidate_source": "web/moonbit/focus_visible/focus_visible.mbt",
+      "implementation_note": "Real gpui.mbt Element layout/prepaint/SceneSnapshot with a persistent input tree, core flat tab traversal, modality, focus ownership and routing. Pointer and keyboard activation follow the pinned upstream source. JavaScript input delivery, rounded fills, solid 4px focus borders and browser fonts are explicit host boundaries. Source-derived candidate only; paired browser execution and pixel qualification remain unverified. Nested tab groups, touch, pointer capture, native, full-image and text parity are not established."
+    },
+    {
+      "id": "tab_stop",
+      "title": "Tab stops and groups",
+      "rust_route": "tab-stop",
+      "source": "crates/gpui/examples/tab_stop.rs",
+      "source_blob": "cc7c34a9979ce4027578ec2c358f503d944ee26f",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Signed tab-index ordering",
+        "Repeated-index source order",
+        "Non-stops",
+        "Nested tab groups",
+        "Forward and reverse wrapping"
+      ],
+      "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot, core group-prefix traversal and owner-preserving live geometry refresh. Source border-box flex and this bounded Block-group profile are explicitly lowered into existing flex APIs. Shared browser input transport, Canvas border3/shadow_sm and font metrics are host extensions. Paired browser execution, native, GPU shadow-kernel, text and full-image parity remain unverified.",
+      "candidate_source": "web/moonbit/tab_stop/tab_stop.mbt"
+    },
+    {
+      "id": "drag_drop",
+      "title": "Typed drag and drop",
+      "rust_route": "drag-drop",
+      "source": "crates/gpui/examples/drag_drop.rs",
+      "source_blob": "8f038ef3308fee9b097e7289665c9fa47cd6945b",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Typed shared drag session",
+        "Strict move-only activation threshold",
+        "One-shot drop delivery",
+        "Half-open target bounds",
+        "Pointer-centered translucent preview"
+      ],
+      "candidate_source": "web/moonbit/drag_drop/drag_drop.mbt",
+      "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot and typed core DragSession for admission, activation, hit testing and one-shot delivery. Preview copies preserve the original typed payload. Browser pointer delivery, font metrics, signed preview placement and Canvas shadow_md are explicit host boundaries. Paired browser execution, native, touch, global capture, GPU shadow-kernel, text and full-image parity remain unverified."
+    },
+    {
+      "id": "uniform_list",
+      "title": "Uniform list",
+      "rust_route": "uniform-list",
+      "source": "crates/gpui/examples/uniform_list.rs",
+      "source_blob": "4a2c4788b192d802ee3d51714c250e7c5a82db76",
+      "moonbit": "implemented",
+      "width": 300,
+      "height": 300,
+      "interactive": true,
+      "features": [
+        "Measured auto-height rows",
+        "Lazy visible ranges and full extent",
+        "Stable row identity",
+        "Clipped wheel routing",
+        "Source-led glyph placement"
+      ],
+      "candidate_source": "web/moonbit/uniform_list/uniform_list.mbt",
+      "implementation_note": "Source-derived candidate using genuine core UniformList prototype measurement, lazy range construction, Element layout/prepaint/SceneSnapshot and clipped wheel/row routing. Browser font metrics, unhinted prefix measurements and hinted Canvas glyph rasterization are explicit host boundaries. Strict text-envelope comparison exposes known per-row right-edge raster differences (including Item 3); it is not a passed full-text comparison. Separately scoped placement/scroll/clip results require exact paired evidence. Factory/callback observations use a separate font-free GPUI diagnostic. Native, fractional translation, text and full-image parity remain unverified."
+    }
+  ]
+}
