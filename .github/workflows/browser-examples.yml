@@ -54,6 +54,8 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
           bash "$RUNNER_TEMP/install-moon.sh"
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Install pinned PNG decoder for host tests and browser evidence
+        run: python3 -m pip install Pillow==12.0.0
       - name: Host and catalog contracts
         run: node --test web/tests/*.test.mjs
       - name: Verify immutable upstream packaging
@@ -86,7 +88,6 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
-          python3 -m pip install Pillow==12.0.0
       - name: Install OCR for real upstream Prime sieve result verification
         run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
       - name: Execute both compiled runtimes on one isolated origin

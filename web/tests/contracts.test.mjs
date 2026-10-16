@@ -265,3 +265,15 @@ test('focus_visible is a pinned interactive core-backed candidate with unverifie
   for (const key of ['result_url', 'result_date', 'changed_pixels', 'total_pixels', 'thumbnail', 'evidence_scope'])
     assert.equal(example[key], undefined, key);
 });
+
+
+test('pinned PNG decoder is installed before independent comparator unit tests', async () => {
+  const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
+  const install = 'python3 -m pip install Pillow==12.0.0';
+  assert.equal(workflow.split(install).length - 1, 1, 'One shared exact decoder version');
+  const decoder = workflow.indexOf(install);
+  const unitTests = workflow.indexOf('node --test web/tests/*.test.mjs');
+  assert(decoder >= 0 && unitTests > decoder, 'PNG-decoding unit tests require Pillow before the host gate');
+  assert(workflow.indexOf('node web/tests/compare-focus-visible-results.mjs') > unitTests,
+    'Retained browser evidence uses the same installed decoder later');
+});
