@@ -68,7 +68,7 @@ try {
       assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
         timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
         timing.example === 'text' ? ['text.mjs', 'Lilex-Regular.ttf'] :
-        ['text_wrapper', 'hello_web', 'dynamic_fonts'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
+        ['text_wrapper', 'hello_web', 'input', 'dynamic_fonts'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
         ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
     }
     report.load_runs ||= [];
@@ -675,7 +675,7 @@ try {
   assert.equal(await moon.locator('html').evaluate(()=>gpuiExample.content.generation),2);
   await page.evaluate(()=>{globalThis.oldPrimeWorkers=document.getElementById('moon-frame').contentWindow.gpuiExample.workers;});
   await page.selectOption('#fixture','input');
-  await page.waitForFunction(()=>document.getElementById('moon-frame').getAttribute('src')===null);
+  await page.waitForFunction(()=>globalThis.oldPrimeWorkers?.active === 0);
   await page.selectOption('#fixture','hello_web');
   await waitForNewDocuments();
   prime=await moon.locator('html').evaluate(()=>gpuiExample);
@@ -688,10 +688,102 @@ try {
 
   await page.setViewportSize({width:1400,height:950});
   await page.selectOption('#fixture', 'input');
-  assert.equal(await page.locator('#moon-frame').isVisible(), false);
-  assert.equal(await page.locator('#moon-frame').getAttribute('src'), null);
-  assert.equal(await page.locator('#rust-frame').getAttribute('src'), null);
-  report.operations.push({action:'select missing input port', result:'both_frames_cleared'});
+  await waitForNewDocuments();
+  const inputFrame = await moon.locator('html').evaluate(() => globalThis.gpuiExample);
+  assert.equal(inputFrame.metadata.id, 'input');
+  assert.deepEqual([inputFrame.metadata.width,inputFrame.metadata.height],[300,300]);
+  assert.equal(inputFrame.frame.conformance,'unverified');
+  assert(inputFrame.frame.snapshot.items.some(item => item.kind==='text_run'),
+    'Actual gpui.mbt TextField.paint_items run must be rendered');
+  assert.equal(inputFrame.input.text,'');
+  const inputEditor = moon.locator('textarea[data-gpui-input="true"]');
+  await inputEditor.focus();
+  const getInput = () => moon.locator('html').evaluate(() => globalThis.gpuiExample.input);
+  await page.keyboard.type('abc');
+  assert.deepEqual([ (await getInput()).text, (await getInput()).head ],['abc',3]);
+  await page.keyboard.press('ArrowLeft');
+  assert.equal((await getInput()).head,2);
+  await page.keyboard.press('Shift+ArrowRight');
+  assert.deepEqual([(await getInput()).anchor,(await getInput()).head],[2,3]);
+  await page.keyboard.press('Control+c');
+  assert.equal((await getInput()).text,'abc');
+  const copyEvents = await moon.locator('html').evaluate(() => gpuiExample.inputEvents.filter(e=>e.type==='copy'));
+  assert(copyEvents.some(e=>e.length===1 && e.trusted),'Trusted Chromium copy must reach isolated host');
+  await page.keyboard.press('Control+x');
+  assert.equal((await getInput()).text,'ab');
+  await page.keyboard.press('Control+z');
+  assert.equal((await getInput()).text,'abc');
+  await page.keyboard.press('Control+Shift+z');
+  assert.equal((await getInput()).text,'ab');
+  await page.keyboard.press('Control+a');
+  assert.deepEqual([(await getInput()).anchor,(await getInput()).head],[0,2]);
+  // A DataTransfer/ClipboardEvent is a deterministic browser transport test,
+  // not a claim that the OS clipboard or platform IME was exercised.
+  await inputEditor.evaluate(editor => {
+    const data = new DataTransfer();
+    data.setData('text/plain','日本\n語');
+    editor.dispatchEvent(new ClipboardEvent('paste',{bubbles:true,cancelable:true,clipboardData:data}));
+  });
+  assert.equal((await getInput()).text,'日本 語');
+  assert.deepEqual([(await getInput()).anchor,(await getInput()).head],[4,4]);
+  await page.keyboard.press('Home');
+  assert.equal((await getInput()).head,0);
+  await page.keyboard.press('End');
+  assert.equal((await getInput()).head,4);
+  await page.keyboard.press('Backspace');
+  assert.equal((await getInput()).text,'日本 ');
+  await page.keyboard.press('Control+z');
+  assert.equal((await getInput()).text,'日本 語');
+  await writeFile(join(evidence,'input-moonbit-edited.png'),
+    await captureCanvas(moon.locator('canvas'),'input_moonbit',300,300));
+  // Chromium event objects exercise sequencing, NOT a live Japanese IME.
+  await inputEditor.evaluate(editor => {
+    editor.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true,data:''}));
+    editor.dispatchEvent(new CompositionEvent('compositionupdate',{bubbles:true,data:'にほん'}));
+  });
+  let composing=await getInput();
+  assert.equal(composing.composing,true);
+  assert.equal(composing.markedStart,4);
+  assert.equal(composing.markedEnd,7);
+  await inputEditor.evaluate(editor =>
+    editor.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'日本'})));
+  assert.equal((await getInput()).text,'日本 語日本');
+  assert.equal((await getInput()).composing,false);
+  await page.keyboard.type('!');
+  assert.equal((await getInput()).text,'日本 語日本!');
+  await page.keyboard.press('Control+z');
+  assert.equal((await getInput()).text,'日本 語日本');
+  await page.keyboard.press('Control+z');
+  assert.equal((await getInput()).text,'日本 語');
+  await inputEditor.evaluate(editor => {
+    editor.dispatchEvent(new CompositionEvent('compositionstart',{bubbles:true,data:''}));
+    editor.dispatchEvent(new CompositionEvent('compositionupdate',{bubbles:true,data:'かな'}));
+    editor.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true,key:'Escape',cancelable:true}));
+    editor.dispatchEvent(new CompositionEvent('compositionend',{bubbles:true,data:'かな'}));
+  });
+  assert.equal((await getInput()).text,'日本 語');
+  assert.equal((await getInput()).composing,false);
+  await writeFile(join(evidence,'input-moonbit-final.png'),
+    await captureCanvas(moon.locator('canvas'),'input_moonbit_final',300,300));
+  const inputEventTrace = await moon.locator('html').evaluate(() => globalThis.gpuiExample.inputEvents);
+  await writeFile(join(evidence,'input-browser-events.json'),JSON.stringify(inputEventTrace,null,2));
+  assert(inputEventTrace.some(event=>event.type==='compositionupdate'));
+  assert(inputEventTrace.some(event=>event.type==='compositionend' && !event.committed));
+  report.operations.push({action:'Chromium MoonBit text field',result:'trusted typing, UTF-16 caret/selection, copy/cut, undo/redo, paste adapter, composition preview/commit/cancel',imei:'synthetic composition events only: live Japanese IME unverified'});
+  if(paired) {
+    const rustInput = page.frameLocator('#rust-frame').locator('canvas');
+    const before=await captureCanvas(rustInput,'input_rust_initial',300,300);
+    await rustInput.click({position:{x:35,y:53}});
+    await page.keyboard.type('abc');
+    const after=await captureCanvas(rustInput,'input_rust_edited',300,300);
+    await writeFile(join(evidence,'input-rust-initial.png'),before);
+    await writeFile(join(evidence,'input-rust-edited.png'),after);
+    report.operations.push({action:'Chromium Rust WASM input',result:before.equals(after)?'no visible difference observed':'pixels changed after trusted keyboard typing',checked:'actual pinned upstream rendered canvas; semantic selection/IME parity unverified'});
+  }
+  report.unverified=report.unverified.filter(v=>v!=='IME and interactive examples');
+  report.unverified.push('real Japanese IME and native composition', 'Unicode grapheme movement parity', 'Rust-MoonBit semantic input equivalence and exact pixels');
+  report.verified.push('real Chromium trusted typing/copy/cut with MoonBit UTF-16 selection and undo/redo',
+    'synthetic Chromium composition preview/commit/cancel transport with MoonBit TextComposition');
   await page.selectOption('#fixture', 'hello_world');
   await waitForNewDocuments();
   const previous = await page.locator('#moon-frame').getAttribute('src');
@@ -706,7 +798,7 @@ try {
     assert.equal(bounds.width,500); assert.equal(bounds.height,500);
   }
   await page.screenshot({path:join(evidence,'mobile.png'),fullPage:true});
-  report.verified.push('missing-port clearing', 'reload both', 'fixed viewport in narrow layout');
+  report.verified.push('input port interaction', 'reload both', 'fixed viewport in narrow layout');
   assert.deepEqual(errors, []);
   report.overall = 'passed';
   console.log(paired ? 'PASS: actual Rust WASM and MoonBit JS rendered on one origin; screenshots, browser events and color probes retained. Pixel parity UNVERIFIED.' : 'PASS: compiled MoonBit; Rust comparison NOT RUN.');

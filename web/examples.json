@@ -86,12 +86,18 @@
       "title": "Text input",
       "rust_route": "input",
       "source": "crates/gpui/examples/input.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Editing",
         "Selection",
         "IME"
-      ]
+      ],
+      "width": 300,
+      "height": 300,
+      "interactive": true,
+      "candidate_source": "web/moonbit/input/input.mbt",
+      "source_blob": "106d06dc7e3ab225d0fda1aee009f601767b34da",
+      "implementation_note": "MoonBit TextField/TextComposition own edit, UTF-16 selection, undo/redo and composition; browser IME/Clipboard is host-only. Fixed scalar advance proxy, Japanese IME and pixel/native conformance unverified."
     },
     {
       "id": "dynamic_fonts",

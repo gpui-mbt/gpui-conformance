@@ -7,7 +7,7 @@ const catalog = JSON.parse(await readFile(new URL('../examples.json', import.met
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
   assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'dynamic_fonts', 'hello_web']);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -17,7 +17,9 @@ test('a selected example resolves the same pair under a GitHub Pages subpath', (
   assert.equal(moonbitExampleUrl('https://gpui-mbt.github.io/gpui-conformance/?example=hello_world', example), 'https://gpui-mbt.github.io/gpui-conformance/moonbit/?example=hello_world');
 });
 test('missing implementations and runtimes cannot be treated as a pair', () => {
-  const missing = selectExample(catalog, 'input');
+  // Both remaining holds (#34 and #37) land together, so no catalog entry is
+  // unimplemented anymore; keep the routing guard covered with a fixture.
+  const missing = { id: 'unimplemented_fixture', moonbit: 'not_implemented' };
   assert.equal(moonbitExampleUrl('https://example.test/lab/', missing), null);
   assert.equal(rustExampleUrl('https://example.test/lab/', missing), null);
 });
@@ -166,4 +168,31 @@ test('scroll extension clips only body items and rejects out-of-range geometry',
   assert(calls.some(c=>JSON.stringify(c)==='["rect",0,52,920,668]'));
   f.scroll.y=101;
   assert.throws(()=>validateFrame(f),/scroll/);
+});
+
+test('input uses real upstream source, the MoonBit TextField, and an isolated browser transport', async () => {
+  const example = selectExample(catalog, 'input');
+  assert.deepEqual([example.width, example.height, example.interactive], [300,300,true]);
+  assert.equal(example.candidate_source, 'web/moonbit/input/input.mbt');
+  assert.equal(example.source_blob, '106d06dc7e3ab225d0fda1aee009f601767b34da');
+  assert.equal(moonbitExampleUrl('https://example.test/lab/',example), 'https://example.test/lab/moonbit/?example=input');
+  const source = await readFile(new URL('../moonbit/input/input.mbt', import.meta.url), 'utf8');
+  for (const symbol of ['@text_field.TextField::new', 'update_composition', 'commit_composition', 'cancel_composition', 'paint_items', 'request_layout', 'SceneSnapshot::new']) {
+    assert(source.includes(symbol), symbol);
+  }
+  const host = await readFile(new URL('../moonbit/site/input-host.mjs', import.meta.url), 'utf8');
+  for (const event of ['compositionstart', 'compositionupdate', 'compositionend', 'beforeinput', 'copy', 'cut', 'paste']) assert(host.includes(event));
+  assert(!host.includes('new TextField('));
+});
+test('text_run host draws a translated run but rejects unsafe geometry', () => {
+  const f=frame(); f.decorations=[];
+  f.snapshot.items.push({kind:'text_run',id:9,bounds:{x:0,y:0,width:20,height:30},
+    text_origin:{x:2,y:1},text:'hi',font_size:24,color:{red:0,green:0,blue:0,alpha:255},
+    transform:{a:1,b:0,c:0,d:1,tx:12,ty:34}});
+  const calls=[];
+  const ctx=new Proxy({}, {get:(_obj,key)=>(...args)=>{calls.push([key,...args]);if(key==='measureText')return {width:20,fontBoundingBoxAscent:20,fontBoundingBoxDescent:4};}});
+  drawFrame(ctx,f,{width:300,height:300,font_family:'IBM Plex Sans'},1);
+  assert(calls.some(call=>call[0]==='fillText' && call[1]==='hi' && call[2]===14));
+  f.snapshot.items[1].transform.a=2;
+  assert.throws(()=>validateFrame(f));
 });

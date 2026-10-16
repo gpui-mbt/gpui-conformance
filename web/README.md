@@ -396,3 +396,31 @@ font rasterization, fallback order, emoji shaping, and macOS/native
 equivalence remain unverified. The paired browser test exercises a
 deterministic error route and a mocked FontFace-success route separately;
 neither is presented as real CDN/shaping conformance.
+
+## Implemented port: `input` (TextField browser adapter)
+
+This port targets the pinned, unchanged `crates/gpui/examples/input.rs`
+(source blob `106d06dc7e3ab225d0fda1aee009f601767b34da`) and uses the
+300×300 upstream viewport and initial `Type here...` placeholder.
+`moonbit/input/input.mbt` uses gpui.mbt's `TextField`,
+`TextComposition`, `TextMeasurement`, Element layout, and
+`SceneSnapshot` output. The host `moonbit/site/input-host.mjs` alone
+owns browser `beforeinput`, keyboard, ClipboardEvent, and IME composition
+event delivery. The DOM textarea never owns the document value.
+
+The port covers pointer selection, Shift selection, arrows/Home/End,
+Backspace/Delete, copy/cut/paste, Ctrl/Cmd+A/Z/Y, redo, composition preview,
+commit, cancellation, and reset. It supplies a **fixed 12px-per-scalar
+measurement proxy**, not browser font shaping or native GPUI text layout.
+Selections are UTF-16 indices and the model rejects splitting a surrogate.
+The upstream uses grapheme segmentation; this port currently exposes scalar
+boundaries instead, so grapheme movement equivalence (combining marks and
+ZWJ emoji) is **UNVERIFIED**. `TextField` owns undo/redo; these shortcuts
+are an additive candidate behavior absent from this upstream example.
+
+Synthetic Chromium composition event tests cannot activate a genuine
+Japanese IME or validate its candidate window, platform-specific selection
+reporting, or keyboard-layout changes. Actual Japanese IME, Rust–MoonBit
+interactive equivalence, exact pixel matching, font shaping and native
+composition behavior remain **UNVERIFIED**. Recorded independent browser
+runtime behavior must be distinguished from these boundaries.

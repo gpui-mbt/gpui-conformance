@@ -3,11 +3,12 @@ const loadTiming = createHostTiming('moon');
 import { drawFrame } from './render.mjs';
 import { measureWrapperInputs, measureTypographyInputs } from './text-metrics.mjs';
 import { wheelDeltaPixels } from './text-wheel.mjs';
+import { createInputHost } from './input-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
@@ -15,7 +16,7 @@ try {
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   const font = new FontFace(isText ? 'Zed Mono' : metadata.font_family, isText ? 'url(./Lilex-Regular.ttf)' : 'url(./IBMPlexSans-Regular.ttf)');
@@ -30,6 +31,7 @@ try {
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas 2D is unavailable');
   let prime;
+  let input;
   let dynamicFonts;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
@@ -46,7 +48,7 @@ try {
     context.font = `${metadata.font_size}px "${metadata.font_family}"`;
     const content = example === 'hello_web' ? JSON.parse(runtime.hello_web_content()) : null;
     if (dynamicFonts) metadata.runs[4].text = dynamicFonts.state.message;
-    const width = content ? content.runs.map(run => {
+    const width = example === 'input' ? null : content ? content.runs.map(run => {
       context.font = `${run.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : isText ? measureTypographyInputs(context, metadata) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
@@ -67,7 +69,8 @@ try {
         }
       } finally { context.restore(); }
     }
-    const frame = JSON.parse(example === 'text_wrapper'
+    const frame = JSON.parse(example === 'input' ? runtime.input_frame(scale)
+      : example === 'text_wrapper'
       ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
       : isText ? runtime.text_frame(width.widths, width.prefixes, scrollY, fontIndex, scale)
       : dynamicFonts ? runtime.dynamic_fonts_frame(width, dynamicFonts.state.message, statusPrefixes, scale)
@@ -75,10 +78,11 @@ try {
     drawFrame(context, frame, metadata, scale);
     if (isText) { lastFrame=frame; scrollY=frame.scroll.y; }
     // Expose actual candidate output for inspection, never fabricated oracle results.
-    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}) };
+    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
+  if (example === 'input') { input = createInputHost({runtime,canvas,render}); render(); }
   if (dynamicFonts) void dynamicFonts.start(metadata.runs[2].text);
   if (isText) {
     canvas.tabIndex=0;
