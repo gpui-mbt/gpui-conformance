@@ -72,6 +72,21 @@ def build_pair(args, output, env, pins, manifest):
         '"../../../zed-source/crates/gpui_platform"', json.dumps(str(sources["upstream"] / "crates/gpui_platform"))
     ))
     moon_dir = prepare_moonbit(sources["moonbit"], build, ROOT / "adapters/linux_moonbit")
+    # Generate target-specific, untracked Wayland protocol bindings in the isolated copy.
+    protocol = log_command(
+        ["sh", "scripts/prepare_ubuntu.sh"], moon_dir, env,
+        build / "wayland-protocol-prepare", 60,
+    )
+    files = ("xdg-shell-client-protocol.h", "xdg-shell-protocol.c",
+             "text-input-v1-client-protocol.h", "text-input-v1-protocol.c")
+    protocol["generated_sha256"] = {
+        name: sha256(moon_dir / "ubuntu" / name)
+        for name in files if (moon_dir / "ubuntu" / name).is_file()
+    }
+    manifest["protocol_generation"] = protocol
+    if protocol["returncode"] != 0 or len(protocol["generated_sha256"]) != len(files):
+        manifest["reasons"].append("moonbit: private Wayland protocol generation failed")
+        return {}
     # A separate target directory avoids writing into the upstream Zed checkout.
     rust_env = {**env, "CARGO_TARGET_DIR": str(build / "rust-target")}
     specs = {
