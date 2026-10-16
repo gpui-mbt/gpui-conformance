@@ -5,7 +5,9 @@ import argparse
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tarfile
@@ -14,6 +16,33 @@ from build_moonbit import WEB, check_source, run
 
 TOOLCHAIN = "nightly-2026-10-14"
 GALLERY = Path("crates/gpui_web/examples/hello_web")
+
+
+def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
+    """Register additional unchanged examples outside the upstream source tree."""
+    original = source / GALLERY
+    manifest = (original / "Cargo.toml").read_text()
+    gallery.mkdir()
+    # Relocate the upstream standalone package, retaining all dependency and
+    # binary source paths. This avoids patching any archived upstream file.
+    def relocate(match: re.Match) -> str:
+        target = (original / match[1]).resolve()
+        target.relative_to(source)
+        return 'path = "' + os.path.relpath(target, gallery) + '"'
+    manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
+    additional_bins = []
+    if "tree" in examples:
+        path = os.path.relpath(source / "crates/gpui/examples/tree.rs", gallery)
+        manifest += f'\n[[bin]]\nname = "tree"\npath = "{path}"\n'
+        additional_bins.append({"name": "tree", "source": "crates/gpui/examples/tree.rs"})
+    (gallery / "Cargo.toml").write_text(manifest)
+    shutil.copytree(original / ".cargo", gallery / ".cargo")
+    shutil.copy2(WEB / "rust/Cargo.lock", gallery / "Cargo.lock")
+    return {"kind": "relocated standalone upstream package",
+            "original_manifest": str(GALLERY / "Cargo.toml"),
+            "additional_bins": additional_bins,
+            "manifest_sha256": hashlib.sha256(manifest.encode()).hexdigest(),
+            "upstream_files_modified": False}
 
 
 def build(upstream: Path, site: Path, target: Path) -> None:
@@ -30,9 +59,9 @@ def build(upstream: Path, site: Path, target: Path) -> None:
                                  check=True, stdout=subprocess.PIPE).stdout
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(source, filter="data")
-        gallery = source / GALLERY
-        shutil.copy2(WEB / "rust/Cargo.lock", gallery / "Cargo.lock")
         examples = [example["id"] for example in catalog["examples"] if example.get("moonbit") == "implemented"]
+        gallery = Path(work) / "gallery"
+        packaging = prepare_gallery(source, gallery, examples)
         command = ["cargo", f"+{TOOLCHAIN}", "build", "--locked", "--release",
                    "--config", "profile.release.codegen-units=1", "--target",
                    "wasm32-unknown-unknown", *[arg for name in examples for arg in ("--bin", name)], "--target-dir", str(target)]
@@ -57,6 +86,7 @@ def build(upstream: Path, site: Path, target: Path) -> None:
             "bindings": run(["wasm-bindgen", "--version"], gallery, True),
             "command": command[:-1] + ["<target-dir>"],
             "source_modified": False,
+            "packaging": packaging,
             "files": {str(p.relative_to(rust)): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in sorted(rust.rglob("*")) if p.is_file()},
         }

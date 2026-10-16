@@ -56,6 +56,8 @@ jobs:
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: Host and catalog contracts
         run: node --test web/tests/*.test.mjs
+      - name: Verify immutable upstream packaging
+        run: python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
       - name: Install fixed Rust toolchain and matching bindings generator

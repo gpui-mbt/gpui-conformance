@@ -8,26 +8,29 @@ const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
   const isText = example === 'text';
+  const isTree = example === 'tree';
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
-  const font = new FontFace(isText ? 'Zed Mono' : metadata.font_family, isText ? 'url(./Lilex-Regular.ttf)' : 'url(./IBMPlexSans-Regular.ttf)');
-  document.fonts.add(await font.load());
-  if (example === 'text_layout') {
-    for (const [file, descriptors] of [['Italic', {style:'italic'}], ['SemiBold', {weight:'800'}]]) {
-      // The upstream font registry resolves EXTRA_BOLD to the bundled SemiBold face.
-      document.fonts.add(await new FontFace(metadata.font_family, `url(./IBMPlexSans-${file}.ttf)`, descriptors).load());
+  if (!isTree) {
+    const font = new FontFace(isText ? 'Zed Mono' : metadata.font_family, isText ? 'url(./Lilex-Regular.ttf)' : 'url(./IBMPlexSans-Regular.ttf)');
+    document.fonts.add(await font.load());
+    if (example === 'text_layout') {
+      for (const [file, descriptors] of [['Italic', {style:'italic'}], ['SemiBold', {weight:'800'}]]) {
+        // The upstream font registry resolves EXTRA_BOLD to the bundled SemiBold face.
+        document.fonts.add(await new FontFace(metadata.font_family, `url(./IBMPlexSans-${file}.ttf)`, descriptors).load());
+      }
     }
+    await document.fonts.ready;
   }
-  await document.fonts.ready;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas 2D is unavailable');
   let prime;
@@ -45,10 +48,10 @@ try {
     const scale = Math.min(devicePixelRatio || 1, 4);
     canvas.width = Math.round(metadata.width * scale); canvas.height = Math.round(metadata.height * scale);
     if (isText) metadata.font_family = families[fontIndex];
-    context.font = `${metadata.font_size}px "${metadata.font_family}"`;
+    if (!isTree) context.font = `${metadata.font_size}px "${metadata.font_family}"`;
     const content = example === 'hello_web' ? JSON.parse(runtime.hello_web_content()) : null;
     if (dynamicFonts) metadata.runs[4].text = dynamicFonts.state.message;
-    const width = example === 'input' ? null : content ? content.runs.map(run => {
+    const width = isTree || example === 'input' ? null : content ? content.runs.map(run => {
       context.font = `${run.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : isText ? measureTypographyInputs(context, metadata) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
@@ -69,7 +72,7 @@ try {
         }
       } finally { context.restore(); }
     }
-    const frame = JSON.parse(example === 'input' ? runtime.input_frame(scale)
+    const frame = JSON.parse(isTree ? runtime.tree_frame(scale) : example === 'input' ? runtime.input_frame(scale)
       : example === 'text_wrapper'
       ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
       : isText ? runtime.text_frame(width.widths, width.prefixes, scrollY, fontIndex, scale)
@@ -109,7 +112,7 @@ try {
       }
     });
   }
-  const payloads = [modules[example], isText ? './Lilex-Regular.ttf' : './IBMPlexSans-Regular.ttf'];
+  const payloads = isTree ? [modules[example]] : [modules[example], isText ? './Lilex-Regular.ttf' : './IBMPlexSans-Regular.ttf'];
   if (example === 'text_layout') payloads.push('./IBMPlexSans-Italic.ttf', './IBMPlexSans-SemiBold.ttf');
   loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   window.addEventListener('resize', render);

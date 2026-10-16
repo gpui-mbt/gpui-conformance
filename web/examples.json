@@ -136,6 +136,25 @@
       "candidate_source": "web/moonbit/hello_web/hello_web.mbt",
       "source_blob": "31f30431e2a15963d7277047d0301e2510a90616",
       "implementation_note": "Actual MoonBit brute-force computation in browser Web Workers, with gpui.mbt layout, pointer dispatch and SceneSnapshot. Worker scheduling, fonts and Canvas rounded fills are explicit host extensions; conformance and performance equivalence unverified."
+    },
+    {
+      "id": "tree",
+      "title": "Deep tree",
+      "rust_route": "tree",
+      "source": "crates/gpui/examples/tree.rs",
+      "source_blob": "891be4790a59ae258da3380d2ef54fba26979346",
+      "moonbit": "implemented",
+      "width": 300,
+      "height": 300,
+      "interactive": false,
+      "features": [
+        "51-level hierarchy",
+        "Intrinsic sizing",
+        "Nested padding",
+        "Paint order"
+      ],
+      "candidate_source": "web/moonbit/tree/tree.mbt",
+      "implementation_note": "Unchanged upstream default depth 50: 51 colored blocks with 2px padding. gpui.mbt auto measurement, layout and SceneSnapshot; block flow is represented by single-child stretched columns. Native and arbitrary-depth parity remain unverified."
     }
   ]
 }

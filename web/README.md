@@ -187,6 +187,74 @@ implemented/unverified with no borrowed hello_world result.
 All catalog entries now have example ports. Their execution evidence does not
 establish native or pixel conformance; see each port's boundaries below.
 
+## Implemented port: `tree`
+
+The unchanged pinned `crates/gpui/examples/tree.rs` (blob
+`891be4790a59ae258da3380d2ef54fba26979346`) is now paired with
+`moonbit/tree/tree.mbt`. The upstream default is 50 wrapping operations around
+an initial node: **51 colored blocks**, not 50. The innermost block is red;
+wrapping cycles blue, CSS green (`0,128,0`), yellow, red, so the outermost block
+is green. Every block retains `p_0p5()` (2 logical pixels), and the viewport
+is 300×300. The static browser fixture keeps the upstream default; it does not
+invent a depth selector or interactive behavior.
+
+The MoonBit tree uses real auto-sized Elements, nested padding, stretched
+single-child columns, request_layout → prepaint → paint_snapshot. This
+single-child column composition represents the upstream block flow. There
+are no hardcoded scene rectangles, browser text measurements, fonts or new
+paint extensions. The colored outer block is the window root and fills the
+300×300 viewport. This mirrors the pinned `window.rs` call to
+`stretch_auto_size_to_fill` in `taffy.rs`: auto root dimensions stretch before
+layout, while explicitly sized roots retain their size. Recursive intrinsic
+measurement derives a 200-pixel-high first child and a 4-pixel-high innermost
+block. Unit tests cover all 51
+bounds/colors/paint positions and alternative depths 0, 1, 3, 12 and 63;
+they do not establish upstream equivalence at those alternative depths.
+The pinned library's bounded tree depth remains unchanged.
+
+The Rust standalone package did not register `tree` as a binary. The build
+therefore relocates its Cargo manifest into a disposable sibling harness,
+retains its dependencies/config/locked versions, and adds a binary entry
+pointing to the original `tree.rs`. **No archived upstream file is edited.**
+`build-manifest.json` records this packaging adaptation and its manifest digest
+separately from source modification. Example logic, renderer and platform
+implementation remain pinned upstream bytes.
+
+The browser test captures the actual pair at an integer-aligned 300×300
+viewport, retains the candidate SceneSnapshot, checks all nested ring pixels
+including the root-only bottom 96 rows, and compares the complete RGBA image
+without masking or thresholds. Negative controls reject displaced bounds,
+missing nodes, wrong paint order, changed colors and a shrink-wrapped root.
+The first actual Rust run exposed exactly 28,800 incorrect pixels from treating
+the window root as a 204-pixel-high child. The corrected Element root models
+upstream root sizing directly; no canvas-background workaround is used. Candidate-only execution must
+record Rust as not run. Exact image equality, when observed, applies only to
+that recorded browser run; native parity, arbitrary depth, display presentation
+and other rendering backends remain unverified. Catalog status stays unverified.
+Paired acceptance currently runs at DPR 1. A DPR 2 attempt was rejected because
+the pinned Rust backing canvas stayed 300×300 while the candidate was 600×600;
+no resampling is permitted and DPR 2 equivalence remains unverified.
+
+## Upstream example inventory
+
+Checked 2026-10-16 against upstream main
+`32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
+`5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
+Rust example files**, with identical blob IDs. This count excludes asset/support
+subdirectories. Six of these now have browser counterparts: hello_world, text,
+text_layout, text_wrapper, input and tree. The two additional counterparts,
+dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
+Eight catalog entries therefore do **not** mean all upstream examples are covered.
+
+The remaining 35 top-level examples are: a11y, active_state_bug, anchor,
+animation, data_table, drag_drop, focus_visible, gif_viewer, gradient,
+grid_layout, image_gallery, image_loading, layer_shell, list_example,
+mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
+ownership_post, painting, paths_bench, pattern, popover, scrollable, set_menus,
+shadow, system_notifications, tab_stop, testing, toggle_headless, uniform_list,
+window, window_movable, window_positioning and window_shadow. These are an
+inventory of missing counterparts, not unsupported-feature verdicts or passes.
+
 ## Build and verify the actual pairs
 
 Requires Python 3.12+, Node.js, MoonBit, Rustup, and clean checkouts of the
@@ -204,8 +272,8 @@ python3 web/scripts/serve.py _build/browser-lab
 Open `http://127.0.0.1:8080/`. Rust WASM is under `rust/`; MoonBit JS is
 under `moonbit/`. Both iframe URLs use the same origin and the selected upstream logical viewport
 (500×500 for hello_world, 800×600 for text_layout/text_wrapper and 640×560 for Prime sieve). There is no external runtime URL or substitute Rust image.
-The Rust loader compiles and starts the actual upstream `hello_world`, `text_layout`, `text_wrapper` and `hello_web` binaries
-from the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
+The Rust loader compiles and starts every implemented example in `examples.json`
+using the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
 source and upstream platform/renderer implementations remain unchanged.
 Builds use disposable archives; original source checkouts remain read-only.
 The standalone dependency lock is retained in `web/rust/Cargo.lock` and Cargo

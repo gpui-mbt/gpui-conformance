@@ -37,7 +37,7 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -46,6 +46,11 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "tree": {
+        "title": "深い入れ子のレイアウト",
+        "tags": ["51 階層", "内在サイズ", "padding", "描画順"],
+        "description": "上流の既定 depth=50。51 個の色付きブロックを 2px の余白で入れ子にする 300×300 の静的な例です。",
+    },
     "hello_world": {
         "title": "基本レイアウトと描画",
         "tags": ["Flex 配置", "色", "角丸・破線", "テキスト"],

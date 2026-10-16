@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkTreePair } from './tree-browser.mjs';
 import { checkInputPointers } from './input-pointer-browser.mjs';
 import {execFileSync} from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -804,6 +805,8 @@ try {
   await page.screenshot({path:join(evidence,'mobile.png'),fullPage:true});
   report.verified.push('input port interaction', 'reload both', 'fixed viewport in narrow layout');
   assert.deepEqual(errors, []);
+  report.tree = await checkTreePair({page, evidence, paired});
+  report.verified.push('tree default-depth candidate geometry and full-frame browser comparison when paired');
   report.overall = 'passed';
   console.log(paired ? 'PASS: actual Rust WASM and MoonBit JS rendered on one origin; screenshots, browser events and color probes retained. Pixel parity UNVERIFIED.' : 'PASS: compiled MoonBit; Rust comparison NOT RUN.');
 } catch (error) {
