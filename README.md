@@ -6,7 +6,7 @@ runner creates no native windows. The separate native runner uses isolated,
 self-closing hidden AppKit/Metal accessory fixtures on an Apple Silicon Mac.
 
 Pins: Zed/GPUI `d9afb21688e04f89d9e94d96d33eb530aef90886` (GPUI 0.2.2) and
-gpui.mbt `1a8a8048cda725252a3b4fe1d84722ffc7ebab5b` (distributed-spacing candidate). See [pins.json](pins.json).
+gpui.mbt `c0ba99d36bfe5793e3801d5e9430f6fb9d1d6326` (align-content candidate). See [pins.json](pins.json).
 
 ## First coverage slice
 
@@ -303,3 +303,16 @@ rerun preserves all prior 131 headless passes, for 155 total, while one unsuppor
 IME and two unverified native rows remain visible. All 22 nonempty new cases
 reject a one-pixel measured-width negative control; the two empty controls have
 no child width to perturb. See [the exact scope and evidence](DISTRIBUTED_SPACING_RESULTS.md).
+
+
+## Wrapped-line `align_content` capability batch
+
+[align_content_scenarios.json](align_content_scenarios.json) adds 36 complete-bound
+cases for start, center, end, and stretch. They execute the pinned GPUI public
+content-alignment builders against the new library API, including both axes,
+wrap-reverse, signed overflow, single-line wrapping, nowrap controls, and limited
+auto cross sizing. The baseline has 15 matches/21 differences; the candidate has
+36 matches/zero differences. All 36 cases detect the measured-width control.
+A real combined rerun preserves all prior 155 headless passes, for 191 total;
+one unsupported IME and two unverified native rows remain visible. See
+[the exact scope and evidence](ALIGN_CONTENT_RESULTS.md).

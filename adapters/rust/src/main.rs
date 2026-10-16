@@ -75,6 +75,12 @@ impl Render for View {
             "stretch" => root.items_stretch(),
             _ => root.items_start(),
         };
+        root = match self.scenario["align_content"].as_str().unwrap_or("stretch") {
+            "start" => root.content_start(),
+            "center" => root.content_center(),
+            "end" => root.content_end(),
+            _ => root.content_stretch(),
+        };
         for (i, dimensions) in self.scenario["children"]
             .as_array()
             .unwrap()

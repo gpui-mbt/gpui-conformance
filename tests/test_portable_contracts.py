@@ -20,7 +20,7 @@ import run_native
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json", "align_content_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -77,6 +77,42 @@ class PortableContractTests(unittest.TestCase):
                     invalid["children"] = invalid_children
                     with self.subTest(children=invalid_children), self.assertRaises(ValueError):
                         validate_scenarios({"schema_version": 1, "cases": [invalid]})
+
+    def test_align_content_has_real_adapter_mappings_and_full_bounds(self):
+        corpus = load_json(ROOT / "align_content_scenarios.json")
+        validate_scenarios(corpus)
+        self.assertEqual(len(corpus["cases"]), 36)
+        rust = (ROOT / "adapters/rust/src/main.rs").read_text()
+        moonbit = (ROOT / "adapters/moonbit/main.mbt").read_text()
+        for mode in ("start", "center", "end", "stretch"):
+            subset = [s for s in corpus["cases"] if s["align_content"] == mode]
+            with self.subTest(mode=mode):
+                self.assertEqual(len(subset), 9)
+                self.assertTrue(all(s["device_scale_factor"] == 2 for s in subset))
+                self.assertTrue(all(s.get("layout_observation", "bounds") == "bounds" for s in subset))
+                self.assertEqual({s.get("wrap", "nowrap") for s in subset}, {"nowrap", "wrap", "wrap_reverse"})
+                self.assertEqual({s.get("direction", "row") for s in subset}, {"row", "column"})
+                self.assertIn(f'root.content_{mode}()', rust)
+                self.assertIn(f'@layout.AlignContent::{mode}()', moonbit)
+        self.assertIn('.with_align_content(align_content)', moonbit)
+        default = copy.deepcopy(corpus["cases"][0])
+        del default["align_content"]
+        validate_scenarios({"schema_version": 1, "cases": [default]})
+
+    def test_align_content_is_bounded_and_layout_specific(self):
+        corpus = load_json(ROOT / "align_content_scenarios.json")
+        for value in (None, True, 0, "space-between", "unknown", [], {}):
+            invalid = copy.deepcopy(corpus)
+            invalid["cases"][0]["align_content"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+        other = load_json(ROOT / "scenarios.json")
+        for scenario in other["cases"]:
+            if scenario["kind"] != "layout":
+                invalid = copy.deepcopy(scenario)
+                invalid["align_content"] = "center"
+                with self.subTest(kind=scenario["kind"]), self.assertRaises(ValueError):
+                    validate_scenarios({"schema_version": 1, "cases": [invalid]})
 
     def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
         corpus = load_json(ROOT / "flex_wrap_scenarios.json")
@@ -269,7 +305,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json", "align_content_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():
