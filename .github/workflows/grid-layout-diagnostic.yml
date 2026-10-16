@@ -1,0 +1,63 @@
+name: Supplemental actual GPUI grid container-query semantics
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/grid_layout_rust/**'
+      - 'diagnostics/grid_layout/**'
+      - 'tests/test_grid_layout_diagnostic.py'
+      - '.github/workflows/grid-layout-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grid-layout-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supplemental-headless-semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check input, trace and corruption contracts without compiling Rust
+        run: python3 -m unittest discover -s tests -p 'test_grid_layout_diagnostic.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install pinned compiler and Linux link dependencies
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+      - name: Build and run actual public GPUI APIs on test platform
+        run: |
+          set -o pipefail
+          mkdir -p _build/grid-layout-run-logs
+          python3 diagnostics/grid_layout/run.py --online \
+            --upstream-source _build/upstream-source \
+            --output _build/grid-layout-evidence \
+            2>&1 | tee _build/grid-layout-run-logs/run.log
+      - name: Independently reread retained source, ELF and raw lifecycle events
+        run: |
+          python3 diagnostics/grid_layout/verify.py _build/grid-layout-evidence \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/grid-layout-independent-verification.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-grid-layout-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/grid-layout-evidence
+            _build/grid-layout-run-logs
+            _build/grid-layout-independent-verification.json
+          if-no-files-found: warn
+          retention-days: 30

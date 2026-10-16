@@ -1,0 +1,774 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gpui-conformance:supplemental-grid-layout-raw:v1",
+  "title": "Supplemental actual GPUI grid/container-query raw observations",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "layer": {
+      "const": "supplemental-headless-grid-container-query"
+    },
+    "fixture": {
+      "const": "font-free-bounded-grid"
+    },
+    "text_system": {
+      "const": "NoopTextSystem; no text used"
+    },
+    "upstream_revision": {
+      "const": "5a5fbe79917971a4d52a96b6ddb04da198a5012e"
+    },
+    "run_token": {
+      "type": "string",
+      "minLength": 16
+    },
+    "input": {
+      "$ref": "#/$defs/input"
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "operation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "frame": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "event": {
+                  "$ref": "#/$defs/event"
+                }
+              },
+              "required": [
+                "sequence",
+                "operation",
+                "frame",
+                "event"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "events"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "layer",
+    "fixture",
+    "text_system",
+    "upstream_revision",
+    "run_token",
+    "input",
+    "cases"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "vector": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "rect": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "node": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "const": "$host"
+          }
+        },
+        "kind": {
+          "enum": [
+            "grid",
+            "query",
+            "box"
+          ]
+        },
+        "width": {
+          "type": "number",
+          "multipleOf": 0.25,
+          "exclusiveMinimum": 0,
+          "maximum": 1024
+        },
+        "height": {
+          "type": "number",
+          "multipleOf": 0.25,
+          "exclusiveMinimum": 0,
+          "maximum": 1024
+        },
+        "cols": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "gap": {
+          "type": "number",
+          "multipleOf": 0.25,
+          "minimum": 0,
+          "maximum": 32
+        },
+        "full_columns": {
+          "type": "boolean"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "col_span": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "row_span": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "col_start": {
+          "type": "integer",
+          "minimum": -7,
+          "maximum": 7,
+          "not": {
+            "const": 0
+          }
+        },
+        "col_end": {
+          "type": "integer",
+          "minimum": -7,
+          "maximum": 7,
+          "not": {
+            "const": 0
+          }
+        },
+        "row_start": {
+          "type": "integer",
+          "minimum": -7,
+          "maximum": 7,
+          "not": {
+            "const": 0
+          }
+        },
+        "row_end": {
+          "type": "integer",
+          "minimum": -7,
+          "maximum": 7,
+          "not": {
+            "const": 0
+          }
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "query"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "children"
+            ],
+            "properties": {
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/node"
+                },
+                "minItems": 1,
+                "maxItems": 1
+              }
+            },
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "cols"
+                  ]
+                },
+                {
+                  "required": [
+                    "rows"
+                  ]
+                },
+                {
+                  "required": [
+                    "gap"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "grid"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "cols",
+              "rows",
+              "gap",
+              "children"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "box"
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "cols"
+                  ]
+                },
+                {
+                  "required": [
+                    "rows"
+                  ]
+                },
+                {
+                  "required": [
+                    "gap"
+                  ]
+                },
+                {
+                  "required": [
+                    "children"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "full_columns"
+            ],
+            "properties": {
+              "full_columns": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "col_span"
+                  ]
+                },
+                {
+                  "required": [
+                    "col_start"
+                  ]
+                },
+                {
+                  "required": [
+                    "col_end"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "col_span"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "col_start"
+                  ]
+                },
+                {
+                  "required": [
+                    "col_end"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "row_span"
+            ]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "row_start"
+                  ]
+                },
+                {
+                  "required": [
+                    "row_end"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "coordinate_system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "window": {
+                "$ref": "#/$defs/vector"
+              },
+              "origin": {
+                "$ref": "#/$defs/vector"
+              },
+              "scale_factor": {
+                "enum": [
+                  1,
+                  1.25,
+                  2
+                ]
+              },
+              "root": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/node"
+                  },
+                  {
+                    "required": [
+                      "width",
+                      "height"
+                    ]
+                  }
+                ]
+              },
+              "hits": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "position": {
+                      "$ref": "#/$defs/vector"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "position"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 0,
+                "maxItems": 16
+              }
+            },
+            "required": [
+              "id",
+              "window",
+              "origin",
+              "scale_factor",
+              "root",
+              "hits"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "schema_version",
+        "coordinate_system",
+        "cases"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "request_layout"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "node"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "request_layout_end"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "node"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "prepaint_end"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "node"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "paint_end"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "type",
+            "node"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "prepaint"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bounds": {
+              "$ref": "#/$defs/rect"
+            },
+            "content_mask": {
+              "$ref": "#/$defs/rect"
+            }
+          },
+          "required": [
+            "type",
+            "node",
+            "bounds",
+            "content_mask"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "paint"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            },
+            "bounds": {
+              "$ref": "#/$defs/rect"
+            }
+          },
+          "required": [
+            "type",
+            "node",
+            "bounds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "frame_start"
+            },
+            "scale_factor": {
+              "type": "number"
+            },
+            "window_size": {
+              "$ref": "#/$defs/vector"
+            }
+          },
+          "required": [
+            "type",
+            "scale_factor",
+            "window_size"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "frame_end"
+            },
+            "scale_factor": {
+              "type": "number"
+            },
+            "window_size": {
+              "$ref": "#/$defs/vector"
+            }
+          },
+          "required": [
+            "type",
+            "scale_factor",
+            "window_size"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "callback"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            },
+            "size": {
+              "$ref": "#/$defs/vector"
+            }
+          },
+          "required": [
+            "type",
+            "node",
+            "size"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "click"
+            },
+            "node": {
+              "type": "string",
+              "minLength": 1
+            },
+            "detail": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "mouse"
+                },
+                "down": {
+                  "$ref": "#/$defs/vector"
+                },
+                "up": {
+                  "$ref": "#/$defs/vector"
+                }
+              },
+              "required": [
+                "kind",
+                "down",
+                "up"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "node",
+            "detail"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "operation_start"
+            },
+            "input": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "const": "open_window"
+                    }
+                  },
+                  "required": [
+                    "action"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "const": "set_scale_factor"
+                    },
+                    "scale_factor": {
+                      "enum": [
+                        1,
+                        1.25,
+                        2
+                      ]
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "scale_factor"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "const": "click"
+                    },
+                    "position": {
+                      "$ref": "#/$defs/vector"
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "position"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "input"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "operation_end"
+            },
+            "scale_factor": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "scale_factor"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
