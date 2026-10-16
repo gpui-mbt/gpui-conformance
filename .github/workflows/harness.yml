@@ -17,6 +17,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Validate harness contracts without claiming oracle execution
         run: python3 -m unittest discover -s tests -p 'test_portable_contracts.py' -v
+      - name: Install Pillow needed by image evidence contracts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pil
       - name: Verify Linux two-window lab contracts without native execution
         run: python3 -m unittest discover -s tests -p 'test_native_lab.py' -v
       - name: Validate retained image analysis contracts without native execution
