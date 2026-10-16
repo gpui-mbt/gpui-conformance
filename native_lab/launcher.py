@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import subprocess
@@ -155,11 +156,43 @@ def await_window(pid, proc, timeout):
     return None
 
 
-def move_resize(window_id, x, y, width, height):
+def weston_window(pid, proc, log_path, timeout):
+    """Identify a Weston-owned X11 output omitted from EWMH window lists."""
+    end = time.monotonic() + timeout
+    while time.monotonic() < end and proc.poll() is None:
+        text = log_path.read_text(errors="replace") if log_path.exists() else ""
+        ids = set(re.findall(r"x11 output \d+x\d+, window id (\d+)", text))
+        if len(ids) == 1:
+            window_id = f"0x{int(next(iter(ids))):08x}"
+            check = subprocess.run(["xwininfo", "-id", window_id], capture_output=True,
+                                   text=True, timeout=3, check=False)
+            output = check.stdout
+            size = [re.search(rf"^\s*{key}:\s*(\d+)\s*$", output, re.MULTILINE)
+                    for key in ("Width", "Height")]
+            if (check.returncode == 0 and all(size)
+                    and "Map State: IsViewable" in output):
+                return {"id": window_id, "pid": pid, "width": int(size[0][1]),
+                        "height": int(size[1][1]),
+                        "source": "owned_weston_stderr_verified_by_xwininfo",
+                        "visibility": "IsViewable"}
+        time.sleep(.1)
+    return None
+
+
+def move_resize(window_id, x, y, width, height, *, direct=False):
+    if direct:
+        commands = [["xdotool", "windowsize", window_id, str(width), str(height)],
+                    ["xdotool", "windowmove", window_id, str(x), str(y)]]
+        results = [subprocess.run(command, capture_output=True, text=True,
+                                  timeout=5, check=False) for command in commands]
+        return {"returncode": max(result.returncode for result in results),
+                "stderr": "\n".join(result.stderr.strip() for result in results if result.stderr),
+                "method": "xdotool_direct_X11"}
+def ewmh_move_resize(window_id, x, y, width, height):
     result = subprocess.run(["wmctrl", "-ir", window_id, "-e",
                              f"0,{x},{y},{width},{height}"], capture_output=True, text=True,
                             timeout=5, check=False)
-    return {"returncode": result.returncode, "stderr": result.stderr.strip()}
+    return {"returncode": result.returncode, "stderr": result.stderr.strip(), "method": "EWMH"}
 
 
 def events(path, role, token):
@@ -319,21 +352,35 @@ def run_visible(args, out, executables, manifest, scenarios, token):
             started_at[role] = time.monotonic()
             manifest["processes"][role] = {"pid": child.pid, "executable_sha256": sha256(executables[role])}
         windows = {}
-        for role, owner in (("upstream", spawned["upstream"]), ("moonbit", spawned["weston"])):
-            w = await_window(owner.pid, owner, args.start_timeout)
-            if w is not None:
-                windows[role] = w
+        rust_window = await_window(spawned["upstream"].pid, spawned["upstream"], args.start_timeout)
+        if rust_window is not None:
+            windows["upstream"] = rust_window
+        compositor_window = await_window(spawned["weston"].pid, spawned["weston"], 2)
+        if compositor_window is None:
+            compositor_window = weston_window(spawned["weston"].pid, spawned["weston"],
+                                              out / "weston.stderr", args.start_timeout)
+        if compositor_window is not None:
+            windows["moonbit"] = compositor_window
         manifest["windows"] = windows
         if len(windows) != 2 or windows["upstream"]["id"] == windows["moonbit"]["id"]:
             manifest["reasons"].append("exactly one X11 top-level window per owned Rust/Weston process was not identified")
             return
         manifest["placement"] = {
-            role: move_resize(windows[role]["id"], x, 40, width, height)
+            role: (move_resize(windows[role]["id"], x, 40, width, height, direct=True)
+                   if role == "moonbit" else ewmh_move_resize(windows[role]["id"], x, 40, width, height))
             for role, x in (("upstream", 40), ("moonbit", 80 + width))
         }
         first = wait_frames(logs, token, spawned, started_at, width, height, args.start_timeout)
         manifest["time_from_process_spawn_to_frame_poll_ms"] = first
         if len(first) != 2:
+            manifest["diagnostic_frames"] = {}
+            for role in ROLES:
+                image_path = out / f"{role}-diagnostic.png"
+                if capture(windows[role]["id"], image_path):
+                    manifest["diagnostic_frames"][role] = {
+                        "path": image_path.name, "sha256": sha256(image_path),
+                        "qualified": False,
+                    }
             manifest["reasons"].append("both native processes did not report a correct-size, scale-1 frame")
             return
         time.sleep(.4)
@@ -356,7 +403,8 @@ def run_visible(args, out, executables, manifest, scenarios, token):
             manifest["reasons"].append("interactive mode did not run controlled resize")
             return
         manifest["resize_request"] = {
-            role: move_resize(windows[role]["id"], x, 40, resized[0], resized[1])
+            role: (move_resize(windows[role]["id"], x, 40, resized[0], resized[1], direct=True)
+                   if role == "moonbit" else ewmh_move_resize(windows[role]["id"], x, 40, resized[0], resized[1]))
             for role, x in (("upstream", 40), ("moonbit", 80 + resized[0]))
         }
         time.sleep(args.resize_settle)
