@@ -8,7 +8,7 @@
   },
   "moonbit": {
     "repository": "https://github.com/gpui-mbt/gpui.mbt",
-    "revision": "f9f59fe074da3858ca82fe1d5fadd84cd17f0438",
+    "revision": "bb3fa1ef552ae22d372cfcea8723e99498aa5fe7",
     "version": "0.7.2"
   }
 }

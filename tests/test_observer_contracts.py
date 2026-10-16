@@ -117,6 +117,16 @@ class ObserverContracts(unittest.TestCase):
         o = observed(); o["permission_prompted"] = True
         with self.assertRaises(ValueError): validate_observation(o,ready())
 
+    def test_application_alias_cannot_qualify_despite_matching_window_fields(self):
+        o = observed(); o.update(ax_status="pass",ax_trusted=True,ax_matching_windows=1)
+        o["ax_windows"] = [{"pid":123,"title":ready()["title"],"role":"AXWindow",
+                            "position":[0,0],"size":[256,214],"same_application_element":False}]
+        validate_observation(o,ready())
+        for alias in (True, None, 0, "false"):
+            changed = copy.deepcopy(o); changed["ax_windows"][0]["same_application_element"] = alias
+            with self.subTest(alias=alias), self.assertRaises(ValueError):
+                validate_observation(changed,ready())
+
     def test_ack_is_nonce_window_process_and_frame_bound(self):
         ack = {"run_token":TOKEN,"pid":123,"native_window_id":456,"frame_sequence":1,"observer_completed":True}
         validate_ack(ack,ready())

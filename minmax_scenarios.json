@@ -888,6 +888,262 @@
         0,
         null
       ]
+    },
+    {
+      "id": "cross-auto-stretch-row-max",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ]
+      ],
+      "align": "stretch",
+      "max_cross": [
+        18,
+        null
+      ]
+    },
+    {
+      "id": "cross-auto-stretch-column-max",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 100,
+      "gap": 0,
+      "children": [
+        [
+          null,
+          30
+        ],
+        [
+          null,
+          30
+        ]
+      ],
+      "direction": "column",
+      "align": "stretch",
+      "max_cross": [
+        14,
+        null
+      ]
+    },
+    {
+      "id": "cross-explicit-row-max-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          30,
+          25
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "align": "center",
+      "max_cross": [
+        16,
+        null
+      ]
+    },
+    {
+      "id": "cross-explicit-column-min-end",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 40,
+      "height": 80,
+      "gap": 0,
+      "children": [
+        [
+          25,
+          30
+        ],
+        [
+          10,
+          30
+        ]
+      ],
+      "direction": "column",
+      "align": "end",
+      "min_cross": [
+        32,
+        0
+      ]
+    },
+    {
+      "id": "cross-zero-max-versus-unlimited-stretch",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 30,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          null
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align": "stretch",
+      "max_cross": [
+        0,
+        null
+      ]
+    },
+    {
+      "id": "cross-minimum-exceeds-row-cross-extent",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 12,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          null
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align": "stretch",
+      "min_cross": [
+        18,
+        0
+      ]
+    },
+    {
+      "id": "cross-auto-stretch-uncapped-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 30,
+      "gap": 0,
+      "children": [
+        [
+          20,
+          null
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align": "stretch"
+    },
+    {
+      "id": "cross-wrap-auto-stretch-line-local-max",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ]
+      ],
+      "wrap": "wrap",
+      "align": "stretch",
+      "max_cross": [
+        8,
+        null,
+        12
+      ]
+    },
+    {
+      "id": "cross-wrap-reverse-auto-center-line-local-limits",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ]
+      ],
+      "wrap": "wrap_reverse",
+      "align": "center",
+      "min_cross": [
+        8,
+        8,
+        8
+      ],
+      "max_cross": [
+        12,
+        12,
+        12
+      ]
+    },
+    {
+      "id": "cross-wrap-reverse-auto-end-line-local-limits",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 60,
+      "height": 40,
+      "gap": 0,
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ],
+        [
+          30,
+          null
+        ]
+      ],
+      "wrap": "wrap_reverse",
+      "align": "end",
+      "min_cross": [
+        4,
+        4,
+        12
+      ],
+      "max_cross": [
+        10,
+        10,
+        15
+      ]
     }
   ]
 }

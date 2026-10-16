@@ -13,16 +13,117 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from comparator import STATUSES, compare, differences, load_json
-from contracts import validate_scenarios
+from contracts import valid_observation, validate_scenarios
 from run import prepare_moonbit
 import run_native
 
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
+
+    def test_space_between_allows_empty_singleton_and_four_children(self):
+        corpus = load_json(ROOT / "justify_between_scenarios.json")
+        validate_scenarios(corpus)
+        expected_counts = {
+            "justify-between-empty": 0,
+            "justify-between-singleton": 1,
+            "justify-between-wrap-line-local": 4,
+        }
+        for scenario_id, expected_count in expected_counts.items():
+            scenario = next(s for s in corpus["cases"] if s["id"] == scenario_id)
+            self.assertEqual(len(scenario["children"]), expected_count)
+
+        for scenario_id in (
+            "justify-between-empty",
+            "justify-between-singleton",
+            "justify-between-wrap-line-local",
+        ):
+            invalid = copy.deepcopy(corpus)
+            scenario = next(s for s in invalid["cases"] if s["id"] == scenario_id)
+            scenario["justify"] = "start"
+            with self.subTest(scenario_id=scenario_id), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+
+        for malformed_children in ({}, None, "invalid"):
+            invalid = copy.deepcopy(corpus)
+            scenario = next(s for s in invalid["cases"] if s["id"] == "justify-between-empty")
+            scenario["children"] = malformed_children
+            with self.subTest(children=malformed_children), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+
+    def test_wrapping_is_bounded_to_three_layout_or_pointer_children(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        invalid_wrap = copy.deepcopy(corpus)
+        invalid_wrap["cases"][0]["wrap"] = "wrap_always"
+        with self.assertRaises(ValueError):
+            validate_scenarios(invalid_wrap)
+        too_many = copy.deepcopy(corpus)
+        scenario = too_many["cases"][0]
+        scenario["children"].append([10, 10])
+        scenario["grow"].append(0)
+        scenario["shrink"].append(0)
+        scenario["min_main"].append(0)
+        scenario["max_main"].append(None)
+        with self.assertRaises(ValueError):
+            validate_scenarios(too_many)
+
+    def test_layout_line_origin_projection_is_explicit_and_shape_checked(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        exact_fit = next(s for s in corpus["cases"] if s["id"] == "wrap-decimal-exact-fit")
+        self.assertTrue(valid_observation(exact_fit, {"line_origins": [0, 0]}))
+        self.assertFalse(valid_observation(exact_fit, {"line_origins": [0]}))
+        self.assertFalse(valid_observation(exact_fit, {"line_origins": [0, 0], "bounds": []}))
+
+        invalid_mode = copy.deepcopy(corpus)
+        invalid_mode["cases"][-1]["layout_observation"] = "rounded_bounds"
+        with self.assertRaises(ValueError):
+            validate_scenarios(invalid_mode)
+        non_layout_mode = copy.deepcopy(corpus)
+        pointer = next(s for s in non_layout_mode["cases"] if s["kind"] == "pointer")
+        pointer["layout_observation"] = "line_origins"
+        with self.assertRaises(ValueError):
+            validate_scenarios(non_layout_mode)
+
+    def test_layout_device_scale_is_bounded_and_layout_specific(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        validate_scenarios(corpus)
+        scaled = copy.deepcopy(corpus)
+        scaled["cases"][-1]["device_scale_factor"] = 2
+        validate_scenarios(scaled)
+
+        for value in (None, True, 0, -1, math.nan, math.inf, 8.1):
+            invalid = copy.deepcopy(corpus)
+            invalid["cases"][-1]["device_scale_factor"] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                validate_scenarios(invalid)
+
+        non_layout = copy.deepcopy(corpus)
+        pointer = next(s for s in non_layout["cases"] if s["kind"] == "pointer")
+        pointer["device_scale_factor"] = 2
+        with self.assertRaises(ValueError):
+            validate_scenarios(non_layout)
+
+    def test_layout_auto_cross_dimension_and_stretch_are_bounded(self):
+        corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        scenario = next(s for s in corpus["cases"] if s["id"] == "wrap-auto-cross-stretch-minimum")
+        validate_scenarios(corpus)
+        scenario["align"] = "not-stretch"
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
+        scenario["align"] = "stretch"
+        scenario["children"][0][0] = None
+        with self.assertRaises(ValueError):
+            validate_scenarios(corpus)
+        pointer_corpus = load_json(ROOT / "flex_wrap_scenarios.json")
+        pointer = next(s for s in pointer_corpus["cases"] if s["kind"] == "pointer")
+        pointer["children"][0][1] = None
+        with self.assertRaises(ValueError):
+            validate_scenarios(pointer_corpus)
 
     def test_unknown_alignment_and_invalid_flex_factors_rejected(self):
         for field, value in (("justify", "arbitrary"), ("direction", "diagonal"), ("align", "unsafe"), ("grow", [-1, 0]), ("shrink", [1])):
@@ -144,7 +245,7 @@ class PortableContractTests(unittest.TestCase):
             index = load_json(path)
             native = path.name.startswith("native-")
             corpus_name = index.get("corpus", "native_scenarios.json" if native else "scenarios.json")
-            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json"))
+            self.assertIn(corpus_name, ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json"))
             scenario_path = ROOT / corpus_name
             corpus = load_json(scenario_path)
             for name, execution in index["executions"].items():

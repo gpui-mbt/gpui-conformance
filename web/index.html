@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GPUI · Matched examples</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+<header><p class="eyebrow">GPUI CONFORMANCE · BROWSER LAB</p><h1>One example. Two implementations.</h1><p>Upstream GPUI Rust/WASM on the left. Its MoonBit port on the right.</p></header>
+<form id="settings"><label>Upstream example<select id="fixture"></select></label><button>Start both / measure load</button></form>
+<p id="notice" role="status">Loading example catalog…</p>
+<section class="load-comparison" aria-labelledby="load-title">
+<h2 id="load-title">Practical load comparison</h2>
+<div id="load-results" role="status">Waiting for a paired run.</div>
+<p>All times start at the same parent timestamp, just before requesting both frames. Requests are near-concurrent, not exactly simultaneous. Launch order alternates on each run. No runtime is preloaded behind a ready barrier.</p>
+<details><summary>What these numbers mean</summary><p>Document response is the iframe HTML response end. Main payload received is the last response end of the declared runtime payloads: MoonBit JavaScript + font; Rust JavaScript bindings + WASM (including its embedded fonts). Host scripts and worker dependencies are outside that payload endpoint; resource receipt does not prove compilation or rendering. Runtime signals use different endpoints and must not be ranked as equivalent render times.</p><p>Normal browser cache is allowed and is not cleared. Reload changes the document URL only; runtime asset URLs stay stable. Browser/CDN caches, compiled-code caches, parallel contention, GPU and connection warm-up are uncontrolled. Repeat runs are informal observations, not cold-start results.</p></details>
+<p class="load-warning">First presented frame: unavailable for both. Canvas creation and returned draw calls do not verify screen presentation. Watch the panes for the practical visual result; no render-speed winner is claimed.</p>
+</section>
+<main class="panes">
+<section class="pane"><div class="pane-head"><strong>gpui.rs <small>Rust → WASM</small></strong><a id="rust-source" target="_blank" rel="noopener noreferrer">Upstream source ↗</a></div><div class="scroll"><iframe id="rust-frame" title="Upstream GPUI example" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer" hidden></iframe><p id="rust-empty">Waiting for the compiled Rust artifact.</p></div></section>
+<section class="pane"><div class="pane-head"><strong>gpui.mbt <small>MoonBit → JavaScript</small></strong><a id="moon-source" target="_blank" rel="noopener noreferrer">MoonBit source ↗</a></div><div class="scroll"><iframe id="moon-frame" title="Matching MoonBit example" sandbox="allow-scripts allow-same-origin" hidden></iframe><p id="moon-empty" hidden>gpui.mbt not implemented.</p></div></section>
+</main>
+<section class="qualification"><strong>Conformance: UNVERIFIED</strong><p>Matching example content is not proof of pixel or native parity. MoonBit computes the element layout and scene. Rounded/dashed borders, shadows, font styles and text decorations use declared browser-host extensions; font metrics and rasterization may differ. No arbitrary substitute application is loaded for missing ports.</p><p id="pins"></p></section>
+<script type="module" src="./app.js"></script></body></html>

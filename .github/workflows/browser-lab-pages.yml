@@ -1,0 +1,16 @@
+name: Browser lab Pages (disabled; isolation requires Cloudflare)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: browser-lab-pages
+  cancel-in-progress: false
+jobs:
+  explain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve existing Pages and explain the supported host
+        run: |
+          echo '::error::Upstream shared-memory WASM requires COOP/COEP HTTP response headers. Use browser-lab-cloudflare.yml for the complete same-origin comparison. Existing GitHub Pages is not overwritten.'
+          exit 1

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "captured_date": "2026-10-16",
+  "source_run": {
+    "url": "https://github.com/gpui-mbt/gpui-conformance/actions/runs/38855611489",
+    "id": 38855611489,
+    "head_revision": "faab43b9b9ee73fc8e1f0b6864b4cf9083c44877",
+    "build_revision": "a613f026400c2f23fdd599952843e75d713fe6fe",
+    "build_tree": "6c957d303cb9a5ca74bce13aaaec2993f169375b",
+    "artifact": {
+      "id": 12026777653,
+      "name": "browser-example-evidence",
+      "sha256": "7ae05b0b691c113210c08bd005705c69db53ce0d93031f8cec6a3f4da00269c4"
+    }
+  },
+  "result_path": "web/evidence/20261016-prime-sieve/result.json",
+  "result_sha256": "afb308ff25dd3f417bf76d05acd7b1e9a0a11ff8c6a7c885fbaf3e5b8575b726",
+  "scope": "Byte-exact actual 10M CI result captures, displayed as previews only. CPU elapsed times use different worker counts and are not a performance ranking; pixel/native parity remains unverified.",
+  "example": {
+    "id": "hello_web",
+    "candidate_source": "web/moonbit/hello_web/hello_web.mbt",
+    "candidate_source_blob": "87ae4a57a56eac5d7f204411a4eb9f7285298e05",
+    "asset_path": "catalog/assets/hello_web-moonbit-20261016.png",
+    "moonbit": {
+      "path": "web/evidence/20261016-prime-sieve/prime-sieve-moonbit-result.png",
+      "sha256": "60d0084cd4680207dad393c1e12dcd367814fccf03d9e8b327ef44d7805d189b",
+      "width": 640,
+      "height": 560
+    },
+    "rust": {
+      "path": "web/evidence/20261016-prime-sieve/prime-sieve-rust-result.png",
+      "sha256": "ee3a264550c12f677bb5bd3c3d8164f6678bad28e6b2a2c7a4481a96e96279e7",
+      "width": 640,
+      "height": 560
+    }
+  },
+  "scene_path": "web/evidence/20261016-prime-sieve/prime-sieve-moonbit-scene.json",
+  "scene_sha256": "1cb83018021c533541b51537edb0bb312ebb8569f7fd24090c59cdc245fa4597",
+  "ocr_path": "web/evidence/20261016-prime-sieve/prime-sieve-rust-ocr.txt",
+  "ocr_sha256": "de3df2237e8f6a2a4fc6404e33c059f06df640df46016efa6bee6e825e96fe14"
+}

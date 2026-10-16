@@ -86,6 +86,8 @@ def validate_observation(value, ready):
         if not isinstance(ax_windows, list) or len(ax_windows) != 1:
             raise ValueError("AX pass lacks retained matched window fields")
         ax = ax_windows[0]
+        if ax.get("same_application_element", False) is not False:
+            raise ValueError("application element cannot qualify as an AX window")
         if type(ax.get("pid")) is not int or ax["pid"] != ready["pid"] or ax.get("title") != ready["title"] or ax.get("role") != "AXWindow":
             raise ValueError("AX window ownership/title/role differs")
         for key, fields in (("position", ("X", "Y")), ("size", ("Width", "Height"))):

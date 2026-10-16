@@ -55,6 +55,8 @@
     "Native pre/action/post state and completed-frame acknowledgment before physical input qualification."
   ],
   "specification": "NATIVE_OBSERVER_PREREQUISITES.md",
+  "diagnostic_results": "AX_DIAGNOSTIC_RESULTS.md",
+  "investigation": "AX_PROJECTION_INVESTIGATION.md",
   "protocol": "OBSERVER_READY_PROTOCOL.md",
   "results": "OBSERVER_READY_RESULTS.md"
 }

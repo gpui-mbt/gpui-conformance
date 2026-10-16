@@ -69,3 +69,16 @@ exact RGBA comparisons. No implementation was copied or modified. The owning
 repository declares MIT; full license/source/tree/lock/archive hashes are pinned
 in `visual_pins.json`. Original retained native execution licenses/identities
 remain unchanged and are not relabeled as a new native capture.
+
+The `space-between` capability batch adds six original `justify_between_scenarios.json` inputs and uses GPUI's public `.justify_between()` builder through the existing independent headless `Render` adapter. The MoonBit adapter calls the new `JustifyContent::space_between()` API. No upstream implementation, copied tests, golden geometry, or Taffy code is used. Actual baseline and candidate observations, zero/one-child guards, wrapped line-local distribution, overflow fallback, toolchain/source identities and negative-control evidence are recorded in `JUSTIFY_BETWEEN_RESULTS.md` and retained under `_build/justify-between-final-*`.
+
+## Cross-axis min/max extension
+
+The added cases in `minmax_scenarios.json` are original shared inputs. They
+exercise existing `min_cross`/`max_cross` inputs through the unchanged Rust GPUI
+and MoonBit adapters; no upstream implementation or golden geometry was copied.
+The suite pin now names current gpui.mbt main `bb3fa1ef552ae22d372cfcea8723e99498aa5fe7`,
+and the upstream oracle remains `zed-industries/zed@d9afb21688e04f89d9e94d96d33eb530aef90886`.
+The ten-case coverage gap and full-suite preservation execution are documented
+in `CROSS_AXIS_LIMIT_RESULTS.md`; because all matched, no engine implementation
+change was made.

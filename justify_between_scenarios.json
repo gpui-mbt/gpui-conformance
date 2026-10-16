@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "justify-between-empty",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 30,
+      "gap": 8,
+      "children": [],
+      "justify": "space-between"
+    },
+    {
+      "id": "justify-between-singleton",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 30,
+      "gap": 8,
+      "children": [[20, 10]],
+      "grow": [0],
+      "shrink": [0],
+      "justify": "space-between"
+    },
+    {
+      "id": "justify-between-row-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 30,
+      "gap": 8,
+      "children": [[20, 10], [20, 10]],
+      "grow": [0, 0],
+      "shrink": [0, 0],
+      "justify": "space-between"
+    },
+    {
+      "id": "justify-between-column-gap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 30,
+      "height": 100,
+      "gap": 8,
+      "children": [[10, 20], [10, 20]],
+      "grow": [0, 0],
+      "shrink": [0, 0],
+      "direction": "column",
+      "justify": "space-between"
+    },
+    {
+      "id": "justify-between-negative-overflow-fallback",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 100,
+      "height": 30,
+      "gap": 8,
+      "children": [[60, 10], [60, 10]],
+      "grow": [0, 0],
+      "shrink": [0, 0],
+      "justify": "space-between"
+    },
+    {
+      "id": "justify-between-wrap-line-local",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "width": 55,
+      "height": 28,
+      "gap": 8,
+      "children": [[20, 10], [20, 10], [20, 10], [20, 10]],
+      "grow": [0, 0, 0, 0],
+      "shrink": [0, 0, 0, 0],
+      "justify": "space-between",
+      "wrap": "wrap"
+    }
+  ]
+}
