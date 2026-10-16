@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 from native_lab.launcher import (
-    events, has_event, inspect_images, main, point_color, window_rows,
+    events, has_event, inspect_images, main, point_color, window_rows, weston_window,
 )
 
 
@@ -90,6 +90,35 @@ class NativeLabContractTests(unittest.TestCase):
             rows = window_rows()
         self.assertEqual([r["pid"] for r in rows], [1234, 5678])
         self.assertEqual(rows[1]["width"], 256)
+
+    def test_owned_weston_output_not_in_ewmh_has_live_x11_identity(self):
+        log = self.root / "weston.stderr"
+        log.write_text("[12:14:13] x11 output 256x192, window id 4194309\n")
+        info = """
+          xwininfo: Window id: 0x400005
+          Map State: IsViewable
+          Width: 256
+          Height: 192
+        """
+        with patch("native_lab.launcher.subprocess.run") as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = info
+            with patch("native_lab.launcher.time.sleep", return_value=None):
+                proc = type("Owned", (), {"poll": lambda self: None})()
+                window = weston_window(1234, proc, log, 1)
+        self.assertEqual(window["pid"], 1234)
+        self.assertEqual(window["id"], "0x00400005")
+        self.assertEqual((window["width"], window["height"]), (256, 192))
+        self.assertEqual(window["visibility"], "IsViewable")
+
+    def test_weston_window_without_viewable_x11_surface_is_not_verified(self):
+        log = self.root / "weston.stderr"
+        log.write_text("x11 output 256x192, window id 4194309\n")
+        proc = type("Owned", (), {"poll": lambda self: None})()
+        with patch("native_lab.launcher.subprocess.run") as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = "Map State: IsUnMapped\nWidth: 256\nHeight: 192"
+            self.assertIsNone(weston_window(1234, proc, log, .11))
 
     def test_build_only_must_report_unverified_without_window_launch(self):
         out = self.root / "evidence"
