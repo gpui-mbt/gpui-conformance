@@ -5,13 +5,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {DRAG_DROP,EMBEDDED_FONTS,SOURCE_CONSTRAINTS,sha256,makeProfile,discoverGeometry,assertPaint,assertPreview,validateOperations,decodePng,assertCurrentBuild} from './drag-drop-comparator.mjs';
-import {DRAG_CANDIDATE,PAIR_REVISION,REQUIRED_HOSTS,SUITE_INPUTS,GRAPHICS_ARGS,captureBinding,validateCaptureBindings,inputEvidence,validateInputEvidence,
+import {DRAG_CANDIDATE,PAIR_REVISION,REQUIRED_HOSTS,SUITE_INPUTS,GRAPHICS_ARGS,HTML_ENTRYPOINTS,runtimeResponsePath,requiresRuntimeRetention,captureBinding,validateCaptureBindings,inputEvidence,validateInputEvidence,
   assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,requiredRuntimeFiles,validateReport,loadEvidence,validatePixels,validateTransport,assertCaptureDigests,assertExecutedBytes,compareMeasurements,compareBehavior,pairedPixelNegativeControls,pairedEvidenceNegativeControls} from './drag-drop-pair-comparator.mjs';
 import {syntheticPixels,syntheticFrame,syntheticGeometry} from './drag-drop-pair-fixtures.mjs';
 function bindingFixture(runtime='rust',names=['initial']) {
   const report={runtime,capture_session:runtime==='rust'?'11111111-1111-4111-8111-111111111111':'22222222-2222-4222-8222-222222222222',
     input_evidence:{file:`drag-drop-${runtime}-trusted-input.json`,sha256:'f'.repeat(64)},captures:{},
-    suite_inputs:SUITE_INPUTS.map(path=>({path,file:`drag-drop-${runtime}-suite-${path.replaceAll('/','_')}.bin`,sha256:'a'.repeat(64)}))};
+    suite_inputs:SUITE_INPUTS.map(path=>({path,file:`drag-drop-${runtime}-suite-${path.replaceAll('/','_')}.bin`,sha256:Object.values(HTML_ENTRYPOINTS).find(entry=>entry.source===path)?.sha256||'a'.repeat(64)}))};
   for(const [index,name] of names.entries()) {
     const binding=captureBinding(report,name,index);
     const attempts=[1,2].map(number=>({file:`drag-drop-${runtime}-${name}-sample-${number}-dpr1.png`,binding,request_ordinal:number,method:'Playwright.page.screenshot'}));
@@ -23,7 +23,7 @@ function bindingFixture(runtime='rust',names=['initial']) {
 function metadata(runtime='rust') {
   const upstream={repository:'zed-industries/zed',revision:DRAG_DROP.revision};
   const files=Object.fromEntries(['host.mjs','drag_drop.js','drag_drop_bg.wasm','packaging-Cargo.toml'].map(file=>[file,'a'.repeat(64)]));
-  files['unchanged-source/drag_drop.rs']=DRAG_DROP.sourceSha256;
+  files['unchanged-source/drag_drop.rs']=DRAG_DROP.sourceSha256;files['index.html']=HTML_ENTRYPOINTS.rust.sha256;
   const embedded_fonts=Object.fromEntries(Object.entries(EMBEDDED_FONTS).map(([path,sha256])=>{
     const file='embedded-font-inputs/'+path.split('/').at(-1);files[file]=sha256;return [path,{file,sha256}];}));
   const build={upstream,moonbit:DRAG_CANDIDATE,lab_revision:'b'.repeat(40),lab_tree:'c'.repeat(40),lab_tracked_dirty:false,rust_bundled:true,
@@ -40,7 +40,10 @@ function metadata(runtime='rust') {
     candidate_source:'web/moonbit/drag_drop/drag_drop.mbt',width:800,height:600}]};
   const manifestBytes=Buffer.from(JSON.stringify(build)),catalogBytes=Buffer.from(JSON.stringify(catalog));
   const paths=requiredRuntimeFiles(runtime),hashes=expectedRuntimeFiles(build,runtime);
-  const runtime_responses=paths.map((path,index)=>({path,response_id:index+1,url:'http://localhost/gpui-conformance/'+path,status:200,sha256:hashes[path],file:`drag-drop-${runtime}-asset-${path.replaceAll('/','_')}-response-${index+1}.bin`}));
+  const runtime_responses=paths.map((path,index)=>({path,response_id:index+1,
+    resource_type:path.endsWith('.html')?'document':path.endsWith('.ttf')?'font':path.endsWith('.wasm')?'fetch':'script',
+    url:'http://localhost/gpui-conformance/'+(path.endsWith('.html')?`${runtime}/?example=drag_drop`:path),
+    status:200,sha256:hashes[path],file:`drag-drop-${runtime}-asset-${path.replaceAll('/','_')}-response-${index+1}.bin`}));
   const report={runtime,status:`${runtime}_profile_captured`,mode:'paired_profile_capture',profile_revision:PAIR_REVISION,candidate:'implemented',comparison:'not_run',conformance:'not_claimed',
     environment:{browser:'141.0.0.0',node:'v22.0.0',platform:'linux',arch:'x64',playwright:'1.56.1',graphics_requested:GRAPHICS_ARGS},
     graphics_actual:{gpu:{devices:[{deviceString:'Synthetic SwiftShader metadata only'}]}},source_constraints:SOURCE_CONSTRAINTS,
@@ -49,7 +52,7 @@ function metadata(runtime='rust') {
     transport:{active_tag:'TEXTAREA',canvas_tab_index:-1},build,catalog,source:assertPairedProvenance(build,catalog),provenance_negative_controls:pairedProvenanceNegativeControls(build,catalog),
     build_evidence:{file:`drag-drop-${runtime}-build-manifest.json`,sha256:sha256(manifestBytes)},catalog_evidence:{file:`drag-drop-${runtime}-catalog.json`,sha256:sha256(catalogBytes)},
     decoder:{name:'Pillow',version:'12.0.0',sha256:'f'.repeat(64)},runtime_responses,
-    requests:runtime_responses.map(entry=>({url:entry.url,status:200,response_id:entry.response_id})),served_requests:runtime_responses.map(entry=>({url:new URL(entry.url).pathname,status:200,sha256:entry.sha256}))};
+    requests:runtime_responses.map(entry=>({url:entry.url,status:200,response_id:entry.response_id,resource_type:entry.resource_type})),served_requests:runtime_responses.map(entry=>({url:new URL(entry.url).pathname+new URL(entry.url).search,status:200,sha256:entry.sha256}))};
   Object.assign(report,bindingFixture(runtime,Object.keys(makeProfile(syntheticGeometry).captures)));report.operations=makeProfile(syntheticGeometry).operations;
   return {report,manifestBytes,catalogBytes};
 }
@@ -62,7 +65,7 @@ test('current pair binds the exact published reviewed additive drag-session core
 });
 test('paired exact current pins reject historical source-only claims',async()=>{
   const {report}=metadata();assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
-  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,15);
+  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,16);
   const absent=structuredClone(report.catalog);absent.examples=[];assert.throws(()=>assertPairedProvenance(report.build,absent));
   const historical=structuredClone(report.build),historicalCatalog=structuredClone(report.catalog);
   historical.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'eb968228bbea56aff13721dc427875c2dacffc14',tree:'ae9072d350ef6d1546e408226218ec08efc96552'};
@@ -85,6 +88,41 @@ test('both runtimes require actual executed assets, graphics and current paired 
       const wrong=structuredClone(report);mutate(wrong);assert.throws(()=>validateReport(wrong,runtime));
     }
     assert(Object.hasOwn(expectedRuntimeFiles(metadata('moonbit').report.build,'moonbit'),'moonbit/another-static-import.mjs'));
+  }
+});
+test('actual HTML execution entrypoints cannot escape retained response checks',async()=>{
+  for(const runtime of ['rust','moonbit']) {
+    const {report}=metadata(runtime),source=await readFile(new URL(runtime==='rust'?'../rust/index.html':'../moonbit/site/index.html',import.meta.url));
+    const injected=Buffer.concat([source,Buffer.from('<script>globalThis.injected_unpinned_execution=true</script>')]);
+    validateReport(report,runtime);
+    report.requests.push({url:`http://localhost/gpui-conformance/${runtime}/?example=drag_drop`,status:200,response_id:999,resource_type:'document'});
+    report.served_requests.push({url:`/gpui-conformance/${runtime}/?example=drag_drop`,status:200,sha256:sha256(injected)});
+    assert.throws(()=>validateReport(report,runtime),`${runtime}: unretained executable HTML must fail`);
+    assert(requiredRuntimeFiles(runtime).includes(`${runtime}/index.html`));
+  }
+});
+test('source HTML pins reject missing, changed, wrong-route and inline-injected entrypoints',async()=>{
+  for(const runtime of ['rust','moonbit']) {
+    const {report}=metadata(runtime),definition=HTML_ENTRYPOINTS[runtime];validateReport(report,runtime);
+    const source=await readFile(new URL('../../'+definition.source,import.meta.url));assert.equal(sha256(source),definition.sha256);
+    const inline=Buffer.concat([source,Buffer.from('\n<script>globalThis.unreviewed=true</script>\n')]);
+    const response=report.runtime_responses.find(entry=>entry.path===definition.path);
+    assert.equal(runtimeResponsePath(response.url),definition.path);assert(requiresRuntimeRetention(response.url,'document'));
+    assert(requiresRuntimeRetention('http://localhost/extensionless-entry','document'));
+    assert(requiresRuntimeRetention('http://localhost/extensionless-code','script'));
+    assertExecutedBytes({runtime_responses:[response]},{assets:{[definition.path]:source}});
+    assert.throws(()=>assertExecutedBytes({runtime_responses:[response]},{assets:{[definition.path]:inline}}));
+    for(const mutate of [
+      r=>{r.runtime_responses=r.runtime_responses.filter(entry=>entry.path!==definition.path);},
+      r=>{r.runtime_responses.find(entry=>entry.path===definition.path).sha256=sha256(inline);},
+      r=>{r.suite_inputs.find(entry=>entry.path===definition.source).sha256=sha256(inline);},
+      r=>{r.runtime_responses.find(entry=>entry.path===definition.path).resource_type='other';},
+      r=>{const entry=r.runtime_responses.find(value=>value.path===definition.path);entry.url=entry.url.replace('drag_drop','hello_world');},
+    ]){const changed=structuredClone(report);mutate(changed);assert.throws(()=>validateReport(changed,runtime));}
+    const wrong=structuredClone(report),entry=wrong.runtime_responses.find(value=>value.path===definition.path);
+    entry.sha256=sha256(inline);wrong.served_requests.find(value=>value.url===new URL(entry.url).pathname+new URL(entry.url).search).sha256=entry.sha256;
+    if(runtime==='rust')wrong.build.rust.files['index.html']=entry.sha256;
+    assert.throws(()=>validateReport(wrong,runtime),'Changing generated HTML and its report/manifest hashes cannot bypass original source pins');
   }
 });
 test('capture ownership rejects swapped states, cross-runtime borrowing and fabricated sample requests',()=>{

@@ -9,12 +9,24 @@ export {assertCurrentBuild};
 // Exact published identity for the independently reviewed additive drag-session core.
 export const DRAG_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
   revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'});
-export const PAIR_REVISION='drag_drop_paired_pointer_v1';
+export const PAIR_REVISION='drag_drop_paired_pointer_v2';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/drag-drop-host.mjs','moonbit/focus-visible-host.mjs','moonbit/tab-stop-host.mjs','load-timing.mjs'];
+export const HTML_ENTRYPOINTS=Object.freeze({
+  rust:Object.freeze({path:'rust/index.html',source:'web/rust/index.html',sha256:'8f6806a2ae5f935a8212171af3890fb1460c5ab30a357032bf541222b2bd6669'}),
+  moonbit:Object.freeze({path:'moonbit/index.html',source:'web/moonbit/site/index.html',sha256:'847518c000f713324bfd495925416fb8f7d2b2400273a8cb602c7906c7019f84'}),
+});
+export function runtimeResponsePath(url) {
+  const path=new URL(url).pathname.replace(/^\/gpui-conformance\//,'');
+  return path.endsWith('/')?path+'index.html':path;
+}
+export function requiresRuntimeRetention(url,resourceType) {
+  return ['document','script','font','stylesheet'].includes(resourceType)||/\.(html|mjs|js|wasm|ttf|css)$/.test(runtimeResponsePath(url));
+}
 const HASH=/^[0-9a-f]{64}$/;
 const hash=(value,label)=>assert.match(value||'',HASH,label);
 const sameKeys=(value,keys,label)=>assert.deepEqual(Object.keys(value).sort(),[...keys].sort(),label);
 export const SUITE_INPUTS=Object.freeze([
+  'web/rust/index.html','web/moonbit/site/index.html',
   'web/moonbit/drag_drop/drag_drop.mbt','web/moonbit/drag_drop/moon.pkg',
   'web/moonbit/drag_drop/drag_drop_wbtest.mbt','web/scripts/build_moonbit.py','web/scripts/build_rust.py',
   'web/tests/drag-drop-comparator.mjs','web/tests/drag-drop-pair-comparator.mjs',
@@ -45,6 +57,8 @@ export function validateCaptureBindings(report) {
   assert.deepEqual(report.suite_inputs.map(entry=>entry.path),SUITE_INPUTS);
   for(const entry of report.suite_inputs) {
     assert.equal(entry.file,`drag-drop-${report.runtime}-suite-${entry.path.replaceAll('/','_')}.bin`);hash(entry.sha256,'Current source bytes');
+    const html=Object.values(HTML_ENTRYPOINTS).find(value=>value.source===entry.path);
+    if(html)assert.equal(entry.sha256,html.sha256,'Exact source HTML entrypoint; no extra inline execution');
   }
 }
 export function inputEvidence(report) {
@@ -112,6 +126,7 @@ export function assertPairedProvenance(build,catalog) {
   assert(Number.isFinite(Date.parse(build.rust.build_completed_at_utc||'')));
   for(const file of ['drag_drop.js','drag_drop_bg.wasm','host.mjs','packaging-Cargo.toml'])hash(build.rust.files?.[file],file);
   assert.equal(build.rust.files['unchanged-source/drag_drop.rs'],DRAG_DROP.sourceSha256);
+  assert.equal(build.rust.files['index.html'],HTML_ENTRYPOINTS.rust.sha256,'Exact built Rust HTML entrypoint');
   assert.equal(build.rust.files['packaging-Cargo.toml'],build.rust.packaging.manifest_sha256);
   assert.deepEqual(Object.fromEntries(Object.entries(build.rust.embedded_fonts||{}).map(([path,font])=>[path,font.sha256])),EMBEDDED_FONTS);
   for(const font of Object.values(build.rust.embedded_fonts))assert.equal(build.rust.files[font.file],font.sha256);
@@ -133,6 +148,7 @@ export function pairedProvenanceNegativeControls(build,catalog) {
     ['wrong_source_blob',b=>{b.rust_subset_sources[0].source_blob='0'.repeat(40);}],
     ['historical_oracle_claim',b=>{b.rust.oracle_only=true;}],['missing_subset',b=>{b.rust.implemented_subset=null;}],
     ['missing_wasm_hash',b=>{delete b.rust.files['drag_drop_bg.wasm'];}],
+    ['wrong_rust_html_entrypoint',b=>{b.rust.files['index.html']='0'.repeat(64);}],
     ['missing_candidate_hash',b=>{delete b.runtime_sha256_by_example.drag_drop;}],
     ['missing_host_hash',b=>{delete b.moonbit_host_files_sha256['moonbit/drag-drop-host.mjs'];}],
     ['missing_renderer_hash',b=>{delete b.moonbit_host_files_sha256['moonbit/render.mjs'];}],
@@ -144,11 +160,12 @@ export function expectedRuntimeFiles(build,runtime) {
     'load-timing.mjs':build.moonbit_host_files_sha256['load-timing.mjs']};
   assert.equal(runtime,'moonbit');
   return {...build.moonbit_host_files_sha256,'moonbit/drag_drop.mjs':build.runtime_sha256_by_example.drag_drop,
+    [HTML_ENTRYPOINTS.moonbit.path]:HTML_ENTRYPOINTS.moonbit.sha256,
     ...Object.fromEntries(Object.entries(build.font_sha256_by_file).map(([file,digest])=>['moonbit/'+file,digest]))};
 }
 export function requiredRuntimeFiles(runtime) {
-  return runtime==='rust'?['rust/host.mjs','rust/drag_drop.js','rust/drag_drop_bg.wasm','load-timing.mjs']:
-    ['moonbit/drag_drop.mjs',...REQUIRED_HOSTS,'moonbit/IBMPlexSans-Regular.ttf'];
+  return runtime==='rust'?['rust/index.html','rust/host.mjs','rust/drag_drop.js','rust/drag_drop_bg.wasm','load-timing.mjs']:
+    ['moonbit/index.html','moonbit/drag_drop.mjs',...REQUIRED_HOSTS,'moonbit/IBMPlexSans-Regular.ttf'];
 }
 export function validateReport(report,runtime) {
   assert.equal(report.runtime,runtime);assert(['rust','moonbit'].includes(runtime));
@@ -177,13 +194,18 @@ export function validateReport(report,runtime) {
   for(const response of report.runtime_responses) {
     assert(Number.isInteger(response.response_id)&&response.response_id>0&&!responseIds.has(response.response_id),'Distinct actual executable response');responseIds.add(response.response_id);
     assert(Object.hasOwn(files,response.path),'All executed dependencies must be pinned');assert.equal(response.status,200);
-    assert.equal(new URL(response.url).pathname,'/gpui-conformance/'+response.path);assert.equal(response.sha256,files[response.path]);
+    const url=new URL(response.url);assert.equal(runtimeResponsePath(response.url),response.path);assert.equal(response.sha256,files[response.path]);
+    assert(requiresRuntimeRetention(response.url,response.resource_type),'Actual executable/document/font response type');
+    if(response.path===HTML_ENTRYPOINTS[runtime].path) {
+      assert.equal(response.resource_type,'document');assert.equal(url.pathname,`/gpui-conformance/${runtime}/`);
+      assert.equal(url.search,'?example=drag_drop','Actual current example document route');
+    }
     assert.equal(response.file,`drag-drop-${runtime}-asset-${response.path.replaceAll('/','_')}-response-${response.response_id}.bin`);
-    assert(report.requests.some(entry=>entry.url===response.url&&entry.status===200&&entry.response_id===response.response_id),'Browser request observation');
-    assert(report.served_requests.some(entry=>entry.url==='/gpui-conformance/'+response.path&&entry.status===200&&entry.sha256===response.sha256),'Server byte observation');seen.add(response.path);
+    assert(report.requests.some(entry=>entry.url===response.url&&entry.status===200&&entry.response_id===response.response_id&&entry.resource_type===response.resource_type),'Browser request observation');
+    assert(report.served_requests.some(entry=>entry.url===url.pathname+url.search&&entry.status===200&&entry.sha256===response.sha256),'Server byte observation');seen.add(response.path);
   }
   for(const path of requiredRuntimeFiles(runtime))assert(seen.has(path),`Actual required runtime dependency: ${path}`);
-  for(const request of report.requests)if(/\.(mjs|js|wasm|ttf)$/.test(new URL(request.url).pathname))
+  for(const request of report.requests)if(requiresRuntimeRetention(request.url,request.resource_type))
     assert(report.runtime_responses.some(response=>response.url===request.url&&response.response_id===request.response_id),'Every code/font request must retain actual response bytes');
   return {status:'passed',runtime,loaded_dependencies:seen.size};
 }
@@ -209,9 +231,10 @@ export async function loadEvidence(directory,report) {
   }
   const assets={};for(const entry of report.runtime_responses)assets[entry.path]=await local(entry.file,entry.sha256);
   for(const [path,bytes] of Object.entries(assets)) {
-    const current=path==='rust/host.mjs'?'web/rust/host.mjs':path==='load-timing.mjs'?'web/load-timing.mjs':
-      Object.hasOwn(report.build.moonbit_host_files_sha256,path)?'web/moonbit/site/'+path.slice('moonbit/'.length):null;
-    if(current)assert.deepEqual(bytes,await readFile(new URL('../../'+current,import.meta.url)),'Served host/renderer must match the actual current checkout');
+    const html=Object.values(HTML_ENTRYPOINTS).find(value=>value.path===path);
+    const current=html?.source||(path==='rust/host.mjs'?'web/rust/host.mjs':path==='load-timing.mjs'?'web/load-timing.mjs':
+      Object.hasOwn(report.build.moonbit_host_files_sha256,path)?'web/moonbit/site/'+path.slice('moonbit/'.length):null);
+    if(current)assert.deepEqual(bytes,await readFile(new URL('../../'+current,import.meta.url)),'Served HTML/host/renderer must match the actual current checkout');
   }
   const support={};
   const expectedSupport=['rust/unchanged-source/drag_drop.rs','rust/packaging-Cargo.toml',...Object.values(report.build.rust.embedded_fonts).map(font=>'rust/'+font.file)];

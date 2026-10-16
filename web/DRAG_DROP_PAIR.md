@@ -47,9 +47,16 @@ The workflow retains the actual MoonBit compiler version, Rust toolchain,
 wasm-bindgen version, build commands/logs, relocated Cargo manifest, unchanged
 source, eight source-embedded fonts, candidate source/package/tests, builders,
 harness/decoder source, actual compiled JS/WASM and served host/renderer/font
-responses. Every requested `.js`, `.mjs`, `.wasm` or `.ttf` dependency must be
-retained and hashed, including static imports shared with other routes. Current
-host/renderer/source bytes are checked against the actual clean suite checkout.
+responses. Both actual runtime HTML document responses are mandatory and pinned
+to the exact source `web/rust/index.html` and `web/moonbit/site/index.html` bytes.
+Directory document URLs retain their actual query in the independent server
+observation and normalize only the retained artifact path to `index.html`.
+Every document, script, stylesheet or font resource, and every requested `.js`,
+`.mjs`, `.wasm`, `.ttf`, `.css` or `.html` dependency, must be retained and hashed,
+including static imports shared with other routes. Current HTML/host/renderer/
+source bytes are checked against the actual clean suite checkout. Missing,
+modified or extra inline execution cannot be blessed by changing generated-site
+HTML and report-provided hashes together.
 The served Rust WASM must contain every complete retained source font.
 
 ## Independent browser execution
@@ -105,6 +112,15 @@ untrusted delivery, fabricated duplicate-up, swapped captures, cross-runtime
 borrowing, altered original pixels, compiled assets, hosts/renderers/fonts,
 source/core pins, source-only relabeling and historical/dirty checkout identity.
 Unit fixtures are explicitly synthetic and cannot certify a runtime pair.
+
+The current evidence protocol is `drag_drop_paired_pointer_v2`; the unchanged
+54-operation behavior profile is preserved. Review of initial source commit
+`11f6fa0b6f07e3b9f095d234bf1f940a31c2c72e` found that document responses had been
+omitted by an extension-only filter. A source-only negative control reproduced
+the gap for both runtimes before this correction. No browser pair had been
+qualified under that initial format. The correction requires the actual HTML
+entrypoints and tests missing/changed HTML, inline-script injection, document
+route/query ownership and the original current source bytes.
 
 ## Claim boundary and CI budget
 

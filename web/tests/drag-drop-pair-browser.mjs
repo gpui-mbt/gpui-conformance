@@ -7,7 +7,7 @@ import {readFile,mkdir,readdir,writeFile} from 'node:fs/promises';
 import {resolve,join,sep,extname} from 'node:path';
 import {SOURCE_CONSTRAINTS,sha256,decodePng,discoverGeometry,makeProfile,assertPointerDelivery} from './drag-drop-comparator.mjs';
 import {PAIR_REVISION,SUITE_INPUTS,GRAPHICS_ARGS,captureBinding,inputEvidence,assertPairedProvenance as assertProvenance,
-  pairedProvenanceNegativeControls as provenanceNegativeControls,expectedRuntimeFiles,requiredRuntimeFiles} from './drag-drop-pair-comparator.mjs';
+  pairedProvenanceNegativeControls as provenanceNegativeControls,expectedRuntimeFiles,requiredRuntimeFiles,runtimeResponsePath,requiresRuntimeRetention} from './drag-drop-pair-comparator.mjs';
 const args=process.argv.slice(2);assert(args.filter(arg=>!arg.startsWith('--')).length<=1&&args.filter(arg=>arg.startsWith('--')).every(arg=>arg==='--candidate')&&args.filter(arg=>arg==='--candidate').length<=1,'Only a site path and --candidate are accepted');
 const runtime=args.includes('--candidate')?'moonbit':'rust';
 const site=resolve(args.find(arg=>!arg.startsWith('--'))||'_build/drag-drop-browser-lab');
@@ -76,13 +76,14 @@ try {
   page.on('requestfailed',request=>result.errors.push({kind:'requestfailed',url:request.url(),failure:request.failure()}));
   page.on('response',response=>{
     const response_id=++responseId;
-    result.requests.push({url:response.url(),status:response.status(),response_id});
-    const path=new URL(response.url()).pathname.replace(/^\/gpui-conformance\//,'');
-    if(/\.(mjs|js|wasm|ttf)$/.test(path))responseTasks.push((async()=>{
+    const resource_type=response.request().resourceType();
+    result.requests.push({url:response.url(),status:response.status(),response_id,resource_type});
+    const path=runtimeResponsePath(response.url());
+    if(requiresRuntimeRetention(response.url(),resource_type))responseTasks.push((async()=>{
       try {
         const bytes=await response.body(),file=`drag-drop-${runtime}-asset-${path.replaceAll('/','_')}-response-${response_id}.bin`;
         // Retain even unexpected/failed executable responses before checking pins.
-        await writeFile(join(evidence,file),bytes);result.runtime_responses.push({path,url:response.url(),status:response.status(),response_id,file,sha256:sha256(bytes),bytes:bytes.length});
+        await writeFile(join(evidence,file),bytes);result.runtime_responses.push({path,url:response.url(),status:response.status(),response_id,resource_type,file,sha256:sha256(bytes),bytes:bytes.length});
         assert(Object.hasOwn(files,path),`Unpinned browser runtime dependency ${path}`);
       }catch(error){result.errors.push({kind:'runtime_response',url:response.url(),message:error.message});}
     })());
