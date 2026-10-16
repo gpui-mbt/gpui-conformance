@@ -1,0 +1,1146 @@
+{
+  "metadata": {
+    "id": "hello_web",
+    "width": 640,
+    "height": 560,
+    "font_family": "IBM Plex Sans",
+    "font_size": 16,
+    "interactive": true
+  },
+  "frame": {
+    "ok": true,
+    "snapshot": {
+      "schema_version": 1,
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 640,
+        "height": 560
+      },
+      "scale": 1,
+      "resources": [],
+      "clip_chains": [],
+      "items": [
+        {
+          "kind": "quad",
+          "id": 1,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 640,
+            "height": 560
+          },
+          "color": {
+            "red": 30,
+            "green": 30,
+            "blue": 46,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 20,
+          "bounds": {
+            "x": 70,
+            "y": 140.5,
+            "width": 500,
+            "height": 148
+          },
+          "color": {
+            "red": 49,
+            "green": 50,
+            "blue": 68,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 23,
+          "bounds": {
+            "x": 227,
+            "y": 191.5,
+            "width": 54,
+            "height": 31
+          },
+          "color": {
+            "red": 137,
+            "green": 180,
+            "blue": 250,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 24,
+          "bounds": {
+            "x": 289,
+            "y": 191.5,
+            "width": 54,
+            "height": 31
+          },
+          "color": {
+            "red": 69,
+            "green": 71,
+            "blue": 90,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 25,
+          "bounds": {
+            "x": 351,
+            "y": 191.5,
+            "width": 62,
+            "height": 31
+          },
+          "color": {
+            "red": 69,
+            "green": 71,
+            "blue": 90,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 26,
+          "bounds": {
+            "x": 255,
+            "y": 234.5,
+            "width": 130,
+            "height": 38
+          },
+          "color": {
+            "red": 166,
+            "green": 227,
+            "blue": 161,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 30,
+          "bounds": {
+            "x": 70,
+            "y": 304.5,
+            "width": 500,
+            "height": 100
+          },
+          "color": {
+            "red": 49,
+            "green": 50,
+            "blue": 68,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 31,
+          "bounds": {
+            "x": 86,
+            "y": 354.5,
+            "width": 468,
+            "height": 8
+          },
+          "color": {
+            "red": 69,
+            "green": 71,
+            "blue": 90,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 32,
+          "bounds": {
+            "x": 86,
+            "y": 354.5,
+            "width": 468,
+            "height": 8
+          },
+          "color": {
+            "red": 166,
+            "green": 227,
+            "blue": 161,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 40,
+          "bounds": {
+            "x": 86,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 41,
+          "bounds": {
+            "x": 100,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 42,
+          "bounds": {
+            "x": 114,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 43,
+          "bounds": {
+            "x": 128,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 44,
+          "bounds": {
+            "x": 142,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 45,
+          "bounds": {
+            "x": 156,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 46,
+          "bounds": {
+            "x": 170,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 47,
+          "bounds": {
+            "x": 184,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 48,
+          "bounds": {
+            "x": 198,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 49,
+          "bounds": {
+            "x": 212,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 50,
+          "bounds": {
+            "x": 226,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 51,
+          "bounds": {
+            "x": 240,
+            "y": 378.5,
+            "width": 10,
+            "height": 10
+          },
+          "color": {
+            "red": 203,
+            "green": 166,
+            "blue": 247,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "quad",
+          "id": 60,
+          "bounds": {
+            "x": 70,
+            "y": 420.5,
+            "width": 500,
+            "height": 86
+          },
+          "color": {
+            "red": 49,
+            "green": 50,
+            "blue": 68,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 101,
+          "bounds": {
+            "x": 207,
+            "y": 53.5,
+            "width": 226,
+            "height": 32
+          },
+          "text": "Prime Sieve — GPUI Web",
+          "font_size": 20,
+          "color": {
+            "red": 205,
+            "green": 214,
+            "blue": 244,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 102,
+          "bounds": {
+            "x": 185.5,
+            "y": 101.5,
+            "width": 269,
+            "height": 23
+          },
+          "text": "Background threads: 4 · Chunks per run: 12",
+          "font_size": 14,
+          "color": {
+            "red": 108,
+            "green": 112,
+            "blue": 134,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 103,
+          "bounds": {
+            "x": 254.5,
+            "y": 156.5,
+            "width": 131,
+            "height": 23
+          },
+          "text": "Count primes below:",
+          "font_size": 14,
+          "color": {
+            "red": 249,
+            "green": 226,
+            "blue": 175,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 104,
+          "bounds": {
+            "x": 239,
+            "y": 195.5,
+            "width": 30,
+            "height": 23
+          },
+          "text": "10 M",
+          "font_size": 14,
+          "color": {
+            "red": 30,
+            "green": 30,
+            "blue": 46,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 105,
+          "bounds": {
+            "x": 301,
+            "y": 195.5,
+            "width": 30,
+            "height": 23
+          },
+          "text": "50 M",
+          "font_size": 14,
+          "color": {
+            "red": 166,
+            "green": 173,
+            "blue": 200,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 106,
+          "bounds": {
+            "x": 363,
+            "y": 195.5,
+            "width": 38,
+            "height": 23
+          },
+          "text": "100 M",
+          "font_size": 14,
+          "color": {
+            "red": 166,
+            "green": 173,
+            "blue": 200,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 107,
+          "bounds": {
+            "x": 271,
+            "y": 240.5,
+            "width": 98,
+            "height": 26
+          },
+          "text": "Count Primes",
+          "font_size": 16,
+          "color": {
+            "red": 30,
+            "green": 30,
+            "blue": 46,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 108,
+          "bounds": {
+            "x": 86,
+            "y": 320.5,
+            "width": 383,
+            "height": 26
+          },
+          "text": "Found 664,579 primes below 10,000,000 in 557 ms",
+          "font_size": 16,
+          "color": {
+            "red": 205,
+            "green": 214,
+            "blue": 244,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 109,
+          "bounds": {
+            "x": 86,
+            "y": 436.5,
+            "width": 46,
+            "height": 23
+          },
+          "text": "History",
+          "font_size": 14,
+          "color": {
+            "red": 108,
+            "green": 112,
+            "blue": 134,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        },
+        {
+          "kind": "text",
+          "id": 110,
+          "bounds": {
+            "x": 86,
+            "y": 467.5,
+            "width": 287,
+            "height": 23
+          },
+          "text": "π(10,000,000) = 664,579 (557 ms, 12 chunks)",
+          "font_size": 14,
+          "color": {
+            "red": 166,
+            "green": 173,
+            "blue": 200,
+            "alpha": 255
+          },
+          "transform": {
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1,
+            "tx": 0,
+            "ty": 0
+          },
+          "opacity": 1,
+          "clip_chain_id": null
+        }
+      ]
+    },
+    "decorations": [],
+    "rounded_fills": [
+      {
+        "id": 20,
+        "radius": 8
+      },
+      {
+        "id": 23,
+        "radius": 6
+      },
+      {
+        "id": 24,
+        "radius": 6
+      },
+      {
+        "id": 25,
+        "radius": 6
+      },
+      {
+        "id": 26,
+        "radius": 6
+      },
+      {
+        "id": 30,
+        "radius": 8
+      },
+      {
+        "id": 31,
+        "radius": 2
+      },
+      {
+        "id": 32,
+        "radius": 2
+      },
+      {
+        "id": 40,
+        "radius": 2
+      },
+      {
+        "id": 41,
+        "radius": 2
+      },
+      {
+        "id": 42,
+        "radius": 2
+      },
+      {
+        "id": 43,
+        "radius": 2
+      },
+      {
+        "id": 44,
+        "radius": 2
+      },
+      {
+        "id": 45,
+        "radius": 2
+      },
+      {
+        "id": 46,
+        "radius": 2
+      },
+      {
+        "id": 47,
+        "radius": 2
+      },
+      {
+        "id": 48,
+        "radius": 2
+      },
+      {
+        "id": 49,
+        "radius": 2
+      },
+      {
+        "id": 50,
+        "radius": 2
+      },
+      {
+        "id": 51,
+        "radius": 2
+      },
+      {
+        "id": 60,
+        "radius": 8
+      }
+    ],
+    "conformance": "unverified",
+    "host_extensions": [
+      "font_metrics",
+      "rounded_fill",
+      "browser_pointer_delivery",
+      "web_worker_execution"
+    ]
+  },
+  "textWidth": [
+    226,
+    269,
+    131,
+    30,
+    30,
+    38,
+    98,
+    383,
+    46,
+    287
+  ],
+  "scale": 1,
+  "content": {
+    "runs": [
+      {
+        "text": "Prime Sieve — GPUI Web",
+        "font_size": 20
+      },
+      {
+        "text": "Background threads: 4 · Chunks per run: 12",
+        "font_size": 14
+      },
+      {
+        "text": "Count primes below:",
+        "font_size": 14
+      },
+      {
+        "text": "10 M",
+        "font_size": 14
+      },
+      {
+        "text": "50 M",
+        "font_size": 14
+      },
+      {
+        "text": "100 M",
+        "font_size": 14
+      },
+      {
+        "text": "Count Primes",
+        "font_size": 16
+      },
+      {
+        "text": "Found 664,579 primes below 10,000,000 in 557 ms",
+        "font_size": 16
+      },
+      {
+        "text": "History",
+        "font_size": 14
+      },
+      {
+        "text": "π(10,000,000) = 664,579 (557 ms, 12 chunks)",
+        "font_size": 14
+      }
+    ],
+    "selected": 0,
+    "generation": 1,
+    "running": false,
+    "failed": false,
+    "chunks_done": 12,
+    "total": 664579,
+    "elapsed_ms": 557,
+    "history": [
+      "π(10,000,000) = 664,579 (557 ms, 12 chunks)"
+    ]
+  },
+  "workers": {
+    "capacity": 4,
+    "active": 0,
+    "created": 4,
+    "terminated": 4,
+    "completed": [
+      {
+        "generation": 1,
+        "index": 1,
+        "count": 59377,
+        "start": 833333,
+        "end": 1666666,
+        "elapsed_ms": 98
+      },
+      {
+        "generation": 1,
+        "index": 3,
+        "count": 56047,
+        "start": 2499999,
+        "end": 3333332,
+        "elapsed_ms": 172
+      },
+      {
+        "generation": 1,
+        "index": 4,
+        "count": 55022,
+        "start": 3333332,
+        "end": 4166665,
+        "elapsed_ms": 177
+      },
+      {
+        "generation": 1,
+        "index": 0,
+        "count": 66419,
+        "start": 0,
+        "end": 833333,
+        "elapsed_ms": 198
+      },
+      {
+        "generation": 1,
+        "index": 6,
+        "count": 53610,
+        "start": 4999998,
+        "end": 5833331,
+        "elapsed_ms": 265
+      },
+      {
+        "generation": 1,
+        "index": 2,
+        "count": 57276,
+        "start": 1666666,
+        "end": 2499999,
+        "elapsed_ms": 281
+      },
+      {
+        "generation": 1,
+        "index": 5,
+        "count": 54371,
+        "start": 4166665,
+        "end": 4999998,
+        "elapsed_ms": 341
+      },
+      {
+        "generation": 1,
+        "index": 8,
+        "count": 52880,
+        "start": 6666664,
+        "end": 7499997,
+        "elapsed_ms": 370
+      },
+      {
+        "generation": 1,
+        "index": 11,
+        "count": 51762,
+        "start": 9166663,
+        "end": 10000000,
+        "elapsed_ms": 485
+      },
+      {
+        "generation": 1,
+        "index": 7,
+        "count": 53259,
+        "start": 5833331,
+        "end": 6666664,
+        "elapsed_ms": 506
+      },
+      {
+        "generation": 1,
+        "index": 9,
+        "count": 52429,
+        "start": 7499997,
+        "end": 8333330,
+        "elapsed_ms": 553
+      },
+      {
+        "generation": 1,
+        "index": 10,
+        "count": 52127,
+        "start": 8333330,
+        "end": 9166663,
+        "elapsed_ms": 557
+      }
+    ],
+    "failures": [],
+    "stopped": false
+  }
+}
