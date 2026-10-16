@@ -1,0 +1,765 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gpui-conformance:supplemental-uniform-list-raw:v1",
+  "title": "Supplemental real-GPUI uniform-list raw observations",
+  "description": "Coordinates are actual logical pixels. offset is negative when scrolled down; max_offset is positive. last_item_size.item is viewport size, not row size. Event frames are rooted in actual request_layout, not input count.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "layer": {
+      "const": "supplemental-headless-core-semantics"
+    },
+    "fixture": {
+      "const": "font-free-nested-auto-height"
+    },
+    "text_system": {
+      "const": "NoopTextSystem; no text used"
+    },
+    "upstream_revision": {
+      "const": "5a5fbe79917971a4d52a96b6ddb04da198a5012e"
+    },
+    "run_token": {
+      "type": "string",
+      "minLength": 16
+    },
+    "input": {
+      "$ref": "#/$defs/input"
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sequence": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "operation": {
+                  "type": "string"
+                },
+                "frame": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "event": {
+                  "$ref": "#/$defs/event"
+                }
+              },
+              "required": [
+                "sequence",
+                "operation",
+                "frame",
+                "event"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "events"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "layer",
+    "fixture",
+    "text_system",
+    "upstream_revision",
+    "run_token",
+    "input",
+    "cases"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "window": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inner_height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "window",
+        "list",
+        "count",
+        "inner_height"
+      ],
+      "additionalProperties": false
+    },
+    "operation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "set_offset"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "y"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "set_count"
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "count"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "set_inner_height"
+            },
+            "height": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "height"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "resize_list"
+            },
+            "height": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "height"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "resize_window"
+            },
+            "size": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "size"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "wheel"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "delta": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "position",
+            "delta"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "move"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "held": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "position",
+            "held"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "down"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "position"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "action": {
+              "const": "up"
+            },
+            "position": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "id",
+            "action",
+            "position"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "scroll": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "max_offset": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "last_item_size": {
+          "type": "object",
+          "properties": {
+            "item": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "contents": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "item",
+            "contents"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "offset",
+        "max_offset",
+        "last_item_size"
+      ],
+      "additionalProperties": false
+    },
+    "event": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "view_render"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "frame_start"
+            },
+            "configuration": {
+              "$ref": "#/$defs/configuration"
+            }
+          },
+          "required": [
+            "type",
+            "configuration"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "request_layout"
+            },
+            "kind": {
+              "enum": [
+                "root",
+                "list",
+                "row",
+                "inner"
+              ]
+            },
+            "item_id": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "factory_call": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "item_id",
+            "factory_call"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "prepaint"
+            },
+            "kind": {
+              "enum": [
+                "root",
+                "list",
+                "row",
+                "inner"
+              ]
+            },
+            "item_id": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "factory_call": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "bounds": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 4,
+              "maxItems": 4
+            },
+            "content_mask": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "type",
+            "kind",
+            "item_id",
+            "factory_call",
+            "bounds",
+            "content_mask"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "factory"
+            },
+            "factory_call": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "range": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "type",
+            "factory_call",
+            "range"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "constructed"
+            },
+            "item_id": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "factory_call": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "type",
+            "item_id",
+            "factory_call"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "frame_end"
+            },
+            "scroll": {
+              "$ref": "#/$defs/scroll"
+            },
+            "window_size": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "scale_factor": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "type",
+            "scroll",
+            "window_size",
+            "scale_factor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "operation_start"
+            },
+            "input": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/operation"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "const": "initial"
+                    },
+                    "action": {
+                      "const": "open_window"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "action"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": [
+            "type",
+            "input"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "operation_end"
+            },
+            "configuration": {
+              "$ref": "#/$defs/configuration"
+            },
+            "scroll": {
+              "$ref": "#/$defs/scroll"
+            },
+            "list_bounds": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 4,
+              "maxItems": 4
+            }
+          },
+          "required": [
+            "type",
+            "configuration",
+            "scroll",
+            "list_bounds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "click"
+            },
+            "item_id": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "factory_call": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "detail": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "mouse"
+                },
+                "down": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "up": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "down",
+                "up"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "item_id",
+            "factory_call",
+            "detail"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "coordinate_system": {
+          "type": "string"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "initial": {
+                "$ref": "#/$defs/configuration"
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/operation"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "initial",
+              "operations"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "schema_version",
+        "coordinate_system",
+        "cases"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
