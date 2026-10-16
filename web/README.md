@@ -547,3 +547,13 @@ reporting, or keyboard-layout changes. Actual Japanese IME, Rust–MoonBit
 interactive equivalence, exact pixel matching, font shaping and native
 composition behavior remain **UNVERIFIED**. Recorded independent browser
 runtime behavior must be distinguished from these boundaries.
+
+## Rust-only oracle: `focus_visible`
+
+The unchanged upstream `focus_visible.rs` is packaged separately from implemented
+MoonBit catalog entries. Its 800×600 DPR1 profile observes trusted pointer and
+keyboard input, actual focus-ring/hover pixels, traversal and click-message
+changes. Source provenance, the fail-closed baseline procedure and the currently
+unverified boundaries are described in [FOCUS_VISIBLE_ORACLE.md](FOCUS_VISIBLE_ORACLE.md).
+Adding this Rust baseline does not increase the implemented-port count or claim
+Rust–MoonBit equivalence.

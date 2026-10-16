@@ -58,13 +58,24 @@ gpui_web = { path = "../.." }
         self.assertEqual(records[0]["candidate"], "not_implemented")
         self.assertEqual(module.extra_oracle_records([]), [])
 
+    def test_focus_visible_oracle_keeps_unchanged_source_identity(self):
+        record, = module.extra_oracle_records(["focus_visible"])
+        self.assertEqual(record["source"], "crates/gpui/examples/focus_visible.rs")
+        self.assertEqual(record["source_blob"], "c5b3d5dfec3a189d088a621baff55eb55a121b6c")
+        self.assertEqual(record["upstream_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
+        self.assertEqual((record["width"], record["height"], record["dpr"]), (800, 600, 1))
+        self.assertEqual(record["status"], "rust_oracle_only")
+        self.assertEqual(record["candidate"], "not_implemented")
+
     def test_rejects_unknown_path_and_duplicate_extra_oracles(self):
-        for names in [["../outside"], ["other"], ["scrollable", "scrollable"]]:
+        for names in [["../outside"], ["other"], ["scrollable", "scrollable"],
+                      ["focus_visible", "focus_visible"]]:
             with self.subTest(names=names), self.assertRaises(ValueError):
                 module.extra_oracle_records(names)
 
     def test_registers_only_requested_additional_bins(self):
-        for requested in [["scrollable"], ["tree", "scrollable"]]:
+        for requested in [["scrollable"], ["tree", "scrollable"], ["focus_visible"],
+                          ["tree", "scrollable", "focus_visible"]]:
             with self.subTest(requested=requested), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 source = root / "source"
