@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "id": "uniform_list",
+  "profile": "uniform_list_actual_browser_pair_v1",
+  "candidate": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "b9916950350b7d433ecca0d6fa88e39c957b8b6b",
+    "tree": "be95df375c707bd6cf961ef7959e93772b34a966"
+  },
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+    "source": "crates/gpui/examples/uniform_list.rs",
+    "source_blob": "4a2c4788b192d802ee3d51714c250e7c5a82db76",
+    "source_sha256": "939b065c2db96ce38400c0ea79a0dd74803aa27793698bb5d00f6652a58f4e3a"
+  },
+  "viewport": {
+    "width": 300,
+    "height": 300,
+    "dpr": 1
+  },
+  "status": "implemented_pending_exact_current_pair_ci",
+  "claims": [
+    "bounded original-raster row progression",
+    "trusted pixel-wheel translation",
+    "full 50-row extent and endpoint",
+    "surface-edge partial glyph output",
+    "equal measured pitch, vertical ink bands and row ink-left origin in every row"
+  ],
+  "not_claimed": [
+    "full-image or antialiasing equality",
+    "OCR identity",
+    "native parity",
+    "Rust factory laziness or click callbacks",
+    "internal mask versus surface clipping",
+    "exact horizontal glyph-envelope equality",
+    "general complex-text equivalence"
+  ],
+  "bounded_profile": "uniform_list_bounded_placement_scroll_clip_v1",
+  "strict_profile": "uniform_list_exact_glyph_envelope_v1",
+  "known_typography_limitation": "Provisional original captures show per-row horizontal glyph-support differences between Canvas and Swash. Strict exact-envelope result must remain separate and visible; bounded profile does not accept a horizontal-support tolerance."
+}

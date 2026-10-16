@@ -41,9 +41,9 @@ function metadata(runtime='rust') {
 }
 const synthetic=syntheticPixels();
 test('paired source and core pins are exact and historical oracle claims are rejected',()=>{
-  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625');
-  assert.equal(TAB_CANDIDATE.tree,'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
-  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,12);
+  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
+  assert.equal(TAB_CANDIDATE.tree,'be95df375c707bd6cf961ef7959e93772b34a966');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
+  assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,13);
   const changed=structuredClone(report.catalog);changed.examples[0].moonbit='not_implemented';assert.throws(()=>assertPairedProvenance(report.build,changed));
 });
 test('both actual runtime reports require pinned dependencies, transport and immutable current paired labels',()=>{

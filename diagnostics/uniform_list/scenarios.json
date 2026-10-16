@@ -1,0 +1,857 @@
+{
+  "schema_version": 2,
+  "coordinate_system": "logical pixels; positive set_offset.y means content moves up; wheel deltas are raw GPUI signed pixel deltas",
+  "cases": [
+    {
+      "id": "measurement-range-and-clamps",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "offset-25",
+          "action": "set_offset",
+          "y": 25
+        },
+        {
+          "id": "offset-26",
+          "action": "set_offset",
+          "y": 26
+        },
+        {
+          "id": "offset-27",
+          "action": "set_offset",
+          "y": 27
+        },
+        {
+          "id": "endpoint",
+          "action": "set_offset",
+          "y": 1000
+        },
+        {
+          "id": "overflow",
+          "action": "set_offset",
+          "y": 99999
+        },
+        {
+          "id": "underflow",
+          "action": "set_offset",
+          "y": -20
+        },
+        {
+          "id": "return-end",
+          "action": "set_offset",
+          "y": 1000
+        },
+        {
+          "id": "grow-viewport",
+          "action": "resize_list",
+          "height": 350
+        },
+        {
+          "id": "shrink-count",
+          "action": "set_count",
+          "count": 7
+        },
+        {
+          "id": "restore-count",
+          "action": "set_count",
+          "count": 50
+        },
+        {
+          "id": "height-31",
+          "action": "set_inner_height",
+          "height": 31
+        },
+        {
+          "id": "new-endpoint",
+          "action": "set_offset",
+          "y": 99999
+        },
+        {
+          "id": "window-resize",
+          "action": "resize_window",
+          "size": [
+            460,
+            460
+          ]
+        },
+        {
+          "id": "empty-after-scroll",
+          "action": "set_count",
+          "count": 0
+        },
+        {
+          "id": "restore-after-empty",
+          "action": "set_count",
+          "count": 50
+        }
+      ]
+    },
+    {
+      "id": "empty-list",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 0,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "empty-wheel",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            0,
+            -100
+          ]
+        },
+        {
+          "id": "empty-offset",
+          "action": "set_offset",
+          "y": 100
+        },
+        {
+          "id": "empty-click-down",
+          "action": "down",
+          "position": [
+            100,
+            100
+          ]
+        },
+        {
+          "id": "empty-click-up",
+          "action": "up",
+          "position": [
+            100,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "id": "one-item",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 1,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "one-offset",
+          "action": "set_offset",
+          "y": 100
+        },
+        {
+          "id": "one-click-down",
+          "action": "down",
+          "position": [
+            100,
+            60
+          ]
+        },
+        {
+          "id": "one-click-up",
+          "action": "up",
+          "position": [
+            100,
+            60
+          ]
+        },
+        {
+          "id": "below-item-down",
+          "action": "down",
+          "position": [
+            100,
+            100
+          ]
+        },
+        {
+          "id": "below-item-up",
+          "action": "up",
+          "position": [
+            100,
+            100
+          ]
+        }
+      ]
+    },
+    {
+      "id": "viewport-smaller-than-row",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          13
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "partial-offset",
+          "action": "set_offset",
+          "y": 25
+        },
+        {
+          "id": "partial-end",
+          "action": "set_offset",
+          "y": 9999
+        }
+      ]
+    },
+    {
+      "id": "exact-row-viewport",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          52
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "exact-offset",
+          "action": "set_offset",
+          "y": 26
+        },
+        {
+          "id": "exact-partial",
+          "action": "set_offset",
+          "y": 27
+        }
+      ]
+    },
+    {
+      "id": "million-items-lazy",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 1000000,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "far-offset",
+          "action": "set_offset",
+          "y": 25999500
+        },
+        {
+          "id": "far-endpoint",
+          "action": "set_offset",
+          "y": 99999999
+        },
+        {
+          "id": "far-one-row-back",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            0,
+            26
+          ]
+        }
+      ]
+    },
+    {
+      "id": "single-axis-wheel-policy",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "start-100",
+          "action": "set_offset",
+          "y": 100
+        },
+        {
+          "id": "vertical",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            0,
+            -25
+          ]
+        },
+        {
+          "id": "horizontal-only",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            -26,
+            0
+          ]
+        },
+        {
+          "id": "mixed-large-x",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            -200,
+            -7
+          ]
+        },
+        {
+          "id": "mixed-opposite-x",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            200,
+            -9
+          ]
+        },
+        {
+          "id": "reverse",
+          "action": "wheel",
+          "position": [
+            100,
+            100
+          ],
+          "delta": [
+            0,
+            31
+          ]
+        },
+        {
+          "id": "outside-list",
+          "action": "wheel",
+          "position": [
+            300,
+            100
+          ],
+          "delta": [
+            0,
+            -80
+          ]
+        },
+        {
+          "id": "right-edge-wheel",
+          "action": "wheel",
+          "position": [
+            260,
+            100
+          ],
+          "delta": [
+            0,
+            -80
+          ]
+        },
+        {
+          "id": "bottom-edge-wheel",
+          "action": "wheel",
+          "position": [
+            100,
+            350
+          ],
+          "delta": [
+            0,
+            -80
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stable-click-and-press-scroll",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "no-down-up",
+          "action": "up",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "row-three-down",
+          "action": "down",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "row-three-up",
+          "action": "up",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "duplicate-up",
+          "action": "up",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "offset-one-row",
+          "action": "set_offset",
+          "y": 26
+        },
+        {
+          "id": "same-id-new-position-down",
+          "action": "down",
+          "position": [
+            100,
+            114
+          ]
+        },
+        {
+          "id": "same-id-new-position-up",
+          "action": "up",
+          "position": [
+            100,
+            114
+          ]
+        },
+        {
+          "id": "press-row-three",
+          "action": "down",
+          "position": [
+            100,
+            114
+          ]
+        },
+        {
+          "id": "scroll-pressed-still-visible",
+          "action": "wheel",
+          "position": [
+            100,
+            114
+          ],
+          "delta": [
+            0,
+            -10
+          ]
+        },
+        {
+          "id": "release-row-three-moved",
+          "action": "up",
+          "position": [
+            100,
+            104
+          ]
+        },
+        {
+          "id": "other-row-down",
+          "action": "down",
+          "position": [
+            100,
+            104
+          ]
+        },
+        {
+          "id": "other-row-up",
+          "action": "up",
+          "position": [
+            100,
+            130
+          ]
+        },
+        {
+          "id": "outside-release-down",
+          "action": "down",
+          "position": [
+            100,
+            104
+          ]
+        },
+        {
+          "id": "outside-release-up",
+          "action": "up",
+          "position": [
+            300,
+            104
+          ]
+        },
+        {
+          "id": "reset-top",
+          "action": "set_offset",
+          "y": 0
+        },
+        {
+          "id": "press-before-omission",
+          "action": "down",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "omit-pressed-row",
+          "action": "set_offset",
+          "y": 500
+        },
+        {
+          "id": "restore-pressed-row",
+          "action": "set_offset",
+          "y": 0
+        },
+        {
+          "id": "release-after-omission",
+          "action": "up",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "press-before-count-removal",
+          "action": "down",
+          "position": [
+            100,
+            140
+          ]
+        },
+        {
+          "id": "remove-pressed-row",
+          "action": "set_count",
+          "count": 2
+        },
+        {
+          "id": "reuse-numeric-index",
+          "action": "set_count",
+          "count": 50
+        },
+        {
+          "id": "release-reused-index",
+          "action": "up",
+          "position": [
+            100,
+            140
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nested-mask-half-open-edges",
+      "initial": {
+        "window": [
+          420,
+          420
+        ],
+        "list": [
+          40,
+          50,
+          220,
+          300
+        ],
+        "count": 50,
+        "inner_height": 26,
+        "scale_factor": 2
+      },
+      "operations": [
+        {
+          "id": "configure-dpr-one",
+          "action": "set_scale_factor",
+          "scale_factor": 1
+        },
+        {
+          "id": "partial-top-row",
+          "action": "set_offset",
+          "y": 25
+        },
+        {
+          "id": "clipped-top-down",
+          "action": "down",
+          "position": [
+            100,
+            49.5
+          ]
+        },
+        {
+          "id": "clipped-top-up",
+          "action": "up",
+          "position": [
+            100,
+            49.5
+          ]
+        },
+        {
+          "id": "top-edge-down",
+          "action": "down",
+          "position": [
+            100,
+            50
+          ]
+        },
+        {
+          "id": "top-edge-up",
+          "action": "up",
+          "position": [
+            100,
+            50
+          ]
+        },
+        {
+          "id": "just-inside-right-down",
+          "action": "down",
+          "position": [
+            259.5,
+            100
+          ]
+        },
+        {
+          "id": "just-inside-right-up",
+          "action": "up",
+          "position": [
+            259.5,
+            100
+          ]
+        },
+        {
+          "id": "right-edge-down",
+          "action": "down",
+          "position": [
+            260,
+            100
+          ]
+        },
+        {
+          "id": "right-edge-up",
+          "action": "up",
+          "position": [
+            260,
+            100
+          ]
+        },
+        {
+          "id": "beyond-right-down",
+          "action": "down",
+          "position": [
+            260.5,
+            100
+          ]
+        },
+        {
+          "id": "beyond-right-up",
+          "action": "up",
+          "position": [
+            260.5,
+            100
+          ]
+        },
+        {
+          "id": "just-inside-bottom-down",
+          "action": "down",
+          "position": [
+            100,
+            349.5
+          ]
+        },
+        {
+          "id": "just-inside-bottom-up",
+          "action": "up",
+          "position": [
+            100,
+            349.5
+          ]
+        },
+        {
+          "id": "bottom-edge-down",
+          "action": "down",
+          "position": [
+            100,
+            350
+          ]
+        },
+        {
+          "id": "bottom-edge-up",
+          "action": "up",
+          "position": [
+            100,
+            350
+          ]
+        },
+        {
+          "id": "clipped-tail-down",
+          "action": "down",
+          "position": [
+            100,
+            351
+          ]
+        },
+        {
+          "id": "clipped-tail-up",
+          "action": "up",
+          "position": [
+            100,
+            351
+          ]
+        },
+        {
+          "id": "left-outside-down",
+          "action": "down",
+          "position": [
+            39.5,
+            100
+          ]
+        },
+        {
+          "id": "left-outside-up",
+          "action": "up",
+          "position": [
+            39.5,
+            100
+          ]
+        },
+        {
+          "id": "left-edge-down",
+          "action": "down",
+          "position": [
+            40,
+            100
+          ]
+        },
+        {
+          "id": "left-edge-up",
+          "action": "up",
+          "position": [
+            40,
+            100
+          ]
+        }
+      ]
+    }
+  ]
+}

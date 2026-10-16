@@ -1,0 +1,115 @@
+name: Supplemental compiled uniform-list semantic pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/uniform_list_rust/**'
+      - 'diagnostics/uniform_list/**'
+      - 'adapters/uniform_list_moonbit/**'
+      - 'diagnostics/uniform_list_pair/**'
+      - 'tests/test_uniform_list_pair.py'
+      - 'tests/test_uniform_list_diagnostic.py'
+      - '.github/workflows/uniform-list-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uniform-list-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supplemental-headless-semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read separate bounded public candidate profile
+        id: pair-pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          profile = json.load(open('diagnostics/uniform_list_pair/profile.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('core=' + profile['candidate_commit'], file=output)
+          PY
+      - name: Check diagnostic and pair corruption contracts
+        run: python3 -m unittest discover -s tests -p 'test_uniform_list*.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pair-pins.outputs.core }}
+          path: _build/candidate-core
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install pinned compiler and Linux link dependencies
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+      - name: Install official MoonBit toolchain and retain installer
+        run: |
+          mkdir -p _build/pair-toolchain-setup
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/pair-toolchain-setup/install-moon.sh
+          bash _build/pair-toolchain-setup/install-moon.sh 2>&1 | tee _build/pair-toolchain-setup/install.log
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Build and run actual public GPUI test-platform APIs
+        run: |
+          python3 diagnostics/uniform_list/run.py --online \
+            --upstream-source _build/upstream-source \
+            --output _build/uniform-list-evidence
+      - name: Independently reread retained raw observations
+        run: |
+          python3 diagnostics/uniform_list/verify.py _build/uniform-list-evidence \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/uniform-list-independent-verification.json
+      - name: Compile and execute exact public candidate against fresh actual Rust
+        run: |
+          python3 diagnostics/uniform_list_pair/run.py \
+            --core-source _build/candidate-core --core-commit '${{ steps.pair-pins.outputs.core }}' \
+            --baseline _build/uniform-list-evidence --baseline-suite-source . \
+            --fresh-baseline-suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --output _build/uniform-list-pair-evidence
+      - name: Independently reread exact public pair sources and every raw frame
+        run: |
+          python3 diagnostics/uniform_list_pair/verify.py _build/uniform-list-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --core-source _build/candidate-core --core-commit '${{ steps.pair-pins.outputs.core }}' \
+            --fresh-baseline-suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source > _build/uniform-list-pair-independent-verification.json
+      - name: Execute production engine mutants and separate raw corruption controls
+        run: |
+          python3 diagnostics/uniform_list_pair/run_mutants.py \
+            --evidence _build/uniform-list-pair-evidence \
+            --core-source _build/candidate-core --core-commit '${{ steps.pair-pins.outputs.core }}' \
+            --suite-commit "$(git rev-parse HEAD)" --fresh-baseline-suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --output _build/uniform-list-engine-mutants
+          python3 diagnostics/uniform_list_pair/run_controls.py \
+            --evidence _build/uniform-list-pair-evidence --output _build/uniform-list-checker-controls
+          python3 diagnostics/uniform_list_pair/run_range_guard.py \
+            --evidence _build/uniform-list-pair-evidence --output _build/uniform-list-range-unit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-uniform-list-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/uniform-list-evidence
+            _build/uniform-list-independent-verification.json
+            _build/uniform-list-pair-evidence
+            _build/uniform-list-pair-independent-verification.json
+            _build/uniform-list-engine-mutants
+            _build/uniform-list-checker-controls
+            _build/uniform-list-range-unit
+            _build/pair-toolchain-setup
+          if-no-files-found: warn
+          retention-days: 30

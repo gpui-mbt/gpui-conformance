@@ -8,11 +8,13 @@ import { createScrollableHost } from './scrollable-host.mjs';
 import { createFocusVisibleHost } from './focus-visible-host.mjs';
 import { createTabStopHost } from './tab-stop-host.mjs';
 import { createDragDropHost } from './drag-drop-host.mjs';
+import { createUniformListHost } from './uniform-list-host.mjs';
+import { measureUniformListInputs } from './uniform-list-text.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
@@ -23,7 +25,7 @@ try {
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   if (!isTree) {
@@ -51,6 +53,7 @@ try {
   let focusVisible;
   let tabStop;
   let dragDrop;
+  let uniformList;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
     dynamicFonts = createDynamicFontHost({fetchFont: (...args) => fetch(...args), FontFaceType: FontFace, fonts: document.fonts, onChange: () => render()});
@@ -67,7 +70,7 @@ try {
     const content = example === 'hello_web' ? JSON.parse(runtime.hello_web_content())
       : isFocusVisible || isTabStop ? JSON.parse(runtime[example + '_content']()) : null;
     if (dynamicFonts) metadata.runs[4].text = dynamicFonts.state.message;
-    const width = isTree || example === 'input' ? null : content ? content.runs.map(run => {
+    const width = isTree || example === 'input' ? null : example === 'uniform_list' ? measureUniformListInputs(context, metadata) : content ? content.runs.map(run => {
       context.font = `${run.font_weight || 400} ${run.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : isText ? measureTypographyInputs(context, metadata) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
@@ -88,25 +91,34 @@ try {
         }
       } finally { context.restore(); }
     }
-    const frame = JSON.parse(isTree ? runtime.tree_frame(scale) : example === 'input' ? runtime.input_frame(scale)
+    const frame = JSON.parse(example === 'uniform_list' ? runtime.uniform_list_frame(width.widths, width.prefixes, width.advances, scale) : isTree ? runtime.tree_frame(scale) : example === 'input' ? runtime.input_frame(scale)
       : example === 'text_wrapper'
       ? runtime.text_wrapper_frame(width.graphemes, width.advances, width.prefixes, width.ellipsisWidths, scale)
       : isText ? runtime.text_frame(width.widths, width.prefixes, scrollY, fontIndex, scale)
       : dynamicFonts ? runtime.dynamic_fonts_frame(width, dynamicFonts.state.message, statusPrefixes, scale)
       : runtime[example + '_frame'](width, scale));
+    if (example === 'uniform_list') context.textRendering = 'auto';
     drawFrame(context, frame, metadata, scale);
+    if (example === 'uniform_list') {
+      if (frame.cursor !== 'pointer') throw new Error('Invalid uniform-list cursor');
+      canvas.style.cursor = frame.cursor;
+    }
     if (example === 'drag_drop') {
       if (!['default', 'move'].includes(frame.cursor)) throw new Error('Invalid drag-drop model cursor');
       canvas.style.cursor = frame.cursor;
     }
     if (isText) { lastFrame=frame; scrollY=frame.scroll.y; }
     // Expose actual candidate output for inspection, never fabricated oracle results.
-    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, ...(prime ? {workers:prime.diagnostics} : {}) } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}), ...(focusVisible ? {focusVisibleEvents:focusVisible.events} : {}), ...(tabStop ? {tabStopEvents:tabStop.events} : {}), ...(dragDrop ? {dragDropEvents:dragDrop.events} : {}) };
+    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, ...(prime ? {workers:prime.diagnostics} : {}) } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}), ...(focusVisible ? {focusVisibleEvents:focusVisible.events} : {}), ...(tabStop ? {tabStopEvents:tabStop.events} : {}), ...(dragDrop ? {dragDropEvents:dragDrop.events} : {}), ...(uniformList ? {uniformListEvents:uniformList.events} : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
   if (example === 'input') { input = createInputHost({runtime,canvas,render}); render(); }
   if (dynamicFonts) void dynamicFonts.start(metadata.runs[2].text);
+  if (example === 'uniform_list') {
+    uniformList = createUniformListHost({runtime,canvas,render});
+    window.addEventListener('pagehide', () => uniformList.stop(), {once:true});
+  }
   if (example === 'scrollable') {
     scrollable = createScrollableHost({runtime,canvas,render});
     window.addEventListener('pagehide', () => scrollable.stop(), {once:true});

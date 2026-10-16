@@ -6,20 +6,20 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 12);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible', 'tab_stop', 'drag_drop']);
+  assert.equal(catalog.examples.length, 13);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible', 'tab_stop', 'drag_drop', 'uniform_list']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
 test('all current browser routes share the published core commit and exact tree', () => {
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, 'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625');
-  assert.equal(catalog.moonbit.tree, 'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9');
+  assert.equal(catalog.moonbit.revision, 'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
+  assert.equal(catalog.moonbit.tree, 'be95df375c707bd6cf961ef7959e93772b34a966');
   const routes = {hello_world:'hello-world',text:'text',text_layout:'text-layout',
     text_wrapper:'text-wrapper',input:'input',dynamic_fonts:'dynamic-fonts',
-    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop',drag_drop:'drag-drop'};
+    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop',drag_drop:'drag-drop',uniform_list:'uniform-list'};
   assert.deepEqual(Object.fromEntries(catalog.examples.map(example => [example.id, example.rust_route])), routes);
-  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 10);
+  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 11);
   assert.deepEqual(catalog.examples.filter(example => example.source.startsWith('crates/gpui_web/examples/')).map(example => example.id),
     ['dynamic_fonts', 'hello_web']);
   for (const example of catalog.examples.filter(example => example.moonbit === 'implemented')) {
@@ -100,7 +100,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, 'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625');
+  assert.equal(catalog.moonbit.revision, 'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -227,7 +227,7 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const example=selectExample(catalog,'scrollable');
   assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
   assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
-  assert.equal(catalog.moonbit.revision,'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625');
+  assert.equal(catalog.moonbit.revision,'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
   assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
   assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
   const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
@@ -314,4 +314,15 @@ test('drag_drop uses a source-pinned typed core session without borrowed qualifi
     assert.equal(entry[key],undefined,key);
   for(const boundary of ['typed core DragSession','host boundaries','native','GPU shadow-kernel','full-image parity remain unverified'])
     assert(entry.implementation_note.includes(boundary),boundary);
+});
+
+test('uniform-list registration states its strict typography limitation', async () => {
+  const entry=selectExample(catalog,'uniform_list');
+  assert.equal(entry.source,'crates/gpui/examples/uniform_list.rs');
+  assert.equal(entry.source_blob,'4a2c4788b192d802ee3d51714c250e7c5a82db76');
+  assert.equal(entry.candidate_source,'web/moonbit/uniform_list/uniform_list.mbt');
+  assert.deepEqual([entry.width,entry.height],[300,300]);
+  assert.match(entry.implementation_note,/Strict text-envelope.*right-edge.*Item 3/);
+  assert.match(entry.implementation_note,/not a passed full-text comparison/);
+  assert.match(entry.implementation_note,/font-free GPUI diagnostic/);
 });

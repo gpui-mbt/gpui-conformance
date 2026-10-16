@@ -9,7 +9,7 @@ import {FOCUS_VISIBLE,GEOMETRY,inspectState,assertImage,assertDelivery,assertPan
 // No private renderer state, claimed check status, or cross-renderer text/image
 // equality is an oracle. The profile below is fixed independently of reports.
 export const FOCUS_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'});
+  revision:'b9916950350b7d433ecca0d6fa88e39c957b8b6b',tree:'be95df375c707bd6cf961ef7959e93772b34a966'});
 export const FOCUS_PROFILE=Object.freeze({width:800,height:600,dpr:1,input:'Trusted Chromium mouse, keyboard and pixel wheel'});
 const sha=data=>createHash('sha256').update(data).digest('hex');
 const HASH=/^[0-9a-f]{64}$/;
@@ -48,6 +48,7 @@ export function assertPairedProvenance(build,catalog) {
 export function pairedProvenanceNegativeControls(build,catalog) {
   assertPairedProvenance(build,catalog);
   return [
+    ['previous_uniform_list_baseline_core',b=>{b.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'};}],
     ['dirty_lab',b=>{b.lab_tracked_dirty=true;}],['wrong_upstream',b=>{b.upstream.revision='0'.repeat(40);}],
     ['modified_source',b=>{b.rust.source_modified=true;}],['modified_archive',b=>{b.rust.packaging.upstream_files_modified=true;}],
     ['wrong_example_blob',(_b,c)=>{c.examples.find(e=>e.id==='focus_visible').source_blob='0'.repeat(40);}],

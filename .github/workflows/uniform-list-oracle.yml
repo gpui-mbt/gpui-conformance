@@ -1,0 +1,92 @@
+name: Uniform-list unchanged Rust browser baseline
+on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/uniform-list-oracle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: uniform-list-oracle-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  unchanged-rust-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read exact unchanged engine source pin
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          record = json.load(open('web/oracles/uniform_list.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('zed=' + record['upstream_revision'], file=output)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+      - name: Install pinned original PNG decoder
+        run: python3 -m pip install Pillow==12.0.0
+      - name: Validate source-only packaging and comparator sensitivity
+        run: |
+          node --test web/tests/uniform-list*.test.mjs
+          python3 -m unittest discover -s web/tests -p 'test_uniform_list*.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_subset.py' -v
+      - name: Prepare static host inputs without building any MoonBit candidate
+        run: python3 web/scripts/prepare_uniform_list_site.py --out _build/uniform-list-browser-lab
+      - name: Install fixed Rust toolchain and bindings generator
+        run: |
+          rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+          curl -fL --retry 3 https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz -o "$RUNNER_TEMP/bindgen.tar.gz"
+          echo "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  $RUNNER_TEMP/bindgen.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/bindgen.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            _build/uniform-list-rust-target
+          key: uniform-list-rust-only-${{ runner.os }}-20261014-${{ steps.pins.outputs.zed }}-${{ hashFiles('web/rust/Cargo.lock') }}
+      - name: Build only the unchanged source5a uniform-list Rust binary
+        env:
+          CARGO_BUILD_JOBS: '2'
+        run: |
+          mkdir -p _build/uniform-list-oracle-evidence
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed --site _build/uniform-list-browser-lab --target-dir _build/uniform-list-rust-target --oracle-only --extra-example uniform_list 2>&1 | tee _build/uniform-list-oracle-evidence/rust-build.log
+      - name: Install pinned browser runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Capture unchanged source in independent original PNGs and trusted wheel events
+        timeout-minutes: 15
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/uniform-list-oracle-evidence
+        run: node web/tests/uniform-list-oracle-browser.mjs _build/uniform-list-browser-lab
+      - name: Independently verify original evidence and bounded source profile
+        timeout-minutes: 10
+        run: node web/tests/verify-uniform-list-results.mjs _build/uniform-list-oracle-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uniform-list-unchanged-rust-browser-evidence
+          path: |
+            _build/uniform-list-browser-lab
+            _build/uniform-list-oracle-evidence
+          if-no-files-found: warn

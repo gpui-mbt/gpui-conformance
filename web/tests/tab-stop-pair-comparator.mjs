@@ -6,8 +6,8 @@ import {TAB_STOP,EMBEDDED_FONTS,STOPS,sha256,decodePng,frameGeometry,sourceGeome
   validateOperations,traversalNegativeControls,makeProfile,assertCurrentTabStopBuild} from './tab-stop-comparator.mjs';
 
 export const TAB_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'});
-export const PAIR_REVISION='tab_stop_paired_state_specific_v2_drag_session_pin';
+  revision:'b9916950350b7d433ecca0d6fa88e39c957b8b6b',tree:'be95df375c707bd6cf961ef7959e93772b34a966'});
+export const PAIR_REVISION='tab_stop_paired_state_specific_v3_uniform_list_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/tab-stop-host.mjs','moonbit/focus-visible-host.mjs','load-timing.mjs'];
 const HASH=/^[0-9a-f]{64}$/;
 const hash=(value,label)=>assert.match(value||'',HASH,label);
@@ -48,7 +48,8 @@ export function assertPairedProvenance(build,catalog) {
 }
 export function pairedProvenanceNegativeControls(build,catalog) {
   assertPairedProvenance(build,catalog);
-  return [['dirty_lab',b=>{b.lab_tracked_dirty=true;}],['wrong_core_commit',b=>{b.moonbit.revision='0'.repeat(40);}],
+  return [['previous_uniform_list_baseline_core',b=>{b.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'fc53cb382c66f68bfc1b3e1cc72d01056cd3c625',tree:'c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9'};}],
+    ['dirty_lab',b=>{b.lab_tracked_dirty=true;}],['wrong_core_commit',b=>{b.moonbit.revision='0'.repeat(40);}],
     ['wrong_core_tree',b=>{b.moonbit.tree='0'.repeat(40);}],['modified_source',b=>{b.rust.source_modified=true;}],
     ['wrong_source_blob',b=>{b.rust_subset_sources[0].source_blob='0'.repeat(40);}],
     ['historical_oracle_claim',b=>{b.rust.oracle_only=true;}],['missing_subset',b=>{b.rust.implemented_subset=null;}],
