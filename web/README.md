@@ -285,7 +285,8 @@ Rust example files**, with identical blob IDs. This count excludes asset/support
 subdirectories. Eight of these now have browser counterparts: hello_world, text,
 text_layout, text_wrapper, input, tree, scrollable and focus_visible. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-Ten catalog entries therefore do **not** mean all upstream examples are covered.
+The catalog has ten counterparts plus one Rust-only tab_stop baseline. Eleven
+entries therefore do **not** mean all upstream examples are covered.
 
 The remaining 33 top-level examples are: a11y, active_state_bug, anchor,
 animation, data_table, drag_drop, gif_viewer, gradient,
@@ -295,6 +296,11 @@ ownership_post, painting, paths_bench, pattern, popover, set_menus,
 shadow, system_notifications, tab_stop, testing, toggle_headless, uniform_list,
 window, window_movable, window_positioning and window_shadow. These are an
 inventory of missing counterparts, not unsupported-feature verdicts or passes.
+
+The unchanged `tab_stop.rs` is now explicitly registered as a Rust-only discovery
+baseline. Its MoonBit counterpart remains missing and it has no live comparison
+route or borrowed result. See [TAB_STOP_ORACLE.md](TAB_STOP_ORACLE.md) for the
+source pin, isolated workflow, trusted-input and original-PNG evidence contract.
 
 ## Build and verify the actual pairs
 

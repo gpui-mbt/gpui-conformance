@@ -2,6 +2,7 @@
 """Compile the pinned, unchanged upstream examples in a disposable archive."""
 from __future__ import annotations
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import io
 import json
@@ -31,7 +32,7 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    for name in ["tree", "scrollable", "focus_visible"]:
+    for name in ["tree", "scrollable", "focus_visible", "tab_stop"]:
         if name in examples:
             relative = f"crates/gpui/examples/{name}.rs"
             path = os.path.relpath(source / relative, gallery)
@@ -51,7 +52,7 @@ def extra_oracle_records(names: list[str]) -> list[dict]:
     """Opt-in unchanged Rust baselines never imply a candidate implementation."""
     records = []
     for name in names:
-        if name not in {"scrollable", "focus_visible"} or name in [record["id"] for record in records]:
+        if name not in {"scrollable", "focus_visible", "tab_stop"} or name in [record["id"] for record in records]:
             raise ValueError(f"unknown or duplicate extra oracle: {name}")
         record = json.loads((WEB / "oracles" / f"{name}.json").read_text())
         if (record["id"] != name or record["source"] != f"crates/gpui/examples/{name}.rs"
@@ -61,15 +62,32 @@ def extra_oracle_records(names: list[str]) -> list[dict]:
     return records
 
 
-def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | None = None) -> None:
+def selected_examples(catalog: dict, records: list[dict], oracle_only: bool = False) -> list[str]:
+    if oracle_only and not records:
+        raise ValueError("--oracle-only requires at least one recognized --extra-example")
+    examples = [] if oracle_only else [example["id"] for example in catalog["examples"]
+                                      if example.get("moonbit") == "implemented"]
+    for record in records:
+        if any(example["id"] == record["id"] and example.get("moonbit") == "implemented"
+               for example in catalog["examples"]):
+            raise ValueError(f"extra oracle already has an implemented catalog entry: {record['id']}")
+        examples.append(record["id"])
+    return examples
+
+
+def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | None = None,
+          oracle_only: bool = False) -> None:
     catalog = json.loads((WEB / "examples.json").read_text())
     check_source(upstream, catalog["upstream"]["revision"])
     oracle_records = extra_oracle_records(extra_examples or [])
+    examples = selected_examples(catalog, oracle_records, oracle_only)
     for record in oracle_records:
         if record["upstream_revision"] != catalog["upstream"]["revision"]:
             raise ValueError(f"extra oracle revision mismatch: {record['id']}")
         if run(["git", "rev-parse", f"HEAD:{record['source']}"], upstream, True) != record["source_blob"]:
             raise ValueError(f"extra oracle source blob mismatch: {record['id']}")
+        if record.get("source_sha256") and hashlib.sha256((upstream / record["source"]).read_bytes()).hexdigest() != record["source_sha256"]:
+            raise ValueError(f"extra oracle source SHA256 mismatch: {record['id']}")
     manifest_path = site / "build-manifest.json"
     manifest = json.loads(manifest_path.read_text())
     if manifest["upstream"] != catalog["upstream"] or (site / "rust").exists():
@@ -81,11 +99,6 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
                                  check=True, stdout=subprocess.PIPE).stdout
         with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
             tar.extractall(source, filter="data")
-        examples = [example["id"] for example in catalog["examples"] if example.get("moonbit") == "implemented"]
-        for record in oracle_records:
-            if record["id"] in examples:
-                raise ValueError(f"extra oracle already has an implemented catalog entry: {record['id']}")
-            examples.append(record["id"])
         gallery = Path(work) / "gallery"
         packaging = prepare_gallery(source, gallery, examples)
         command = ["cargo", f"+{TOOLCHAIN}", "build", "--locked", "--release",
@@ -104,7 +117,26 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
         shutil.copy2(source / "LICENSE-APACHE", rust / "LICENSE-APACHE")
         for family, license_name in [("ibm-plex-sans", "license.txt"), ("lilex", "OFL.txt")]:
             shutil.copy2(source / "assets/fonts" / family / license_name, rust / f"{family}-license.txt")
+        embedded_fonts = {}
+        if oracle_only:
+            shutil.copy2(gallery / "Cargo.toml", rust / "packaging-Cargo.toml")
+            for family, names in {
+                "ibm-plex-sans": ["IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf", "IBMPlexSans-SemiBoldItalic.ttf"],
+                "lilex": ["Lilex-Regular.ttf", "Lilex-Bold.ttf", "Lilex-Italic.ttf", "Lilex-BoldItalic.ttf"],
+            }.items():
+                for name in names:
+                    relative = f"assets/fonts/{family}/{name}"
+                    output = rust / "embedded-font-inputs" / name
+                    output.parent.mkdir(exist_ok=True)
+                    shutil.copy2(source / relative, output)
+                    embedded_fonts[relative] = {"file": str(output.relative_to(rust)),
+                                                "sha256": hashlib.sha256(output.read_bytes()).hexdigest()}
+            for record in oracle_records:
+                output = rust / "unchanged-source" / (record["id"] + ".rs")
+                output.parent.mkdir(exist_ok=True)
+                shutil.copy2(source / record["source"], output)
         check_source(upstream, catalog["upstream"]["revision"])
+        manifest["lab_tree"] = run(["git", "rev-parse", "HEAD^{tree}"], WEB.parent, True)
         manifest["rust_bundled"] = True
         manifest["rust_implemented"] = examples
         manifest["rust_oracle_only"] = oracle_records
@@ -113,6 +145,9 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
             "bindings": run(["wasm-bindgen", "--version"], gallery, True),
             "command": command[:-1] + ["<target-dir>"],
             "source_modified": False,
+            "oracle_only": oracle_only,
+            "build_completed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "embedded_fonts": embedded_fonts,
             "packaging": packaging,
             "files": {str(p.relative_to(rust)): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in sorted(rust.rglob("*")) if p.is_file()},
@@ -128,10 +163,12 @@ if __name__ == "__main__":
     parser.add_argument("--upstream-source", required=True, type=Path)
     parser.add_argument("--site", type=Path, default=Path("_build/browser-lab"))
     parser.add_argument("--target-dir", type=Path, default=Path("_build/rust-target"))
-    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible"], default=[],
+    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible", "tab_stop"], default=[],
                         help="also build an unchanged Rust-only oracle without claiming a MoonBit counterpart")
+    parser.add_argument("--oracle-only", action="store_true",
+                        help="build only explicitly named Rust-only oracles; requires --extra-example")
     args = parser.parse_args()
     try:
-        build(args.upstream_source.resolve(), args.site.resolve(), args.target_dir.resolve(), args.extra_example)
+        build(args.upstream_source.resolve(), args.site.resolve(), args.target_dir.resolve(), args.extra_example, args.oracle_only)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"upstream WASM build failed: {error}\n")

@@ -6,7 +6,7 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 10);
+  assert.equal(catalog.examples.length, 11);
   assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
@@ -17,12 +17,12 @@ test('all current browser routes share the published core commit and exact tree'
   assert.equal(catalog.moonbit.tree, '29449e394c0faf2b25beb2a1b6a4bce2806b3231');
   const routes = {hello_world:'hello-world',text:'text',text_layout:'text-layout',
     text_wrapper:'text-wrapper',input:'input',dynamic_fonts:'dynamic-fonts',
-    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible'};
+    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop'};
   assert.deepEqual(Object.fromEntries(catalog.examples.map(example => [example.id, example.rust_route])), routes);
-  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 8);
+  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 9);
   assert.deepEqual(catalog.examples.filter(example => example.source.startsWith('crates/gpui_web/examples/')).map(example => example.id),
     ['dynamic_fonts', 'hello_web']);
-  for (const example of catalog.examples) {
+  for (const example of catalog.examples.filter(example => example.moonbit === 'implemented')) {
     assert.equal(rustExampleUrl('https://example.test/lab/', example), `https://example.test/lab/rust/?example=${example.id}`);
     assert.equal(moonbitExampleUrl('https://example.test/lab/', example), `https://example.test/lab/moonbit/?example=${example.id}`);
   }
@@ -33,8 +33,7 @@ test('a selected example resolves the same pair under a GitHub Pages subpath', (
   assert.equal(moonbitExampleUrl('https://gpui-mbt.github.io/gpui-conformance/?example=hello_world', example), 'https://gpui-mbt.github.io/gpui-conformance/moonbit/?example=hello_world');
 });
 test('missing implementations and runtimes cannot be treated as a pair', () => {
-  // Both remaining holds (#34 and #37) land together, so no catalog entry is
-  // unimplemented anymore; keep the routing guard covered with a fixture.
+  // Rust-only baseline entries must never imply a compiled candidate pair.
   const missing = { id: 'unimplemented_fixture', moonbit: 'not_implemented' };
   assert.equal(moonbitExampleUrl('https://example.test/lab/', missing), null);
   assert.equal(rustExampleUrl('https://example.test/lab/', missing), null);
@@ -276,4 +275,16 @@ test('pinned PNG decoder is installed before independent comparator unit tests',
   assert(decoder >= 0 && unitTests > decoder, 'PNG-decoding unit tests require Pillow before the host gate');
   assert(workflow.indexOf('node web/tests/compare-focus-visible-results.mjs') > unitTests,
     'Retained browser evidence uses the same installed decoder later');
+});
+
+test('tab_stop remains an explicitly pinned Rust-only baseline without candidate routes', async () => {
+  const entry = selectExample(catalog, 'tab_stop');
+  assert.equal(entry.moonbit, 'not_implemented'); assert.equal(entry.rust, 'oracle_only');
+  assert.equal(entry.source_blob, 'cc7c34a9979ce4027578ec2c358f503d944ee26f');
+  assert.equal(entry.source, 'crates/gpui/examples/tab_stop.rs');
+  assert.equal(entry.candidate_source, undefined);
+  assert.equal(rustExampleUrl('https://example.test/lab/', entry), null);
+  assert.equal(moonbitExampleUrl('https://example.test/lab/', entry), null);
+  const host = await readFile(new URL('../rust/host.mjs', import.meta.url), 'utf8');
+  assert(host.includes("tab_stop: './tab_stop.js'"));
 });

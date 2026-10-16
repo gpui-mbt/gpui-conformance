@@ -59,6 +59,11 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "tab_stop": {
+        "title": "Tab 順序とグループ",
+        "tags": ["tab stop", "重複 index", "tab group", "逆順・折り返し"],
+        "description": "800×600 の未変更 Rust 専用ベースライン。5 枚のカード、2 個のボタン、2 組の子ボタンを含みます。MoonBit の対応実装と比較結果はありません。",
+    },
     "focus_visible": {
         "title": "入力方法に応じたフォーカス表示",
         "tags": ["focus-visible", "Tab 移動", "入力 modality", "focus ownership", "クリック・キー操作"],

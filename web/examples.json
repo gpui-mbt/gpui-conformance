@@ -195,6 +195,26 @@
       ],
       "candidate_source": "web/moonbit/focus_visible/focus_visible.mbt",
       "implementation_note": "Real gpui.mbt Element layout/prepaint/SceneSnapshot with a persistent input tree, core flat tab traversal, modality, focus ownership and routing. Pointer and keyboard activation follow the pinned upstream source. JavaScript input delivery, rounded fills, solid 4px focus borders and browser fonts are explicit host boundaries. Source-derived candidate only; paired browser execution and pixel qualification remain unverified. Nested tab groups, touch, pointer capture, native, full-image and text parity are not established."
+    },
+    {
+      "id": "tab_stop",
+      "title": "Tab stops and groups",
+      "rust_route": "tab-stop",
+      "source": "crates/gpui/examples/tab_stop.rs",
+      "source_blob": "cc7c34a9979ce4027578ec2c358f503d944ee26f",
+      "moonbit": "not_implemented",
+      "rust": "oracle_only",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Signed tab-index ordering",
+        "Repeated-index source order",
+        "Non-stops",
+        "Nested tab groups",
+        "Forward and reverse wrapping"
+      ],
+      "implementation_note": "Unchanged Rust-only discovery baseline. MoonBit counterpart and browser/native conformance remain unverified; source geometry may overflow the fixed 800\u00d7600 viewport."
     }
   ]
 }
