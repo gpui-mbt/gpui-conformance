@@ -78,6 +78,15 @@ function featureCard(item) {
   result.append(text("span", `${item.evidence_available ? "保存結果 · " : ""}${item.status_label}`, `case-status ${STATUS_CLASSES[item.status] ?? ""}`));
   if (item.result_date) result.append(text("span", item.result_date, "evidence-date"));
   body.append(result, text("p", item.description, "evidence-note"));
+  if (item.thumbnail?.pins) {
+    const provenance = text("p", item.thumbnail.pins_match_current_inventory
+      ? "撮影時の依存 pin（現行ソースの再検証ではありません）: "
+      : "撮影時の依存 pin（現行 inventory とは異なります）: ", "small-note evidence-provenance");
+    for (const pin of item.thumbnail.pins) {
+      provenance.append(link(`${pin.label} · ${pin.revision.slice(0, 8)}`, pin.url), " ");
+    }
+    body.append(provenance);
+  }
 
   const sourceLinks = document.createElement("div");
   sourceLinks.className = "case-links";
@@ -87,7 +96,7 @@ function featureCard(item) {
   body.append(sourceLinks);
   const evidenceLinks = document.createElement("div");
   evidenceLinks.className = "case-links evidence-links";
-  for (const node of [link("保存済み結果", item.result_url), link("元の保存画像", item.thumbnail?.source_url), link("gpui.rs の保存画像", item.thumbnail?.oracle_url), link("撮影記録", item.thumbnail?.provenance_url), link("ライブ比較を開く", item.comparison_url)]) {
+  for (const node of [link("保存済み結果", item.result_url), link("元の保存画像", item.thumbnail?.source_url), link("gpui.rs の保存画像", item.thumbnail?.oracle_url), link("撮影記録", item.thumbnail?.provenance_url), link("撮影時の実装", item.thumbnail?.capture_source_url), link("撮影 run の結果", item.thumbnail?.capture_report_url), link("ライブ比較を開く", item.comparison_url)]) {
     if (node) evidenceLinks.append(node);
   }
   body.append(evidenceLinks);
@@ -175,6 +184,7 @@ function resultItem(item) {
 
 function renderPins(id, pins) {
   const host = document.getElementById(id);
+  if (!host) return;
   host.replaceChildren();
   for (const pin of pins ?? []) {
     const item = link(`${pin.label} · ${pin.revision.slice(0, 8)}`, pin.url);
@@ -184,6 +194,7 @@ function renderPins(id, pins) {
 
 function setLink(id, label, href) {
   const node = document.getElementById(id);
+  if (!node) return;
   if (!href) {
     node.hidden = true;
     return;
@@ -218,8 +229,14 @@ async function init() {
 
   document.getElementById("browser-metric").textContent = `${data.browser.changed_pixels} / ${data.browser.total_pixels} pixels different`;
   document.getElementById("browser-detail").textContent = `${data.browser.example_id} の実行 ${data.browser.execution} · pixel 差分 ${data.browser.changed_percent}% · native parity ${data.browser.native_conformance}`;
-  document.getElementById("browser-date").textContent = `保存済み証拠の日付: ${data.browser.result_date} · 画像同一ではありません`;
+  document.getElementById("browser-date").textContent = `保存済み証拠の日付: ${data.browser.result_date} · 以下は撮影時の依存 pin · 現行ソースの再検証ではありません`;
   renderPins("browser-pins", data.browser.pins);
+  const currentNote = document.getElementById("browser-current-note");
+  if (currentNote) currentNote.textContent = data.browser.current_pins
+    ? `現行 inventory の依存 pin · 保存 run ${data.browser.pins_match_current_inventory ? "と同じ pin" : "とは異なる pin"} · 現行ソースの比較は未検証`
+    : "現行 inventory の依存 pin はこの保存データに含まれていません。";
+  renderPins("browser-current-pins", data.browser.current_pins);
+  setLink("browser-inventory", "現行 inventory", data.browser.inventory_url);
   setLink("browser-result", "browser 結果 JSON", data.browser.result_url);
   setLink("browser-details", "差分の内訳", data.browser.details_url);
 
