@@ -79,6 +79,8 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
                     "lab_tracked_dirty": bool(run(["git", "status", "--porcelain", "--untracked-files=no"], WEB.parent, True)),
                     "compiler": version, "runtime_sha256": hashlib.sha256(runtimes["hello_world"].read_bytes()).hexdigest(),
                     "font_sha256": hashlib.sha256((font_dir / "IBMPlexSans-Regular.ttf").read_bytes()).hexdigest(),
+                    "font_sha256_by_file": {name: hashlib.sha256((font_dir / name).read_bytes()).hexdigest()
+                                            for name in ["IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf"]},
                     "implemented": list(runtimes),
                     "runtime_sha256_by_example": {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in runtimes.items()}, "rust_bundled": False,
                     "comparison_status": "unverified", "moonbit_unit_tests": "passed"}
