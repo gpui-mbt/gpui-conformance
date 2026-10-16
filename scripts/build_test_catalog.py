@@ -35,227 +35,49 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-
-LAYER_LABELS = {
-    "headless-layout": ("Headless · layout", "Layout", "固定配置、flex、wrap、min/max のレイアウト比較"),
-    "headless-dispatch": ("Headless · input", "Input / event dispatch", "pointer・key・focus・route の配送比較"),
-    "headless-scene": ("Headless · scene", "Scene", "描画シーンの構成比較"),
-    "headless-clip": ("Headless · clip", "Clipping", "入れ子クリップの比較"),
-    "native-window": ("Native · window", "Native window", "ネイティブウィンドウのライフサイクル"),
-    "native-gpu": ("Native · GPU", "Native GPU", "ネイティブGPU出力の観測"),
-    "native-ime": ("Native · IME", "Native IME", "IME合成入力"),
-}
-STATUS_LABELS = {
-    "pass": "一致 · pass",
-    "mismatch": "差分 · mismatch",
-    "difference": "差分 · different",
-    "unsupported": "未対応 · unsupported",
-    "unverified": "未検証 · unverified",
-}
-
-
-def load_json(path: str) -> dict[str, Any]:
-    return json.loads((ROOT / path).read_text(encoding="utf-8"))
-
-
-def pixel_status(recorded_status: str | None) -> str:
-    return {"equal": "pass", "different": "difference"}.get(recorded_status, "unverified")
-
-
-def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any]) -> None:
-    """Fail closed if inventory metadata drifts from the retained browser build."""
-    build = browser["build"]
-    for key in ("upstream", "moonbit"):
-        recorded = build.get(key, {})
-        declared = inventory.get(key, {})
-        if recorded.get("repository") != declared.get("repository") or recorded.get("revision") != declared.get("revision"):
-            raise ValueError(f"browser {key} pin in examples.json differs from retained result")
-
-    recorded_implemented = set(build.get("implemented", []))
-    declared_implemented = {
-        example["id"] for example in inventory.get("examples", [])
-        if example.get("moonbit") == "implemented"
-    }
-    if recorded_implemented != declared_implemented:
-        raise ValueError("implemented browser examples differ from the retained result")
-
-
-def normalize_browser_lab_base_url(value: Any) -> str | None:
-    """Accept only an explicit HTTPS root URL for this worker; unset stays disabled."""
-    if value is None:
-        return None
-    if not isinstance(value, str):
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a string URL")
-
-    candidate = value.strip()
-    if not candidate:
-        return None
-    if any(char.isspace() or ord(char) < 0x20 for char in candidate):
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain whitespace or control characters")
-    if "?" in candidate or "#" in candidate:
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a root URL without query or fragment")
-
-    try:
-        parsed = urlsplit(candidate)
-        hostname = parsed.hostname
-        port = parsed.port
-    except ValueError as error:
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} is not a valid URL") from error
-
-    if parsed.scheme.lower() != "https" or not hostname:
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must use HTTPS")
-    if parsed.username is not None or parsed.password is not None or port is not None:
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain credentials or a port")
-    if parsed.path not in ("", "/") or parsed.query or parsed.fragment:
-        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be the worker root without a path, query, or fragment")
-
-    labels = hostname.lower().split(".")
-    account_label = labels[1] if len(labels) == 4 else ""
-    if (
-        len(labels) != 4
-        or labels[0] != BROWSER_LAB_WORKER_NAME
-        or labels[2:] != ["workers", "dev"]
-        or not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", account_label)
-    ):
-        raise ValueError(
-            f"{BROWSER_LAB_BASE_URL_ENV} must match "
-            f"https://{BROWSER_LAB_WORKER_NAME}.<account>.workers.dev root URL"
-        )
-    return f"https://{hostname.lower()}"
-
-
-def browser_lab_comparison_url(example_id: str, implemented: bool, base_url: str | None) -> str | None:
-    """Link only the implemented static hello_world sample to the live lab."""
-    if example_id != "hello_world" or not implemented:
-        return None
-    normalized_base_url = normalize_browser_lab_base_url(base_url)
-    if normalized_base_url is None:
-        return None
-    return f"{normalized_base_url}/?example=hello_world"
-
-
-def recorded_date(path: str) -> str:
-    match = re.search(r"(20\d{6})", Path(path).name)
-    if not match:
-        match = re.search(r"(20\d{6})", path)
-    if not match:
-        return ""
-    return datetime.strptime(match.group(1), "%Y%m%d").date().isoformat()
-
-
-def source_url(revision: str, path: str, line: int | None = None) -> str:
-    suffix = f"#L{line}" if line else ""
-    return f"{REPO_URL}/blob/{revision}/{path}{suffix}"
-
-
-def line_for_id(path: str, case_id: str) -> int | None:
-    pattern = re.compile(r'^\s*"id"\s*:\s*"' + re.escape(case_id) + r'"\s*,?\s*$')
-    for number, line in enumerate((ROOT / path).read_text(encoding="utf-8").splitlines(), start=1):
-        if pattern.match(line):
-            return number
-    return None
-
-
-def current_revision() -> str:
-    explicit = os.environ.get("CATALOG_REVISION") or os.environ.get("GITHUB_SHA")
-    if explicit:
-        return explicit
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL
-        ).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "main"
-
-
-def build_catalog(revision: str | None = None) -> dict[str, Any]:
-    revision = revision or current_revision()
-    evidence = load_json(RESULT_PATH)
-    positive = next(
-        run for run in evidence["full_corpus_preservation_check"]["positive_and_negative_control_runs"]
-        if run["name"] == "cross-axis-final-positive"
-    )
-    comparison = positive["comparison"]
-    case_results = {item["id"]: item for item in comparison["cases"]}
-
-    # Reconstruct the combined file in the same registry order used by the
-    # recorded run. The digest prevents old results from being attached to
-    # edited scenario inputs with unchanged IDs.
-    combined_cases = []
-    for path in SCENARIO_FILES:
-        combined_cases.extend(load_json(path)["cases"])
-    combined_bytes = (
-        json.dumps({"schema_version": 1, "cases": combined_cases}, ensure_ascii=False, indent=2) + "\n"
-    ).encode("utf-8")
-    combined_sha = hashlib.sha256(combined_bytes).hexdigest()
-    if combined_sha != positive.get("scenarios_sha256"):
-        raise ValueError("current scenario registries do not match the retained run input digest")
-
-    # The eight headless registries are distinct from native_scenarios.json.
-    # Two generic native placeholders in scenarios.json share IDs with the
-    # dedicated native cases but intentionally have different inputs.
-    catalog_cases: dict[str, dict[str, Any]] = {}
-    for path in SCENARIO_FILES:
-        for case in load_json(path)["cases"]:
-            case_id = case["id"]
-            if case_id in catalog_cases:
-                raise ValueError(f"duplicate ID among headless registries: {case_id}")
-            catalog_cases[case_id] = {"case": case, "path": path}
-
-    if set(catalog_cases) != set(case_results):
-        missing = sorted(set(catalog_cases) - set(case_results))
-        extra = sorted(set(case_results) - set(catalog_cases))
-        raise ValueError(f"scenario/result IDs differ; missing results={missing}; extra results={extra}")
-
-    result_source = source_url(revision, RESULT_PATH)
-    cases: list[dict[str, Any]] = []
-    by_layer: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for case_id, entry in catalog_cases.items():
-        case = entry["case"]
-        result = case_results[case_id]
-        if case.get("layer") != result.get("layer"):
-            raise ValueError(f"layer differs between scenario and result for {case_id}")
-        path = entry["path"]
-        line = line_for_id(path, case_id)
-        layer, category, description = LAYER_LABELS.get(
-            case.get("layer"), (case.get("layer", "other"), case.get("layer", "other"), "")
-        )
-        status = result["status"]
-        item = {
-            "id": case_id,
-            "status": status,
-            "status_label": STATUS_LABELS[status],
-            "layer": case.get("layer", "other"),
-            "layer_label": layer,
-            "category": category,
-            "kind": case.get("kind", "scenario"),
-            "source_path": path,
-            "source_url": source_url(revision, path, line),
-            "result_url": result_source,
-            "result_date": recorded_date(RESULT_PATH),
-            "description": description,
-            "interactive": False,
-            "comparison_url": None,
-            "suite_type": "headless",
-        }
-        cases.append(item)
-        by_layer[item["layer"]].append(item)
-
-    counts = Counter(item["status"] for item in cases)
-    report_counts = comparison["summary"]
-    for status in ("pass", "mismatch", "unsupported", "unverified"):
-        if counts.get(status, 0) != report_counts.get(status, 0):
-            raise ValueError(f"catalog {status} count does not match the retained comparison")
-
-    # Native cases have a separate registry and a historical passing run. That
-    # run used a different gpui.mbt revision from the current pin, so the current
-    # catalog status remains unverified while preserving the older evidence.
-    native_registry_bytes = (ROOT / NATIVE_SCENARIO_PATH).read_bytes()
-    native_scenarios_sha = hashlib.sha256(native_registry_bytes).hexdigest()
-    native_result = load_json(NATIVE_RESULT_PATH)
-    native_positive = native_result["executions"]["native-merged-positive"]["comparison"]
-    native_report_sha = native_positive.get("scenarios_sha256")
-    native_statuses = {item["id"]: item["status"] for item in native_positive["cases"]}
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout"})
+# This legacy result contains one raster comparison, for hello_world only.
+# build.implemented describes build capability, never per-example evidence.
+BROWSER_RESULT_EXAMPLE_ID = "hello_world"
+BROWSER_THUMBNAIL_SOURCE = "web/evidence/20261016/moonbit.png"
+BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
+BROWSER_FEATURES = {
+    "hello_world": {
+        "title": "基本レイアウトと描画",
+        "tags": ["Flex 配置", "色", "角丸・破線", "テキスト"],
+        "implementation_note": "角丸・破線・影の描画は Canvas host の拡張です。保存結果はこの構成での比較です。",
+        "description": "中央寄せの挨拶と 6 色の四角。gap、角丸、破線の境界を含む静的な例です。",
+    },
+    "text_layout": {
+        "title": "文字の整列と装飾",
+        "tags": ["テキスト", "左・中央・右寄せ", "下線・取消線", "nowrap", "太字・斜体"],
+        "implementation_note": "gpui.mbt の layout と SceneSnapshot を使用。文字スタイル・装飾は Canvas host の拡張で、描画一致は未検証です。",
+        "description": "800×600 の静的な例。文字の整列、下線、取消線、折り返さない文字列、太字と斜体を扱います。",
+    },
+    "text": {
+        "title": "文字スタイルと行間",
+        "tags": ["テキスト", "文字サイズ", "行間", "フォント切替"],
+        "description": "文字サイズ、行間、type scale を組み合わせた上流の文字スタイル例です。",
+    },
+    "text_wrapper": {
+        "title": "折り返しと省略表示",
+        "tags": ["テキスト", "折り返し", "省略記号", "多言語"],
+        "description": "長い単語、URL、日本語・中国語を含む文章の折り返しと省略を扱う上流の例です。",
+    },
+    "input": {
+        "title": "文字入力と選択",
+        "tags": ["入力", "選択", "クリップボード", "IME"],
+        "description": "編集、文字選択、コピー・貼り付け、合成入力を扱う上流のテキスト入力例です。",
+    },
+    "dynamic_fonts": {
+        "title": "動的フォント読み込み",
+        "tags": ["フォント", "多言語", "非同期読み込み"],
+        "description": "不足グリフを検知し、Devanagari フォントをダウンロードして再描画する上流の例です。",
+    },
+    "hello_web": {
+        "title": "バックグラウンド計算",
+        "tags": ["非同期処理", "素数計算", "操作 UI"],
+        "description": "素数の計算をバックグラウンドで進める…2825 tokens truncated…es = {item["id"]: item["status"] for item in native_positive["cases"]}
     if native_report_sha != native_scenarios_sha:
         raise ValueError("native scenario inputs do not match the retained native evidence")
     current_candidate = load_json("pins.json")["moonbit"]["revision"]
@@ -308,34 +130,82 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     browser_build = browser["build"]
     browser_upstream = browser_build["upstream"]
     browser_moonbit = browser_build["moonbit"]
-    browser_implemented = set(browser_build["implemented"])
     raster = browser["raster_comparison"]
     browser_status = pixel_status(raster.get("status"))
     changed = raster["changed_pixels"]
     total = raster["total_pixels"]
     examples = browser_inventory
     upstream_revision = browser_upstream["revision"]
+    # Preserve the saved image bytes exactly; the catalog only scales its display.
+    thumbnail_sha = raster.get("sha256", {}).get("moonbit.png")
+    for path in (BROWSER_THUMBNAIL_SOURCE, BROWSER_THUMBNAIL_ASSET):
+        if not thumbnail_sha or hashlib.sha256((ROOT / path).read_bytes()).hexdigest() != thumbnail_sha:
+            raise ValueError(f"browser thumbnail does not match the retained screenshot digest: {path}")
     browser_examples = []
     for example in examples["examples"]:
-        implemented = example["id"] in browser_implemented
-        status = browser_status if implemented else "unsupported"
+        example_id = example["id"]
+        implemented = example.get("moonbit") == "implemented"
+        has_evidence = example_id == BROWSER_RESULT_EXAMPLE_ID
+        status = browser_status if has_evidence else ("unverified" if implemented else "unsupported")
+        features = BROWSER_FEATURES.get(example_id, {
+            "title": example["title"], "tags": [], "description": "上流に登録された example です。",
+        })
+        implementation_path = example.get("candidate_source", f"web/moonbit/{example_id}/{example_id}.mbt") if implemented else None
+        result_url = source_url(revision, BROWSER_RESULT_PATH) if has_evidence else None
+        if has_evidence:
+            evidence_note = f"保存済みの hello_world 比較では実行 {browser['overall']}、画像は {STATUS_LABELS[browser_status]}。他の例の検証結果ではありません。"
+        elif implemented:
+            evidence_note = "gpui.mbt の実装あり。この例の保存済み比較結果・画像はなく、描画の一致は未検証です。"
+        else:
+            evidence_note = "gpui.mbt 未実装。タグと説明は上流ソースの機能を示し、検証済みの機能を示すものではありません。"
         browser_examples.append({
-            "id": example["id"],
+            "id": example_id,
             "title": example["title"],
+            "feature_title": features["title"],
+            "feature_tags": features["tags"],
+            "source_features": example.get("features", []),
+            "source_description": features["description"],
+            "description": evidence_note,
             "status": status,
             "status_label": STATUS_LABELS[status],
+            "source_path": example["source"],
             "source_url": f"https://github.com/{examples['upstream']['repository']}/blob/{upstream_revision}/{example['source']}",
+            "source_revision": upstream_revision,
             "inventory_url": source_url(revision, "web/examples.json"),
             "implemented": implemented,
+            "implementation": {
+                "status": "implemented" if implemented else "not_implemented",
+                "label": "gpui.mbt 実装あり" if implemented else "gpui.mbt 未実装",
+                "source_url": source_url(revision, implementation_path) if implementation_path else None,
+                "note": features.get("implementation_note", example.get("implementation_note")) if implemented else None,
+            },
             "interactive": bool(example.get("interactive", False)),
-            # The live lab currently hosts a static hello_world sample, not an
-            # interactive example. Keep the link opt-in and limited to that port.
-            "comparison_url": browser_lab_comparison_url(example["id"], implemented, browser_lab_base_url),
+            "width": example.get("width"),
+            "height": example.get("height"),
+            "evidence_available": has_evidence,
+            "result_url": result_url,
+            "result_date": recorded_date(BROWSER_RESULT_PATH) if has_evidence else None,
+            "execution": browser["overall"] if has_evidence else "unverified",
+            "changed_pixels": changed if has_evidence else None,
+            "total_pixels": total if has_evidence else None,
+            "thumbnail": {
+                "url": "./assets/hello_world-moonbit-20261016.png",
+                "source_url": source_url(revision, BROWSER_THUMBNAIL_SOURCE),
+                "sha256": thumbnail_sha,
+                "alt": "保存済み hello_world の gpui.mbt 実描画。灰色の背景、挨拶と 6 色の四角。",
+                "caption": "gpui.mbt の保存画像 · 2026-10-16 · 500×500",
+                "width": raster["width"],
+                "height": raster["height"],
+            } if has_evidence else None,
+            "comparison_url": browser_lab_comparison_url(example_id, implemented, browser_lab_base_url),
             "suite_type": "browser",
         })
 
     native_ax = load_json(AX_STATUS_PATH)
     browser_run = {
+        "example_id": BROWSER_RESULT_EXAMPLE_ID,
+        "implemented_count": sum(example["implemented"] for example in browser_examples),
+        "evidence_count": sum(example["evidence_available"] for example in browser_examples),
         "status": browser_status,
         "status_label": STATUS_LABELS[browser_status],
         "execution": browser["overall"],
@@ -368,7 +238,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         "title": "GPUI Conformance Test Catalog",
         "revision": revision,
         "generated_from": "registered scenario JSON, retained comparison JSON, browser example inventory, and native observer status",
-        "scope_note": "記録済みの結果を一覧化したものです。表示日は保存済みファイル名の日付で、再実行日時や最新性は示しません。headless の一致はブラウザー描画やネイティブ動作の同等性を意味しません。",
+        "scope_note": "上流 example、gpui.mbt の実装状況、保存済みの比較結果をまとめたカタログです。表示日は保存済みファイル名の日付で、再実行日時や最新性は示しません。headless の一致はブラウザー描画やネイティブ動作の同等性を意味しません。",
         "registered_case_count": len(cases),
         "native_case_count": len(native_cases),
         "counts": {status: counts.get(status, 0) for status in ("pass", "mismatch", "unsupported", "unverified")},

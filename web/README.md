@@ -32,13 +32,35 @@ shader. Exact border coverage, the Canvas shadow kernel, font measurement,
 shaping and rasterization remain unqualified. A matching scene or screenshot
 of the candidate alone does not yield a conformance pass.
 
+## Implemented port: `text_layout`
+
+The second port follows the unchanged pinned `crates/gpui/examples/text_layout.rs`.
+Its source blob is recorded in `examples.json`. The 800×600 logical viewport,
+16-pixel padding, 8-pixel gaps, left/center/right alignment, underline and
+strikethrough rows, two blue bordered nowrap boxes, and styled `ABCD` are retained.
+The first letter requests weight 800 and `C` italic, using the same bundled IBM
+Plex Sans faces as upstream (the closest bundled bold face is SemiBold).
+
+`moonbit/text_layout/text_layout.mbt` constructs a real gpui.mbt Element tree
+and emits SceneSnapshot text items and clip chains. Browser-measured text widths
+are inputs; candidate layout computes the positions. Because this pinned gpui.mbt
+only has start/center/end justification, a flexible spacer composes the two-box
+`justify_between` layout. This is an example port, not a new library API claim.
+Font metrics, weight/style, and decoration drawing are explicit Canvas host
+extensions. Decoration formulas follow the pinned GPUI text renderer, but font
+shaping, rasterization, exact pixel equality and native parity remain unverified.
+
+The retained hello_world screenshot measurements apply only to hello_world.
+The catalog labels text_layout as implemented but unverified until its own
+retained comparison evidence exists. The build and E2E execute both real pairs,
+and retain separate text_layout candidate/Rust images and candidate scene output.
+
 ## Other upstream examples
 
-`text`, `text_layout`, `text_wrapper`, `input`, `dynamic_fonts`, and
-`hello_web` (Prime sieve) are listed using their real upstream names and source
-paths. They are **not implemented** in MoonBit yet. Selecting one clears both
-old runtimes and shows the missing-port state; it never loads a substitute.
-Text input must eventually cover editing, selection and IME independently,
+`text`, `text_wrapper`, `input`, `dynamic_fonts`, and `hello_web` (Prime sieve)
+retain their real upstream names and source paths. They remain marked
+**gpui.mbt not implemented**. Selecting one clears both old runtimes; it never
+loads a substitute. Text input needs editing, selection and IME independently,
 and Prime sieve must execute real background work rather than replay counts.
 
 ## Build and verify the actual pair
@@ -56,9 +78,9 @@ python3 web/scripts/serve.py _build/browser-lab
 ```
 
 Open `http://127.0.0.1:8080/`. Rust WASM is under `rust/`; MoonBit JS is
-under `moonbit/`. Both iframe URLs use the same origin and fixed 500×500
-logical viewports. There is no external runtime URL or substitute Rust image.
-The Rust loader compiles and starts the actual upstream `hello_world` binary
+under `moonbit/`. Both iframe URLs use the same origin and the selected upstream logical viewport
+(500×500 for hello_world, 800×600 for text_layout). There is no external runtime URL or substitute Rust image.
+The Rust loader compiles and starts the actual upstream `hello_world` and `text_layout` binaries
 from the standalone `crates/gpui_web/examples/hello_web/Cargo.toml`. Rust
 source and upstream platform/renderer implementations remain unchanged.
 Builds use disposable archives; original source checkouts remain read-only.
@@ -89,12 +111,12 @@ probes only establish browser delivery and unchanged static color probes;
 they do not establish GPUI application event semantics. This upstream example
 has no interactive application controls.
 
-The generated test catalog can link its `hello_world` entry to this live lab
+The generated test catalog can link its implemented entries to this live lab
 when the GitHub Actions repository variable
 `CATALOG_BROWSER_LAB_BASE_URL` is set to the verified worker root URL. Leave the
 variable unset until the deployment URL is confirmed. The catalog link opens
 the static sample at `/?example=hello_world`; it does not make the sample
-interactive. Other examples remain unlinked until their MoonBit ports exist.
+interactive. text_layout links to its own static pair; missing ports remain unlinked.
 
 `result.json` separates overall execution, candidate, Rust, verified items,
 unverified items and exact screenshot pixel differences. A missing Rust
@@ -104,7 +126,7 @@ Differences are measured without tolerance or masking and are never promoted
 to native conformance. Captures are integer-coordinate 500×500 browser page
 regions, without image rescaling; raw canvas bounds, clip coordinates and
 equal fractional offsets are recorded. They are not intrinsic canvas readbacks.
-Text shaping, exact border coverage, shadows, other
+Text shaping, exact border coverage, shadows, unimplemented
 examples, IME, hardware GPU browsers and native parity remain separate work.
 
 [The pixel investigation](PIXEL_ANALYSIS_20261016.md) accounts for all 1,641

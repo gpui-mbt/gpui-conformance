@@ -4,20 +4,47 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <meta name="description" content="gpui-conformance の登録済みシナリオと保存済み比較結果の一覧">
-  <title>GPUI Conformance · Test Catalog</title>
+  <meta name="description" content="GPUI の機能別 example と登録済みシナリオ。実装状況と保存済み比較結果を分けて表示。">
+  <title>GPUI Conformance · Examples &amp; Tests</title>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
   <header class="page-header">
     <p class="eyebrow">GPUI CONFORMANCE</p>
-    <h1>Test Catalog</h1>
-    <p class="lede">登録済みテストと保存済み結果のインデックス</p>
+    <h1>Examples &amp; Tests</h1>
+    <p class="lede">機能から探す example と、保存済みの検証結果</p>
     <p class="scope-note" id="scope-note">カタログを読み込んでいます…</p>
   </header>
 
   <main>
+    <section aria-labelledby="examples-title" class="examples-section">
+      <div class="section-heading">
+        <div>
+          <h2 id="examples-title">機能から探す</h2>
+          <p class="section-intro" id="examples-summary">example を読み込んでいます…</p>
+        </div>
+        <a href="#catalog-title" class="repo-link">全テスト一覧へ</a>
+      </div>
+      <p class="qualification">タグと説明は上流 example が扱う機能です。gpui.mbt の実装状況と保存済み比較結果は別々に表示します。画像は保存された実描画だけを使い、画像がない例はプレビューなしとしています。</p>
+      <form id="example-filters" class="filters example-filters" role="search" aria-label="Example を検索">
+        <label>機能・example を検索
+          <input id="example-search" type="search" autocomplete="off" placeholder="整列、下線、IME、hello_world">
+        </label>
+        <label>gpui.mbt の実装
+          <select id="implementation-filter">
+            <option value="">すべて</option>
+            <option value="implemented">実装あり</option>
+            <option value="not_implemented">未実装</option>
+          </select>
+        </label>
+        <button type="reset">リセット</button>
+      </form>
+      <p class="result-count" id="example-count" role="status" aria-live="polite"></p>
+      <ul class="example-grid" id="example-list" aria-label="機能別 examples"></ul>
+      <p class="empty-state" id="examples-empty" hidden>条件に一致する example はありません。</p>
+    </section>
+
     <section aria-labelledby="overview-title" class="overview">
       <h2 id="overview-title">結果の概要</h2>
       <div class="summary-grid">
@@ -30,7 +57,7 @@
           <a id="headless-result">結果 JSON</a>
         </article>
         <article class="summary-card" aria-labelledby="browser-title">
-          <h3 id="browser-title">Browser · screenshot</h3>
+          <h3 id="browser-title">Browser · hello_world 保存結果</h3>
           <p class="metric" id="browser-metric">—</p>
           <p id="browser-detail">—</p>
           <p class="evidence-date" id="browser-date"></p>
@@ -92,9 +119,9 @@
         <li><a id="scenario-link">シナリオ JSON</a> · 登録された入力条件</li>
         <li><a id="workflow-link">CI workflow</a> · contract / fixture / observer checks</li>
         <li><a id="tests-link">Test source files</a> · harness implementation</li>
-        <li><a id="browser-examples-link">Browser example inventory</a> · Rust と MoonBit の対応状況</li>
+        <li><a id="browser-examples-link">Browser example inventory</a> · 上流ソースと gpui.mbt の実装範囲</li>
       </ul>
-      <p class="small-note">ブラウザー比較リンクは、両方の実装があり、かつ実際に interactive と登録された例だけに表示します。保存済みデータの更新日を実行時刻として扱いません。</p>
+      <p class="small-note">ライブ比較は、gpui.mbt の実装があり、ブラウザー側で対応する例にだけ表示します。確認済み Worker URL の設定が必要です。静的な例を interactive として扱いません。保存済みの証拠は対象 example・pin・日付を限定して表示し、ソースの実装追加だけでは pass にしません。</p>
     </section>
   </main>
   <footer>
