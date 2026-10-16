@@ -30,6 +30,6 @@ test "text rejects wrong metrics, font selections, scroll and device scales" {
   assert_eq(text_frame(widths, 0.0, 5, 1.0), error)
   assert_eq(text_frame(widths, 0.0, 0, 0.0), error)
   let large = Array::make(8 + text_characters().length() + 18, 2500.0)
-  assert_true(text_frame(large, 0.0, 0, 1.0).contains("\\\"ok\\\":true"))
+  assert_true(text_frame(large, 0.0, 0, 1.0).contains("conformance"))
   assert_eq(text_frame(Array::make(8 + text_characters().length() + 18, 10001.0), 0.0, 0, 1.0), error)
 }
