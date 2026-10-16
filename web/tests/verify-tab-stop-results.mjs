@@ -18,6 +18,7 @@ try {
   const reportBytes=await local('tab-stop-rust-result-dpr1.json'),result=JSON.parse(reportBytes);
   verification.discovery_sha256=sha256(reportBytes);
   assert.equal(result.status,'rust_discovery_captured');assert.equal(result.runtime,'rust');assert.equal(result.mode,'discovery');
+  assert.equal(result.profile_revision,'state_specific_geometry_and_moving_edges_v2','Historical failed profiles retain their original labels');
   assert.equal(result.candidate,'not_implemented');assert.equal(result.comparison,'not_run');assert.equal(result.conformance,'not_claimed');
   assert.deepEqual(result.profile,{width:800,height:600,dpr:1});assert.deepEqual(result.errors,[]);
   const buildBytes=await local(result.build_evidence.file),catalogBytes=await local(result.catalog_evidence.file);
@@ -32,7 +33,7 @@ try {
     return value.stdout.trim();
   };
   verification.current_checkout=assertCurrentTabStopBuild(result,{
-    revision:git(['rev-parse','HEAD']),
+    revision:git(['rev-parse','HEAD']),tree:git(['rev-parse','HEAD^{tree}']),
     trackedDirty:git(['status','--porcelain','--untracked-files=no'])!=='',
     catalogBytes:await readFile(resolve('web/examples.json')),
   });

@@ -10,7 +10,7 @@ assert(process.argv.length<=3,'Only a site path is accepted; the profile is fixe
 const site=resolve(process.argv[2]||'_build/tab-stop-browser-lab');
 const evidence=resolve(process.env.BROWSER_EVIDENCE||'_build/tab-stop-oracle-evidence');
 const result={status:'failed',runtime:'rust',candidate:'not_implemented',comparison:'not_run',
-  conformance:'not_claimed',mode:'discovery',profile:{width:800,height:600,dpr:1},
+  conformance:'not_claimed',mode:'discovery',profile_revision:'state_specific_geometry_and_moving_edges_v2',profile:{width:800,height:600,dpr:1},
   source_constraints:SOURCE_CONSTRAINTS,captures:{},operations:[],requests:[],served_requests:[],runtime_responses:[],
   support_files:[],console:[],errors:[],decoder:{name:'Pillow',version:'12.0.0',transport:'Bounded local dimensions + raw RGBA; original PNG bytes unchanged'},
   unverified:['MoonBit counterpart/comparison','native parity','text/OCR or full-image parity',
@@ -135,7 +135,15 @@ try {
   // A failed source-geometry hypothesis cannot erase the complete discovery sequence.
   // It blocks the coordinate-dependent click extension and remains an explicit failure.
   result.discovered_geometry=sourceGeometry(images);
-  await execute(makeProfile(result.discovered_geometry),discovery.operations.length);
+  result.adaptive_plans=[];
+  while(true) {
+    const plan=makeProfile(result.discovered_geometry.frames);
+    result.adaptive_plans.push({through_operation:plan.operations.length,complete:plan.complete,blocked_on_capture:plan.blocked_on_capture||null});
+    assert(plan.operations.length>result.operations.length,'Adaptive source profile must advance using a newly retained current-frame capture');
+    await execute(plan,result.operations.length);
+    result.discovered_geometry=sourceGeometry(images);
+    if(plan.complete)break;
+  }
   await Promise.all(responseTasks);
   for(const path of ['rust/host.mjs','rust/tab_stop.js','rust/tab_stop_bg.wasm','load-timing.mjs'])
     assert(result.runtime_responses.some(response=>response.path===path),`Actual browser response required for ${path}`);

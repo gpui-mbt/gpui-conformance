@@ -50,12 +50,18 @@ DOM active element is transport metadata only. No private diagnostic focus state
 substitute screenshot, candidate renderer or mocked oracle is used.
 
 The root is flex-column, but group divs retain default Block layout. The natural
-content may exceed 600px. Exact vertical positions, shrink behavior and clipping
-have not been observed yet. The runner first retains the entire forward/reverse
-sequence, then derives actual border geometry constrained by source paint order
-and independently detected initial card edges. The coordinate-dependent click
-extension fails closed if those hypotheses do not hold. A failed hypothesis
-retains all prior attempts, the complete operation log and a failure screenshot;
+content may exceed 600px. The first actual run observed flex-shrunk cards and
+fully visible groups. A
+focus border change from 1px to 3px changes flex allocation and rounded card edges;
+rectangles from differently focused screenshots cannot be combined. The corrected
+runner first retains the entire forward/reverse sequence, then independently
+parses all five cards, both ordinary buttons and both groups within each frame.
+It checks source paint identities, exact 12px gaps, black 1px/blue 3px card borders,
+the gray non-stop card, and equal ordinary flex1 inner widths after subtracting
+their own source borders. No observed y/height lookup table defines the oracle.
+The coordinate-dependent click extension is adaptive: each next click uses the
+immediately preceding retained frame's current control bounds. It fails closed
+if that source geometry does not hold. A failed hypothesis retains all prior attempts, the complete operation log and a failure screenshot;
 the Rust source is never changed to make it fit.
 
 ## Isolated CI and retained evidence
@@ -81,8 +87,17 @@ The discovery runner retains:
 bytes. It recomputes geometry, checks physical card positions, hierarchical
 forward/reverse order, wrap, the fourth non-stop card, only the authored click
 listeners, message pixel relations, exact trusted operations and stable samples.
+The revised source profile has 128 operations and 72 capture states. Its three
+moving-edge probes click item0's newly visible 1px bottom edge and el1/el2's new 2px
+ordinary-button edges, deliberately outside frozen initial hit bounds. Each
+retains hover/down/up focus and message evidence plus the next Tab destination.
+Coordinates are derived from independently parsed current frames, not copied
+from the historical capture. These additional click/edge states still require
+actual CI execution.
+
 It does not trust the discovery report's claimed checks or geometry. Strict
-verification also binds the retained build's lab revision to the current Git HEAD,
+verification also binds the retained build's lab revision/tree to actual current
+Git HEAD and HEAD^{tree},
 requires clean tracked files, and hashes the actual current `web/examples.json`
 bytes against the retained catalog hash. Historical artifacts keep their original
 labels and require their exact frozen build checkout for strict verification;
@@ -98,9 +113,32 @@ After a committed build, run:
     BROWSER_EVIDENCE=_build/tab-stop-oracle-evidence PLAYWRIGHT_ROOT=/path/to/pw node web/tests/tab-stop-oracle-browser.mjs _build/tab-stop-browser-lab
     node web/tests/verify-tab-stop-results.mjs _build/tab-stop-oracle-evidence
 
-Status at introduction: source/packaging/comparator unit contracts only. Rust
-build, browser discovery and independent actual-artifact verification have not
-run locally. CI must establish them. A successful source-profile verification
+Status at introduction was source/packaging/comparator unit contracts only.
+The retained first CI run below established a partial Rust discovery prefix;
+the corrected full 72-state source profile remains unexecuted locally and must
+be established by a new actual CI run. A successful source-profile verification
 still makes no claim about a MoonBit counterpart, native parity, exact message
 OCR/text or full-image equality, other browsers/GPUs/viewports/DPRs, touch/IME,
 or directly focused group-container anchors.
+
+## Retained first-run failure and separate correction
+
+[GitHub Actions 38919267792](https://github.com/gpui-mbt/gpui-conformance/actions/runs/38919267792)
+compiled the unchanged Rust binary and retained 27 stable states, 54 original PNG
+samples, 53 operations and 80 events. It failed before the click phase because the
+original comparator combined el1's focused-frame right edge with el2's separate
+focused-frame left edge, manufacturing an 8px gap. Each individual original frame
+has the source-authored 12px gap. Initial-card height equality across focus frames
+was likewise invalid because border widths affect flex shrink/rounding.
+
+The first artifact 12054297704 has SHA-256
+`4f607c244fb609218852165378d9f38c4bf7b34e353725513425e1a065c5b4c3`.
+Its original lab revision is `79b09d1133d650a94c91991ed6c42c03e618d0ff`, tree
+`ae5899e1ebb4a1839e61194a7f85b26b2abc745a`. The original failed report, PNGs,
+operations, runtime/font/source inputs and failure screenshot remain unchanged.
+
+A separate read-only reanalysis with the corrected per-frame parser rehashes and
+decodes all 54 samples and validates the 27-state traversal prefix and its negative
+controls. This is retrospective partial evidence, not a rerun, a relabeled pass,
+a full click/edge profile, or counterpart qualification. Corrected future runs
+carry profile revision `state_specific_geometry_and_moving_edges_v2`.
