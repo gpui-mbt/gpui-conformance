@@ -1,0 +1,180 @@
+{
+  "qualification": "Compiled source mutation checks only; no Rust/browser/native parity evidence",
+  "core_revision": "a2718fcbf92dbbfd53f756642cc95813a402c431",
+  "core_public_equivalent": "eb968228bbea56aff13721dc427875c2dacffc14",
+  "core_tree": "ae9072d350ef6d1546e408226218ec08efc96552",
+  "mutants": [
+    {
+      "name": "frozen_initial_hit_bounds",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "frozen_initial_hit_bounds.log",
+      "log_sha256": "771da7e8ca5412627210fca572597e7ef3c841aed0b14e25b79e68eb1494aeda",
+      "summary": "Total tests: 18, passed: 15, failed: 3.",
+      "failing_tests": [
+        "source focus border changes card inner shrink weights and current-frame rounding",
+        "ordinary button border-box flex bases move both live hit bounds while owners survive redraw",
+        "new one-pixel focused card bottom row routes current geometry and invents no click"
+      ]
+    },
+    {
+      "name": "flattened_group_order",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "flattened_group_order.log",
+      "log_sha256": "a816aa28fb86f36cd9e5fca0a7bcda4cd971faadf46092cc213dec50c381de61",
+      "summary": "Total tests: 18, passed: 12, failed: 6.",
+      "failing_tests": [
+        "original fourteen labels metadata non-stop root and independent group indices",
+        "all twelve destinations use genuine group prefixes repeated-index order and global wrap",
+        "non-stop anchors include group handles inside their own prefix",
+        "ordinary button border-box flex bases move both live hit bounds while owners survive redraw",
+        "new one-pixel focused card bottom row routes current geometry and invents no click",
+        "fresh paint geometry retains pending acquisition and reset forbids old ownership"
+      ]
+    },
+    {
+      "name": "wrong_group_handle_anchor",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "wrong_group_handle_anchor.log",
+      "log_sha256": "d936287d6b4c108f974565c3b3234c320c9faf2e3867523ed7dfecfb5939af4d",
+      "summary": "Total tests: 18, passed: 16, failed: 2.",
+      "failing_tests": [
+        "original fourteen labels metadata non-stop root and independent group indices",
+        "non-stop anchors include group handles inside their own prefix"
+      ]
+    },
+    {
+      "name": "equal_ordinary_button_outer_bases",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "equal_ordinary_button_outer_bases.log",
+      "log_sha256": "9afa160d25f7fc0d3a45f45e4bfaf1e4351b614b7604aa67c28422e8518dd4b3",
+      "summary": "Total tests: 18, passed: 17, failed: 1.",
+      "failing_tests": [
+        "ordinary button border-box flex bases move both live hit bounds while owners survive redraw"
+      ]
+    },
+    {
+      "name": "card_outer_instead_of_inner_shrink",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "card_outer_instead_of_inner_shrink.log",
+      "log_sha256": "a605e2ad9b3e96f9dc3592e4911cdf843b4af7eddd1f490855953ed08f2ecbb0",
+      "summary": "Total tests: 18, passed: 16, failed: 2.",
+      "failing_tests": [
+        "source focus border changes card inner shrink weights and current-frame rounding",
+        "new one-pixel focused card bottom row routes current geometry and invents no click"
+      ]
+    },
+    {
+      "name": "keyboard_only_focus_ring",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "keyboard_only_focus_ring.log",
+      "log_sha256": "4cd2c1f532e8c3adbbb7ab1075ddf77045cac986b09e10e9450c74eaa325d645",
+      "summary": "Total tests: 18, passed: 14, failed: 4.",
+      "failing_tests": [
+        "source focus border changes card inner shrink weights and current-frame rounding",
+        "ordinary button border-box flex bases move both live hit bounds while owners survive redraw",
+        "new one-pixel focused card bottom row routes current geometry and invents no click",
+        "blue three-pixel focus is modality independent while non-stop card remains one-pixel"
+      ]
+    },
+    {
+      "name": "non_stop_card_blue_ring",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "non_stop_card_blue_ring.log",
+      "log_sha256": "6812ef9b49f009e1260b9686bbbc584aa255b121e150a82e6096acb331081dad",
+      "summary": "Total tests: 18, passed: 17, failed: 1.",
+      "failing_tests": [
+        "blue three-pixel focus is modality independent while non-stop card remains one-pixel"
+      ]
+    },
+    {
+      "name": "non_stop_card_in_traversal",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "non_stop_card_in_traversal.log",
+      "log_sha256": "543e1e324df9f8c1530023f38fc2b8b54bd931a0698dba2d5dcf839724e405f2",
+      "summary": "Total tests: 18, passed: 13, failed: 5.",
+      "failing_tests": [
+        "original fourteen labels metadata non-stop root and independent group indices",
+        "all twelve destinations use genuine group prefixes repeated-index order and global wrap",
+        "non-stop anchors include group handles inside their own prefix",
+        "new one-pixel focused card bottom row routes current geometry and invents no click",
+        "fresh paint geometry retains pending acquisition and reset forbids old ownership"
+      ]
+    },
+    {
+      "name": "activation_ignores_owner_aba",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "activation_ignores_owner_aba.log",
+      "log_sha256": "793780eeb46784e335597495a93b8cffcd4be3d74b752053cf6d295f5049a61f",
+      "summary": "Total tests: 18, passed: 17, failed: 1.",
+      "failing_tests": [
+        "focus-away-back ABA cancels activation despite same numeric target"
+      ]
+    },
+    {
+      "name": "fresh_lineage_replaces_live_owner",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "fresh_lineage_replaces_live_owner.log",
+      "log_sha256": "45620322fec33c406113c22d2692403ea069df87e930a07d281b893cf0775d76",
+      "summary": "Total tests: 18, passed: 11, failed: 7.",
+      "failing_tests": [
+        "ordinary button border-box flex bases move both live hit bounds while owners survive redraw",
+        "new one-pixel focused card bottom row routes current geometry and invents no click",
+        "native core Enter waits for release and cross-key activation shares current owner",
+        "fresh paint geometry retains pending acquisition and reset forbids old ownership",
+        "modified and intervening keys cancel activation while repeats keep same owner",
+        "wheel releases and modified Tab preserve focus and do not invent messages",
+        "invalid metrics input and scale changes cannot mutate live ownership or pending gestures"
+      ]
+    },
+    {
+      "name": "keyboard_hover_suppression_removed",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "keyboard_hover_suppression_removed.log",
+      "log_sha256": "edcba0b06c186b460d4d319910c3be9a639e32e4f60cd7611ea856ec88a3039f",
+      "summary": "Total tests: 18, passed: 17, failed: 1.",
+      "failing_tests": [
+        "keyboard modality suppresses retained pointer hover and pending pointer click"
+      ]
+    },
+    {
+      "name": "invented_card_click_callback",
+      "compiled": true,
+      "detected": true,
+      "exit_code": 2,
+      "log": "invented_card_click_callback.log",
+      "log_sha256": "2ec295ce5960b3ec6594a6c6bf86a309c8bc6feef3d3d3ebbdfd22bd3ecb1aaf",
+      "summary": "Total tests: 18, passed: 16, failed: 2.",
+      "failing_tests": [
+        "new one-pixel focused card bottom row routes current geometry and invents no click",
+        "cards disabled card and group buttons have focus but no authored click listeners"
+      ]
+    }
+  ],
+  "restored_exit_code": 0,
+  "recorded_at_utc": "2026-10-16T15:30:03.732323+00:00",
+  "source_sha256": "653cc09712a241625c8a800707bf4c462dd1f3e9ef07941178a095828483db1d",
+  "test_sha256": "5bd4dd4013954d93619d9ca5657fc1ccfdf6fe40ff42c3a20a2146c558e0ff5d",
+  "restored_log_sha256": "8c71a392f6b0e5e5e495f4cb5785083e4c503ff3319676cc1f1844ba6f5a1835"
+}

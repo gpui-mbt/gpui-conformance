@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "61b237b0963c3252736a27293aa1f5b7de3886fa",
-    "tree": "29449e394c0faf2b25beb2a1b6a4bce2806b3231"
+    "revision": "eb968228bbea56aff13721dc427875c2dacffc14",
+    "tree": "ae9072d350ef6d1546e408226218ec08efc96552"
   },
   "examples": [
     {
@@ -202,8 +202,7 @@
       "rust_route": "tab-stop",
       "source": "crates/gpui/examples/tab_stop.rs",
       "source_blob": "cc7c34a9979ce4027578ec2c358f503d944ee26f",
-      "moonbit": "not_implemented",
-      "rust": "oracle_only",
+      "moonbit": "implemented",
       "width": 800,
       "height": 600,
       "interactive": true,
@@ -214,7 +213,8 @@
         "Nested tab groups",
         "Forward and reverse wrapping"
       ],
-      "implementation_note": "Unchanged Rust-only discovery baseline. MoonBit counterpart and browser/native conformance remain unverified; source geometry may overflow the fixed 800\u00d7600 viewport."
+      "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot, core group-prefix traversal and owner-preserving live geometry refresh. Source border-box flex and this bounded Block-group profile are explicitly lowered into existing flex APIs. Shared browser input transport, Canvas border3/shadow_sm and font metrics are host extensions. Paired browser execution, native, GPU shadow-kernel, text and full-image parity remain unverified.",
+      "candidate_source": "web/moonbit/tab_stop/tab_stop.mbt"
     }
   ]
 }

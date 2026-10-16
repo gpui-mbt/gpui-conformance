@@ -1,0 +1,5 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:483 ("focus-away-back ABA cancels activation despite same numeric target") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:496:5-496:50@f4ah6o/gpui FAILED: `"You have clicked Button 2." != "Press `Tab`, `Shift-Tab` to switch focus."`
+diff:
+-"You have clicked Button 2."
++"Press `Tab`, `Shift-Tab` to switch focus."
+Total tests: 18, passed: 17, failed: 1.

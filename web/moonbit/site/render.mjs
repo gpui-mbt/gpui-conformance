@@ -42,10 +42,17 @@ export function validateFrame(frame) {
   }
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
-    // The focus_visible port needs a 4px solid border. Wider dashed strokes
+    // Source focus ports need 3px/4px solid borders. Wider dashed strokes
     // remain unsupported; this is an explicit Canvas host boundary, not a
     // rounded-border addition to the portable SceneSnapshot contract.
-    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width === 4 && Math.min(b.width,b.height) < 8)) throw new Error('Invalid host decoration');
+    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,3,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width > 1 && Math.min(b.width,b.height) < 2*d.border_width)) throw new Error('Invalid host decoration');
+  }
+  if (frame.shadows !== undefined && !Array.isArray(frame.shadows)) throw new Error('Invalid shadow extension');
+  const shadowIds = new Set();
+  for (const shadow of frame.shadows || []) {
+    const b = quads.get(shadow?.id)?.bounds;
+    if (!b || shadow.kind !== 'shadow_sm' || Object.keys(shadow).some(key => !['id','kind'].includes(key)) || shadowIds.has(shadow.id) || Math.min(b.width,b.height) <= 2 || frame.decorations.some(style => style.id === shadow.id && style.shadow)) throw new Error('Invalid shadow extension');
+    shadowIds.add(shadow.id);
   }
   return frame;
 }
@@ -105,6 +112,7 @@ export function drawFrame(context, frame, metadata, scale) {
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
   const roundedFills = new Map((frame.rounded_fills || []).map(style => [style.id, style.radius]));
+  const shadows = new Set((frame.shadows || []).map(style => style.id));
   const textStyles = new Map((frame.text_styles || []).map(style => [style.id, style]));
   const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   context.save();
@@ -152,6 +160,27 @@ export function drawFrame(context, frame, metadata, scale) {
             context.fillRect(b.x, b.y + y, metrics.width, 1);
           }
         } else {
+          if (shadows.has(item.id)) {
+            // Source shadow_sm is two layers, not the legacy preview shadow.
+            // Canvas blur is an explicit approximation of the GPU kernel.
+            // Cast from offscreen and offset back so the opaque caster itself
+            // never darkens the fill. Spread -1 shrinks its box by 1px per edge.
+            for (const [blur,spread] of [[3,0],[2,-1]]) {
+              context.save();
+              try {
+                context.fillStyle = '#000000';
+                context.shadowColor = 'rgba(0,0,0,.1)';
+                // Shadow lengths are device pixels in Canvas, unlike the path.
+                context.shadowBlur = blur*scale;
+                context.shadowOffsetX = 4096*scale;
+                context.shadowOffsetY = scale;
+                context.beginPath();
+                context.roundRect(b.x-spread-4096,b.y-spread,b.width+2*spread,b.height+2*spread,
+                  Math.max(0,(style?.radius || roundedFills.get(item.id) || 0)+spread));
+                context.fill();
+              } finally { context.restore(); }
+            }
+          }
           context.beginPath(); context.roundRect(b.x, b.y, b.width, b.height, style?.radius || roundedFills.get(item.id) || 0);
           if (style?.shadow) {
             // Canvas blur is not the GPUI GPU shadow kernel; never turn this preview into a pixel pass.

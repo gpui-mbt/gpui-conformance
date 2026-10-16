@@ -139,7 +139,7 @@ try {
     assert.deepEqual(await previews.evaluateAll(nodes => nodes.map(node => [node.naturalWidth, node.naturalHeight])),
       [[500, 500], [800, 600], [800, 600], [640, 560]]);
     const data = await page.locator('#catalog-data').evaluate(node => JSON.parse(node.textContent));
-    assert.equal(data.browser.implemented_count, 10);
+    assert.equal(data.browser.implemented_count, 11);
     assert.equal(data.browser.current_status, 'unverified');
     assert.equal(data.browser.changed_pixels, 1532, 'The historical hello_world score must stay unchanged');
     assert.equal(data.browser.pins_match_current_inventory, false);
@@ -147,8 +147,8 @@ try {
       ['upstream', 'moonbit'].map(kind => retainedResult.build[kind].revision));
     assert.deepEqual(data.browser.current_pins.map(pin => pin.revision),
       ['upstream', 'moonbit'].map(kind => inventory[kind].revision));
-    assert.equal(data.browser.current_pins[1].tree, '29449e394c0faf2b25beb2a1b6a4bce2806b3231');
-    assert.equal(data.browser.current_pins[1].revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
+    assert.equal(data.browser.current_pins[1].tree, 'ae9072d350ef6d1546e408226218ec08efc96552');
+    assert.equal(data.browser.current_pins[1].revision, 'eb968228bbea56aff13721dc427875c2dacffc14');
     for (const [id, pins] of [['browser-pins', data.browser.pins], ['browser-current-pins', data.browser.current_pins]]) {
       assert.deepEqual(await page.locator(`#${id} a`).evaluateAll(nodes => nodes.map(node => node.href)), pins.map(pin => pin.url));
     }

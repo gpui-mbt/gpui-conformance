@@ -6,21 +6,23 @@ import { wheelDeltaPixels } from './text-wheel.mjs';
 import { createInputHost } from './input-host.mjs';
 import { createScrollableHost } from './scrollable-host.mjs';
 import { createFocusVisibleHost } from './focus-visible-host.mjs';
+import { createTabStopHost } from './tab-stop-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
   const isText = example === 'text';
   const isTree = example === 'tree';
   const isFocusVisible = example === 'focus_visible';
+  const isTabStop = example === 'tab_stop';
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   if (!isTree) {
@@ -46,6 +48,7 @@ try {
   let dynamicFonts;
   let scrollable;
   let focusVisible;
+  let tabStop;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
     dynamicFonts = createDynamicFontHost({fetchFont: (...args) => fetch(...args), FontFaceType: FontFace, fonts: document.fonts, onChange: () => render()});
@@ -60,7 +63,7 @@ try {
     if (isText) metadata.font_family = families[fontIndex];
     if (!isTree) context.font = `${metadata.font_size}px "${metadata.font_family}"`;
     const content = example === 'hello_web' ? JSON.parse(runtime.hello_web_content())
-      : isFocusVisible ? JSON.parse(runtime.focus_visible_content()) : null;
+      : isFocusVisible || isTabStop ? JSON.parse(runtime[example + '_content']()) : null;
     if (dynamicFonts) metadata.runs[4].text = dynamicFonts.state.message;
     const width = isTree || example === 'input' ? null : content ? content.runs.map(run => {
       context.font = `${run.font_weight || 400} ${run.font_size}px "${metadata.font_family}"`;
@@ -92,7 +95,7 @@ try {
     drawFrame(context, frame, metadata, scale);
     if (isText) { lastFrame=frame; scrollY=frame.scroll.y; }
     // Expose actual candidate output for inspection, never fabricated oracle results.
-    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, ...(prime ? {workers:prime.diagnostics} : {}) } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}), ...(focusVisible ? {focusVisibleEvents:focusVisible.events} : {}) };
+    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, ...(prime ? {workers:prime.diagnostics} : {}) } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}), ...(focusVisible ? {focusVisibleEvents:focusVisible.events} : {}), ...(tabStop ? {tabStopEvents:tabStop.events} : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
@@ -105,6 +108,10 @@ try {
   if (isFocusVisible) {
     focusVisible = createFocusVisibleHost({runtime,canvas,render});
     window.addEventListener('pagehide', () => focusVisible.stop(), {once:true});
+  }
+  if (isTabStop) {
+    tabStop = createTabStopHost({runtime,canvas,render});
+    window.addEventListener('pagehide', () => tabStop.stop(), {once:true});
   }
   if (isText) {
     canvas.tabIndex=0;

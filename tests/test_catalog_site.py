@@ -87,9 +87,9 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 11)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 1)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 9)
-        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable", "focus_visible"])
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 0)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 10)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable", "focus_visible", "tab_stop"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
@@ -111,7 +111,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible"}
+            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop"}
         ))
 
     def test_typography_is_interactive_without_inheriting_hello_world_evidence(self):
@@ -192,26 +192,27 @@ class TestCatalogData(unittest.TestCase):
         self.assertIsNone(browser_lab_comparison_url("focus_visible", False, base))
         self.assertIsNone(browser_lab_comparison_url("focus-visible", True, base))
 
-    def test_tab_stop_is_rust_only_without_borrowed_measurements_or_live_pair(self):
-        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: "https://gpui-conformance-browser-lab.account.workers.dev"}):
+    def test_tab_stop_candidate_has_no_borrowed_measurements_or_preview(self):
+        base = "https://gpui-conformance-browser-lab.account.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
             port = next(example for example in build_catalog("tab-stop-source-contract")["browser_examples"] if example["id"] == "tab_stop")
-        self.assertFalse(port["implemented"])
-        self.assertEqual(port["implementation"]["status"], "not_implemented")
+        self.assertTrue(port["implemented"])
+        self.assertEqual(port["implementation"]["status"], "implemented")
         self.assertEqual(port["source_path"], "crates/gpui/examples/tab_stop.rs")
         self.assertEqual((port["width"], port["height"], port["interactive"]), (800, 600, True))
-        self.assertEqual(port["status"], "unsupported")
+        self.assertEqual(port["status"], "unverified")
         self.assertEqual(port["execution"], "unverified")
         self.assertFalse(port["evidence_available"])
-        for key in ("comparison_url", "result_url", "result_date", "changed_pixels", "thumbnail", "evidence_scope"):
+        self.assertEqual(port["comparison_url"], f"{base}/?example=tab_stop")
+        for key in ("result_url", "result_date", "changed_pixels", "thumbnail", "evidence_scope"):
             self.assertIsNone(port[key], key)
-        self.assertIsNone(port["implementation"]["source_url"])
-        self.assertIsNone(browser_lab_comparison_url("tab_stop", True, "https://gpui-conformance-browser-lab.account.workers.dev"))
+        self.assertTrue(port["implementation"]["source_url"].endswith("tab-stop-source-contract/web/moonbit/tab_stop/tab_stop.mbt"))
 
     def test_current_browser_pin_and_nine_core_two_web_classifications(self):
         inventory = load_json("web/examples.json")
         self.assertEqual(inventory["upstream"]["revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
-        self.assertEqual(inventory["moonbit"]["revision"], "61b237b0963c3252736a27293aa1f5b7de3886fa")
-        self.assertEqual(inventory["moonbit"]["tree"], "29449e394c0faf2b25beb2a1b6a4bce2806b3231")
+        self.assertEqual(inventory["moonbit"]["revision"], "eb968228bbea56aff13721dc427875c2dacffc14")
+        self.assertEqual(inventory["moonbit"]["tree"], "ae9072d350ef6d1546e408226218ec08efc96552")
         self.assertEqual(sum(e["source"].startswith("crates/gpui/examples/") for e in inventory["examples"]), 9)
         self.assertEqual({e["id"] for e in inventory["examples"] if e["source"].startswith("crates/gpui_web/examples/")},
                          {"dynamic_fonts", "hello_web"})
@@ -378,7 +379,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(data["browser"]["pins_match_current_inventory"])
         self.assertEqual(data["browser"]["current_status"], "unverified")
         self.assertEqual(data["browser"]["pins"], self.data["browser"]["pins"])
-        self.assertEqual(sum(example["status"] == "unverified" for example in data["browser_examples"]), 9)
+        self.assertEqual(sum(example["status"] == "unverified" for example in data["browser_examples"]), 10)
 
     def test_each_retained_report_requires_its_own_measured_port(self):
         inventory = load_json("web/examples.json")
@@ -452,7 +453,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 10)
+        self.assertEqual(self.data["browser"]["implemented_count"], 11)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -482,7 +483,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 147)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible"},
+            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):
@@ -495,7 +496,7 @@ class TestCatalogData(unittest.TestCase):
             side_effect=lambda path: inventory if path == "web/examples.json" else real_load(path),
         ):
             examples = build_catalog("unimplemented-fixture")["browser_examples"]
-        self.assertEqual([example["id"] for example in examples if not example["implemented"]], ["focus_visible", "tab_stop"])
+        self.assertEqual([example["id"] for example in examples if not example["implemented"]], ["focus_visible"])
         for example in examples:
             if example["implemented"]:
                 continue

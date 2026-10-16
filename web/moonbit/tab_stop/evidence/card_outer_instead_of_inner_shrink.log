@@ -1,0 +1,3 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:185 ("source focus border changes card inner shrink weights and current-frame rounding") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:85:3-88:4@f4ah6o/gpui FAILED: unexpected bounds for 10
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:280 ("new one-pixel focused card bottom row routes current geometry and invents no click") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:288:3-288:39@f4ah6o/gpui FAILED: `false` is not true
+Total tests: 18, passed: 16, failed: 2.
