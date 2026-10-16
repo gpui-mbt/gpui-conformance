@@ -69,6 +69,11 @@ try {
   await page.addInitScript(()=>{
     // Read-only transport observation. No fabricated application state or scroll API.
     globalThis.scrollableOracleEvents=[];
+    globalThis.scrollableOraclePointers=[];
+    for(const type of ['pointermove','pointerleave'])addEventListener(type,event=>{
+      globalThis.scrollableOraclePointers.push({type,x:event.clientX,y:event.clientY,
+        trusted:event.isTrusted,target:event.target.tagName,pointerType:event.pointerType,time:performance.now()});
+    },{capture:true,passive:true});
     addEventListener('wheel',event=>{
       const entry={type:'wheel',x:event.clientX,y:event.clientY,deltaX:event.deltaX,deltaY:event.deltaY,
         deltaMode:event.deltaMode,trusted:event.isTrusted,target:event.target.tagName,time:performance.now(),defaultPrevented:null};
@@ -142,23 +147,43 @@ try {
   const initial=inspectInitial(initialUnhover,dpr);result.initial=initial;
   const g=initial.geometry.green,inside={x:100,y:g.y+75};
   await move(inside.x,inside.y);
-  const initialHover=await capture('initial_hover',image=>assertHover(initialUnhover,image,initial,dpr));
+  // This source's hover child is anonymous: pointer moves update hitboxes but
+  // cannot notify persistent hover state. A genuine parent wheel notification
+  // redraws it. At the top boundary the prepaint clamp restores the same layout.
+  const moveOnly=await capture('pointer_only',image=>assertUnchanged(initialUnhover,image,dpr));
+  const pointerDelivery=await page.evaluate(()=>scrollableOraclePointers);
+  for(const point of [{x:8,y:300},inside])assert(pointerDelivery.some(event=>
+    event.type==='pointermove'&&event.trusted&&event.target==='CANVAS'&&
+    event.pointerType==='mouse'&&event.x===point.x&&event.y===point.y),
+    `Trusted pointer delivery required at ${point.x},${point.y}`);
+  result.checks.initial_pointer_delivery={status:'passed',events:pointerDelivery};
+  result.checks.anonymous_pointer_no_redraw=assertUnchanged(initialUnhover,moveOnly,dpr);
+  const initialHover=await wheel('initial_hover',inside.x,inside.y,0,-1,image=>{
+    // A new background can change antialiased neutral-ink thresholds. Compare
+    // opaque border layout here, keeping strict ink-shape checks for scrolling
+    // between frames with the same hover fill below.
+    assert.deepEqual(inspectInitial(image,dpr).geometry,initial.geometry);
+    return assertHover(initialUnhover,image,initial,dpr);
+  });
   result.checks.initial_hover=assertHover(initialUnhover,initialHover,initial,dpr);
   const x12=await wheel('x12',inside.x,inside.y,12,0,image=>assertTranslation(initialHover,image,initial,{afterX:-12},dpr));
   result.checks.horizontal=assertTranslation(initialHover,x12,initial,{afterX:-12},dpr);
   await move(g.x-4,inside.y);
-  const x12Unhover=await capture('x12_unhover',image=>{
+  await capture('clipped_pointer_only',image=>assertUnchanged(x12,image,dpr));
+  const x12Unhover=await wheel('x12_unhover',g.x-4,inside.y,0,-1,image=>{
     assertClipping(initialUnhover,image,initial,dpr);return assertSameFill(initialUnhover,image,initial,dpr);
   });
   result.checks.clipping=assertClipping(initialUnhover,x12Unhover,initial,dpr);
   result.checks.clipped_pointer=assertSameFill(initialUnhover,x12Unhover,initial,dpr);
   result.checks.hover_after_scroll=assertHover(x12Unhover,x12,initial,dpr);
   await move(inside.x,inside.y);
-  await capture('x12_hover_restored',image=>assertUnchanged(x12,image,dpr));
+  await wheel('x12_hover_restored',inside.x,inside.y,0,-1,image=>assertUnchanged(x12,image,dpr));
   const y12=await wheel('y12',inside.x,inside.y,0,12,image=>assertTranslation(x12,image,initial,{beforeX:-12,afterX:-12,afterY:-12},dpr));
   result.checks.vertical_propagation=assertTranslation(x12,y12,initial,{beforeX:-12,afterX:-12,afterY:-12},dpr);
   await move(8,inside.y);
-  const outsideBefore=await capture('outside_before');
+  // A clamped X wheel on the outer viewport redraws the new hover state without
+  // changing its existing Y offset; the next identical wheel must be unchanged.
+  const outsideBefore=await wheel('outside_before',8,inside.y,12,0);
   const outsideAfter=await wheel('outside_x',8,inside.y,12,0,image=>assertUnchanged(outsideBefore,image,dpr));
   result.checks.outside_inner_wheel=assertUnchanged(outsideBefore,outsideAfter,dpr);
   await wheel('vertical_top_restore',8,inside.y,0,-100000,image=>assertUnchanged(x12Unhover,image,dpr));
@@ -180,6 +205,7 @@ try {
 finally {
   if(page) {
     try{result.events=await page.evaluate(()=>globalThis.scrollableOracleEvents||[]);}catch{}
+    try{result.pointer_events=await page.evaluate(()=>globalThis.scrollableOraclePointers||[]);}catch{}
   }
   await writeFile(join(evidence,`scrollable-rust-result-dpr${dpr}.json`),JSON.stringify(result,null,2)+'\n');
   if(browser)await browser.close();

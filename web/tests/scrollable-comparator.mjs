@@ -10,6 +10,7 @@ export const SOURCE_CONSTRAINTS = Object.freeze([
   'scrollable.rs:13-45: p4, 5000px blue body, 2000x150px green child, both-axis overflow and hover',
   'gpui/src/elements/div.rs:2457-2485: padding-aware maximum and prepaint clamping',
   'gpui/src/elements/div.rs:3331-3385: dominant-axis wheel handling; no propagation stop',
+  'gpui/src/elements/div.rs:2845-2868,3460-3480; window.rs:4470-4495: anonymous hover has no move-only notify; real wheel redraw applies current hitbox hover',
   'gpui/src/window.rs:1173-1194,4172-4208: clipped hit testing, intersected masks and descendant translations',
   'gpui_web/src/events.rs:641-671: preventDefault and negated browser pixel deltas',
   'gpui_web/src/window.rs:107-147: full-host canvas; requested native window bounds are ignored',
