@@ -79,6 +79,9 @@ implementations are checked against the shared fixture AND against each
 other, with full-frame RGB difference counts for diagnosis (edge
 antialiasing can legitimately vary by renderer). A first-frame callback
 is required from each actual native executable before capturing pixels.
+The X11 pointer is parked at root coordinate (0,0), outside both placed
+viewports, to avoid composited Weston cursor pixels contaminating the raw
+screenshot comparison. No pixel mask or image rewrite is applied.
 Build timing, launcher-observed first-frame timing, native events and
 window resize requests/results are separately reported.
 
