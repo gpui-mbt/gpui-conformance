@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "captured_date": "2026-10-16",
+  "source_run": {
+    "url": "https://github.com/gpui-mbt/gpui-conformance/actions/runs/38848834623",
+    "id": 38848834623,
+    "head_revision": "422f94adda8be205248f370a335785a9d5940118",
+    "build_revision": "0cf172c7c2855ef35f1688f30b2b1610e590b276",
+    "build_tree": "a2b0383ed0b26a334160ffe30f25eaa30b78a23e",
+    "artifact": {
+      "id": 12024552084,
+      "name": "browser-example-evidence",
+      "sha256": "51d12b0359e62cd04f830baab9c5631d2d7cb9fb41bd6a6d20ddac508147bb70"
+    }
+  },
+  "result_path": "web/evidence/20261016-text-examples/result.json",
+  "result_sha256": "5aec5346d546eb449f13090a4e30e6c29ac852f848c4ce96c6c78943432210ab",
+  "scope": "Byte-exact CI captures, displayed as previews only. No per-example pixel metric or native parity is asserted.",
+  "examples": [
+    {
+      "id": "text_layout",
+      "candidate_source": "web/moonbit/text_layout/text_layout.mbt",
+      "candidate_source_blob": "c2642801538e2fc45c7c0a7052b145915d6289a6",
+      "moonbit": {
+        "path": "web/evidence/20261016-text-examples/text-layout-moonbit.png",
+        "sha256": "3a07e324e1c5bbf08c72c914a0b79608376e1d6cd527b286dda5a10dae479861",
+        "width": 800,
+        "height": 600
+      },
+      "rust": {
+        "path": "web/evidence/20261016-text-examples/text-layout-rust.png",
+        "sha256": "5ca531d76c7fbd6dda6043c92a1a7ed6352e6be4a844a82049ce71d317048f00",
+        "width": 800,
+        "height": 600
+      },
+      "asset_path": "catalog/assets/text_layout-moonbit-20261016.png"
+    },
+    {
+      "id": "text_wrapper",
+      "candidate_source": "web/moonbit/text_wrapper/text_wrapper.mbt",
+      "candidate_source_blob": "548aa5791ff9c8b9e5d0fab43a625a75ff6c5c7f",
+      "moonbit": {
+        "path": "web/evidence/20261016-text-examples/text-wrapper-moonbit.png",
+        "sha256": "965d73281506d226e8e10e8702ab3386744e8f4b803edf74eba9f51345838ef2",
+        "width": 800,
+        "height": 600
+      },
+      "rust": {
+        "path": "web/evidence/20261016-text-examples/text-wrapper-rust.png",
+        "sha256": "05d86662abac076407ba61bf327901be5b0ef63ba82dfb6437f54c23c2af7739",
+        "width": 800,
+        "height": 600
+      },
+      "asset_path": "catalog/assets/text_wrapper-moonbit-20261016.png"
+    }
+  ]
+}
