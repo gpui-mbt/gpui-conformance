@@ -31,7 +31,7 @@ scope and deliberately separated.
 ## Run from pinned source checkouts
 
 Expected host: Linux X11 session with Openbox/another EWMH window manager;
-Python 3.12+, Pillow, ImageMagick import, wmctrl, Weston (including
+Python 3.12+, Pillow, ImageMagick import, wmctrl, xdotool, xwininfo, Weston (including
 x11-backend and kiosk-shell modules), Rust toolchain 1.98.1, MoonBit native,
 Wayland/EGL/GLES development headers and C toolchain. The launch needs
 working Mesa Vulkan/WGPU for gpui.rs and EGL/GLES for gpui.mbt.
