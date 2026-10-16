@@ -6,10 +6,26 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 9);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable']);
+  assert.equal(catalog.examples.length, 10);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
+});
+test('all current browser routes share the published core commit and exact tree', () => {
+  assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
+  assert.equal(catalog.moonbit.revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
+  assert.equal(catalog.moonbit.tree, '29449e394c0faf2b25beb2a1b6a4bce2806b3231');
+  const routes = {hello_world:'hello-world',text:'text',text_layout:'text-layout',
+    text_wrapper:'text-wrapper',input:'input',dynamic_fonts:'dynamic-fonts',
+    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible'};
+  assert.deepEqual(Object.fromEntries(catalog.examples.map(example => [example.id, example.rust_route])), routes);
+  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 8);
+  assert.deepEqual(catalog.examples.filter(example => example.source.startsWith('crates/gpui_web/examples/')).map(example => example.id),
+    ['dynamic_fonts', 'hello_web']);
+  for (const example of catalog.examples) {
+    assert.equal(rustExampleUrl('https://example.test/lab/', example), `https://example.test/lab/rust/?example=${example.id}`);
+    assert.equal(moonbitExampleUrl('https://example.test/lab/', example), `https://example.test/lab/moonbit/?example=${example.id}`);
+  }
 });
 test('a selected example resolves the same pair under a GitHub Pages subpath', () => {
   const example = selectExample(catalog, 'hello_world');
@@ -85,7 +101,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, 'e671da15652dc298110ef0a819f5c7a2000aa15f');
+  assert.equal(catalog.moonbit.revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -212,7 +228,7 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const example=selectExample(catalog,'scrollable');
   assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
   assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
-  assert.equal(catalog.moonbit.revision,'e671da15652dc298110ef0a819f5c7a2000aa15f');
+  assert.equal(catalog.moonbit.revision,'61b237b0963c3252736a27293aa1f5b7de3886fa');
   assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
   assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
   const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
@@ -221,4 +237,31 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const host=await readFile(new URL('../moonbit/site/scrollable-host.mjs',import.meta.url),'utf8');
   assert(host.includes('runtime.scrollable_wheel'));
   assert(!host.includes('scrollLeft')&&!host.includes('scrollTop')&&!host.includes('context.translate'));
+});
+
+test('focus_visible is a pinned interactive core-backed candidate with unverified browser parity', async () => {
+  const example = selectExample(catalog, 'focus_visible');
+  assert.equal(example.title, 'Focus-visible');
+  assert.equal(example.rust_route, 'focus-visible');
+  assert.equal(example.source, 'crates/gpui/examples/focus_visible.rs');
+  assert.equal(example.source_blob, 'c5b3d5dfec3a189d088a621baff55eb55a121b6c');
+  assert.equal(example.candidate_source, 'web/moonbit/focus_visible/focus_visible.mbt');
+  assert.equal(example.moonbit, 'implemented');
+  assert.deepEqual([example.width, example.height, example.interactive], [800,600,true]);
+  assert.throws(() => selectExample(catalog, 'focus-visible'), /Unknown upstream example/);
+  const source = await readFile(new URL('../../' + example.candidate_source, import.meta.url), 'utf8');
+  for (const api of ['@element.Element::root', 'request_layout_with_device_scale', '.prepaint()',
+    'paint_snapshot', 'tree.dispatch_input', 'tree.focus_prev()', 'tree.focus_next()',
+    'tree.focus_owner()', 'tree.is_focus_visible', 'state.modality.after_input']) assert(source.includes(api), api);
+  const host = await readFile(new URL('../moonbit/site/focus-visible-host.mjs', import.meta.url), 'utf8');
+  for (const name of ['focus_visible_pointer', 'focus_visible_key', 'focus_visible_wheel', 'focus_visible_leave'])
+    assert(host.includes(`runtime.${name}`), name);
+  assert(!host.includes('setPointerCapture'));
+  for (const boundary of ['persistent input tree', 'core flat tab traversal', 'focus ownership',
+    'host boundaries', 'paired browser execution', 'pixel qualification remain unverified',
+    'Nested tab groups', 'touch', 'pointer capture', 'native', 'full-image', 'text parity'])
+    assert(example.implementation_note.includes(boundary), boundary);
+  // Source/runtime wiring checks do not provide a measurement or a saved image.
+  for (const key of ['result_url', 'result_date', 'changed_pixels', 'total_pixels', 'thumbnail', 'evidence_scope'])
+    assert.equal(example[key], undefined, key);
 });

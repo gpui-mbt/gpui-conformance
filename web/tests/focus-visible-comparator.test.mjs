@@ -315,7 +315,7 @@ function captureFixtures() {
     next_after_move3:{focus:3,modality:'keyboard',hover:2,message:4},
     root_reset:{focus:0,modality:'mouse',hover:0,message:4},
     root_tab1:{focus:1,modality:'keyboard',hover:0,message:4},
-    enter_down1:{focus:1,modality:'keyboard',hover:0,message:4},
+    enter_down1:{focus:1,modality:'keyboard',hover:0,message:1},
     enter_up1:{focus:1,modality:'keyboard',hover:0,message:1},
     space_down2:{focus:2,modality:'keyboard',hover:0,message:4},
     space_up2:{focus:2,modality:'keyboard',hover:0,message:2},
@@ -348,7 +348,7 @@ test('all retained-capture negative controls reject intentional synthetic corrup
     'mouse_ring_shown_for_button2','both_styles_wrong_precedence','keyboard_hover_not_suppressed',
     'mousemove_did_not_change_modality','mousemove_lost_focus_next_tab_wrong',
     'ring_narrower_than_four_pixels','ring_wider_than_four_pixels','shifted_button_geometry',
-    'premature_mouse_activation','outside_release_activated','enter_down_activated_early',
+    'premature_mouse_activation','outside_release_activated','enter_beforeinput_activation_missing',
     'space_down_activated_early','stale_other_key_activation','stale_focus_generation_activation',
     'activation_message_never_changed','missing_delivery','untrusted_delivery','wrong_event_target','wrong_event_order',
   ];
@@ -475,4 +475,21 @@ test('all seven provenance corruption controls reject and preserve original synt
   assert.deepEqual({manifest,catalog},before);
   manifest.lab_tracked_dirty=true;
   assert.throws(()=>provenanceNegativeControls(manifest,catalog),'a failed baseline is not valid negative-control evidence');
+});
+
+
+test('negative controls copy Node Buffer views instead of mutating original retained decoded pixels',()=>{
+  const {captures}=captureFixtures();
+  const buffers=Object.fromEntries(Object.entries(captures).map(([name,image])=>[name,{...image,data:Buffer.from(image.data)}]));
+  const before=fingerprint(buffers);
+  const controls=focusVisibleNegativeControls(buffers,operationFixtures());
+  assert.equal(controls.length,23);assert.deepEqual(fingerprint(buffers),before);
+});
+
+
+test('trusted textarea Enter beforeinput requires source-handled input intent and completed prevention',()=>{
+  const event={type:'beforeinput',trusted:true,target:'TEXTAREA',inputType:'insertLineBreak',data:null,isComposing:false,cancelable:true,defaultPrevented:true};
+  assert.equal(assertDelivery([event],[{type:'beforeinput',inputType:'insertLineBreak'}]).status,'passed');
+  for(const change of [{trusted:false},{target:'CANVAS'},{inputType:'insertText'},{data:'x'},{isComposing:true},{cancelable:false},{defaultPrevented:false}])
+    assert.throws(()=>assertDelivery([{...event,...change}],[{type:'beforeinput',inputType:'insertLineBreak'}]));
 });

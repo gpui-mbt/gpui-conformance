@@ -7,7 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "e671da15652dc298110ef0a819f5c7a2000aa15f"
+    "revision": "61b237b0963c3252736a27293aa1f5b7de3886fa",
+    "tree": "29449e394c0faf2b25beb2a1b6a4bce2806b3231"
   },
   "examples": [
     {
@@ -174,6 +175,26 @@
       ],
       "candidate_source": "web/moonbit/scrollable/scrollable.mbt",
       "implementation_note": "Real gpui.mbt core viewport limits, wheel routing, descendant translation, scene clips and clipped pointer hits. Same-delta ancestor behavior and anonymous-hover invalidation follow unchanged upstream source. Browser text metrics/rasterization remain host extensions; native and full-pixel equivalence unverified."
+    },
+    {
+      "id": "focus_visible",
+      "title": "Focus-visible",
+      "rust_route": "focus-visible",
+      "source": "crates/gpui/examples/focus_visible.rs",
+      "source_blob": "c5b3d5dfec3a189d088a621baff55eb55a121b6c",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Keyboard and pointer focus modality",
+        "Flat tab traversal",
+        "Focus ownership",
+        "Focus-visible border precedence",
+        "Pointer and keyboard activation"
+      ],
+      "candidate_source": "web/moonbit/focus_visible/focus_visible.mbt",
+      "implementation_note": "Real gpui.mbt Element layout/prepaint/SceneSnapshot with a persistent input tree, core flat tab traversal, modality, focus ownership and routing. Pointer and keyboard activation follow the pinned upstream source. JavaScript input delivery, rounded fills, solid 4px focus borders and browser fonts are explicit host boundaries. Source-derived candidate only; paired browser execution and pixel qualification remain unverified. Nested tab groups, touch, pointer capture, native, full-image and text parity are not established."
     }
   ]
 }

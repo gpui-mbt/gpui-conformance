@@ -16,7 +16,8 @@ export const SOURCE_CONSTRAINTS=Object.freeze([
   'window.rs:2186,5636-5645: initially Mouse; KeyDown selects Keyboard; MouseMove/MouseDown select Mouse; releases/wheel preserve modality',
   'window.rs:797-807: keyboard modality suppresses hover without moving the pointer',
   'gpui_web/src/events.rs:704-810: hidden textarea keyboard transport; modifier-only keys do not dispatch GPUI KeyDown/KeyUp',
-  'elements/div.rs:3016-3078: unmodified Enter/Space activation down records focus generation; activation up checks generation, not down/up key identity',
+  'elements/div.rs:3016-3078: unmodified activation down records focus generation; activation up checks generation, not down/up key identity',
+  'gpui_web/events.rs:1016-1033,545-557: trusted desktop textarea Enter beforeinput inserts no text; it dispatches internal Enter down/up, so activation can complete before physical keyup',
   'elements/div.rs:3084-3132: primary click requires completed inside release; outside release clears pending click; secondary does not call on_click',
   'Focus is inferred only from rendered rings and subsequent navigation; DOM focus is transport, not the GPUI focus oracle',
   '800x600 DPR1 geometry is source-derived and must pass actual CI screenshots; no high-DPR, OCR, native or cross-renderer text claim',
@@ -178,10 +179,15 @@ export function assertDelivery(events,expected) {
   assert.equal(events.length,expected.length,'Exact delivered event count is required');
   for(let index=0;index<expected.length;index++) {
     const event=events[index],wanted=expected[index];
-    assert(['pointermove','pointerdown','pointerup','keydown','keyup','wheel'].includes(wanted.type),'Explicit supported expected event type is required');
+    assert(['pointermove','pointerdown','pointerup','keydown','keyup','wheel','beforeinput'].includes(wanted.type),'Explicit supported expected event type is required');
     assert.equal(event.trusted,true,'Trusted browser delivery is required');
-    assert(['pointermove','pointerdown','pointerup','keydown','keyup','wheel'].includes(event.type),'Supported observed transport event');
-    if(event.type.startsWith('key'))assert(['TEXTAREA','CANVAS'].includes(event.target),'Keyboard transport target must be GPUI input');
+    assert(['pointermove','pointerdown','pointerup','keydown','keyup','wheel','beforeinput'].includes(event.type),'Supported observed transport event');
+    if(event.type==='beforeinput') {
+      assert.equal(event.target,'TEXTAREA','Beforeinput transport must be textarea');
+      assert(['insertLineBreak','insertParagraph'].includes(event.inputType),'Only source-handled Enter beforeinput');
+      assert.equal(event.isComposing,false);assert.equal(event.cancelable,true);assert.equal(event.defaultPrevented,true);
+      assert.equal(event.data,null,'Enter beforeinput must not contain inserted text');
+    } else if(event.type.startsWith('key'))assert(['TEXTAREA','CANVAS'].includes(event.target),'Keyboard transport target must be GPUI input');
     else assert.equal(event.target,'CANVAS','Pointer/wheel transport target must be canvas');
     if(event.type.startsWith('pointer'))assert.equal(event.pointerType,'mouse','Mouse pointer evidence required');
     if(event.type==='wheel') {assert.equal(event.deltaMode,0);assert.equal(event.defaultPrevented,true);}
@@ -205,10 +211,10 @@ export function focusVisibleNegativeControls(captures,operations=[]) {
     assert(captures[name],`${name}: retained baseline capture is required`);
     inspectState(captures[name],{focus,modality,hover});
   }
-  for(const [before,after] of [['click3','down2'],['down2','outside_up2'],['root_tab1','enter_down1'],
+  for(const [before,after] of [['click3','down2'],['down2','outside_up2'],['click1','enter_down1'],['enter_down1','enter_up1'],
     ['click1','enter_up1'],['click2','space_up2'],['stale_key_before','stale_key_after'],['stale_focus_before','stale_focus_after']])
     assertPanelSame(captures[before],captures[after]);
-  assertPanelDifferent(captures.enter_down1,captures.enter_up1);
+  assertPanelDifferent(captures.root_tab1,captures.enter_down1);
   assertPanelDifferent(captures.space_down2,captures.space_up2);
   const reject=(name,run)=>{
     let failure;try{run();}catch(error){failure=error.message;}
@@ -223,12 +229,12 @@ export function focusVisibleNegativeControls(captures,operations=[]) {
   reject('keyboard_ring_missing',()=>state('click2',2,'keyboard',2));
   reject('mouse_ring_shown_for_button2',()=>state('tab2',2,'mouse'));
   reject('both_styles_wrong_precedence',()=>state('click3',3,'keyboard',3));
-  const hoverLeak={...captures.hover_suppressed2,data:captures.hover_suppressed2.data.slice()};
+  const hoverLeak={...captures.hover_suppressed2,data:Uint8Array.from(captures.hover_suppressed2.data)};
   hoverLeak.data.set(COLORS.hover,4*(323*800+50));
   reject('keyboard_hover_not_suppressed',()=>inspectState(hoverLeak,{focus:2,modality:'keyboard',hover:2}));
   reject('mousemove_did_not_change_modality',()=>state('hover_suppressed2',2,'mouse',2));
   reject('mousemove_lost_focus_next_tab_wrong',()=>state('next_after_move3',1));
-  const copy=name=>({...captures[name],data:captures[name].data.slice()});
+  const copy=name=>({...captures[name],data:Uint8Array.from(captures[name].data)});
   const narrow=copy('tab2');narrow.data.set(COLORS.blue,4*(320*800+50));
   reject('ring_narrower_than_four_pixels',()=>inspectState(narrow,{focus:2,modality:'keyboard'}));
   const wide=copy('tab2');wide.data.set(COLORS.green,4*(323*800+50));
@@ -237,7 +243,7 @@ export function focusVisibleNegativeControls(captures,operations=[]) {
   reject('shifted_button_geometry',()=>inspectState(shifted,{focus:0,modality:'mouse'}));
   reject('premature_mouse_activation',()=>assertPanelSame(captures.click3,captures.click2));
   reject('outside_release_activated',()=>assertPanelSame(captures.down2,captures.click2));
-  reject('enter_down_activated_early',()=>assertPanelSame(captures.enter_down1,captures.enter_up1));
+  reject('enter_beforeinput_activation_missing',()=>assertPanelDifferent(captures.root_tab1,captures.root_tab1));
   reject('space_down_activated_early',()=>assertPanelSame(captures.space_down2,captures.space_up2));
   reject('stale_other_key_activation',()=>assertPanelSame(captures.stale_key_before,captures.click1));
   reject('stale_focus_generation_activation',()=>assertPanelSame(captures.stale_focus_before,captures.click2));

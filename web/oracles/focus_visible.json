@@ -8,6 +8,7 @@
   "dpr": 1,
   "status": "rust_oracle_only",
   "candidate": "not_implemented",
+  "record_scope": "Historical Rust-only baseline introduced at PR47 public head f7974606caa91a4de7bee4283961c1d770970a05; current implemented catalog and paired evidence have separate provenance.",
   "observation": "actual browser screenshots and trusted pointer/keyboard delivery; no exported Rust focus state",
   "unverified": [
     "MoonBit comparison",

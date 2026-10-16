@@ -57,7 +57,9 @@ jobs:
       - name: Host and catalog contracts
         run: node --test web/tests/*.test.mjs
       - name: Verify immutable upstream packaging
-        run: python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
+        run: |
+          python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
       - name: Install fixed Rust toolchain and matching bindings generator
@@ -79,7 +81,7 @@ jobs:
           CARGO_BUILD_JOBS: '2'
         run: |
           mkdir -p _build/browser-example-evidence
-          python3 web/scripts/build_rust.py --upstream-source _sources/zed --extra-example focus_visible 2>&1 | tee _build/browser-example-evidence/rust-build.log
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed 2>&1 | tee _build/browser-example-evidence/rust-build.log
       - name: Install browser test runner
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
@@ -97,6 +99,8 @@ jobs:
           node web/tests/scrollable-oracle-browser.mjs _build/browser-lab --candidate
           node web/tests/compare-scrollable-results.mjs _build/browser-example-evidence
           node web/tests/focus-visible-oracle-browser.mjs _build/browser-lab
+          node web/tests/focus-visible-oracle-browser.mjs _build/browser-lab --candidate
+          node web/tests/compare-focus-visible-results.mjs _build/browser-example-evidence
       - name: Measure screenshot differences without claiming native parity
         run: |
           python3 web/scripts/compare_screenshots.py _build/browser-example-evidence

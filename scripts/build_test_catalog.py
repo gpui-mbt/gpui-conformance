@@ -50,7 +50,7 @@ RETAINED_BROWSER_EXAMPLES = {
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -59,6 +59,11 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "focus_visible": {
+        "title": "入力方法に応じたフォーカス表示",
+        "tags": ["focus-visible", "Tab 移動", "入力 modality", "focus ownership", "クリック・キー操作"],
+        "description": "800×600 の上流例。3 個のボタンで .focus() と .focus_visible() の境界線、Tab・Shift-Tab による移動、マウスとキーボードの操作を扱います。",
+    },
     "scrollable": {
         "title": "入れ子のスクロールとクリップ",
         "tags": ["縦横スクロール", "wheel 配送", "クリップ", "hit testing", "hover"],
@@ -158,6 +163,9 @@ def validate_browser_inventory(
         if declared.get("repository") != expected["repository"] or not re.fullmatch(r"[0-9a-f]{40}", str(declared.get("revision", ""))):
             raise ValueError(f"current browser {key} pin must declare the expected repository and an exact revision")
 
+    if not re.fullmatch(r"[0-9a-f]{40}", str(inventory.get("moonbit", {}).get("tree", ""))):
+        raise ValueError("current browser moonbit tree pin must declare an exact tree")
+
     recorded_implemented = set(build.get("implemented", []))
     declared_implemented = {
         example["id"] for example in inventory.get("examples", [])
@@ -175,6 +183,7 @@ def validate_browser_inventory(
 def browser_pin_links(pins: dict[str, Any]) -> list[dict[str, str]]:
     return [
         {"label": label, "revision": pins[key]["revision"],
+         **({"tree": pins[key]["tree"]} if "tree" in pins[key] else {}),
          "url": f"https://github.com/{pins[key]['repository']}/commit/{pins[key]['revision']}"}
         for key, label in (("upstream", "gpui.rs · GPUI 0.2.2"), ("moonbit", "gpui.mbt"))
     ]

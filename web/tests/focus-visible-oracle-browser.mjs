@@ -1,5 +1,5 @@
 // PLAYWRIGHT_ROOT=... BROWSER_EVIDENCE=... node web/tests/focus-visible-oracle-browser.mjs _build/browser-lab
-// Rust-only baseline: no candidate route, exported state or fabricated render.
+// Independent Rust or compiled MoonBit execution. No exported diagnostic state is used.
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
@@ -9,16 +9,21 @@ import {resolve,join,sep,extname} from 'node:path';
 import {FOCUS_VISIBLE,SOURCE_CONSTRAINTS,inspectState,assertPanelSame,assertPanelDifferent,
   assertUnchanged,assertDelivery,assertProvenance,provenanceNegativeControls,focusVisibleNegativeControls}
   from './focus-visible-comparator.mjs';
+import {assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,
+  validateFocusVisibleEvents} from './focus-visible-pair-comparator.mjs';
 
 const sha256=data=>createHash('sha256').update(data).digest('hex');
 const arguments_=process.argv.slice(2);
-assert(arguments_.length<=1&&!arguments_.some(argument=>argument.startsWith('--')),'Only the fixed 800x600 DPR1 Rust-only profile is supported');
-const site=resolve(arguments_[0]||'_build/browser-lab');
+assert(arguments_.filter(argument=>!argument.startsWith('--')).length<=1&&
+  arguments_.filter(argument=>argument.startsWith('--')).every(argument=>argument==='--candidate'),
+  'Only --candidate and the fixed 800x600 DPR1 profile are supported');
+const candidate=arguments_.includes('--candidate'),runtime=candidate?'moonbit':'rust';
+const site=resolve(arguments_.find(argument=>!argument.startsWith('--'))||'_build/browser-lab');
 const evidence=resolve(process.env.BROWSER_EVIDENCE||'_build/browser-example-evidence');
 if(process.env.BROWSERS_PATH&&!process.env.PLAYWRIGHT_BROWSERS_PATH)
   process.env.PLAYWRIGHT_BROWSERS_PATH=process.env.BROWSERS_PATH;
-const result={status:'failed',runtime:'rust',candidate:'not_implemented',comparison:'not_run',
-  scope:'Unchanged focus_visible.rs in actual Rust WASM; independent screenshot and trusted event baseline only',
+const result={status:'failed',runtime,candidate:'not_implemented',comparison:'not_run',
+  scope:candidate?'Compiled MoonBit core focus-visible port; independent screenshots and trusted inputs':'Unchanged focus_visible.rs in actual Rust WASM; independent screenshots and trusted inputs',
   profile:{width:800,height:600,dpr:1,input:'Trusted Chromium mouse, keyboard and pixel wheel'},
   source_constraints:SOURCE_CONSTRAINTS,checks:{},captures:{},operations:[],requests:[],served_requests:[],
   runtime_responses:[],console:[],errors:[],
@@ -28,13 +33,24 @@ const result={status:'failed',runtime:'rust',candidate:'not_implemented',compari
 await mkdir(evidence,{recursive:true});
 let browser,server,page;
 const images={},responseTasks=[];
+let runtimeFiles={},paired=false;
 try {
   const manifestBytes=await readFile(join(site,'build-manifest.json'));
-  const manifest=JSON.parse(manifestBytes),catalog=JSON.parse(await readFile(join(site,'examples.json'),'utf8'));
+  const catalogBytes=await readFile(join(site,'examples.json'));
+  const manifest=JSON.parse(manifestBytes),catalog=JSON.parse(catalogBytes);
   result.build=manifest;result.build_manifest_sha256=sha256(manifestBytes);
-  await writeFile(join(evidence,'focus-visible-build-manifest.json'),manifestBytes);
-  result.source=assertProvenance(manifest,catalog);
-  result.provenance_negative_controls=provenanceNegativeControls(manifest,catalog);
+  result.catalog=catalog;result.catalog_sha256=sha256(catalogBytes);
+  result.build_manifest_file=`focus-visible-${runtime}-build-manifest.json`;
+  result.catalog_file=`focus-visible-${runtime}-catalog.json`;
+  await writeFile(join(evidence,result.build_manifest_file),manifestBytes);
+  await writeFile(join(evidence,result.catalog_file),catalogBytes);
+  paired=catalog.examples.some(entry=>entry.id==='focus_visible'&&entry.moonbit==='implemented');
+  assert(paired||!candidate,'Candidate execution requires current compiled implementation provenance');
+  result.source=paired?assertPairedProvenance(manifest,catalog):assertProvenance(manifest,catalog);
+  result.provenance_negative_controls=paired?pairedProvenanceNegativeControls(manifest,catalog):provenanceNegativeControls(manifest,catalog);
+  if(paired)result.candidate='implemented';
+  runtimeFiles=paired?expectedRuntimeFiles(manifest,runtime):Object.fromEntries(
+    ['focus_visible.js','focus_visible_bg.wasm','host.mjs'].map(file=>['rust/'+file,manifest.rust.files[file]]));
   const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css',
     '.json':'application/json','.wasm':'application/wasm','.ttf':'font/ttf'};
   server=createServer(async(request,response)=>{
@@ -72,21 +88,27 @@ try {
   page.on('requestfailed',request=>result.errors.push({kind:'requestfailed',url:request.url(),failure:request.failure()}));
   page.on('response',response=>{
     result.requests.push({url:response.url(),status:response.status()});
-    if(/\/rust\/(focus_visible\.js|focus_visible_bg\.wasm|host\.mjs)$/.test(new URL(response.url()).pathname)) {
+    const path=new URL(response.url()).pathname.replace(/^\/gpui-conformance\//,'');
+    if(Object.hasOwn(runtimeFiles,path)||(paired&&/\.(mjs|js|wasm|ttf)$/.test(path))) {
       responseTasks.push((async()=>{
-        try {result.runtime_responses.push({url:response.url(),status:response.status(),sha256:sha256(await response.body())});}
-        catch(error){result.errors.push({kind:'runtime_response',url:response.url(),message:error.message});}
+        try {
+          assert(Object.hasOwn(runtimeFiles,path),`Loaded unpinned runtime dependency ${path}`);
+          const bytes=await response.body(),file=`focus-visible-${runtime}-asset-${path.replaceAll('/','_')}.bin`;
+          await writeFile(join(evidence,file),bytes);
+          result.runtime_responses.push({url:response.url(),status:response.status(),sha256:sha256(bytes),file});
+        } catch(error){result.errors.push({kind:'runtime_response',url:response.url(),message:error.message});}
       })());
     }
   });
   await page.addInitScript(()=>{
     // Passive read-only transport observation. Never inject focus/application state.
     globalThis.focusVisibleOracleEvents=[];
-    for(const type of ['pointermove','pointerdown','pointerup','keydown','keyup','wheel'])
+    for(const type of ['pointermove','pointerdown','pointerup','keydown','keyup','wheel','beforeinput','input'])
       addEventListener(type,event=>{
         const entry={type,trusted:event.isTrusted,target:event.target.tagName,time:performance.now(),
           defaultPrevented:null,shiftKey:event.shiftKey,ctrlKey:event.ctrlKey,altKey:event.altKey,metaKey:event.metaKey};
-        if(type.startsWith('key'))Object.assign(entry,{key:event.key,code:event.code,repeat:event.repeat});
+        if(type==='beforeinput'||type==='input')Object.assign(entry,{inputType:event.inputType,data:event.data,isComposing:event.isComposing,cancelable:event.cancelable});
+        else if(type.startsWith('key'))Object.assign(entry,{key:event.key,code:event.code,repeat:event.repeat});
         else Object.assign(entry,{x:event.clientX,y:event.clientY,button:event.button,buttons:event.buttons,
           pointerType:event.pointerType,deltaX:event.deltaX,deltaY:event.deltaY,deltaMode:event.deltaMode});
         globalThis.focusVisibleOracleEvents.push(entry);
@@ -96,24 +118,35 @@ try {
       },{capture:true,passive:true});
   });
   const base=`http://127.0.0.1:${server.address().port}/gpui-conformance/`;
-  await page.goto(base+'rust/?example=focus_visible');
-  await page.locator('html[data-runtime-status="initialized"]').waitFor({timeout:60000});
+  await page.goto(base+runtime+'/?example=focus_visible');
+  await page.locator(`html[data-runtime-status="${candidate?'ready':'initialized'}"]`).waitFor({timeout:60000});
   assert.equal(await page.evaluate(()=>crossOriginIsolated),true);
   assert.equal(await page.evaluate(()=>devicePixelRatio),1);
   const canvas=page.locator('canvas');
   const bounds=await canvas.boundingBox(),backing=await canvas.evaluate(element=>({width:element.width,height:element.height}));
   result.canvas={bounds,backing};
+  result.initial_transport=await page.evaluate(()=>{
+    const input=document.querySelector('textarea');
+    return {active_tag:document.activeElement?.tagName,canvas_tab_index:document.querySelector('canvas')?.tabIndex,
+      textarea:input?{readOnly:input.readOnly,disabled:input.disabled,isContentEditable:input.isContentEditable,
+        spellcheck:input.spellcheck,autocomplete:input.autocomplete,autocorrect:input.getAttribute('autocorrect'),
+        autocapitalize:input.getAttribute('autocapitalize'),enterkeyhint:input.getAttribute('enterkeyhint'),
+        inline_style:Object.fromEntries(['position','left','top','width','height','opacity','fontSize'].map(key=>[key,input.style[key]])),
+        style:(()=>{const s=getComputedStyle(input);return {position:s.position,left:s.left,top:s.top,width:s.width,height:s.height,opacity:s.opacity,fontSize:s.fontSize};})(),
+        bounds:(()=>{const r=input.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};})()}:null,
+      note:'Actual DOM transport observation only; never application focus evidence'};
+  });
   assert.deepEqual(bounds,{x:0,y:0,width:800,height:600},'Full unscaled integer-origin canvas');
   assert.deepEqual(backing,{width:800,height:600},'DPR1 backing canvas');
   await Promise.all(responseTasks);
-  for(const file of ['focus_visible.js','focus_visible_bg.wasm','host.mjs']) {
-    const received=result.runtime_responses.filter(response=>new URL(response.url).pathname.endsWith('/rust/'+file));
-    assert(received.length>0,`Actual browser runtime request required for ${file}`);
-    for(const response of received) {
-      assert.equal(response.status,200);assert.equal(response.sha256,manifest.rust.files[file],`Actually executed response hash for ${file}`);
-    }
-    const response=await page.request.get(base+'rust/'+file);assert.equal(response.status(),200);
-    assert.equal(sha256(await response.body()),manifest.rust.files[file],`Served ${file} must match clean build manifest`);
+  const requiredFiles=candidate?['moonbit/focus_visible.mjs','moonbit/host.mjs','moonbit/render.mjs',
+    'moonbit/focus-visible-host.mjs','moonbit/IBMPlexSans-Regular.ttf','moonbit/IBMPlexSans-SemiBold.ttf','load-timing.mjs']:
+    ['rust/focus_visible.js','rust/focus_visible_bg.wasm','rust/host.mjs',...(paired?['load-timing.mjs']:[])];
+  for(const file of requiredFiles)assert(result.runtime_responses.some(response=>
+    new URL(response.url).pathname==='/gpui-conformance/'+file),`Actual browser request required for ${file}`);
+  for(const response of result.runtime_responses) {
+    const file=new URL(response.url).pathname.replace(/^\/gpui-conformance\//,'');
+    assert.equal(response.status,200);assert.equal(response.sha256,runtimeFiles[file],`Actually executed response hash for ${file}`);
   }
   async function frames() {
     await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(()=>done()))));
@@ -138,12 +171,14 @@ try {
       stable=valid&&prior?.hash===hash;
       if(!stable) {prior=valid?{hash,buffer}:null;await page.waitForTimeout(100);}
     }while(!stable&&Date.now()<deadline);
-    const file=`focus-visible-rust-${name}-dpr1.png`;
+    const file=`focus-visible-${runtime}-${name}-dpr1.png`;
     await writeFile(join(evidence,file),buffer);
-    const stabilityFile=stable?`focus-visible-rust-${name}-stable-first-dpr1.png`:null;
+    const stabilityFile=stable?`focus-visible-${runtime}-${name}-stable-first-dpr1.png`:null;
     if(stable)await writeFile(join(evidence,stabilityFile),prior.buffer);
     result.captures[name]={file,stability_file:stabilityFile,png_sha256:sha256(buffer),rgba_sha256:sha256(image.data),
       width:image.width,height:image.height,stable,measurement,last_error:lastError,attempts,
+      stability_png_sha256:stable?sha256(prior.buffer):null,stability_rgba_sha256:stable?prior.hash:null,
+      after_operation:result.operations.length,
       method:'Two identical full-viewport screenshot RGBA captures; no crop, resample, pixel replacement or application diagnostics'};
     images[name]=image;
     assert(stable,`${name}: expected pixels and two stable captures not observed: ${lastError}`);
@@ -171,8 +206,9 @@ try {
   const modifiers={shiftKey:false,ctrlKey:false,altKey:false,metaKey:false};
   async function key(name,key,type='press',shift=false) {
     const domKey=key==='Space'?' ':key;
-    const expected=(type==='press'?['keydown','keyup']:[type==='down'?'keydown':'keyup']).map(type=>
-      ({type,key:domKey,...modifiers,shiftKey:shift,repeat:false}));
+    const expected=(type==='press'?['keydown','keyup']:[type==='down'?'keydown':'keyup']).flatMap(type=>[
+      {type,key:domKey,...modifiers,shiftKey:shift,repeat:false},
+      ...(key==='Enter'&&type==='keydown'?[{type:'beforeinput',inputType:'insertLineBreak',data:null,isComposing:false,cancelable:true,defaultPrevented:true}]:[])]);
     await perform(name,expected,()=>page.keyboard[type](key));
   }
   async function tab(name,focus,reverse=false) {
@@ -193,6 +229,11 @@ try {
   }
   const same=(name,a,b)=>{result.checks[name]=assertPanelSame(images[a],images[b]);};
   const different=(name,a,b)=>{result.checks[name]=assertPanelDifferent(images[a],images[b]);};
+  // Chromium may dispatch one startup move at its initial (0,0) pointer before
+  // the canvas exists. Preserve that prefix separately, without clearing logs.
+  await page.waitForFunction(()=>focusVisibleOracleEvents.every(event=>event.defaultPrevented!==null));
+  result.startup_events=await page.evaluate(()=>globalThis.focusVisibleOracleEvents.slice());
+  result.operation_start=result.startup_events.length;
   await move('initial_pointer',8,8);
   await capture('initial',{focus:0,modality:'mouse',hover:0});
   for(const [name,focus] of [['tab1',1],['tab2',2],['tab3',3],['wrap1',1]])await tab(name,focus);
@@ -227,10 +268,12 @@ try {
   await reset();same('root_reset_preserves_message','next_after_move3','root_reset');
   await tab('root_tab1',1);
 
+  // Desktop textarea Enter also emits trusted beforeinput; the unchanged web
+  // adapter completes an internal Enter down/up pair before physical release.
   await key('enter_down1_event','Enter','down');
-  await capture('enter_down1',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.root_tab1,image)}));
+  await capture('enter_down1',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.click1,image),changed:assertPanelDifferent(images.root_tab1,image)}));
   await key('enter_up1_event','Enter','up');
-  await capture('enter_up1',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.click1,image),changed:assertPanelDifferent(images.enter_down1,image)}));
+  await capture('enter_up1',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.click1,image),unchanged:assertUnchanged(images.enter_down1,image)}));
   await tab('space_before2',2);
   await key('space_down2_event','Space','down');
   await capture('space_down2',{focus:2,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.space_before2,image)}));
@@ -240,23 +283,23 @@ try {
   await capture('activation3',{focus:3,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.click3,image)}));
 
   await reset('stale_key_reset');await tab('stale_key_before',1);
-  await key('stale_key_enter_down','Enter','down');await key('stale_key_interruption','x');await key('stale_key_enter_up','Enter','up');
+  await key('stale_key_space_down','Space','down');await key('stale_key_interruption','x');await key('stale_key_space_up','Space','up');
   await capture('stale_key_after',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.stale_key_before,image)}));
-  await tab('stale_focus_before',2);await key('stale_focus_enter_down','Enter','down');
+  await tab('stale_focus_before',2);await key('stale_focus_space_down','Space','down');
   // Secondary pointer clicks move focus without replacing the message or
   // introducing another key event, isolating the focus-generation ABA guard.
   await move('stale_focus_root_move',8,550);await mouse('stale_focus_root_down','down','right');await mouse('stale_focus_root_up','up','right');
   await capture('stale_focus_root',{focus:0,modality:'mouse',hover:0},image=>({panel:assertPanelSame(images.stale_focus_before,image)}));
   await click('stale_focus_return2',2,true);same('secondary_has_no_primary_click','stale_focus_before','stale_focus_return2');
-  await key('stale_focus_enter_up','Enter','up');
+  await key('stale_focus_space_up','Space','up');
   await capture('stale_focus_after',{focus:2,modality:'mouse',hover:2},image=>({panel:assertPanelSame(images.stale_focus_before,image)}));
   await tab('focus_generation_next3',3);
 
   // Upstream deliberately checks activation category/generation, not key identity.
   await reset('mixed_activation_reset');await tab('mixed_activation_before1',1);
-  await key('mixed_enter_down','Enter','down');await key('mixed_space_up','Space','up');
+  await key('mixed_space_down','Space','down');await key('mixed_enter_up','Enter','up');
   await capture('mixed_activation_up1',{focus:1,modality:'keyboard',hover:0},image=>({panel:assertPanelSame(images.click1,image),changed:assertPanelDifferent(images.mixed_activation_before1,image)}));
-  await key('mixed_enter_cleanup','Enter','up');
+  await key('mixed_space_cleanup','Space','up');
   await capture('mixed_activation_cleanup1',{focus:1,modality:'keyboard',hover:0},image=>({unchanged:assertUnchanged(images.mixed_activation_up1,image)}));
 
   result.negative_controls=focusVisibleNegativeControls(images,result.operations);
@@ -264,21 +307,24 @@ try {
   result.transport=await page.evaluate(()=>({active_tag:document.activeElement?.tagName,
     canvas_tab_index:document.querySelector('canvas')?.tabIndex,
     note:'DOM active element is transport only and was never used to infer GPUI focus'}));
-  assert.deepEqual(result.errors,[],'Runtime/console/network errors fail the Rust-only baseline');
-  result.status='rust_oracle_passed';
-  console.log('PASS: unchanged Rust focus_visible.rs at 800x600 DPR1; trusted operations, screenshot rings/hover and within-renderer message effects. Candidate comparison NOT RUN.');
+  result.events=await page.evaluate(()=>globalThis.focusVisibleOracleEvents||[]);
+  await Promise.all(responseTasks);
+  if(paired)validateFocusVisibleEvents(result,runtime);
+  assert.deepEqual(result.errors,[],'Runtime/console/network errors fail the profile');
+  result.status=candidate?'moonbit_profile_passed':'rust_oracle_passed';
+  console.log(`PASS: ${runtime} focus_visible at 800x600 DPR1; actual trusted operations and screenshot predicates. Independent paired comparison NOT RUN.`);
 }catch(error){result.failure=error.stack;throw error;}
 finally {
   if(page) {
     try{result.events=await page.evaluate(()=>globalThis.focusVisibleOracleEvents||[]);}catch(error){result.final_event_read_error=error.message;}
     if(result.status==='failed')try {
       const buffer=await page.screenshot({animations:'disabled',scale:'device'});
-      const file='focus-visible-rust-failure-full-dpr1.png';await writeFile(join(evidence,file),buffer);
+      const file=`focus-visible-${runtime}-failure-full-dpr1.png`;await writeFile(join(evidence,file),buffer);
       result.failure_screenshot={file,png_sha256:sha256(buffer)};
     }catch(error){result.failure_screenshot_error=error.message;}
   }
   await Promise.all(responseTasks);
-  await writeFile(join(evidence,'focus-visible-rust-result-dpr1.json'),JSON.stringify(result,null,2)+'\n');
+  await writeFile(join(evidence,`focus-visible-${runtime}-result-dpr1.json`),JSON.stringify(result,null,2)+'\n');
   if(browser)await browser.close();
   if(server)await new Promise(done=>server.close(done));
 }

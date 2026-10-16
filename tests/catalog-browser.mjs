@@ -31,7 +31,7 @@ const inventory = JSON.parse(await readFile(new URL('../web/examples.json', impo
 const retainedResult = JSON.parse(await readFile(new URL('../web/evidence/20261016/result.json', import.meta.url), 'utf8'));
 const rawLabBase = (process.env.CATALOG_BROWSER_LAB_BASE_URL || '').trim();
 const labBase = rawLabBase ? new URL(rawLabBase).origin : '';
-const implemented = ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable'];
+const implemented = ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible'];
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript',
   '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 const server = createServer(async (request, response) => {
@@ -113,19 +113,19 @@ try {
     assert.equal(await page.locator(selector).count(), count);
   }
   async function assertReady() {
-    await assertCount('#example-list > .example-card', 9);
-    await assertCount('#case-list > .case-row', 145);
-    await assertCount(visibleExamples, 9);
-    await assertCount(visibleCases, 145);
-    assert.equal(await page.locator('#example-count').textContent(), '9 / 9 examples を表示');
-    assert.equal(await page.locator('#result-count').textContent(), '145 / 145 件を表示');
+    await assertCount('#example-list > .example-card', 10);
+    await assertCount('#case-list > .case-row', 146);
+    await assertCount(visibleExamples, 10);
+    await assertCount(visibleCases, 146);
+    assert.equal(await page.locator('#example-count').textContent(), '10 / 10 examples を表示');
+    assert.equal(await page.locator('#result-count').textContent(), '146 / 146 件を表示');
     assert.equal(await page.locator('#examples-empty').isVisible(), false);
     assert.equal(await page.locator('#empty-state').isVisible(), false);
     assert.equal(await page.locator('script[src], link[rel="stylesheet"]').count(), 0,
       'The generated document must carry its own application and styles');
     assert.equal(await page.locator('script#catalog-data[type="application/json"]').count(), 1);
     const previews = page.locator('#example-list .example-preview img');
-    assert.equal(await previews.count(), 4, 'Four retained captures; text, input, dynamic_fonts, tree and scrollable have no saved previews');
+    assert.equal(await previews.count(), 4, 'Four retained captures; text, input, dynamic_fonts, tree, scrollable and focus_visible have no saved previews');
     assert.equal(await page.locator('#example-list a').evaluateAll(nodes => nodes.filter(node => node.textContent === '撮影記録').length), 3);
     assert.equal(await page.locator('#example-list a').evaluateAll(nodes => nodes.filter(node => node.textContent === 'gpui.rs の保存画像').length), 3);
     assert.equal(await page.locator('#example-list').evaluate(node => getComputedStyle(node).display), 'grid',
@@ -139,7 +139,7 @@ try {
     assert.deepEqual(await previews.evaluateAll(nodes => nodes.map(node => [node.naturalWidth, node.naturalHeight])),
       [[500, 500], [800, 600], [800, 600], [640, 560]]);
     const data = await page.locator('#catalog-data').evaluate(node => JSON.parse(node.textContent));
-    assert.equal(data.browser.implemented_count, 9);
+    assert.equal(data.browser.implemented_count, 10);
     assert.equal(data.browser.current_status, 'unverified');
     assert.equal(data.browser.changed_pixels, 1532, 'The historical hello_world score must stay unchanged');
     assert.equal(data.browser.pins_match_current_inventory, false);
@@ -147,6 +147,8 @@ try {
       ['upstream', 'moonbit'].map(kind => retainedResult.build[kind].revision));
     assert.deepEqual(data.browser.current_pins.map(pin => pin.revision),
       ['upstream', 'moonbit'].map(kind => inventory[kind].revision));
+    assert.equal(data.browser.current_pins[1].tree, '29449e394c0faf2b25beb2a1b6a4bce2806b3231');
+    assert.equal(data.browser.current_pins[1].revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
     for (const [id, pins] of [['browser-pins', data.browser.pins], ['browser-current-pins', data.browser.current_pins]]) {
       assert.deepEqual(await page.locator(`#${id} a`).evaluateAll(nodes => nodes.map(node => node.href)), pins.map(pin => pin.url));
     }
@@ -163,7 +165,23 @@ try {
     assert.equal(await scrollable.locator('.example-preview img').count(), 0);
     assert.equal(await scrollable.locator('.evidence-provenance').count(), 0);
     assert.match(await scrollable.locator('.preview-label').textContent(), /保存画像なし/);
-    assert.equal(data.browser_examples.filter(example => example.status === 'unverified').length, 8);
+    const focus = page.locator('.example-card:has(#example-focus_visible)');
+    assert.equal(await focus.count(), 1);
+    assert.equal(await focus.locator('.case-status').textContent(), '未検証 · unverified');
+    assert.equal(await focus.locator('.example-preview img, .evidence-provenance').count(), 0);
+    assert.match(await focus.locator('.preview-label').textContent(), /保存画像なし/);
+    assert.match(await focus.locator('.implementation-label').textContent(), /800×600/);
+    const focusData = data.browser_examples.find(example => example.id === 'focus_visible');
+    assert.equal(focusData.interactive, true);
+    assert.equal(focusData.execution, 'unverified');
+    assert.equal(focusData.evidence_available, false);
+    for (const key of ['result_url', 'result_date', 'changed_pixels', 'total_pixels', 'thumbnail', 'evidence_scope'])
+      assert.equal(focusData[key], null, key);
+    assert.equal(await focus.locator('.case-links a').evaluateAll(nodes =>
+      nodes.find(node => node.textContent === '上流ソース')?.href),
+    'https://github.com/zed-industries/zed/blob/5a5fbe79917971a4d52a96b6ddb04da198a5012e/crates/gpui/examples/focus_visible.rs');
+    assert.deepEqual(await focus.locator('.evidence-links a').allTextContents(), labBase ? ['ライブ比較を開く'] : []);
+    assert.equal(data.browser_examples.filter(example => example.status === 'unverified').length, 9);
     assert.deepEqual(await page.locator('.example-card[data-implementation="implemented"] .example-id').allTextContents(), implemented);
     assert.equal(await page.locator('#catalog-revision').textContent(), `Catalog source ${data.revision.slice(0, 12)}`);
     const comparisonLinks = await page.locator('#example-list a').evaluateAll(nodes =>
@@ -184,7 +202,7 @@ try {
   // Gallery search and implementation filters combine; native form reset also
   // restores the count and empty-state message after the asynchronous handler.
   await page.selectOption('#implementation-filter', 'implemented');
-  await assertCount(visibleExamples, 9);
+  await assertCount(visibleExamples, 10);
   await page.fill('#example-search', '  TEXT_WRAPPER  ');
   await assertCount(visibleExamples, 1);
   assert.equal(await page.locator(`${visibleExamples} .example-id`).textContent(), 'text_wrapper');
@@ -194,13 +212,18 @@ try {
   await page.fill('#example-search', '');
   await assertCount(visibleExamples, 0);
   await page.locator('#example-filters button[type="reset"]').click();
-  await assertCount(visibleExamples, 9);
+  await assertCount(visibleExamples, 10);
   assert.equal(await page.locator('#implementation-filter').inputValue(), '');
   assert.equal(await page.locator('#example-search').inputValue(), '');
+  await page.fill('#example-search', 'FOCUS_VISIBLE');
+  await assertCount(visibleExamples, 1);
+  assert.equal(await page.locator(`${visibleExamples} .example-id`).textContent(), 'focus_visible');
+  await page.locator('#example-filters button[type="reset"]').click();
+  await assertCount(visibleExamples, 10);
 
   // The full coverage catalog stays usable and independent of gallery filters.
   await page.selectOption('#suite-filter', 'browser');
-  await assertCount(visibleCases, 9);
+  await assertCount(visibleCases, 10);
   await page.selectOption('#status-filter', 'unsupported');
   await assertCount(visibleCases, 0);
   await page.fill('#search', 'text_wrapper');
@@ -210,14 +233,14 @@ try {
   await assertCount(visibleCases, 1);
   assert.equal(await page.locator(`${visibleCases} h3`).textContent(), 'text_wrapper');
   await page.fill('#search', '');
-  await assertCount(visibleCases, 8);
+  await assertCount(visibleCases, 9);
   await page.selectOption('#suite-filter', 'native');
   await assertCount(visibleCases, 2);
   await page.selectOption('#suite-filter', 'headless');
   await page.selectOption('#status-filter', 'pass');
   await assertCount(visibleCases, 131);
   await page.locator('#clear-filters').click();
-  await assertCount(visibleCases, 145);
+  await assertCount(visibleCases, 146);
   for (const selector of ['#search', '#suite-filter', '#status-filter']) {
     assert.equal(await page.locator(selector).inputValue(), '');
   }
@@ -234,14 +257,14 @@ try {
   await page.fill('#example-search', 'text_layout');
   await assertCount(visibleExamples, 1);
   await page.locator('#example-filters button[type="reset"]').click();
-  await assertCount(visibleExamples, 9);
+  await assertCount(visibleExamples, 10);
   assert.deepEqual(await assertReady(), firstRelease);
 
   // Older cached HTML has no feature-gallery elements. The loose current app
   // must preserve the coverage table and display a refresh notice, not throw.
   for (const fixture of ['legacy-document', 'legacy-data']) {
     await page.goto(`${origin}/${fixture}/`);
-    await assertCount(visibleCases, 145);
+    await assertCount(visibleCases, 146);
     assert.equal(await page.locator('#example-list > .example-card').count(), 0);
     assert.equal(await page.locator('#example-list').count(), fixture === 'legacy-document' ? 0 : 1);
     assert.match(await page.locator('#scope-note').textContent(), /古いページまたはカタログ形式/);
@@ -254,11 +277,11 @@ try {
       assert(legacyRequests.includes(`/${fixture}/${asset}`), `${fixture} must exercise loose ${asset}`);
     }
     await page.selectOption('#suite-filter', 'browser');
-    await assertCount(visibleCases, 9);
+    await assertCount(visibleCases, 10);
     await page.fill('#search', 'text_wrapper');
     await assertCount(visibleCases, 1);
     await page.locator('#clear-filters').click();
-    await assertCount(visibleCases, 145);
+    await assertCount(visibleCases, 146);
     assert.deepEqual(errors, []);
   }
   // Reproduce the former catch-handler crash: old HTML has no gallery summary,
@@ -277,7 +300,7 @@ try {
   assert.deepEqual(errors, [], 'Only the intentional data.json HTTP 503 console error is expected');
   assert(expectedHTTP503Errors.length <= 1);
   assert.deepEqual(looseRequests, []);
-  console.log('PASS: atomic catalog; 9 cards, 145 rows, 9 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
+  console.log('PASS: atomic catalog; 10 cards, 146 rows, 10 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
 } finally {
   if (browser) await browser.close();
   server.closeAllConnections();
