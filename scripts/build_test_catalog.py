@@ -77,7 +77,235 @@ BROWSER_FEATURES = {
     "hello_web": {
         "title": "バックグラウンド計算",
         "tags": ["非同期処理", "素数計算", "操作 UI"],
-        "description": "素数の計算をバックグラウンドで進める…2825 tokens truncated…es = {item["id"]: item["status"] for item in native_positive["cases"]}
+        "description": "素数の計算をバックグラウンドで進める上流の Prime sieve 例です。",
+    },
+}
+
+LAYER_LABELS = {
+    "headless-layout": ("Headless · layout", "Layout", "固定配置、flex、wrap、min/max のレイアウト比較"),
+    "headless-dispatch": ("Headless · input", "Input / event dispatch", "pointer・key・focus・route の配送比較"),
+    "headless-scene": ("Headless · scene", "Scene", "描画シーンの構成比較"),
+    "headless-clip": ("Headless · clip", "Clipping", "入れ子クリップの比較"),
+    "native-window": ("Native · window", "Native window", "ネイティブウィンドウのライフサイクル"),
+    "native-gpu": ("Native · GPU", "Native GPU", "ネイティブGPU出力の観測"),
+    "native-ime": ("Native · IME", "Native IME", "IME合成入力"),
+}
+STATUS_LABELS = {
+    "pass": "一致 · pass",
+    "mismatch": "差分 · mismatch",
+    "difference": "差分 · different",
+    "unsupported": "未対応 · unsupported",
+    "unverified": "未検証 · unverified",
+}
+
+
+def load_json(path: str) -> dict[str, Any]:
+    return json.loads((ROOT / path).read_text(encoding="utf-8"))
+
+
+def pixel_status(recorded_status: str | None) -> str:
+    return {"equal": "pass", "different": "difference"}.get(recorded_status, "unverified")
+
+
+def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any]) -> None:
+    """Keep pins strict while allowing new ports without borrowing old results."""
+    build = browser["build"]
+    for key in ("upstream", "moonbit"):
+        recorded = build.get(key, {})
+        declared = inventory.get(key, {})
+        if recorded.get("repository") != declared.get("repository") or recorded.get("revision") != declared.get("revision"):
+            raise ValueError(f"browser {key} pin in examples.json differs from retained result")
+
+    recorded_implemented = set(build.get("implemented", []))
+    declared_implemented = {
+        example["id"] for example in inventory.get("examples", [])
+        if example.get("moonbit") == "implemented"
+    }
+    if not recorded_implemented.issubset(declared_implemented):
+        raise ValueError("implemented browser examples from the retained result are missing in the inventory")
+    ids = [example["id"] for example in inventory.get("examples", [])]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate browser example IDs in the inventory")
+    if BROWSER_RESULT_EXAMPLE_ID not in recorded_implemented:
+        raise ValueError("retained hello_world evidence is missing its implemented browser example")
+
+
+def normalize_browser_lab_base_url(value: Any) -> str | None:
+    """Accept only an explicit HTTPS root URL for this worker; unset stays disabled."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a string URL")
+
+    candidate = value.strip()
+    if not candidate:
+        return None
+    if any(char.isspace() or ord(char) < 0x20 for char in candidate):
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain whitespace or control characters")
+    if "?" in candidate or "#" in candidate:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be a root URL without query or fragment")
+
+    try:
+        parsed = urlsplit(candidate)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as error:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} is not a valid URL") from error
+
+    if parsed.scheme.lower() != "https" or not hostname:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must use HTTPS")
+    if parsed.username is not None or parsed.password is not None or port is not None:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must not contain credentials or a port")
+    if parsed.path not in ("", "/") or parsed.query or parsed.fragment:
+        raise ValueError(f"{BROWSER_LAB_BASE_URL_ENV} must be the worker root without a path, query, or fragment")
+
+    labels = hostname.lower().split(".")
+    account_label = labels[1] if len(labels) == 4 else ""
+    if (
+        len(labels) != 4
+        or labels[0] != BROWSER_LAB_WORKER_NAME
+        or labels[2:] != ["workers", "dev"]
+        or not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", account_label)
+    ):
+        raise ValueError(
+            f"{BROWSER_LAB_BASE_URL_ENV} must match "
+            f"https://{BROWSER_LAB_WORKER_NAME}.<account>.workers.dev root URL"
+        )
+    return f"https://{hostname.lower()}"
+
+
+def browser_lab_comparison_url(example_id: str, implemented: bool, base_url: str | None) -> str | None:
+    """Link only declared ports supported by the lab, with an opt-in host URL."""
+    if example_id not in BROWSER_LAB_EXAMPLES or not implemented:
+        return None
+    normalized_base_url = normalize_browser_lab_base_url(base_url)
+    if normalized_base_url is None:
+        return None
+    return f"{normalized_base_url}/?example={example_id}"
+
+
+def recorded_date(path: str) -> str:
+    match = re.search(r"(20\d{6})", Path(path).name)
+    if not match:
+        match = re.search(r"(20\d{6})", path)
+    if not match:
+        return ""
+    return datetime.strptime(match.group(1), "%Y%m%d").date().isoformat()
+
+
+def source_url(revision: str, path: str, line: int | None = None) -> str:
+    suffix = f"#L{line}" if line else ""
+    return f"{REPO_URL}/blob/{revision}/{path}{suffix}"
+
+
+def line_for_id(path: str, case_id: str) -> int | None:
+    pattern = re.compile(r'^\s*"id"\s*:\s*"' + re.escape(case_id) + r'"\s*,?\s*$')
+    for number, line in enumerate((ROOT / path).read_text(encoding="utf-8").splitlines(), start=1):
+        if pattern.match(line):
+            return number
+    return None
+
+
+def current_revision() -> str:
+    explicit = os.environ.get("CATALOG_REVISION") or os.environ.get("GITHUB_SHA")
+    if explicit:
+        return explicit
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, stderr=subprocess.DEVNULL
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "main"
+
+
+def build_catalog(revision: str | None = None) -> dict[str, Any]:
+    revision = revision or current_revision()
+    evidence = load_json(RESULT_PATH)
+    positive = next(
+        run for run in evidence["full_corpus_preservation_check"]["positive_and_negative_control_runs"]
+        if run["name"] == "cross-axis-final-positive"
+    )
+    comparison = positive["comparison"]
+    case_results = {item["id"]: item for item in comparison["cases"]}
+
+    # Reconstruct the combined file in the same registry order used by the
+    # recorded run. The digest prevents old results from being attached to
+    # edited scenario inputs with unchanged IDs.
+    combined_cases = []
+    for path in SCENARIO_FILES:
+        combined_cases.extend(load_json(path)["cases"])
+    combined_bytes = (
+        json.dumps({"schema_version": 1, "cases": combined_cases}, ensure_ascii=False, indent=2) + "\n"
+    ).encode("utf-8")
+    combined_sha = hashlib.sha256(combined_bytes).hexdigest()
+    if combined_sha != positive.get("scenarios_sha256"):
+        raise ValueError("current scenario registries do not match the retained run input digest")
+
+    # The eight headless registries are distinct from native_scenarios.json.
+    # Two generic native placeholders in scenarios.json share IDs with the
+    # dedicated native cases but intentionally have different inputs.
+    catalog_cases: dict[str, dict[str, Any]] = {}
+    for path in SCENARIO_FILES:
+        for case in load_json(path)["cases"]:
+            case_id = case["id"]
+            if case_id in catalog_cases:
+                raise ValueError(f"duplicate ID among headless registries: {case_id}")
+            catalog_cases[case_id] = {"case": case, "path": path}
+
+    if set(catalog_cases) != set(case_results):
+        missing = sorted(set(catalog_cases) - set(case_results))
+        extra = sorted(set(case_results) - set(catalog_cases))
+        raise ValueError(f"scenario/result IDs differ; missing results={missing}; extra results={extra}")
+
+    result_source = source_url(revision, RESULT_PATH)
+    cases: list[dict[str, Any]] = []
+    by_layer: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for case_id, entry in catalog_cases.items():
+        case = entry["case"]
+        result = case_results[case_id]
+        if case.get("layer") != result.get("layer"):
+            raise ValueError(f"layer differs between scenario and result for {case_id}")
+        path = entry["path"]
+        line = line_for_id(path, case_id)
+        layer, category, description = LAYER_LABELS.get(
+            case.get("layer"), (case.get("layer", "other"), case.get("layer", "other"), "")
+        )
+        status = result["status"]
+        item = {
+            "id": case_id,
+            "status": status,
+            "status_label": STATUS_LABELS[status],
+            "layer": case.get("layer", "other"),
+            "layer_label": layer,
+            "category": category,
+            "kind": case.get("kind", "scenario"),
+            "source_path": path,
+            "source_url": source_url(revision, path, line),
+            "result_url": result_source,
+            "result_date": recorded_date(RESULT_PATH),
+            "description": description,
+            "interactive": False,
+            "comparison_url": None,
+            "suite_type": "headless",
+        }
+        cases.append(item)
+        by_layer[item["layer"]].append(item)
+
+    counts = Counter(item["status"] for item in cases)
+    report_counts = comparison["summary"]
+    for status in ("pass", "mismatch", "unsupported", "unverified"):
+        if counts.get(status, 0) != report_counts.get(status, 0):
+            raise ValueError(f"catalog {status} count does not match the retained comparison")
+
+    # Native cases have a separate registry and a historical passing run. That
+    # run used a different gpui.mbt revision from the current pin, so the current
+    # catalog status remains unverified while preserving the older evidence.
+    native_registry_bytes = (ROOT / NATIVE_SCENARIO_PATH).read_bytes()
+    native_scenarios_sha = hashlib.sha256(native_registry_bytes).hexdigest()
+    native_result = load_json(NATIVE_RESULT_PATH)
+    native_positive = native_result["executions"]["native-merged-positive"]["comparison"]
+    native_report_sha = native_positive.get("scenarios_sha256")
+    native_statuses = {item["id"]: item["status"] for item in native_positive["cases"]}
     if native_report_sha != native_scenarios_sha:
         raise ValueError("native scenario inputs do not match the retained native evidence")
     current_candidate = load_json("pins.json")["moonbit"]["revision"]
