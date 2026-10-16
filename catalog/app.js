@@ -99,6 +99,12 @@ function featureCard(item) {
 
 function renderExamples(data) {
   const list = document.getElementById("example-list");
+  // A previous Pages document may still request this loose compatibility script.
+  // Keep its coverage table usable rather than crashing on newly added elements.
+  if (!list || !data.browser_examples.every(item => item.implementation && item.feature_tags)) {
+    showRefreshNotice("古いページまたはカタログ形式が残っています。機能カードには最新版を読み込んでください。");
+    return;
+  }
   const examples = [...data.browser_examples].sort((a, b) => Number(b.implemented) - Number(a.implemented));
   for (const item of examples) list.append(featureCard(item));
   document.getElementById("examples-summary").textContent = `${examples.length} examples · gpui.mbt 実装 ${data.browser.implemented_count} 件 · 保存済み比較 ${data.browser.evidence_count} 件`;
@@ -189,9 +195,16 @@ function setLink(id, label, href) {
 }
 
 async function init() {
-  const response = await fetch("./data.json", { cache: "no-store" });
-  if (!response.ok) throw new Error(`Catalog data could not be loaded (${response.status}).`);
-  const data = await response.json();
+  const embedded = document.getElementById("catalog-data");
+  let data;
+  if (embedded) {
+    data = JSON.parse(embedded.textContent);
+  } else {
+    // Compatibility for old cached documents and source-template development.
+    const response = await fetch("./data.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`Catalog data could not be loaded (${response.status}).`);
+    data = await response.json();
+  }
 
   document.getElementById("scope-note").textContent = data.scope_note;
   renderExamples(data);
@@ -235,7 +248,7 @@ async function init() {
     ...item,
     suite_type: "browser",
     category: "Browser example",
-    kind: item.implementation.label,
+    kind: item.implementation?.label ?? (item.implemented ? "gpui.mbt 実装あり" : "gpui.mbt 未実装"),
     // Per-example evidence is produced by the generator. Never borrow the
     // summary's hello_world result for another implemented port.
   }));
@@ -275,9 +288,17 @@ async function init() {
   refresh();
 }
 
-init().catch(error => {
+function showRefreshNotice(message) {
   const note = document.getElementById("scope-note");
-  note.textContent = error.message;
-  document.getElementById("result-count").textContent = "テスト一覧を表示できません。リポジトリの data.json を確認してください。";
-  document.getElementById("examples-summary").textContent = "example を表示できません。";
+  if (!note) return;
+  note.textContent = message;
+  note.append(" ", link("最新版を読み込む", `?catalog-refresh=${Date.now()}`));
+}
+
+init().catch(error => {
+  showRefreshNotice(`カタログを読み込めませんでした: ${error.message}`);
+  const count = document.getElementById("result-count");
+  if (count) count.textContent = "テスト一覧を表示できません。上のリンクから再読み込みしてください。";
+  const summary = document.getElementById("examples-summary");
+  if (summary) summary.textContent = "example を表示できません。";
 });
