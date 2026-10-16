@@ -54,6 +54,8 @@ def validate_scenarios(scenarios):
         if kind == "layout":
             if s.get("direction", "row") not in ("row", "column") or s.get("justify", "start") not in ("start", "center", "end", "space-between", "space-around", "space-evenly") or s.get("align", "start") not in ("start", "center", "end", "stretch"):
                 raise ValueError("unknown layout direction/alignment")
+            if s.get("align_content", "stretch") not in ("start", "center", "end", "stretch"):
+                raise ValueError("unknown bounded cross-line alignment")
             if s.get("layout_observation", "bounds") not in ("bounds", "line_origins"):
                 raise ValueError("unknown bounded layout observation")
             device_scale = s.get("device_scale_factor")
@@ -87,7 +89,7 @@ def validate_scenarios(scenarios):
                 for x in cross_maxima
             ) or any(limit is not None and minimum > limit for minimum, limit in zip(cross_minima, cross_maxima)):
                 raise ValueError("invalid bounded cross-axis maxima")
-        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation", "device_scale_factor")):
+        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation", "device_scale_factor", "align_content")):
             raise ValueError("layout-specific fields require a layout scenario")
         if kind == "pointer" and (s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse") or not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")
