@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { checkTreePair } from './tree-browser.mjs';
 import { checkInputPointers } from './input-pointer-browser.mjs';
+import { checkInputIme } from './input-ime-browser.mjs';
 import {execFileSync} from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
@@ -775,6 +776,10 @@ try {
   assert(inputEventTrace.some(event=>event.type==='compositionupdate'));
   assert(inputEventTrace.some(event=>event.type==='compositionend' && !event.committed));
   report.operations.push({action:'Chromium MoonBit text field',result:'trusted typing, UTF-16 caret/selection, copy/cut, undo/redo, paste adapter, composition preview/commit/cancel',imei:'synthetic composition events only: live Japanese IME unverified'});
+  const imeRegression = await checkInputIme(page, moon);
+  await writeFile(join(evidence,'input-ime-synthetic-regressions.json'),JSON.stringify(imeRegression,null,2));
+  report.operations.push({action:'Chromium synthetic non-cancelable IME regression',
+    checked:imeRegression.checked, live_japanese_ime:'not_run'});
   if(paired) {
     const rustInput = page.frameLocator('#rust-frame').locator('canvas');
     const before=await captureCanvas(rustInput,'input_rust_initial',300,300);
