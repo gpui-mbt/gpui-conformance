@@ -33,6 +33,7 @@ try {
       for (const side of ['moon', 'rust']) {
         $(side + '-frame').style.width = `${example.width || 500}px`;
         $(side + '-frame').style.height = `${example.height || 500}px`;
+        $(side + '-frame').parentElement.style.height = `${(example.height || 500) + 20}px`;
       }
       const moon = moonbitExampleUrl(location.href, example);
       if (!moon) {
