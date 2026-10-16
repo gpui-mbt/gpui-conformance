@@ -193,60 +193,90 @@ class TestCatalogData(unittest.TestCase):
         self.assertIsNone(browser_lab_comparison_url("focus-visible", True, base))
 
     def test_tab_stop_candidate_has_no_borrowed_measurements_or_preview(self):
+        inventory = load_json("web/examples.json")
+        entry = next(example for example in inventory["examples"] if example["id"] == "tab_stop")
+        self.assertEqual(entry["rust_route"], "tab-stop")
+        self.assertEqual(entry["source_blob"], "cc7c34a9979ce4027578ec2c358f503d944ee26f")
+        self.assertEqual(entry["candidate_source"], "web/moonbit/tab_stop/tab_stop.mbt")
         base = "https://gpui-conformance-browser-lab.account.workers.dev"
         with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
             port = next(example for example in build_catalog("tab-stop-source-contract")["browser_examples"] if example["id"] == "tab_stop")
         self.assertTrue(port["implemented"])
         self.assertEqual(port["implementation"]["status"], "implemented")
         self.assertEqual(port["source_path"], "crates/gpui/examples/tab_stop.rs")
+        self.assertEqual(port["source_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
+        self.assertEqual(port["source_url"], "https://github.com/zed-industries/zed/blob/"
+                         "5a5fbe79917971a4d52a96b6ddb04da198a5012e/crates/gpui/examples/tab_stop.rs")
+        self.assertEqual(port["implementation"]["source_url"], "https://github.com/gpui-mbt/gpui-conformance/blob/"
+                         "tab-stop-source-contract/web/moonbit/tab_stop/tab_stop.mbt")
         self.assertEqual((port["width"], port["height"], port["interactive"]), (800, 600, True))
         self.assertEqual(port["status"], "unverified")
         self.assertEqual(port["execution"], "unverified")
         self.assertFalse(port["evidence_available"])
         self.assertEqual(port["comparison_url"], f"{base}/?example=tab_stop")
-        for key in ("result_url", "result_date", "changed_pixels", "thumbnail", "evidence_scope"):
+        self.assertEqual(port["suite_type"], "browser")
+        self.assertIn("tab stop", port["feature_tags"])
+        self.assertEqual(port["source_features"], entry["features"])
+        for boundary in ("Source-derived candidate", "core group-prefix traversal", "host extensions",
+                         "Paired browser execution", "native", "GPU shadow-kernel", "text", "full-image parity remain unverified"):
+            self.assertIn(boundary, port["implementation"]["note"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
             self.assertIsNone(port[key], key)
-        self.assertTrue(port["implementation"]["source_url"].endswith("tab-stop-source-contract/web/moonbit/tab_stop/tab_stop.mbt"))
+        self.assertIsNone(browser_lab_comparison_url("tab_stop", True, None))
+        self.assertIsNone(browser_lab_comparison_url("tab_stop", False, base))
+        self.assertIsNone(browser_lab_comparison_url("tab-stop", True, base))
 
     def test_current_browser_pin_and_nine_core_two_web_classifications(self):
         inventory = load_json("web/examples.json")
         self.assertEqual(inventory["upstream"]["revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
         self.assertEqual(inventory["moonbit"]["revision"], "eb968228bbea56aff13721dc427875c2dacffc14")
         self.assertEqual(inventory["moonbit"]["tree"], "ae9072d350ef6d1546e408226218ec08efc96552")
+        self.assertEqual(len(inventory["examples"]), 11)
         self.assertEqual(sum(e["source"].startswith("crates/gpui/examples/") for e in inventory["examples"]), 9)
+        self.assertEqual({e["id"] for e in inventory["examples"] if e["source"].startswith("crates/gpui/examples/")},
+                         {"hello_world", "text", "text_layout", "text_wrapper", "input", "tree", "scrollable", "focus_visible", "tab_stop"})
+        self.assertEqual(sum(e["source"].startswith("crates/gpui_web/examples/") for e in inventory["examples"]), 2)
         self.assertEqual({e["id"] for e in inventory["examples"] if e["source"].startswith("crates/gpui_web/examples/")},
                          {"dynamic_fonts", "hello_web"})
+        self.assertEqual([e["source_path"] for e in self.data["browser_examples"]],
+                         [e["source"] for e in inventory["examples"]])
         self.assertEqual(self.data["browser"]["current_pins"][1]["tree"], inventory["moonbit"]["tree"])
         self.assertTrue(all("tree" not in pin for pin in self.data["browser"]["pins"]))
 
-    def test_focus_visible_cannot_relabel_a_retained_capture(self):
+    def test_unmeasured_interactive_ports_cannot_relabel_a_retained_capture(self):
         real_load = load_json
-        for path in (TEXT_CAPTURE_MANIFEST, PRIME_CAPTURE_MANIFEST):
-            manifest = deepcopy(load_json(path))
-            if path == TEXT_CAPTURE_MANIFEST:
-                manifest["examples"][0]["id"] = "focus_visible"
-            else:
-                manifest["example"]["id"] = "focus_visible"
-            with self.subTest(path=path), patch("scripts.build_test_catalog.load_json",
-                                               side_effect=lambda source: manifest if source == path else real_load(source)):
-                with self.assertRaises(ValueError):
-                    build_catalog("forged-focus-capture")
+        for example_id in ("focus_visible", "tab_stop"):
+            for path in (TEXT_CAPTURE_MANIFEST, PRIME_CAPTURE_MANIFEST):
+                manifest = deepcopy(load_json(path))
+                if path == TEXT_CAPTURE_MANIFEST:
+                    manifest["examples"][0]["id"] = example_id
+                else:
+                    manifest["example"]["id"] = example_id
+                with self.subTest(example=example_id, path=path), patch(
+                    "scripts.build_test_catalog.load_json",
+                    side_effect=lambda source: manifest if source == path else real_load(source),
+                ):
+                    with self.assertRaises(ValueError):
+                        build_catalog("forged-unmeasured-capture")
 
-    def test_focus_visible_inventory_claims_cannot_supply_measurement_provenance(self):
-        inventory = deepcopy(load_json("web/examples.json"))
-        entry = next(example for example in inventory["examples"] if example["id"] == "focus_visible")
-        entry.update(status="pass", execution="passed", evidence_available=True,
-                     result_url=BROWSER_RESULT_PATH, changed_pixels=0,
-                     thumbnail={"url": BROWSER_THUMBNAIL_ASSET}, evidence_scope="current")
+    def test_unmeasured_port_inventory_claims_cannot_supply_measurement_provenance(self):
         real_load = load_json
-        with patch("scripts.build_test_catalog.load_json",
-                   side_effect=lambda path: inventory if path == "web/examples.json" else real_load(path)):
-            port = next(e for e in build_catalog("forged-inventory-claim")["browser_examples"] if e["id"] == "focus_visible")
-        self.assertEqual(port["status"], "unverified")
-        self.assertEqual(port["execution"], "unverified")
-        self.assertFalse(port["evidence_available"])
-        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
-            self.assertIsNone(port[key], key)
+        for example_id in ("focus_visible", "tab_stop"):
+            inventory = deepcopy(load_json("web/examples.json"))
+            entry = next(example for example in inventory["examples"] if example["id"] == example_id)
+            entry.update(status="pass", execution="passed", evidence_available=True,
+                         result_url=BROWSER_RESULT_PATH, changed_pixels=0,
+                         thumbnail={"url": BROWSER_THUMBNAIL_ASSET}, evidence_scope="current")
+            with self.subTest(example=example_id), patch(
+                "scripts.build_test_catalog.load_json",
+                side_effect=lambda path: inventory if path == "web/examples.json" else real_load(path),
+            ):
+                port = next(e for e in build_catalog("forged-inventory-claim")["browser_examples"] if e["id"] == example_id)
+                self.assertEqual(port["status"], "unverified")
+                self.assertEqual(port["execution"], "unverified")
+                self.assertFalse(port["evidence_available"])
+                for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
+                    self.assertIsNone(port[key], key)
 
     def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
         base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
@@ -462,14 +492,14 @@ class TestCatalogData(unittest.TestCase):
         expected_previews = {item["id"]: item["thumbnail"] for item in build_catalog("test")["browser_examples"]}
         for pixel_result in ("equal", "different"):
             browser = deepcopy(load_json(BROWSER_RESULT_PATH))
-            browser["build"]["implemented"].extend(("text_layout", "text_wrapper", "scrollable", "focus_visible"))
+            browser["build"]["implemented"].extend(("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop"))
             browser["raster_comparison"]["status"] = pixel_result
             real_load = load_json
             def patched_load(path):
                 return browser if path == BROWSER_RESULT_PATH else real_load(path)
             with self.subTest(pixel_result=pixel_result), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
                 examples = build_catalog("test")["browser_examples"]
-            for example_id in ("text_layout", "text_wrapper", "scrollable", "focus_visible"):
+            for example_id in ("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop"):
                 new_port = next(item for item in examples if item["id"] == example_id)
                 with self.subTest(example=example_id):
                     self.assertEqual(new_port["status"], "unverified")
