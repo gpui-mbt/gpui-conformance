@@ -477,7 +477,7 @@ def main(argv=None):
     try:
         build = build_pair(args, out, os.environ.copy(), pins, manifest)
         if len(build) == 2 and not args.build_only:
-            required = ("weston", "wmctrl", "xdotool", "xwininfo", "import")
+            required = ("weston", "wmctrl", "xdotool", "xwininfo", "stdbuf", "import")
             missing = [name for name in required if shutil.which(name) is None]
             if platform.system() != "Linux" or not os.environ.get("DISPLAY") or missing:
                 manifest["reasons"].append("X11 execution prerequisites absent: " +
