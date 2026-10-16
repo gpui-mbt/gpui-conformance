@@ -108,6 +108,12 @@ jobs:
         with:
           name: linux-side-by-side-native-evidence
           path: |
-            _build/native-lab-actual/
+            _build/native-lab-actual/comparison.json
+            _build/native-lab-actual/scenarios.json
+            _build/native-lab-actual/*.png
+            _build/native-lab-actual/*.stdout
+            _build/native-lab-actual/*.stderr
+            _build/native-lab-actual/build/*.stdout
+            _build/native-lab-actual/build/*.stderr
             _build/native-x11-system/
           if-no-files-found: warn
