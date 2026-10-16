@@ -320,6 +320,29 @@ try {
   assert.notEqual(await page.locator('#moon-frame').getAttribute('src'),wrapperUrl);
   assert.deepEqual(await moon.locator('html').evaluate(() => gpuiExample.frame.runs),runs);
   report.operations.push({action:'reload text_wrapper pair',result:'fresh runtimes and stable wrapping output'});
+  function assertDynamicFontsGeometry(dynamic, phase, scale = 1) {
+    // Source-derived device pixels: GPUI TextStyle defaults to phi() = 1.618034;
+    // TextLayout::layout uses Window::pixel_snap before the 16px column gaps.
+    // These are layout assertions, not font-fallback or pixel-parity claims.
+    const expected = {
+      1: {heights:[39,26,65,52,26,26,26], tops:[32,87,129,210,278,320,362]},
+      1.5: {heights:[58,39,97,78,39,39,39], tops:[48,130,193,314,416,479,542]},
+      2: {heights:[78,52,129,104,52,52,52], tops:[64,174,258,419,555,639,723]},
+    }[scale];
+    assert.equal(dynamic.scale, scale);
+    const rows = dynamic.frame.snapshot.items.filter(item => item.kind === 'text');
+    assert.deepEqual(rows.map(row => row.id), [2,3,4,5,6,7,8]);
+    assert.deepEqual(rows.map(row => row.font_size), [24,16,40,32,16,16,16]);
+    // Tolerance covers only binary floating-point logical/device conversion.
+    for (let index = 0; index < rows.length; index++) {
+      assert(Math.abs(rows[index].bounds.height * scale - expected.heights[index]) < 1e-6);
+      assert(Math.abs(rows[index].bounds.y * scale - expected.tops[index]) < 1e-6);
+      assert.equal(rows[index].bounds.x, 32);
+      if (index > 0) assert(Math.abs(rows[index].bounds.y - rows[index - 1].bounds.y - rows[index - 1].bounds.height - 16) < 1e-6);
+    }
+    report.dynamic_fonts_geometry ||= [];
+    report.dynamic_fonts_geometry.push({phase, scale, rows: rows.map(({id,font_size,bounds}) => ({id,font_size,bounds}))});
+  }
   // Deterministic HTTP failure: real CDN availability and shaping are not test assertions.
   const fontRoute='**/notosansdevanagari/**';
   await page.route(fontRoute,route=>route.fulfill({
@@ -336,7 +359,7 @@ try {
   });
   let dynamic=await moon.locator('html').evaluate(()=>gpuiExample);
   assert.deepEqual([dynamic.metadata.width,dynamic.metadata.height],[900,500]);
-  assert.equal(dynamic.frame.snapshot.items.filter(item=>item.kind==='text').length,7);
+  assertDynamicFontsGeometry(dynamic, 'failed');
   assert.equal(dynamic.dynamic_fonts.attempts,1);
   assert.match(dynamic.dynamic_fonts.message,/Reload to retry/);
   assert(dynamic.frame.snapshot.items.some(item=>item.kind==='text' && item.text.includes('Font loading failed')));
@@ -371,10 +394,42 @@ try {
   dynamic=await moon.locator('html').evaluate(()=>gpuiExample);
   assert.equal(dynamic.dynamic_fonts.attempts,1);
   assert(dynamic.frame.snapshot.items.some(item=>item.kind==='text' && item.text.includes('Font loaded.')));
+  assertDynamicFontsGeometry(dynamic, 'mock-registered');
   await writeFile(join(evidence,'dynamic-fonts-mock-registered-scene.json'),JSON.stringify(dynamic,null,2));
   await writeFile(join(evidence,'dynamic-fonts-mock-registered-moonbit.png'),
     await captureCanvas(moon.locator('canvas'),'dynamic_fonts_moonbit_loaded',900,500));
   await page.unroute(fontRoute);
+  for (const scale of [1.5, 2]) {
+    const scaledPage = await browser.newPage({viewport:{width:1400,height:950}, deviceScaleFactor:scale});
+    const rustRequests = [];
+    scaledPage.on('pageerror', error => errors.push(error.message));
+    scaledPage.on('response', response => {
+      if (response.url().endsWith('/rust/dynamic_fonts_bg.wasm')) rustRequests.push(response.status());
+    });
+    try {
+      await scaledPage.route(fontRoute, route => route.fulfill({
+        status:503, body:'synthetic offline response',
+        headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin'},
+      }));
+      await scaledPage.goto(`http://127.0.0.1:${server.address().port}/gpui-conformance/?example=dynamic_fonts`);
+      await scaledPage.waitForFunction(paired => ['moon', ...(paired ? ['rust'] : [])].every(side => {
+        const iframe = document.getElementById(side + '-frame');
+        try {
+          return iframe.contentWindow.location.href === iframe.src &&
+            iframe.contentDocument.documentElement.dataset.runtimeStatus === (side === 'moon' ? 'ready' : 'initialized') &&
+            (side !== 'moon' || iframe.contentWindow.gpuiExample.dynamic_fonts.phase === 'failed');
+        } catch { return false; }
+      }), paired, {timeout:60000});
+      const scaled = await scaledPage.frameLocator('#moon-frame').locator('html').evaluate(() => gpuiExample);
+      assertDynamicFontsGeometry(scaled, 'failed', scale);
+      assert.equal(scaled.frame.conformance, 'unverified');
+      assert.equal(scaled.dynamic_fonts.attempts, 1);
+      assert(!paired || rustRequests.includes(200), 'Actual unchanged Rust dynamic_fonts WASM required at each DPR');
+      await writeFile(join(evidence, `dynamic-fonts-dpr-${scale}-scene.json`), JSON.stringify(scaled, null, 2));
+    } finally {
+      await scaledPage.close();
+    }
+  }
   report.operations.push({action:'select dynamic_fonts and reload',candidate:'one failed HTTP request followed by one successful mocked FontFace registration in new document',rust:paired?'unchanged dynamic_fonts WASM loaded, canvas captured':'not_run',comparison:'native glyph callback and actual Devanagari coverage unverified',font_test:'mocked transport, not production CDN'});
   // Real upstream Prime sieve, including actual 10M computation. This is a CPU
   // task result, never a renderer-startup measurement or a performance ranking.
