@@ -10,7 +10,7 @@ try {
   const build = await buildResponse.json();
   for (const example of catalog.examples) {
     const option = document.createElement('option'); option.value = example.id;
-    option.textContent = `${example.title}${example.moonbit === 'implemented' ? '' : ' — MoonBit not implemented'}`;
+    option.textContent = `${example.title}${example.moonbit === 'implemented' ? '' : ' — gpui.mbt not implemented'}`;
     $('fixture').append(option);
   }
   const requested = query.get('example') || 'hello_world';
@@ -26,10 +26,15 @@ try {
       const example = selectExample(catalog, $('fixture').value);
       $('rust-source').href = `https://github.com/${catalog.upstream.repository}/blob/${catalog.upstream.revision}/${example.source}`;
       $('moon-source').hidden = example.moonbit !== 'implemented';
-      $('moon-source').href = `https://github.com/gpui-mbt/gpui-conformance/blob/${build.lab_revision}/web/moonbit/hello_world/hello_world.mbt`;
+      $('moon-source').href = `https://github.com/gpui-mbt/gpui-conformance/blob/${build.lab_revision}/${example.candidate_source}`;
+      for (const side of ['moon', 'rust']) {
+        $(side + '-frame').style.width = `${example.width || 500}px`;
+        $(side + '-frame').style.height = `${example.height || 500}px`;
+        $(side + '-frame').parentElement.style.height = `${(example.height || 500) + 20}px`;
+      }
       const moon = moonbitExampleUrl(location.href, example);
       if (!moon) {
-        $('notice').textContent = `${example.title}: MoonBit port not implemented. Neither runtime is substituted.`;
+        $('notice').textContent = `${example.title}: gpui.mbt not implemented. Neither runtime is substituted.`;
         $('rust-empty').textContent = 'Select an implemented pair to compare.';
         return;
       }

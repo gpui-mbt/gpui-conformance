@@ -35,6 +35,51 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout"})
+# This legacy result contains one raster comparison, for hello_world only.
+# build.implemented describes build capability, never per-example evidence.
+BROWSER_RESULT_EXAMPLE_ID = "hello_world"
+BROWSER_THUMBNAIL_SOURCE = "web/evidence/20261016/moonbit.png"
+BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
+BROWSER_FEATURES = {
+    "hello_world": {
+        "title": "基本レイアウトと描画",
+        "tags": ["Flex 配置", "色", "角丸・破線", "テキスト"],
+        "implementation_note": "角丸・破線・影の描画は Canvas host の拡張です。保存結果はこの構成での比較です。",
+        "description": "中央寄せの挨拶と 6 色の四角。gap、角丸、破線の境界を含む静的な例です。",
+    },
+    "text_layout": {
+        "title": "文字の整列と装飾",
+        "tags": ["テキスト", "左・中央・右寄せ", "下線・取消線", "nowrap", "太字・斜体"],
+        "implementation_note": "gpui.mbt の layout と SceneSnapshot を使用。文字スタイル・装飾は Canvas host の拡張で、描画一致は未検証です。",
+        "description": "800×600 の静的な例。文字の整列、下線、取消線、折り返さない文字列、太字と斜体を扱います。",
+    },
+    "text": {
+        "title": "文字スタイルと行間",
+        "tags": ["テキスト", "文字サイズ", "行間", "フォント切替"],
+        "description": "文字サイズ、行間、type scale を組み合わせた上流の文字スタイル例です。",
+    },
+    "text_wrapper": {
+        "title": "折り返しと省略表示",
+        "tags": ["テキスト", "折り返し", "省略記号", "多言語"],
+        "description": "長い単語、URL、日本語・中国語を含む文章の折り返しと省略を扱う上流の例です。",
+    },
+    "input": {
+        "title": "文字入力と選択",
+        "tags": ["入力", "選択", "クリップボード", "IME"],
+        "description": "編集、文字選択、コピー・貼り付け、合成入力を扱う上流のテキスト入力例です。",
+    },
+    "dynamic_fonts": {
+        "title": "動的フォント読み込み",
+        "tags": ["フォント", "多言語", "非同期読み込み"],
+        "description": "不足グリフを検知し、Devanagari フォントをダウンロードして再描画する上流の例です。",
+    },
+    "hello_web": {
+        "title": "バックグラウンド計算",
+        "tags": ["非同期処理", "素数計算", "操作 UI"],
+        "description": "素数の計算をバックグラウンドで進める上流の Prime sieve 例です。",
+    },
+}
 
 LAYER_LABELS = {
     "headless-layout": ("Headless · layout", "Layout", "固定配置、flex、wrap、min/max のレイアウト比較"),
@@ -63,7 +108,7 @@ def pixel_status(recorded_status: str | None) -> str:
 
 
 def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any]) -> None:
-    """Fail closed if inventory metadata drifts from the retained browser build."""
+    """Keep pins strict while allowing new ports without borrowing old results."""
     build = browser["build"]
     for key in ("upstream", "moonbit"):
         recorded = build.get(key, {})
@@ -76,8 +121,13 @@ def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any
         example["id"] for example in inventory.get("examples", [])
         if example.get("moonbit") == "implemented"
     }
-    if recorded_implemented != declared_implemented:
-        raise ValueError("implemented browser examples differ from the retained result")
+    if not recorded_implemented.issubset(declared_implemented):
+        raise ValueError("implemented browser examples from the retained result are missing in the inventory")
+    ids = [example["id"] for example in inventory.get("examples", [])]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate browser example IDs in the inventory")
+    if BROWSER_RESULT_EXAMPLE_ID not in recorded_implemented:
+        raise ValueError("retained hello_world evidence is missing its implemented browser example")
 
 
 def normalize_browser_lab_base_url(value: Any) -> str | None:
@@ -125,13 +175,13 @@ def normalize_browser_lab_base_url(value: Any) -> str | None:
 
 
 def browser_lab_comparison_url(example_id: str, implemented: bool, base_url: str | None) -> str | None:
-    """Link only the implemented static hello_world sample to the live lab."""
-    if example_id != "hello_world" or not implemented:
+    """Link only declared ports supported by the lab, with an opt-in host URL."""
+    if example_id not in BROWSER_LAB_EXAMPLES or not implemented:
         return None
     normalized_base_url = normalize_browser_lab_base_url(base_url)
     if normalized_base_url is None:
         return None
-    return f"{normalized_base_url}/?example=hello_world"
+    return f"{normalized_base_url}/?example={example_id}"
 
 
 def recorded_date(path: str) -> str:
@@ -308,34 +358,82 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     browser_build = browser["build"]
     browser_upstream = browser_build["upstream"]
     browser_moonbit = browser_build["moonbit"]
-    browser_implemented = set(browser_build["implemented"])
     raster = browser["raster_comparison"]
     browser_status = pixel_status(raster.get("status"))
     changed = raster["changed_pixels"]
     total = raster["total_pixels"]
     examples = browser_inventory
     upstream_revision = browser_upstream["revision"]
+    # Preserve the saved image bytes exactly; the catalog only scales its display.
+    thumbnail_sha = raster.get("sha256", {}).get("moonbit.png")
+    for path in (BROWSER_THUMBNAIL_SOURCE, BROWSER_THUMBNAIL_ASSET):
+        if not thumbnail_sha or hashlib.sha256((ROOT / path).read_bytes()).hexdigest() != thumbnail_sha:
+            raise ValueError(f"browser thumbnail does not match the retained screenshot digest: {path}")
     browser_examples = []
     for example in examples["examples"]:
-        implemented = example["id"] in browser_implemented
-        status = browser_status if implemented else "unsupported"
+        example_id = example["id"]
+        implemented = example.get("moonbit") == "implemented"
+        has_evidence = example_id == BROWSER_RESULT_EXAMPLE_ID
+        status = browser_status if has_evidence else ("unverified" if implemented else "unsupported")
+        features = BROWSER_FEATURES.get(example_id, {
+            "title": example["title"], "tags": [], "description": "上流に登録された example です。",
+        })
+        implementation_path = example.get("candidate_source", f"web/moonbit/{example_id}/{example_id}.mbt") if implemented else None
+        result_url = source_url(revision, BROWSER_RESULT_PATH) if has_evidence else None
+        if has_evidence:
+            evidence_note = f"保存済みの hello_world 比較では実行 {browser['overall']}、画像は {STATUS_LABELS[browser_status]}。他の例の検証結果ではありません。"
+        elif implemented:
+            evidence_note = "gpui.mbt の実装あり。この例の保存済み比較結果・画像はなく、描画の一致は未検証です。"
+        else:
+            evidence_note = "gpui.mbt 未実装。タグと説明は上流ソースの機能を示し、検証済みの機能を示すものではありません。"
         browser_examples.append({
-            "id": example["id"],
+            "id": example_id,
             "title": example["title"],
+            "feature_title": features["title"],
+            "feature_tags": features["tags"],
+            "source_features": example.get("features", []),
+            "source_description": features["description"],
+            "description": evidence_note,
             "status": status,
             "status_label": STATUS_LABELS[status],
+            "source_path": example["source"],
             "source_url": f"https://github.com/{examples['upstream']['repository']}/blob/{upstream_revision}/{example['source']}",
+            "source_revision": upstream_revision,
             "inventory_url": source_url(revision, "web/examples.json"),
             "implemented": implemented,
+            "implementation": {
+                "status": "implemented" if implemented else "not_implemented",
+                "label": "gpui.mbt 実装あり" if implemented else "gpui.mbt 未実装",
+                "source_url": source_url(revision, implementation_path) if implementation_path else None,
+                "note": features.get("implementation_note", example.get("implementation_note")) if implemented else None,
+            },
             "interactive": bool(example.get("interactive", False)),
-            # The live lab currently hosts a static hello_world sample, not an
-            # interactive example. Keep the link opt-in and limited to that port.
-            "comparison_url": browser_lab_comparison_url(example["id"], implemented, browser_lab_base_url),
+            "width": example.get("width"),
+            "height": example.get("height"),
+            "evidence_available": has_evidence,
+            "result_url": result_url,
+            "result_date": recorded_date(BROWSER_RESULT_PATH) if has_evidence else None,
+            "execution": browser["overall"] if has_evidence else "unverified",
+            "changed_pixels": changed if has_evidence else None,
+            "total_pixels": total if has_evidence else None,
+            "thumbnail": {
+                "url": "./assets/hello_world-moonbit-20261016.png",
+                "source_url": source_url(revision, BROWSER_THUMBNAIL_SOURCE),
+                "sha256": thumbnail_sha,
+                "alt": "保存済み hello_world の gpui.mbt 実描画。灰色の背景、挨拶と 6 色の四角。",
+                "caption": "gpui.mbt の保存画像 · 2026-10-16 · 500×500",
+                "width": raster["width"],
+                "height": raster["height"],
+            } if has_evidence else None,
+            "comparison_url": browser_lab_comparison_url(example_id, implemented, browser_lab_base_url),
             "suite_type": "browser",
         })
 
     native_ax = load_json(AX_STATUS_PATH)
     browser_run = {
+        "example_id": BROWSER_RESULT_EXAMPLE_ID,
+        "implemented_count": sum(example["implemented"] for example in browser_examples),
+        "evidence_count": sum(example["evidence_available"] for example in browser_examples),
         "status": browser_status,
         "status_label": STATUS_LABELS[browser_status],
         "execution": browser["overall"],
@@ -368,7 +466,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         "title": "GPUI Conformance Test Catalog",
         "revision": revision,
         "generated_from": "registered scenario JSON, retained comparison JSON, browser example inventory, and native observer status",
-        "scope_note": "記録済みの結果を一覧化したものです。表示日は保存済みファイル名の日付で、再実行日時や最新性は示しません。headless の一致はブラウザー描画やネイティブ動作の同等性を意味しません。",
+        "scope_note": "上流 example、gpui.mbt の実装状況、保存済みの比較結果をまとめたカタログです。表示日は保存済みファイル名の日付で、再実行日時や最新性は示しません。headless の一致はブラウザー描画やネイティブ動作の同等性を意味しません。",
         "registered_case_count": len(cases),
         "native_case_count": len(native_cases),
         "counts": {status: counts.get(status, 0) for status in ("pass", "mismatch", "unsupported", "unverified")},

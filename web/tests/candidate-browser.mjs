@@ -86,11 +86,11 @@ try {
     return {font: metadata.font_family, font_size: item.font_size, bounds: item.bounds, ...metrics,
       baseline: item.bounds.y + (item.bounds.height - m.fontBoundingBoxAscent - m.fontBoundingBoxDescent) / 2 + m.fontBoundingBoxAscent};
   });
-  async function captureCanvas(locator, side) {
+  async function captureCanvas(locator, side, width = 500, height = 500) {
     await locator.scrollIntoViewIfNeeded();
     const bounds = await locator.boundingBox();
-    assert.equal(bounds.width, 500); assert.equal(bounds.height, 500);
-    const clip = {x: Math.ceil(bounds.x), y: Math.ceil(bounds.y), width: 500, height: 500};
+    assert.equal(bounds.width, width); assert.equal(bounds.height, height);
+    const clip = {x: Math.ceil(bounds.x), y: Math.ceil(bounds.y), width, height};
     report.captures ||= {};
     report.captures[side] = {bounds, clip, method:'integer CSS pixel page clip; no rescaling or masking'};
     return page.screenshot({clip});
@@ -153,6 +153,59 @@ try {
     report.verified.push('same-origin compiled Rust WASM and MoonBit JS', '500x500 viewports', 'six rendered swatch RGB probes', 'trusted browser click/key delivery; static swatches retained');
   }
   await page.screenshot({ path: join(evidence, 'hello-world-pair.png'), fullPage: true });
+  await page.setViewportSize({width:2000,height:1100});
+  await page.selectOption('#fixture', 'text_layout');
+  await waitForNewDocuments();
+  const textFrame = await moon.locator('html').evaluate(() => globalThis.gpuiExample);
+  assert.equal(textFrame.metadata.id, 'text_layout');
+  assert.deepEqual([textFrame.metadata.width,textFrame.metadata.height], [800,600]);
+  assert.equal(textFrame.frame.snapshot.items.filter(i => i.kind === 'text').length,15);
+  assert.equal(textFrame.frame.snapshot.clip_chains.length,2);
+  assert.equal(textFrame.frame.conformance,'unverified');
+  assert.equal(textFrame.frame.text_styles.filter(s=>s.decoration==='underline').length,3);
+  assert.equal(textFrame.frame.text_styles.filter(s=>s.decoration==='line_through').length,3);
+  for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+    const bounds = await page.locator('#' + side + '-frame').boundingBox();
+    assert.deepEqual([bounds.width,bounds.height],[800,600]);
+  }
+  assert.equal(await page.locator('#moon-source').getAttribute('href'),
+    `https://github.com/gpui-mbt/gpui-conformance/blob/${manifest.lab_revision}/web/moonbit/text_layout/text_layout.mbt`);
+  for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+    const visible = await page.locator('#' + side + '-frame').evaluate(iframe => {
+      const canvas = iframe.contentDocument.querySelector('canvas');
+      const frame = iframe.getBoundingClientRect();
+      const scroll = iframe.parentElement.getBoundingClientRect();
+      return canvas.width > 0 && canvas.height > 0 && frame.left >= scroll.left &&
+        frame.top >= scroll.top && frame.right <= scroll.right && frame.bottom <= scroll.bottom;
+    });
+    assert(visible, `${side} full text_layout canvas must fit its ancestor before capture`);
+  }
+  await writeFile(join(evidence,'text-layout-moonbit-scene.json'),JSON.stringify(textFrame,null,2));
+  await writeFile(join(evidence,'text-layout-moonbit.png'), await captureCanvas(moon.locator('canvas'), 'text_layout_moonbit', 800, 600));
+  if (paired) {
+    assert(report.requests.some(r => r.url.endsWith('/rust/text_layout_bg.wasm') && r.status===200), 'Actual text_layout WASM response required');
+    // A canvas existing is insufficient: wait for dark ink in the first text line.
+    const rustCanvas = page.frameLocator('#rust-frame').locator('canvas');
+    let ink = false;
+    for (let attempt=0; attempt<100 && !ink; attempt++) {
+      const buffer=await captureCanvas(rustCanvas, 'text_layout_rust', 800, 600);
+      ink = await page.evaluate(async url => {
+        const img=new Image(); img.src=url; await img.decode();
+        if (img.width !== 800 || img.height !== 600) throw new Error('Expected exact 800x600 text_layout capture');
+        const c=document.createElement('canvas');c.width=800;c.height=600;
+        const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+        const pixels=ctx.getImageData(16,16,120,26).data;
+        for(let i=0;i<pixels.length;i+=4) if(pixels[i]<100 && pixels[i+1]<100 && pixels[i+2]<100) return true;
+        return false;
+      },'data:image/png;base64,'+buffer.toString('base64'));
+      if (ink) await writeFile(join(evidence,'text-layout-rust.png'),buffer);
+      else await page.waitForTimeout(200);
+    }
+    assert(ink,'Upstream text_layout must render actual dark text ink');
+  }
+  report.operations.push({action:'select text_layout',candidate:'15 text scene items, decorated runs and clip chains',rust:paired?'actual WASM and text ink verified':'not_run',comparison:'unverified'});
+  await page.screenshot({path:join(evidence,'text-layout-pair.png'),fullPage:true});
+  await page.setViewportSize({width:1400,height:950});
   await page.selectOption('#fixture', 'input');
   assert.equal(await page.locator('#moon-frame').isVisible(), false);
   assert.equal(await page.locator('#moon-frame').getAttribute('src'), null);

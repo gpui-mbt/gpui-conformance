@@ -23,13 +23,114 @@ function link(label, href) {
   return node;
 }
 
+function searchableText(item) {
+  return [item.id, item.title, item.feature_title, item.category, item.layer, item.kind,
+    item.source_path, item.source_description, item.description, ...(item.feature_tags ?? []), ...(item.source_features ?? [])]
+    .filter(Boolean).join(" ").toLocaleLowerCase();
+}
+
+function featureCard(item) {
+  const row = document.createElement("li");
+  row.className = "example-card";
+  row.dataset.implementation = item.implementation.status;
+  row.dataset.search = searchableText(item);
+  const article = document.createElement("article");
+  article.setAttribute("aria-labelledby", `example-${item.id}`);
+
+  const preview = document.createElement("figure");
+  preview.className = "example-preview";
+  if (item.thumbnail) {
+    const image = document.createElement("img");
+    image.src = item.thumbnail.url;
+    image.alt = item.thumbnail.alt;
+    image.width = item.thumbnail.width;
+    image.height = item.thumbnail.height;
+    image.loading = "lazy";
+    image.decoding = "async";
+    preview.append(image, text("figcaption", item.thumbnail.caption));
+  } else {
+    preview.classList.add("preview-unavailable");
+    const missing = document.createElement("div");
+    missing.append(text("p", "保存画像なし", "preview-label"));
+    missing.append(text("p", item.implemented ? "この例の描画画像はまだ保存されていません" : "gpui.mbt 未実装", "preview-detail"));
+    preview.append(missing, text("figcaption", "プレビューなし · 代わりの画像は表示していません"));
+  }
+  article.append(preview);
+
+  const body = document.createElement("div");
+  body.className = "example-body";
+  body.append(text("p", item.id, "example-id"));
+  const heading = text("h3", item.feature_title);
+  heading.id = `example-${item.id}`;
+  body.append(heading);
+  const tags = document.createElement("ul");
+  tags.className = "feature-tags";
+  tags.setAttribute("aria-label", "上流ソースの機能");
+  for (const tag of item.feature_tags) tags.append(text("li", tag));
+  body.append(tags, text("p", item.source_description, "feature-description"));
+
+  const implementation = text("p", item.implementation.label, "implementation-label");
+  if (item.width && item.height) implementation.append(text("span", ` · ${item.width}×${item.height}`, "case-meta"));
+  body.append(implementation);
+  if (item.implementation.note) body.append(text("p", item.implementation.note, "small-note implementation-note"));
+  const result = document.createElement("p");
+  result.className = "example-result";
+  result.append(text("span", `${item.evidence_available ? "保存結果 · " : ""}${item.status_label}`, `case-status ${STATUS_CLASSES[item.status] ?? ""}`));
+  if (item.result_date) result.append(text("span", item.result_date, "evidence-date"));
+  body.append(result, text("p", item.description, "evidence-note"));
+
+  const sourceLinks = document.createElement("div");
+  sourceLinks.className = "case-links";
+  for (const node of [link("上流ソース", item.source_url), link("gpui.mbt 実装", item.implementation.source_url)]) {
+    if (node) sourceLinks.append(node);
+  }
+  body.append(sourceLinks);
+  const evidenceLinks = document.createElement("div");
+  evidenceLinks.className = "case-links evidence-links";
+  for (const node of [link("保存済み結果", item.result_url), link("元の保存画像", item.thumbnail?.source_url), link("ライブ比較を開く", item.comparison_url)]) {
+    if (node) evidenceLinks.append(node);
+  }
+  body.append(evidenceLinks);
+  if (item.implemented && !item.comparison_url) body.append(text("p", "ライブ比較 URL は未設定です。", "small-note"));
+  article.append(body);
+  row.append(article);
+  return row;
+}
+
+function renderExamples(data) {
+  const list = document.getElementById("example-list");
+  const examples = [...data.browser_examples].sort((a, b) => Number(b.implemented) - Number(a.implemented));
+  for (const item of examples) list.append(featureCard(item));
+  document.getElementById("examples-summary").textContent = `${examples.length} examples · gpui.mbt 実装 ${data.browser.implemented_count} 件 · 保存済み比較 ${data.browser.evidence_count} 件`;
+  const search = document.getElementById("example-search");
+  const implementationFilter = document.getElementById("implementation-filter");
+  const rows = [...list.children];
+  const refresh = () => {
+    const query = search.value.trim().toLocaleLowerCase();
+    let visible = 0;
+    for (const row of rows) {
+      const matches = (!query || row.dataset.search.includes(query))
+        && (!implementationFilter.value || row.dataset.implementation === implementationFilter.value);
+      row.hidden = !matches;
+      if (matches) visible += 1;
+    }
+    document.getElementById("example-count").textContent = `${visible} / ${rows.length} examples を表示`;
+    document.getElementById("examples-empty").hidden = visible !== 0;
+  };
+  for (const control of [search, implementationFilter]) control.addEventListener("input", refresh);
+  implementationFilter.addEventListener("change", refresh);
+  const filters = document.getElementById("example-filters");
+  filters.addEventListener("submit", event => event.preventDefault());
+  filters.addEventListener("reset", () => setTimeout(refresh, 0));
+  refresh();
+}
+
 function resultItem(item) {
   const row = document.createElement("li");
   row.className = "case-row";
   row.dataset.suite = item.suite_type;
   row.dataset.status = item.status;
-  row.dataset.search = [item.id, item.title, item.category, item.layer, item.kind, item.source_path, item.description]
-    .filter(Boolean).join(" ").toLocaleLowerCase();
+  row.dataset.search = searchableText(item);
 
   const article = document.createElement("article");
   const heading = document.createElement("div");
@@ -93,6 +194,7 @@ async function init() {
   const data = await response.json();
 
   document.getElementById("scope-note").textContent = data.scope_note;
+  renderExamples(data);
   document.getElementById("headless-metric").textContent = `${data.counts.pass} pass / ${data.headless.case_count} 件`;
   document.getElementById("headless-detail").textContent = `差分 ${data.counts.mismatch} · 未対応 ${data.counts.unsupported} · 未検証 ${data.counts.unverified}`;
   const headlessDate = document.getElementById("headless-date");
@@ -102,7 +204,7 @@ async function init() {
   setLink("headless-result", "headless 結果 JSON", data.headless.result_url);
 
   document.getElementById("browser-metric").textContent = `${data.browser.changed_pixels} / ${data.browser.total_pixels} pixels different`;
-  document.getElementById("browser-detail").textContent = `実行 ${data.browser.execution} · pixel 差分 ${data.browser.changed_percent}% · native parity ${data.browser.native_conformance}`;
+  document.getElementById("browser-detail").textContent = `${data.browser.example_id} の実行 ${data.browser.execution} · pixel 差分 ${data.browser.changed_percent}% · native parity ${data.browser.native_conformance}`;
   document.getElementById("browser-date").textContent = `保存済み証拠の日付: ${data.browser.result_date} · 画像同一ではありません`;
   renderPins("browser-pins", data.browser.pins);
   setLink("browser-result", "browser 結果 JSON", data.browser.result_url);
@@ -133,10 +235,9 @@ async function init() {
     ...item,
     suite_type: "browser",
     category: "Browser example",
-    kind: item.implemented ? "matched browser example" : "unimplemented port",
-    result_date: item.implemented ? data.browser.result_date : "",
-    result_url: item.implemented ? data.browser.result_url : null,
-    description: item.implemented ? "実際の Rust/WASM と MoonBit のペアで測定。静的 example であり、interactive ではありません。" : "Rust example の登録あり。MoonBit port は未実装です。",
+    kind: item.implementation.label,
+    // Per-example evidence is produced by the generator. Never borrow the
+    // summary's hello_world result for another implemented port.
   }));
   const items = [...headlessItems, ...nativeItems, ...browserItems];
   const list = document.getElementById("case-list");
@@ -178,4 +279,5 @@ init().catch(error => {
   const note = document.getElementById("scope-note");
   note.textContent = error.message;
   document.getElementById("result-count").textContent = "テスト一覧を表示できません。リポジトリの data.json を確認してください。";
+  document.getElementById("examples-summary").textContent = "example を表示できません。";
 });

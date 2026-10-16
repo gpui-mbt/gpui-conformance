@@ -3,11 +3,21 @@ const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  if (example !== 'hello_world') throw new Error(`MoonBit port not implemented: ${example}`);
-  const runtime = await import('./runtime.mjs');
-  const metadata = JSON.parse(runtime.hello_world_metadata());
+  const modules = {hello_world: './runtime.mjs', text_layout: './text_layout.mjs'};
+  if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
+  const runtime = await import(modules[example]);
+  const metadata = JSON.parse(runtime[example + '_metadata']());
+  canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
+  canvas.setAttribute('aria-label', metadata.id === 'text_layout' ? 'Upstream text_layout: aligned and decorated text with styled ABCD spans' : 'Hello, World! Six colored squares');
+  document.title = `${example} · gpui.mbt`;
   const font = new FontFace(metadata.font_family, 'url(./IBMPlexSans-Regular.ttf)');
   document.fonts.add(await font.load());
+  if (example === 'text_layout') {
+    for (const [file, descriptors] of [['Italic', {style:'italic'}], ['SemiBold', {weight:'800'}]]) {
+      // The upstream font registry resolves EXTRA_BOLD to the bundled SemiBold face.
+      document.fonts.add(await new FontFace(metadata.font_family, `url(./IBMPlexSans-${file}.ttf)`, descriptors).load());
+    }
+  }
   await document.fonts.ready;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas 2D is unavailable');
@@ -15,8 +25,11 @@ try {
     const scale = Math.min(devicePixelRatio || 1, 4);
     canvas.width = Math.round(metadata.width * scale); canvas.height = Math.round(metadata.height * scale);
     context.font = `${metadata.font_size}px "${metadata.font_family}"`;
-    const width = context.measureText(metadata.text).width;
-    const frame = JSON.parse(runtime.hello_world_frame(width, scale));
+    const width = metadata.runs ? metadata.runs.map(run => {
+      context.font = `${run.style} ${run.weight} ${metadata.font_size}px "${metadata.font_family}"`;
+      return context.measureText(run.text).width;
+    }) : context.measureText(metadata.text).width;
+    const frame = JSON.parse(runtime[example + '_frame'](width, scale));
     drawFrame(context, frame, metadata, scale);
     // Expose actual candidate output for inspection, never fabricated oracle results.
     globalThis.gpuiExample = { metadata, frame, textWidth: width, scale };

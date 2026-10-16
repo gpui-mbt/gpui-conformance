@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile the pinned, unchanged upstream hello_world in a disposable archive."""
+"""Compile the pinned, unchanged upstream examples in a disposable archive."""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -32,15 +32,17 @@ def build(upstream: Path, site: Path, target: Path) -> None:
             tar.extractall(source, filter="data")
         gallery = source / GALLERY
         shutil.copy2(WEB / "rust/Cargo.lock", gallery / "Cargo.lock")
+        examples = [example["id"] for example in catalog["examples"] if example.get("moonbit") == "implemented"]
         command = ["cargo", f"+{TOOLCHAIN}", "build", "--locked", "--release",
                    "--config", "profile.release.codegen-units=1", "--target",
-                   "wasm32-unknown-unknown", "--bin", "hello_world", "--target-dir", str(target)]
+                   "wasm32-unknown-unknown", *[arg for name in examples for arg in ("--bin", name)], "--target-dir", str(target)]
         run(command, gallery)
-        wasm = target / "wasm32-unknown-unknown/release/hello_world.wasm"
         rust = Path(work) / "rust"
         rust.mkdir()
-        run(["wasm-bindgen", "--target", "web", "--out-dir", str(rust),
-             "--out-name", "hello_world", str(wasm)], gallery)
+        for name in examples:
+            wasm = target / f"wasm32-unknown-unknown/release/{name}.wasm"
+            run(["wasm-bindgen", "--target", "web", "--out-dir", str(rust),
+                 "--out-name", name, str(wasm)], gallery)
         shutil.copytree(WEB / "rust", rust, dirs_exist_ok=True)
         shutil.copy2(gallery / "Cargo.lock", rust / "Cargo.lock")
         # Font and source licenses travel with the binary that embeds these fonts.
@@ -49,6 +51,7 @@ def build(upstream: Path, site: Path, target: Path) -> None:
             shutil.copy2(source / "assets/fonts" / family / license_name, rust / f"{family}-license.txt")
         check_source(upstream, catalog["upstream"]["revision"])
         manifest["rust_bundled"] = True
+        manifest["rust_implemented"] = examples
         manifest["rust"] = {
             "toolchain": run(["rustc", f"+{TOOLCHAIN}", "--version"], gallery, True),
             "bindings": run(["wasm-bindgen", "--version"], gallery, True),
