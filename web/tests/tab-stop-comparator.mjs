@@ -69,6 +69,18 @@ export function assertProvenance(build,catalog) {
   assert.match(build.moonbit_host_files_sha256?.['load-timing.mjs']||'',HASH);
   return records[0];
 }
+export function assertCurrentTabStopBuild(report,checkout) {
+  assert(checkout&&typeof checkout==='object'&&!Array.isArray(checkout),'Current Git checkout context required');
+  const {revision,trackedDirty,catalogBytes}=checkout;
+  assert.match(typeof revision==='string'?revision:'',/^[0-9a-f]{40}$/,'Current checkout revision required');
+  assert.equal(trackedDirty,false,'Current checkout must have no dirty tracked files');
+  assert.equal(report.build?.lab_revision,revision,'Historical build cannot be relabeled onto current checkout');
+  assert(catalogBytes instanceof Uint8Array&&catalogBytes.length>0,'Actual current catalog bytes required');
+  assert.match(report.catalog_evidence?.sha256||'',HASH,'Retained catalog SHA256 required');
+  assert.equal(sha256(catalogBytes),report.catalog_evidence.sha256,'Actual current catalog bytes must match retained provenance');
+  assert.deepEqual(JSON.parse(Buffer.from(catalogBytes).toString('utf8')),report.catalog,'Actual current catalog identity');
+  return {revision,tracked_dirty:false,catalog_sha256:report.catalog_evidence.sha256};
+}
 export function provenanceNegativeControls(build,catalog) {
   assertProvenance(build,catalog);
   return [

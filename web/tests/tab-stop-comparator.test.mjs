@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {TAB_STOP,STOPS,ENGINE,EMBEDDED_FONTS,assertProvenance,provenanceNegativeControls,decodePng,discoverBorder,assertBorder,assertNoBorder,sourceGeometry,
+import {TAB_STOP,STOPS,ENGINE,EMBEDDED_FONTS,assertProvenance,provenanceNegativeControls,assertCurrentTabStopBuild,sha256,decodePng,discoverBorder,assertBorder,assertNoBorder,sourceGeometry,
   validateTraversal,validateClicks,makeProfile,validateOperations,traversalNegativeControls} from './tab-stop-comparator.mjs';
 
 // Synthetic sensitivity fixtures only. These literal positions are neither an
@@ -133,4 +133,34 @@ test('source-pinned provenance accepts a complete synthetic build manifest befor
   assert.equal(assertProvenance(build,catalog).id,'tab_stop');
   assert.equal(provenanceNegativeControls(build,catalog).length,7);
   const forged=structuredClone(catalog);forged.examples[0].moonbit='implemented';assert.throws(()=>assertProvenance(build,forged));
+});
+
+test('current-checkout binding accepts exact clean Git HEAD and current catalog bytes',()=>{
+  const revision='1234567890abcdef1234567890abcdef12345678';
+  const catalogBytes=Buffer.from('{"examples":[{"id":"tab_stop","moonbit":"not_implemented"}]}\n');
+  const report={build:{lab_revision:revision},catalog:JSON.parse(catalogBytes),catalog_evidence:{sha256:sha256(catalogBytes)}};
+  assert.deepEqual(assertCurrentTabStopBuild(report,{revision,trackedDirty:false,catalogBytes}),{
+    revision,tracked_dirty:false,catalog_sha256:sha256(catalogBytes)});
+});
+test('current-checkout binding rejects a stale valid revision, dirty tracked state, and changed catalog bytes',()=>{
+  const revision='1234567890abcdef1234567890abcdef12345678',catalogBytes=Buffer.from('{"examples":[]}\n');
+  const report={build:{lab_revision:revision},catalog:JSON.parse(catalogBytes),catalog_evidence:{sha256:sha256(catalogBytes)}};
+  const checkout={revision,trackedDirty:false,catalogBytes};
+  assert.throws(()=>assertCurrentTabStopBuild(report,{...checkout,revision:'fedcba0987654321fedcba0987654321fedcba09'}),/cannot be relabeled/);
+  assert.throws(()=>assertCurrentTabStopBuild({...report,build:{lab_revision:'0'.repeat(40)}},checkout),/cannot be relabeled/);
+  assert.throws(()=>assertCurrentTabStopBuild(report,{...checkout,trackedDirty:true}),/dirty tracked/);
+  // Equal parsed JSON with different whitespace must still fail exact-byte binding.
+  assert.throws(()=>assertCurrentTabStopBuild(report,{...checkout,catalogBytes:Buffer.from('{ "examples": [] }\n')}),/catalog bytes/);
+  assert.throws(()=>assertCurrentTabStopBuild({...report,catalog:{examples:[{id:'forged'}]}},checkout),/catalog identity/);
+});
+test('current-checkout binding fails closed on malformed Git context and missing raw catalog bytes',()=>{
+  const revision='1234567890abcdef1234567890abcdef12345678',catalogBytes=Buffer.from('{"examples":[]}\n');
+  const report={build:{lab_revision:revision},catalog:JSON.parse(catalogBytes),catalog_evidence:{sha256:sha256(catalogBytes)}};
+  const checkout={revision,trackedDirty:false,catalogBytes};
+  for(const malformed of [null,undefined,[],{}, {...checkout,revision:''},{...checkout,revision:'a'.repeat(39)},
+    {...checkout,revision:123},{...checkout,trackedDirty:undefined},{...checkout,trackedDirty:'false'},
+    {...checkout,catalogBytes:undefined},{...checkout,catalogBytes:catalogBytes.toString()},
+    {...checkout,catalogBytes:Buffer.alloc(0)}])
+    assert.throws(()=>assertCurrentTabStopBuild(report,malformed));
+  assert.throws(()=>assertCurrentTabStopBuild({...report,catalog_evidence:{sha256:'invalid'}},checkout),/SHA256/);
 });

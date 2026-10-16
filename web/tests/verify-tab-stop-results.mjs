@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile,realpath,stat} from 'node:fs/promises';
 import {resolve,join,sep,basename} from 'node:path';
 import {createHash} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
 import {TAB_STOP,sha256,assertProvenance,provenanceNegativeControls,decodePng,sourceGeometry,
-  validateTraversal,validateClicks,validateOperations,traversalNegativeControls} from './tab-stop-comparator.mjs';
+  validateTraversal,validateClicks,validateOperations,traversalNegativeControls,assertCurrentTabStopBuild} from './tab-stop-comparator.mjs';
 const evidence=await realpath(resolve(process.argv[2]||'_build/tab-stop-oracle-evidence'));
 const verification={status:'failed',runtime:'rust',candidate:'not_implemented',comparison:'not_run',conformance:'not_claimed'};
 async function local(file,max=16*1024*1024) {
@@ -24,6 +25,17 @@ try {
   const build=JSON.parse(buildBytes),catalog=JSON.parse(catalogBytes);assert.deepEqual(result.build,build);assert.deepEqual(result.catalog,catalog);
   verification.source=assertProvenance(build,catalog);verification.provenance_negative_controls=provenanceNegativeControls(build,catalog);
   assert.deepEqual(result.source,verification.source);
+  const git=args=>{
+    const value=spawnSync('git',args,{encoding:'utf8',timeout:10000,maxBuffer:1024*1024});
+    if(value.error)throw value.error;
+    assert.equal(value.status,0,`Current checkout provenance: ${value.stderr?.slice(0,2048)}`);
+    return value.stdout.trim();
+  };
+  verification.current_checkout=assertCurrentTabStopBuild(result,{
+    revision:git(['rev-parse','HEAD']),
+    trackedDirty:git(['status','--porcelain','--untracked-files=no'])!=='',
+    catalogBytes:await readFile(resolve('web/examples.json')),
+  });
   const decoder=await local('tab-stop-png-decoder.py');assert.equal(sha256(decoder),result.decoder.sha256);
   assert.equal(sha256(decoder),sha256(await readFile(new URL('../scripts/decode_oracle_png.py',import.meta.url))),'Decoder source must match this lab checkout');
   const expectedRuntime=['load-timing.mjs','rust/host.mjs','rust/tab_stop.js','rust/tab_stop_bg.wasm'];

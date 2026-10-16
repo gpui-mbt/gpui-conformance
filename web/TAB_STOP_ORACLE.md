@@ -81,7 +81,12 @@ The discovery runner retains:
 bytes. It recomputes geometry, checks physical card positions, hierarchical
 forward/reverse order, wrap, the fourth non-stop card, only the authored click
 listeners, message pixel relations, exact trusted operations and stable samples.
-It does not trust the discovery report's claimed checks or geometry. Corrupted
+It does not trust the discovery report's claimed checks or geometry. Strict
+verification also binds the retained build's lab revision to the current Git HEAD,
+requires clean tracked files, and hashes the actual current `web/examples.json`
+bytes against the retained catalog hash. Historical artifacts keep their original
+labels and require their exact frozen build checkout for strict verification;
+changing labels cannot make them current. Corrupted
 copies test sensitivity, including the decisive flattened-order negative control:
 flattening local [6,1] to [1] changes the second Tab from item1 to group1 child1.
 Synthetic unit fixtures only test comparator rejection; they are never runtime
