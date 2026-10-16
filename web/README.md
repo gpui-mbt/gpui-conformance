@@ -172,3 +172,51 @@ remains **different**. A successful build or CI run does not mean deployment
 has run.
 The browser work leaves `pins.json`, native adapters, runners, existing
 conformance scenarios and `harness.yml` unchanged.
+
+## Practical synchronized load observations
+
+“Start both / measure load” starts a fresh pair from one parent
+`performance.timeOrigin + performance.now()` timestamp. Both iframe navigation
+assignments happen in one JavaScript task with no `await` or ready barrier;
+which side goes first alternates, and the assignment gap is displayed. That
+gap measures assignment order, **not exact network request simultaneity**.
+No runtime startup is hidden behind preloading. The same start is used for
+both sides rather than subtracting each frame's own navigation start.
+
+The page reports comparable response milestones from each iframe's Navigation
+and Resource Timing entries:
+
+- **Document response:** end of the iframe HTML response.
+- **Main payload received:** latest response end of the explicitly declared
+  main files: MoonBit runtime JavaScript and its external font, versus Rust
+  generated JavaScript bindings and WASM (which embeds fonts). This endpoint
+  excludes host modules and worker dependencies and is not all-network-idle,
+  compilation completion, or rendering completion. If any declared file lacks
+  timing evidence, the metric is unavailable.
+- **Runtime signal:** separate implementation-specific diagnostics. MoonBit's
+  Canvas2D draw calls have returned; Rust's WASM initialization has returned
+  and a canvas exists. These endpoints are deliberately not ranked as a fair
+  render-speed comparison.
+- **First presented frame:** unavailable on both sides. Neither signal proves
+  presentation; the existing screenshot/probe E2E remains independent evidence.
+
+Cache mode is **normal browser cache, uncontrolled**. The fresh run ID changes
+only each iframe document URL. JavaScript, WASM, and font URLs remain stable;
+this is neither a cache flush nor a cold-load benchmark. Browser/CDN caches,
+code caches, GPU/connection warm-up and contention between simultaneously
+loading panes can affect the observation. Repeat runs are useful practical
+observations only. No winner, statistically stable benchmark, or native parity
+is inferred.
+
+Timing reports must come from the expected same-origin iframe and current
+run/example/side. Repeated clicks cancel earlier results; missing examples
+clear them. Host failure and a bounded 60-second timeout produce unavailable
+results, and late/duplicate signals cannot replace them. `gpuiLoadComparison`
+is the inspectable current-run snapshot used by browser tests.
+
+`node --test web/tests/*.test.mjs` covers timestamp and generation contracts.
+`PLAYWRIGHT_ROOT=/path/to/playwright-install node web/tests/load-timing-browser.mjs`
+uses explicitly synthetic runtimes to exercise common-clock plumbing,
+alternating order, rapid reload, missing ports, failures, timeout and rejected
+stale/spoofed messages. These tests establish instrumentation behavior only;
+they never supply conformance results or Rust/MoonBit speed measurements.

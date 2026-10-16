@@ -53,6 +53,23 @@ try {
           iframe.contentDocument.documentElement.dataset.runtimeStatus === (side === 'moon' ? 'ready' : 'initialized');
       } catch { return false; }
     }), paired, {timeout:60000});
+    await page.waitForFunction(paired => globalThis.gpuiLoadComparison &&
+      ['moon', ...(paired ? ['rust'] : [])].every(side => gpuiLoadComparison.sides[side].status === 'complete'), paired, {timeout: 60000});
+    const timing = await page.evaluate(() => gpuiLoadComparison);
+    assert.equal(timing.firstPresentedFrame, 'unavailable');
+    assert.equal(timing.cache, 'normal-browser-cache-uncontrolled');
+    assert.equal(timing.example, await page.locator('#fixture').inputValue());
+    for (const side of ['moon', ...(paired ? ['rust'] : [])]) {
+      const observed = timing.sides[side];
+      for (const key of ['documentMs', 'payloadMs', 'runtimeSignalMs']) assert(Number.isFinite(observed[key]) && observed[key] >= 0, `${side} ${key} must come from actual Resource/Navigation Timing`);
+      assert(observed.runtimeSignalMs >= observed.payloadMs);
+      const names = observed.files.map(file => new URL(file.url).pathname.split('/').at(-1));
+      assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
+        timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
+        ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
+    }
+    report.load_runs ||= [];
+    report.load_runs.push(timing); // Observations only: not first-paint or benchmark evidence.
   }
   await waitForNewDocuments();
   assert.match(manifest.lab_revision, /^[0-9a-f]{40}$/);
@@ -88,12 +105,21 @@ try {
   });
   async function captureCanvas(locator, side, width = 500, height = 500) {
     await locator.scrollIntoViewIfNeeded();
+    // Center away from viewport edges: rounding a fractional bottom-edge origin
+    // up to an integer can otherwise truncate a 500px clip to 499px.
+    await locator.evaluate(canvas => canvas.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'}));
     const bounds = await locator.boundingBox();
     assert.equal(bounds.width, width); assert.equal(bounds.height, height);
     const clip = {x: Math.ceil(bounds.x), y: Math.ceil(bounds.y), width, height};
+    const viewport = page.viewportSize();
+    assert(clip.x >= 0 && clip.y >= 0 && clip.x + width <= viewport.width && clip.y + height <= viewport.height,
+      'The full integer clip must fit inside the viewport');
     report.captures ||= {};
     report.captures[side] = {bounds, clip, method:'integer CSS pixel page clip; no rescaling or masking'};
-    return page.screenshot({clip});
+    const buffer = await page.screenshot({clip});
+    assert.equal(buffer.readUInt32BE(16), width, 'PNG width must equal the complete fixture width');
+    assert.equal(buffer.readUInt32BE(20), height, 'PNG height must equal the complete fixture height');
+    return buffer;
   }
   await writeFile(join(evidence, 'moonbit.png'), await captureCanvas(moon.locator('canvas'), 'moonbit'));
   report.candidate = 'passed';

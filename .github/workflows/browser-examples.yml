@@ -55,7 +55,7 @@ jobs:
           bash "$RUNNER_TEMP/install-moon.sh"
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
       - name: Host and catalog contracts
-        run: node --test web/tests/contracts.test.mjs
+        run: node --test web/tests/*.test.mjs
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
       - name: Install fixed Rust toolchain and matching bindings generator
@@ -85,7 +85,9 @@ jobs:
       - name: Execute both compiled runtimes on one isolated origin
         env:
           PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
-        run: node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
+        run: |
+          node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
+          node web/tests/load-timing-browser.mjs
       - name: Measure screenshot differences without claiming native parity
         run: |
           python3 -m pip install Pillow==12.0.0

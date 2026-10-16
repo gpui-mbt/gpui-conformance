@@ -1,3 +1,5 @@
+import { createHostTiming } from '../load-timing.mjs';
+const loadTiming = createHostTiming('rust');
 try {
   if (!crossOriginIsolated) throw new Error('Shared-memory WASM requires COOP/COEP response headers on the whole comparison site.');
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
@@ -18,7 +20,9 @@ try {
   });
   // Canvas creation is not evidence of a rendered frame; the E2E inspects its pixels.
   document.documentElement.dataset.runtimeStatus = 'initialized';
+  loadTiming.complete([modules[example], `./${example}_bg.wasm`], 'WASM initialized and canvas exists');
 } catch (cause) {
+  loadTiming.fail();
   document.documentElement.dataset.runtimeStatus = 'failed';
   const error = document.getElementById('error');
   error.hidden = false;

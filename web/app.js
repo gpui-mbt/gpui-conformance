@@ -1,5 +1,7 @@
 import { selectExample, rustExampleUrl, moonbitExampleUrl } from './routing.mjs';
 const $ = id => document.getElementById(id);
+import { createLoadComparison } from './load-comparison.mjs';
+const loadComparison = createLoadComparison({ frames: { rust: $('rust-frame'), moon: $('moon-frame') }, output: $('load-results') });
 const query = new URL(location.href).searchParams;
 try {
   const response = await fetch('./examples.json');
@@ -21,6 +23,7 @@ try {
   }
   function load() {
     // Clear the old pair first; a missing port must never leave a stale, mismatched application visible.
+    loadComparison.cancel();
     clearFrames();
     try {
       const example = selectExample(catalog, $('fixture').value);
@@ -39,11 +42,9 @@ try {
         return;
       }
       const rust = build.rust_bundled ? rustExampleUrl(location.href, example) : null;
-      // A unique navigation URL lets verification distinguish the new document from a stale ready frame.
-      const run = crypto.randomUUID();
-      function navigationUrl(value) { const url = new URL(value); url.searchParams.set('run', run); return url.href; }
-      $('moon-frame').src = navigationUrl(moon); $('moon-frame').hidden = false; $('moon-empty').hidden = true;
-      if (rust) { $('rust-frame').src = navigationUrl(rust); $('rust-frame').hidden = false; $('rust-empty').hidden = true; }
+      loadComparison.start({ example: example.id, urls: { moon, rust } });
+      $('moon-empty').hidden = true;
+      if (rust) $('rust-empty').hidden = true;
       else $('rust-empty').textContent = 'Rust WASM has not been built in this artifact. Comparison is unavailable.';
       const next = new URL(location.href); next.search = '';
       next.searchParams.set('example', example.id);
