@@ -168,7 +168,7 @@ pub fn text_frame(
     return "{\"ok\":false,\"error\":\"invalid_text_inputs\"}"
   }
   for w in widths {
-    if !(w >= 0.0 && w <= 2000.0) {
+    if !(w >= 0.0 && w <= 10000.0) {
       return "{\"ok\":false,\"error\":\"invalid_text_inputs\"}"
     }
   }
