@@ -76,6 +76,9 @@ impl Render for View {
             _ => root.items_start(),
         };
         root = match self.scenario["align_content"].as_str().unwrap_or("stretch") {
+            "space-between" => root.content_between(),
+            "space-around" => root.content_around(),
+            "space-evenly" => root.content_evenly(),
             "start" => root.content_start(),
             "center" => root.content_center(),
             "end" => root.content_end(),

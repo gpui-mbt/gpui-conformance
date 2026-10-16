@@ -20,7 +20,7 @@ import run_native
 
 class PortableContractTests(unittest.TestCase):
     def test_committed_corpora_are_valid(self):
-        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json", "align_content_scenarios.json"):
+        for name in ("scenarios.json", "native_scenarios.json", "boundary_scenarios.json", "fractional_grow_scenarios.json", "gap_budget_scenarios.json", "fractional_shrink_scenarios.json", "minmax_scenarios.json", "flex_wrap_scenarios.json", "justify_between_scenarios.json", "distributed_spacing_scenarios.json", "align_content_scenarios.json", "content_distribution_scenarios.json"):
             with self.subTest(corpus=name):
                 validate_scenarios(load_json(ROOT / name))
 
@@ -101,7 +101,7 @@ class PortableContractTests(unittest.TestCase):
 
     def test_align_content_is_bounded_and_layout_specific(self):
         corpus = load_json(ROOT / "align_content_scenarios.json")
-        for value in (None, True, 0, "space-between", "unknown", [], {}):
+        for value in (None, True, 0, "space-around-safe", "unknown", [], {}):
             invalid = copy.deepcopy(corpus)
             invalid["cases"][0]["align_content"] = value
             with self.subTest(value=value), self.assertRaises(ValueError):
