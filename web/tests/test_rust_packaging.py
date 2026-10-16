@@ -86,14 +86,14 @@ gpui_web = { path = "../.." }
 
     def test_rejects_unknown_path_and_duplicate_extra_oracles(self):
         for names in [["../outside"], ["other"], ["scrollable", "scrollable"],
-                      ["focus_visible", "focus_visible"], ["tab_stop", "tab_stop"]]:
+                      ["focus_visible", "focus_visible"], ["tab_stop", "tab_stop"], ["drag_drop", "drag_drop"]]:
             with self.subTest(names=names), self.assertRaises(ValueError):
                 module.extra_oracle_records(names)
 
     def test_registers_only_requested_additional_bins(self):
         for requested in [["scrollable"], ["tree", "scrollable"], ["focus_visible"],
                           ["tree", "scrollable", "focus_visible"], ["tab_stop"],
-                          ["tree", "scrollable", "focus_visible", "tab_stop"]]:
+                          ["tree", "scrollable", "focus_visible", "tab_stop"], ["drag_drop"]]:
             with self.subTest(requested=requested), tempfile.TemporaryDirectory() as temporary:
                 root = Path(temporary)
                 source = root / "source"
@@ -130,6 +130,19 @@ gpui_web = { path = "../.." }
         for name in ["scrollable", "focus_visible"]:
             with self.subTest(name=name), self.assertRaisesRegex(ValueError, "already has an implemented"):
                 module.selected_examples(catalog, module.extra_oracle_records([name]), True)
+
+    def test_drag_drop_oracle_is_explicit_and_absent_from_matched_gallery(self):
+        record, = module.extra_oracle_records(["drag_drop"])
+        self.assertEqual(record["source_blob"], "8f038ef3308fee9b097e7289665c9fa47cd6945b")
+        self.assertEqual(record["source_sha256"], "4011afde7c64fac2559b78918e6fdabdc563fe9f7591c74425d72da906dcc47a")
+        self.assertEqual(record["candidate"], "not_implemented")
+        catalog = json.loads((module.WEB / "examples.json").read_text())
+        self.assertFalse(any(entry["id"] == "drag_drop" for entry in catalog["examples"]))
+        self.assertEqual(module.selected_examples(catalog, [record], True), ["drag_drop"])
+        self.assertNotIn("drag_drop", module.selected_examples(catalog, []))
+        self.assertEqual(module.selected_examples(catalog, [record])[-1], "drag_drop")
+        with self.assertRaises(ValueError):
+            module.selected_examples(catalog, [], False, ["drag_drop"])
 
     def test_implemented_tab_stop_uses_normal_packaging_and_cannot_be_an_extra_oracle(self):
         catalog = json.loads((module.WEB / "examples.json").read_text())

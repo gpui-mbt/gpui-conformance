@@ -581,3 +581,8 @@ establish it. Source provenance and baseline boundaries are described in
 Full-image/text equality, native rendering, nested tab groups, touch, pointer
 capture, arbitrary viewport/DPR changes and complete keymap semantics remain
 unverified. No preview or result from another example is borrowed for this port.
+
+The opt-in [unchanged drag/drop Rust-only baseline](DRAG_DROP_ORACLE.md) has a
+separate source-profile workflow and no matched candidate/gallery entry. Its
+introduction is static/mock contract coverage; actual unchanged WASM observations
+must be established by that workflow before candidate or core behavior changes.
