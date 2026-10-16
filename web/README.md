@@ -184,11 +184,8 @@ native parity, browser scheduler equivalence, keyboard accessibility and
 full 50M/100M execution remain unverified. The catalog must keep this example
 implemented/unverified with no borrowed hello_world result.
 
-## Other upstream examples
-
-`input` retains its upstream source path and remains **gpui.mbt not implemented**.
-Selecting it clears both old runtimes instead of loading a substitute. Text
-input still requires independent editing, selection, and IME support.
+All catalog entries now have example ports. Their execution evidence does not
+establish native or pixel conformance; see each port's boundaries below.
 
 ## Build and verify the actual pairs
 
@@ -408,11 +405,28 @@ This port targets the pinned, unchanged `crates/gpui/examples/input.rs`
 owns browser `beforeinput`, keyboard, ClipboardEvent, and IME composition
 event delivery. The DOM textarea never owns the document value.
 
-The port covers pointer selection, Shift selection, arrows/Home/End,
+The port covers click caret placement, forward/backward drag selection,
+Shift-click/drag selection, arrows/Home/End,
 Backspace/Delete, copy/cut/paste, Ctrl/Cmd+A/Z/Y, redo, composition preview,
 commit, cancellation, and reset. It supplies a **fixed 12px-per-scalar
 measurement proxy**, not browser font shaping or native GPUI text layout.
 Selections are UTF-16 indices and the model rejects splitting a surrogate.
+The browser cancels the canvas's native mouse-focus action before focusing its
+transport textarea. Pointer capture delivers movement and release outside the
+canvas; cancellation, capture loss, blur, reset and page exit end the gesture.
+MoonBit owns the active selection gesture and reuses the pinned TextField's
+validated Shift-click path for drag updates. Hit testing retains captured
+coordinates beyond the horizontal viewport, accounts for horizontal scroll,
+and maps dragging above/below the single line to its document start/end. This is an example-local adapter, not a new library
+pointer API.
+
+The paired Chromium regression suite enters editing through trusted visible
+canvas clicks, including Reset, rather than directly focusing the hidden
+textarea. It covers click-to-type, caret placement, trusted copy/cut, directional
+and Shift drag ranges, outside release, capture loss, blur cleanup, supplementary
+Unicode, scrolled/offscreen text and above/below-line endpoints. Pointer cancellation is tested with a synthetic
+PointerEvent; it is not hardware-touch evidence.
+
 The upstream uses grapheme segmentation; this port currently exposes scalar
 boundaries instead, so grapheme movement equivalence (combining marks and
 ZWJ emoji) is **UNVERIFIED**. `TextField` owns undo/redo; these shortcuts

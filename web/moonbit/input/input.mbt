@@ -2,6 +2,11 @@
 let field_state : Ref[@text_field.TextField?] = { val: None }
 
 ///|
+/// Gesture ownership stays beside the authoritative TextField. The browser
+/// transports a single captured pointer; it never stores selection offsets.
+let pointer_selecting : Ref[Bool] = { val: false }
+
+///|
 /// Uniform scalar widths are an explicit candidate layout proxy, not GPUI or
 /// browser font-shaping evidence. TextField owns all document transactions.
 fn measure(
@@ -95,6 +100,7 @@ fn current() -> @text_field.TextField {
 ///|
 #export_name("input_reset")
 pub fn input_reset() -> Unit {
+  pointer_selecting.val = false
   field_state.val = Some(initial_field())
 }
 
@@ -141,13 +147,121 @@ pub fn input_key(label : String, shift : Bool, control : Bool, meta : Bool) -> B
 ///|
 #export_name("input_pointer")
 pub fn input_pointer(x : Double, y : Double, shift : Bool) -> Bool {
-  let position = @primitives.Point::new(x, y).unwrap()
-  update(@primitives.PointerButtonPressed(
-    position~, button=@primitives.Primary,
-    modifiers=@primitives.Modifiers::new(
-      shift~, control=false, alt=false, meta=false,
-    ),
-  ))
+  pointer_selecting.val = false
+  let position = match @primitives.Point::new(x, y) {
+    Ok(value) => value
+    Err(_) => return false
+  }
+  if !current().bounds().contains(position) || current().is_composing() {
+    return false
+  }
+  let accepted = select_at(position, shift)
+  pointer_selecting.val = accepted
+  accepted
+}
+
+///|
+fn select_at(
+  position : @primitives.Point,
+  shift : Bool,
+  hit_test~ : (@text.TextDocument, @primitives.Point) -> Result[
+    @text_layout.TextHit,
+    @text_field.TextFieldError,
+  ] = hit,
+) -> Bool {
+  // The pinned TextField exposes click/Shift-click rather than a drag API.
+  // Reuse that validated path to retain its anchor, scroll offset, UTF-16
+  // cursor stops and edit history throughout the example-local gesture.
+  match
+    current().handle_input(
+      @primitives.PointerButtonPressed(
+        position~,
+        button=@primitives.Primary,
+        modifiers=@primitives.Modifiers::new(
+          shift~,
+          control=false,
+          alt=false,
+          meta=false,
+        ),
+      ),
+      measure,
+      admit,
+      hit_test,
+    ) {
+    Ok((field, _)) => {
+      field_state.val = Some(field)
+      true
+    }
+    Err(_) => false
+  }
+}
+
+///|
+#export_name("input_pointer_move")
+pub fn input_pointer_move(x : Double, y : Double) -> Bool {
+  if !pointer_selecting.val || current().is_composing() {
+    return false
+  }
+  let point = match @primitives.Point::new(x, y) {
+    Ok(value) => value
+    Err(_) => return false
+  }
+  // Use an in-bounds event to enter TextField's validated selection path,
+  // but retain the captured position for the hit callback. Clamping the hit
+  // itself to the viewport would make horizontally hidden text unreachable.
+  let bounds = current().bounds()
+  let content = current().content_bounds()
+  let clamped = @primitives.Point::new(
+    point.x().max(content.left()).min(content.right()),
+    point.y().max(content.top()).min(content.bottom()),
+  ).unwrap()
+  select_at(clamped, true, hit_test=fn(document, layout_point) {
+    // Apply the single-line above/below rule outside the full clickable field,
+      // so a click/release in its padding stays collapsed at the same caret.
+      // Match the upstream example's endpoint behavior while
+    // retaining UTF-16 model offsets instead of its UTF-8 byte offsets.
+    if point.y() < bounds.top() || point.y() > bounds.bottom() {
+      let offset = if point.y() < bounds.top() {
+        0
+      } else {
+        document.utf16_length()
+      }
+      return match
+        @text_layout.TextHit::new(document, offset, 0, offset, true, true) {
+        Ok(value) => Ok(value)
+        Err(_) => Err(@text_field.HitTestFailed)
+      }
+    }
+    // layout_point already includes TextField's scroll and text-origin
+    // transform. Restore only the distance removed by viewport clamping.
+    let captured = match
+      @primitives.Point::new(
+        layout_point.x() + point.x() - clamped.x(),
+        layout_point.y(),
+      ) {
+      Ok(value) => value
+      Err(_) => return Err(@text_field.HitTestFailed)
+    }
+    hit(document, captured)
+  })
+}
+
+///|
+#export_name("input_pointer_end")
+pub fn input_pointer_end() -> Unit {
+  pointer_selecting.val = false
+}
+
+///|
+#export_name("input_selecting")
+pub fn input_selecting() -> Bool {
+  pointer_selecting.val
+}
+
+///|
+#export_name("input_scroll_offset")
+pub fn input_scroll_offset() -> Double {
+  current().scroll_offset()
 }
 
 ///|
