@@ -17,6 +17,7 @@ on:
       - 'web/examples.json'
       - 'web/evidence/20261016/result.json'
       - 'web/evidence/20261016-text-examples/**'
+      - 'web/evidence/20261016-prime-sieve/**'
       - 'web/PIXEL_ANALYSIS_20261016.md'
       - 'web/README.md'
   push:
@@ -36,6 +37,7 @@ on:
       - 'web/examples.json'
       - 'web/evidence/20261016/result.json'
       - 'web/evidence/20261016-text-examples/**'
+      - 'web/evidence/20261016-prime-sieve/**'
       - 'web/PIXEL_ANALYSIS_20261016.md'
       - 'web/README.md'
   workflow_dispatch:
@@ -44,7 +46,9 @@ permissions:
   contents: read
 
 concurrency:
-  group: catalog-pages
+  # Independent PR checks must not replace another PR's pending run.
+  # Main/manual publication retains the single shared deployment queue.
+  group: ${{ github.event_name == 'pull_request' && format('catalog-pr-{0}', github.event.pull_request.number) || 'catalog-pages' }}
   cancel-in-progress: false
 
 jobs:

@@ -1,0 +1,2085 @@
+{
+  "overall": "passed",
+  "candidate": "passed",
+  "rust": "passed",
+  "comparison": "color_probes_matched_pixel_parity_unverified",
+  "verified": [
+    "same-origin compiled Rust WASM and MoonBit JS",
+    "500x500 viewports",
+    "six rendered swatch RGB probes",
+    "trusted browser click/key delivery; static swatches retained",
+    "missing-port clearing",
+    "reload both",
+    "fixed viewport in narrow layout"
+  ],
+  "unverified": [
+    "native parity",
+    "text shaping and rasterization",
+    "application event handling",
+    "IME and interactive examples"
+  ],
+  "operations": [
+    {
+      "side": "rust",
+      "action": "pointer click then Enter",
+      "delivery": "passed",
+      "color_probes_after": "passed",
+      "application_handling": "not_applicable_static_example"
+    },
+    {
+      "side": "moonbit",
+      "action": "pointer click then Enter",
+      "delivery": "passed",
+      "color_probes_after": "passed",
+      "application_handling": "not_applicable_static_example"
+    },
+    {
+      "action": "select text_layout",
+      "candidate": "15 text scene items, decorated runs and clip chains",
+      "rust": "actual WASM and text ink verified",
+      "comparison": "unverified"
+    },
+    {
+      "action": "select text_wrapper",
+      "candidate": "MoonBit ellipsis, two/three-line clamps, nowrap and complete wrapped text verified",
+      "rust": "actual WASM, colored borders and text ink verified",
+      "ink": {
+        "candidate": {
+          "red": 1692,
+          "blue": 3328,
+          "green": 3392,
+          "dark": 31210,
+          "lowerDark": 10591
+        },
+        "rust": {
+          "red": 1692,
+          "blue": 3328,
+          "green": 3392,
+          "dark": 29927,
+          "lowerDark": 9295
+        }
+      },
+      "comparison": "unverified"
+    },
+    {
+      "action": "reload text_wrapper pair",
+      "result": "fresh runtimes and stable wrapping output"
+    },
+    {
+      "action": "run actual 10M Prime sieve",
+      "candidate": "12 real compiled MoonBit worker chunks; total 664579; pool released; preset and repeated-start clicks ignored while running",
+      "rust": "actual hello_web WASM, trusted Count Primes click and rendered 664579 result verified by retained OCR",
+      "comparison": "functional count matched; pixel, scheduler and performance equivalence unverified",
+      "unexecuted_presets": [
+        50000000,
+        100000000
+      ]
+    },
+    {
+      "action": "leave Prime sieve during second real run and reopen",
+      "result": "fresh idle state, no retained history or active worker pool"
+    },
+    {
+      "action": "select missing input port",
+      "result": "both_frames_cleared"
+    },
+    {
+      "action": "reload both",
+      "result": "runtimes_initialized"
+    }
+  ],
+  "errors": [],
+  "console": [
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "warning",
+      "text": "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing."
+    },
+    {
+      "type": "info",
+      "text": "WebGPU is experimental on this platform. See https://github.com/gpuweb/gpuweb/wiki/Implementation-Status#implementation-status"
+    },
+    {
+      "type": "warning",
+      "text": "Failed to create WebGPU Context Provider"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_web::platform: WebGPU initialization failed; falling back to WebGL2: browser WebGPU probe did not return a usable adapter"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_context: Dual-source blending not available on this GPU. Subpixel text antialiasing will be disabled."
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_wgpu::wgpu_context: Browser graphics initialized: requested=WebGl, selected=Gl, adapter=\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\", limits=Limits { max_texture_dimension_1d: 8192, max_texture_dimension_2d: 8192, max_texture_dimension_3d: 2048, max_texture_array_layers: 256, max_bind_groups: 4, max_bindings_per_bind_group: 1000, max_dynamic_uniform_buffers_per_pipeline_layout: 8, max_dynamic_storage_buffers_per_pipeline_layout: 0, max_sampled_textures_per_shader_stage: 16, max_samplers_per_shader_stage: 16, max_storage_buffers_per_shader_stage: 0, max_storage_textures_per_shader_stage: 0, max_uniform_buffers_per_shader_stage: 11, max_binding_array_elements_per_shader_stage: 0, max_binding_array_acceleration_structure_elements_per_shader_stage: 0, max_binding_array_sampler_elements_per_shader_stage: 0, max_uniform_buffer_binding_size: 16384, max_storage_buffer_binding_size: 0, max_vertex_buffers: 8, max_buffer_size: 268435456, max_vertex_attributes: 16, max_vertex_buffer_array_stride: 255, max_inter_stage_shader_variables: 15, min_uniform_buffer_offset_alignment: 256, min_storage_buffer_offset_alignment: 256, max_color_attachments: 4, max_color_attachment_bytes_per_sample: 32, max_compute_workgroup_storage_size: 0, max_compute_invocations_per_workgroup: 0, max_compute_workgroup_size_x: 0, max_compute_workgroup_size_y: 0, max_compute_workgroup_size_z: 0, max_compute_workgroups_per_dimension: 0, max_immediate_size: 0, max_non_sampler_bindings: 1000000, max_task_mesh_workgroup_total_count: 0, max_task_mesh_workgroups_per_dimension: 0, max_task_invocations_per_workgroup: 0, max_task_invocations_per_dimension: 0, max_mesh_invocations_per_workgroup: 0, max_mesh_invocations_per_dimension: 0, max_task_payload_size: 0, max_mesh_output_vertices: 0, max_mesh_output_primitives: 0, max_mesh_output_layers: 0, max_mesh_multiview_view_count: 0, max_blas_primitive_count: 0, max_blas_geometry_count: 0, max_tlas_instance_count: 0, max_acceleration_structures_per_shader_stage: 0, max_multiview_view_count: 0 }, dual_source_blending=false"
+    },
+    {
+      "type": "info",
+      "text": "[INFO] gpui_web::platform: Browser graphics initialized successfully with Gl"
+    },
+    {
+      "type": "warning",
+      "text": "[WARN] gpui_wgpu::wgpu_renderer: Failed to poll device during resize: Timeout"
+    }
+  ],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/style.css",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/app.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/routing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-comparison.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/examples.json",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/build-manifest.json",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=hello_world&run=f3161d60-4944-405e-861a-1d7fbb0ebc19",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=hello_world&run=f3161d60-4944-405e-861a-1d7fbb0ebc19",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/6c83f912-aa9c-4698-8bb9-02ef8b7d6bce",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/6c83f912-aa9c-4698-8bb9-02ef8b7d6bce",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/6c83f912-aa9c-4698-8bb9-02ef8b7d6bce",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/6c83f912-aa9c-4698-8bb9-02ef8b7d6bce",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=text_layout&run=24251481-0811-4466-a271-83ddfcf21dc9",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=text_layout&run=24251481-0811-4466-a271-83ddfcf21dc9",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_layout.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/cd8b9e4a-2cf5-415a-90eb-5bb5c215d087",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/cd8b9e4a-2cf5-415a-90eb-5bb5c215d087",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/cd8b9e4a-2cf5-415a-90eb-5bb5c215d087",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/cd8b9e4a-2cf5-415a-90eb-5bb5c215d087",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Italic.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-SemiBold.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=text_wrapper&run=bd9b09fa-8002-4baf-9474-2332ffe30093",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=text_wrapper&run=bd9b09fa-8002-4baf-9474-2332ffe30093",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_wrapper.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/a0a89f5f-007b-45b5-b360-e9f880ffc4de",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/a0a89f5f-007b-45b5-b360-e9f880ffc4de",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/a0a89f5f-007b-45b5-b360-e9f880ffc4de",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/a0a89f5f-007b-45b5-b360-e9f880ffc4de",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=text_wrapper&run=63c3920f-0304-46af-ae53-8cb9916b7dac",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=text_wrapper&run=63c3920f-0304-46af-ae53-8cb9916b7dac",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_wrapper.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/b34edbb5-8925-48dc-8975-589985798313",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/b34edbb5-8925-48dc-8975-589985798313",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/b34edbb5-8925-48dc-8975-589985798313",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/b34edbb5-8925-48dc-8975-589985798313",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=hello_web&run=25fdb6e6-2c7f-4e1f-a5a3-cd6b021538d2",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=hello_web&run=25fdb6e6-2c7f-4e1f-a5a3-cd6b021538d2",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/9a233cf8-a5e3-479e-ae41-40aba4256ff7",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/9a233cf8-a5e3-479e-ae41-40aba4256ff7",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/9a233cf8-a5e3-479e-ae41-40aba4256ff7",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/9a233cf8-a5e3-479e-ae41-40aba4256ff7",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-worker.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=hello_web&run=08a5f45f-70a7-4ae6-b2da-242962fc38e2",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=hello_web&run=08a5f45f-70a7-4ae6-b2da-242962fc38e2",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/prime-host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/2acd9fb3-7317-4ead-b2f3-b5db2abf026b",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/2acd9fb3-7317-4ead-b2f3-b5db2abf026b",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/2acd9fb3-7317-4ead-b2f3-b5db2abf026b",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/2acd9fb3-7317-4ead-b2f3-b5db2abf026b",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=hello_world&run=709189ab-f534-4e84-8b6d-08ee9c154ccf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=hello_world&run=709189ab-f534-4e84-8b6d-08ee9c154ccf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/8536dc85-e0f4-4106-a322-ca463e354cef",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/8536dc85-e0f4-4106-a322-ca463e354cef",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/8536dc85-e0f4-4106-a322-ca463e354cef",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/8536dc85-e0f4-4106-a322-ca463e354cef",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/?example=hello_world&run=0f589264-1031-4512-92b3-116607f66cf3",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/?example=hello_world&run=0f589264-1031-4512-92b3-116607f66cf3",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/host.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text-metrics.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/render.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/load-timing.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/0a1d8758-681e-44b0-b50c-36bf21f6a2b3",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/0a1d8758-681e-44b0-b50c-36bf21f6a2b3",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/0a1d8758-681e-44b0-b50c-36bf21f6a2b3",
+      "status": 200
+    },
+    {
+      "url": "blob:http://127.0.0.1:43327/0a1d8758-681e-44b0-b50c-36bf21f6a2b3",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+      "status": 200
+    }
+  ],
+  "build": {
+    "upstream": {
+      "repository": "zed-industries/zed",
+      "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+      "hello_world_blob": "d18cb048726d6953edef9ea482d92bac05993d33"
+    },
+    "moonbit": {
+      "repository": "gpui-mbt/gpui.mbt",
+      "revision": "01818aa4e96fc21d1676f747a6b23d91445648a1"
+    },
+    "lab_revision": "a613f026400c2f23fdd599952843e75d713fe6fe",
+    "lab_tracked_dirty": false,
+    "compiler": "moon 0.1.20261012 (748b63c 2026-10-12) ~/.moon/bin/moon\nmoonc v0.10.15+943464bfa (2026-10-12) ~/.moon/bin/moonc\nmoonrun 0.1.20261012 (748b63c 2026-10-12) ~/.moon/bin/moonrun\n\nFeature flags enabled: rr_moon_mod,rr_moon_pkg",
+    "runtime_sha256": "51d4adb34215a89729fb394f029c36766e148dc765ba19fdc54d1e3912f2838f",
+    "font_sha256": "975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5",
+    "font_sha256_by_file": {
+      "IBMPlexSans-Regular.ttf": "975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5",
+      "IBMPlexSans-Italic.ttf": "a9c6ef9942c49e49d11e11a6dacc0b3a087978757e9b22a06b8ac22a6400fb15",
+      "IBMPlexSans-SemiBold.ttf": "a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1"
+    },
+    "implemented": [
+      "hello_world",
+      "text_layout",
+      "text_wrapper",
+      "hello_web"
+    ],
+    "runtime_sha256_by_example": {
+      "hello_world": "51d4adb34215a89729fb394f029c36766e148dc765ba19fdc54d1e3912f2838f",
+      "text_layout": "5fb61bb71b98aa5851a9e1635870f32353a896b2deab72beabcd395476de0989",
+      "text_wrapper": "3818155eb78ec76fe189d40dc491e6844c88dcfdf64855284c2e8f0389d6e38d",
+      "hello_web": "4b0190aaa48277cf41fd044f1b64e3e8d733fad6c1a9ee6344f4bfee356cbd57"
+    },
+    "rust_bundled": true,
+    "comparison_status": "unverified",
+    "moonbit_unit_tests": "passed",
+    "rust_implemented": [
+      "hello_world",
+      "text_layout",
+      "text_wrapper",
+      "hello_web"
+    ],
+    "rust": {
+      "toolchain": "rustc 1.101.0-nightly (822182db4 2026-10-13)",
+      "bindings": "wasm-bindgen 0.2.129",
+      "command": [
+        "cargo",
+        "+nightly-2026-10-14",
+        "build",
+        "--locked",
+        "--release",
+        "--config",
+        "profile.release.codegen-units=1",
+        "--target",
+        "wasm32-unknown-unknown",
+        "--bin",
+        "hello_world",
+        "--bin",
+        "text_layout",
+        "--bin",
+        "text_wrapper",
+        "--bin",
+        "hello_web",
+        "--target-dir",
+        "<target-dir>"
+      ],
+      "source_modified": false,
+      "files": {
+        "Cargo.lock": "d60bd2d8e87639d33f67b740796a06078c2c2e3df9593dcbd699c4abc37919da",
+        "LICENSE-APACHE": "752daf2fb234ca4a1fa372c073fe127f44b7b90fd2529ae44273a64f9d53da7a",
+        "hello_web.d.ts": "79ceb10c959d90328ef9fa1278aef056f2490708b320edfae21b4dc779f1cf6a",
+        "hello_web.js": "82020bf36805aabeb9238936ad7e1ec4143b7d370eac05825c1738607376a330",
+        "hello_web_bg.wasm": "255b634da51d30a80559af9b5466110d3ec90408187e7cf3374b41f3b59a7455",
+        "hello_web_bg.wasm.d.ts": "5325f7c2936254a24c9f0d82c1a9ff3e56541c20dd820024e4576bbf15ac813c",
+        "hello_world.d.ts": "74dc6693185fe85cf306e21a3e64d2f305c978612c65c609e5096b754fb404e7",
+        "hello_world.js": "94b6db7c0009c19f122a37b2a4b3b81c0396ff9a255e07de8359fc20283d06a7",
+        "hello_world_bg.wasm": "65ed364cdfec8314f1503b134fb5dba8e03f8310f39ed64a4f5df16e3c0e9cdb",
+        "hello_world_bg.wasm.d.ts": "e000bae10bcf6873a336a9e0a6b7e3162e186061acc2f9f113ee93836519c110",
+        "host.mjs": "b0029de61d06d174519bbef782ecd099c0c991f3611544636e2ec836471488bb",
+        "ibm-plex-sans-license.txt": "91c25c350d3cac39da2736d74f7ba37ef648f5237a4e330a240615bc8d8c4360",
+        "index.html": "8f6806a2ae5f935a8212171af3890fb1460c5ab30a357032bf541222b2bd6669",
+        "lilex-license.txt": "a356708a399e3f54b937ec7d9b722c26dabba21365b60f95c56eb7ebca0dee40",
+        "text_layout.d.ts": "74dc6693185fe85cf306e21a3e64d2f305c978612c65c609e5096b754fb404e7",
+        "text_layout.js": "d86cee34ec2706e62011035b62b9335054fa50e97dd7d80c0d3f9b437c30a36b",
+        "text_layout_bg.wasm": "10047f09f2ec4e5fa9b5d5b228d9e08dafbfac7d465ef9e36598c760d4a6a291",
+        "text_layout_bg.wasm.d.ts": "e000bae10bcf6873a336a9e0a6b7e3162e186061acc2f9f113ee93836519c110",
+        "text_wrapper.d.ts": "74dc6693185fe85cf306e21a3e64d2f305c978612c65c609e5096b754fb404e7",
+        "text_wrapper.js": "1518a0b43b1e546fb1629c3867535c077a24953f9e9fbe57aeaa9e1ec05ca297",
+        "text_wrapper_bg.wasm": "0eef3b6789c237dc6e0d8ed95c5dc69a1f06718dd52c218a80089140aeadf77e",
+        "text_wrapper_bg.wasm.d.ts": "e000bae10bcf6873a336a9e0a6b7e3162e186061acc2f9f113ee93836519c110"
+      }
+    }
+  },
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v22.23.3",
+    "graphics": "Chromium with SwiftShader requested; raw backend logs retained",
+    "browser": "141.0.7390.37"
+  },
+  "load_runs": [
+    {
+      "id": "f3161d60-4944-405e-861a-1d7fbb0ebc19",
+      "example": "hello_world",
+      "sequence": 1,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128504613.2751,
+      "launchOrder": [
+        "rust",
+        "moon"
+      ],
+      "launchSkewMs": 0.46484375,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.02001953125,
+          "documentMs": 10.354736328125,
+          "payloadMs": 122.579833984375,
+          "runtimeSignalMs": 174.369873046875,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+              "responseEnd": 1792128504670.9548,
+              "transferSize": 161190,
+              "encodedBodySize": 160890
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+              "responseEnd": 1792128504735.855,
+              "transferSize": 12140941,
+              "encodedBodySize": 12140641
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.48486328125,
+          "documentMs": 10.534912109375,
+          "payloadMs": 72.334716796875,
+          "runtimeSignalMs": 82.909912109375,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+              "responseEnd": 1792128504672.095,
+              "transferSize": 195787,
+              "encodedBodySize": 195487
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128504685.6099,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "24251481-0811-4466-a271-83ddfcf21dc9",
+      "example": "text_layout",
+      "sequence": 2,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128506551.36,
+      "launchOrder": [
+        "moon",
+        "rust"
+      ],
+      "launchSkewMs": 0.239990234375,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.25,
+          "documentMs": 15.199951171875,
+          "payloadMs": 426.7998046875,
+          "runtimeSignalMs": 457.099853515625,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout.js",
+              "responseEnd": 1792128506905.58,
+              "transferSize": 161190,
+              "encodedBodySize": 160890
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_layout_bg.wasm",
+              "responseEnd": 1792128506978.16,
+              "transferSize": 12150373,
+              "encodedBodySize": 12150073
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.010009765625,
+          "documentMs": 9.079833984375,
+          "payloadMs": 670.739990234375,
+          "runtimeSignalMs": 687.699951171875,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_layout.mjs",
+              "responseEnd": 1792128506905.83,
+              "transferSize": 202545,
+              "encodedBodySize": 202245
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128506925.97,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Italic.ttf",
+              "responseEnd": 1792128507022.3801,
+              "transferSize": 208220,
+              "encodedBodySize": 207920
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-SemiBold.ttf",
+              "responseEnd": 1792128507222.1,
+              "transferSize": 202932,
+              "encodedBodySize": 202632
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "bd9b09fa-8002-4baf-9474-2332ffe30093",
+      "example": "text_wrapper",
+      "sequence": 3,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128508086.04,
+      "launchOrder": [
+        "rust",
+        "moon"
+      ],
+      "launchSkewMs": 0.215087890625,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.010009765625,
+          "documentMs": 8.19482421875,
+          "payloadMs": 274.8798828125,
+          "runtimeSignalMs": 318.204833984375,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+              "responseEnd": 1792128508223.045,
+              "transferSize": 161193,
+              "encodedBodySize": 160893
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper_bg.wasm",
+              "responseEnd": 1792128508360.92,
+              "transferSize": 12148738,
+              "encodedBodySize": 12148438
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.22509765625,
+          "documentMs": 8.35009765625,
+          "payloadMs": 165.66015625,
+          "runtimeSignalMs": 242.505126953125,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_wrapper.mjs",
+              "responseEnd": 1792128508230.905,
+              "transferSize": 242727,
+              "encodedBodySize": 242427
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128508251.7002,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "63c3920f-0304-46af-ae53-8cb9916b7dac",
+      "example": "text_wrapper",
+      "sequence": 4,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128509698.485,
+      "launchOrder": [
+        "moon",
+        "rust"
+      ],
+      "launchSkewMs": 0.22509765625,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.22998046875,
+          "documentMs": 4.169921875,
+          "payloadMs": 189.36474609375,
+          "runtimeSignalMs": 226.9697265625,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper.js",
+              "responseEnd": 1792128509844.285,
+              "transferSize": 161193,
+              "encodedBodySize": 160893
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/text_wrapper_bg.wasm",
+              "responseEnd": 1792128509887.8499,
+              "transferSize": 12148738,
+              "encodedBodySize": 12148438
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.0048828125,
+          "documentMs": 4.0048828125,
+          "payloadMs": 75.97998046875,
+          "runtimeSignalMs": 128.954833984375,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/text_wrapper.mjs",
+              "responseEnd": 1792128509760.905,
+              "transferSize": 242727,
+              "encodedBodySize": 242427
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128509774.465,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "25fdb6e6-2c7f-4e1f-a5a3-cd6b021538d2",
+      "example": "hello_web",
+      "sequence": 5,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128510124.75,
+      "launchOrder": [
+        "rust",
+        "moon"
+      ],
+      "launchSkewMs": 0.169921875,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.005126953125,
+          "documentMs": 5.204833984375,
+          "payloadMs": 489.014892578125,
+          "runtimeSignalMs": 519.769775390625,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+              "responseEnd": 1792128510534.5,
+              "transferSize": 161735,
+              "encodedBodySize": 161435
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web_bg.wasm",
+              "responseEnd": 1792128510613.765,
+              "transferSize": 10789655,
+              "encodedBodySize": 10789355
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.175048828125,
+          "documentMs": 6.85498046875,
+          "payloadMs": 442.5400390625,
+          "runtimeSignalMs": 782.369873046875,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+              "responseEnd": 1792128510545.4849,
+              "transferSize": 246689,
+              "encodedBodySize": 246389
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128510567.29,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "08a5f45f-70a7-4ae6-b2da-242962fc38e2",
+      "example": "hello_web",
+      "sequence": 6,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128515225.4202,
+      "launchOrder": [
+        "moon",
+        "rust"
+      ],
+      "launchSkewMs": 0.204833984375,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.224853515625,
+          "documentMs": 6.48486328125,
+          "payloadMs": 107.44970703125,
+          "runtimeSignalMs": 142.709716796875,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web.js",
+              "responseEnd": 1792128515259.3699,
+              "transferSize": 161735,
+              "encodedBodySize": 161435
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_web_bg.wasm",
+              "responseEnd": 1792128515332.8699,
+              "transferSize": 10789655,
+              "encodedBodySize": 10789355
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.02001953125,
+          "documentMs": 4.69970703125,
+          "payloadMs": 41.8798828125,
+          "runtimeSignalMs": 57.939697265625,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/hello_web.mjs",
+              "responseEnd": 1792128515256.335,
+              "transferSize": 246689,
+              "encodedBodySize": 246389
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128515267.3,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "709189ab-f534-4e84-8b6d-08ee9c154ccf",
+      "example": "hello_world",
+      "sequence": 7,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128515732.395,
+      "launchOrder": [
+        "rust",
+        "moon"
+      ],
+      "launchSkewMs": 0.27490234375,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.01513671875,
+          "documentMs": 6.969970703125,
+          "payloadMs": 103.5,
+          "runtimeSignalMs": 150.455078125,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+              "responseEnd": 1792128515772.2551,
+              "transferSize": 161190,
+              "encodedBodySize": 160890
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+              "responseEnd": 1792128515835.895,
+              "transferSize": 12140941,
+              "encodedBodySize": 12140641
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.2900390625,
+          "documentMs": 7.4150390625,
+          "payloadMs": 64.47998046875,
+          "runtimeSignalMs": 80.375,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+              "responseEnd": 1792128515781.775,
+              "transferSize": 195787,
+              "encodedBodySize": 195487
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128515796.875,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "0f589264-1031-4512-92b3-116607f66cf3",
+      "example": "hello_world",
+      "sequence": 8,
+      "cache": "normal-browser-cache-uncontrolled",
+      "startedAt": 1792128516262.81,
+      "launchOrder": [
+        "moon",
+        "rust"
+      ],
+      "launchSkewMs": 0.21484375,
+      "firstPresentedFrame": "unavailable",
+      "sides": {
+        "rust": {
+          "status": "complete",
+          "assignedMs": 0.219970703125,
+          "documentMs": 6.824951171875,
+          "payloadMs": 440.955078125,
+          "runtimeSignalMs": 471.455078125,
+          "milestone": "WASM initialized and canvas exists",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world.js",
+              "responseEnd": 1792128516657.7551,
+              "transferSize": 161190,
+              "encodedBodySize": 160890
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/rust/hello_world_bg.wasm",
+              "responseEnd": 1792128516703.7651,
+              "transferSize": 12140941,
+              "encodedBodySize": 12140641
+            }
+          ]
+        },
+        "moon": {
+          "status": "complete",
+          "assignedMs": 0.005126953125,
+          "documentMs": 5.125,
+          "payloadMs": 398.804931640625,
+          "runtimeSignalMs": 402.89013671875,
+          "milestone": "Canvas2D draw calls returned",
+          "files": [
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/runtime.mjs",
+              "responseEnd": 1792128516656.86,
+              "transferSize": 195787,
+              "encodedBodySize": 195487
+            },
+            {
+              "url": "http://127.0.0.1:43327/gpui-conformance/moonbit/IBMPlexSans-Regular.ttf",
+              "responseEnd": 1792128516661.615,
+              "transferSize": 200800,
+              "encodedBodySize": 200500
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "text_metrics": {
+    "font": "IBM Plex Sans",
+    "font_size": 20,
+    "bounds": {
+      "x": 192.5,
+      "y": 212,
+      "width": 115,
+      "height": 32
+    },
+    "width": 115,
+    "fontBoundingBoxAscent": 21,
+    "fontBoundingBoxDescent": 6,
+    "actualBoundingBoxAscent": 15,
+    "actualBoundingBoxDescent": 2,
+    "actualBoundingBoxLeft": -1,
+    "actualBoundingBoxRight": 114,
+    "baseline": 235.5
+  },
+  "captures": {
+    "moonbit": {
+      "bounds": {
+        "x": 709,
+        "y": 249.046875,
+        "width": 500,
+        "height": 500
+      },
+      "clip": {
+        "x": 709,
+        "y": 250,
+        "width": 500,
+        "height": 500
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "rust": {
+      "bounds": {
+        "x": 33,
+        "y": 249.046875,
+        "width": 500,
+        "height": 500
+      },
+      "clip": {
+        "x": 33,
+        "y": 250,
+        "width": 500,
+        "height": 500
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "text_layout_moonbit": {
+      "bounds": {
+        "x": 1009,
+        "y": 298.859375,
+        "width": 800,
+        "height": 600
+      },
+      "clip": {
+        "x": 1009,
+        "y": 299,
+        "width": 800,
+        "height": 600
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "text_layout_rust": {
+      "bounds": {
+        "x": 33,
+        "y": 298.859375,
+        "width": 800,
+        "height": 600
+      },
+      "clip": {
+        "x": 33,
+        "y": 299,
+        "width": 800,
+        "height": 600
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "text_wrapper_moonbit": {
+      "bounds": {
+        "x": 1009,
+        "y": 298.859375,
+        "width": 800,
+        "height": 600
+      },
+      "clip": {
+        "x": 1009,
+        "y": 299,
+        "width": 800,
+        "height": 600
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "text_wrapper_rust": {
+      "bounds": {
+        "x": 33,
+        "y": 298.859375,
+        "width": 800,
+        "height": 600
+      },
+      "clip": {
+        "x": 33,
+        "y": 299,
+        "width": 800,
+        "height": 600
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "hello_web_moonbit_initial": {
+      "bounds": {
+        "x": 1009,
+        "y": 338.859375,
+        "width": 640,
+        "height": 560
+      },
+      "clip": {
+        "x": 1009,
+        "y": 339,
+        "width": 640,
+        "height": 560
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "hello_web_moonbit_running": {
+      "bounds": {
+        "x": 1009,
+        "y": 338.859375,
+        "width": 640,
+        "height": 560
+      },
+      "clip": {
+        "x": 1009,
+        "y": 339,
+        "width": 640,
+        "height": 560
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "hello_web_moonbit_result": {
+      "bounds": {
+        "x": 1009,
+        "y": 338.859375,
+        "width": 640,
+        "height": 560
+      },
+      "clip": {
+        "x": 1009,
+        "y": 339,
+        "width": 640,
+        "height": 560
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "hello_web_rust_initial": {
+      "bounds": {
+        "x": 33,
+        "y": 338.859375,
+        "width": 640,
+        "height": 560
+      },
+      "clip": {
+        "x": 33,
+        "y": 339,
+        "width": 640,
+        "height": 560
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    },
+    "hello_web_rust_result": {
+      "bounds": {
+        "x": 33,
+        "y": 338.859375,
+        "width": 640,
+        "height": 560
+      },
+      "clip": {
+        "x": 33,
+        "y": 339,
+        "width": 640,
+        "height": 560
+      },
+      "method": "integer CSS pixel page clip; no rescaling or masking"
+    }
+  },
+  "probes": {
+    "coordinates": [
+      [
+        150,
+        272
+      ],
+      [
+        190,
+        272
+      ],
+      [
+        230,
+        272
+      ],
+      [
+        270,
+        272
+      ],
+      [
+        310,
+        272
+      ],
+      [
+        350,
+        272
+      ]
+    ],
+    "expected": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        128,
+        0
+      ],
+      [
+        0,
+        0,
+        255
+      ],
+      [
+        255,
+        255,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "rust": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        128,
+        0
+      ],
+      [
+        0,
+        0,
+        255
+      ],
+      [
+        255,
+        255,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ],
+    "moonbit": [
+      [
+        255,
+        0,
+        0
+      ],
+      [
+        0,
+        128,
+        0
+      ],
+      [
+        0,
+        0,
+        255
+      ],
+      [
+        255,
+        255,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        255,
+        255,
+        255
+      ]
+    ]
+  },
+  "capture_alignment": {
+    "offsets": {
+      "rust": {
+        "x": 0,
+        "y": 0.953125
+      },
+      "moonbit": {
+        "x": 0,
+        "y": 0.953125
+      }
+    },
+    "equal_fractional_offsets": true
+  },
+  "raster_comparison": {
+    "method": "exact RGB pixel difference; no tolerance or masking",
+    "width": 500,
+    "height": 500,
+    "changed_pixels": 1532,
+    "total_pixels": 250000,
+    "changed_ratio": 0.006128,
+    "status": "different",
+    "native_conformance": "unverified",
+    "sha256": {
+      "rust.png": "bdb669e42cf0c32127c17ebfac939e068201cfa14103e895ab3fbd18e7180a2b",
+      "moonbit.png": "f91ca17b1fcdcb83a0e4dff1dae989a4646de94bb77d8416199c3c07507b511d"
+    }
+  }
+}

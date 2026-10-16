@@ -15,6 +15,7 @@ from scripts.build_test_catalog import (
     BROWSER_THUMBNAIL_ASSET,
     BROWSER_THUMBNAIL_SOURCE,
     TEXT_CAPTURE_MANIFEST,
+    PRIME_CAPTURE_MANIFEST,
     ROOT,
     browser_lab_comparison_url,
     build_catalog,
@@ -67,6 +68,17 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(browser["total_pixels"], 250000)
         self.assertEqual(browser["changed_percent"], 0.6128)
         self.assertEqual(browser["native_conformance"], "unverified")
+
+    def test_catalog_ci_isolates_prs_and_serializes_deployments(self):
+        workflow = (ROOT / ".github/workflows/catalog-pages.yml").read_text()
+        self.assertIn(
+            "group: ${{ github.event_name == 'pull_request' && "
+            "format('catalog-pr-{0}', github.event.pull_request.number) || 'catalog-pages' }}",
+            workflow,
+        )
+        self.assertIn("cancel-in-progress: false", workflow)
+        self.assertIn("if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' "
+                      "&& github.ref == 'refs/heads/main')", workflow)
 
     def test_example_catalog_does_not_fabricate_interactive_routes(self):
         examples = self.data["browser_examples"]
@@ -126,8 +138,11 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(prime["status"], "unverified")
         self.assertEqual(prime["execution"], "unverified")
         self.assertFalse(prime["evidence_available"])
-        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels"):
             self.assertIsNone(prime[key], key)
+        self.assertEqual((prime["thumbnail"]["width"], prime["thumbnail"]["height"]), (640, 560))
+        self.assertEqual(prime["thumbnail"]["capture_revision"], "faab43b9b9ee73fc8e1f0b6864b4cf9083c44877")
+        self.assertIn("38855611489", prime["thumbnail"]["capture_run_url"])
 
     def test_browser_lab_url_is_optional_and_fails_closed_for_unsafe_values(self):
         self.assertIsNone(normalize_browser_lab_base_url(None))
@@ -327,6 +342,27 @@ class TestCatalogData(unittest.TestCase):
             real_load = load_json
             def patched_load(path):
                 return manifest if path == TEXT_CAPTURE_MANIFEST else real_load(path)
+            with self.subTest(problem=problem), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
+                with self.assertRaises(ValueError): build_catalog("test")
+
+    def test_prime_preview_is_byte_exact_and_validated_independently(self):
+        manifest = load_json(PRIME_CAPTURE_MANIFEST)
+        entry = manifest["example"]
+        self.assertEqual((ROOT / entry["asset_path"]).read_bytes(), (ROOT / entry["moonbit"]["path"]).read_bytes())
+        self.assertEqual(manifest["source_run"]["head_revision"], "faab43b9b9ee73fc8e1f0b6864b4cf9083c44877")
+        for problem in ("report", "scene", "ocr", "image", "dimensions", "build", "asset", "source", "run"):
+            changed = deepcopy(manifest)
+            if problem in ("report", "scene", "ocr"):
+                changed[("result" if problem == "report" else problem) + "_sha256"] = "wrong"
+            elif problem == "image": changed["example"]["rust"]["sha256"] = "wrong"
+            elif problem == "dimensions": changed["example"]["moonbit"]["width"] = 800
+            elif problem == "build": changed["source_run"]["build_revision"] = "wrong"
+            elif problem == "asset": changed["example"]["asset_path"] = BROWSER_THUMBNAIL_ASSET
+            elif problem == "source": changed["example"]["id"] = "hello_world"
+            else: changed["source_run"]["url"] = "https://example.invalid/"
+            real_load = load_json
+            def patched_load(path):
+                return changed if path == PRIME_CAPTURE_MANIFEST else real_load(path)
             with self.subTest(problem=problem), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
                 with self.assertRaises(ValueError): build_catalog("test")
 
