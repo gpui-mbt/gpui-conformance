@@ -80,12 +80,18 @@
       "title": "Text input",
       "rust_route": "input",
       "source": "crates/gpui/examples/input.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Editing",
         "Selection",
         "IME"
-      ]
+      ],
+      "width": 300,
+      "height": 300,
+      "interactive": true,
+      "candidate_source": "web/moonbit/input/input.mbt",
+      "source_blob": "106d06dc7e3ab225d0fda1aee009f601767b34da",
+      "implementation_note": "gpui.mbt TextField/TextComposition own text, selection, undo/redo and composition; DOM IME/Clipboard transport is an isolated host adapter. Fixed scalar width proxy, actual Japanese IME, grapheme shaping, native and pixel parity unverified."
     },
     {
       "id": "dynamic_fonts",
