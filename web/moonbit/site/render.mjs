@@ -122,7 +122,7 @@ export function drawFrame(context, frame, metadata, scale) {
         context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
         if (item.kind === 'text') {
           const textStyle = textStyles.get(item.id);
-          context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"`;
+          context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
           context.textAlign = 'left'; context.textBaseline = 'alphabetic';
           const metrics = context.measureText(item.text);
           const ascent = metrics.fontBoundingBoxAscent ?? metrics.actualBoundingBoxAscent;
