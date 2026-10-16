@@ -347,7 +347,8 @@ def run_visible(args, out, executables, manifest, scenarios, token):
             return
         started_at = {}
         for role, run_env in (("upstream", rust_env), ("moonbit", moon_env)):
-            child = spawn([str(executables[role])], {**run_env, **shared}, out, role)
+            child = spawn(["stdbuf", "-oL", "-eL", str(executables[role])],
+                          {**run_env, **shared}, out, role)
             spawned[role] = child
             started_at[role] = time.monotonic()
             manifest["processes"][role] = {"pid": child.pid, "executable_sha256": sha256(executables[role])}
