@@ -22,7 +22,7 @@ for (const example of legacyData.browser_examples) {
 }
 const rawLabBase = (process.env.CATALOG_BROWSER_LAB_BASE_URL || '').trim();
 const labBase = rawLabBase ? new URL(rawLabBase).origin : '';
-const implemented = ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web'];
+const implemented = ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree'];
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript',
   '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 const server = createServer(async (request, response) => {
@@ -104,12 +104,12 @@ try {
     assert.equal(await page.locator(selector).count(), count);
   }
   async function assertReady() {
-    await assertCount('#example-list > .example-card', 7);
-    await assertCount('#case-list > .case-row', 143);
-    await assertCount(visibleExamples, 7);
-    await assertCount(visibleCases, 143);
-    assert.equal(await page.locator('#example-count').textContent(), '7 / 7 examples を表示');
-    assert.equal(await page.locator('#result-count').textContent(), '143 / 143 件を表示');
+    await assertCount('#example-list > .example-card', 8);
+    await assertCount('#case-list > .case-row', 144);
+    await assertCount(visibleExamples, 8);
+    await assertCount(visibleCases, 144);
+    assert.equal(await page.locator('#example-count').textContent(), '8 / 8 examples を表示');
+    assert.equal(await page.locator('#result-count').textContent(), '144 / 144 件を表示');
     assert.equal(await page.locator('#examples-empty').isVisible(), false);
     assert.equal(await page.locator('#empty-state').isVisible(), false);
     assert.equal(await page.locator('script[src], link[rel="stylesheet"]').count(), 0,
@@ -130,7 +130,7 @@ try {
     assert.deepEqual(await previews.evaluateAll(nodes => nodes.map(node => [node.naturalWidth, node.naturalHeight])),
       [[500, 500], [800, 600], [800, 600], [640, 560]]);
     const data = await page.locator('#catalog-data').evaluate(node => JSON.parse(node.textContent));
-    assert.equal(data.browser.implemented_count, 7);
+    assert.equal(data.browser.implemented_count, 8);
     assert.deepEqual(await page.locator('.example-card[data-implementation="implemented"] .example-id').allTextContents(), implemented);
     assert.equal(await page.locator('#catalog-revision').textContent(), `Catalog source ${data.revision.slice(0, 12)}`);
     const comparisonLinks = await page.locator('#example-list a').evaluateAll(nodes =>
@@ -151,7 +151,7 @@ try {
   // Gallery search and implementation filters combine; native form reset also
   // restores the count and empty-state message after the asynchronous handler.
   await page.selectOption('#implementation-filter', 'implemented');
-  await assertCount(visibleExamples, 7);
+  await assertCount(visibleExamples, 8);
   await page.fill('#example-search', '  TEXT_WRAPPER  ');
   await assertCount(visibleExamples, 1);
   assert.equal(await page.locator(`${visibleExamples} .example-id`).textContent(), 'text_wrapper');
@@ -161,13 +161,13 @@ try {
   await page.fill('#example-search', '');
   await assertCount(visibleExamples, 0);
   await page.locator('#example-filters button[type="reset"]').click();
-  await assertCount(visibleExamples, 7);
+  await assertCount(visibleExamples, 8);
   assert.equal(await page.locator('#implementation-filter').inputValue(), '');
   assert.equal(await page.locator('#example-search').inputValue(), '');
 
   // The full coverage catalog stays usable and independent of gallery filters.
   await page.selectOption('#suite-filter', 'browser');
-  await assertCount(visibleCases, 7);
+  await assertCount(visibleCases, 8);
   await page.selectOption('#status-filter', 'unsupported');
   await assertCount(visibleCases, 0);
   await page.fill('#search', 'text_wrapper');
@@ -183,7 +183,7 @@ try {
   await page.selectOption('#status-filter', 'pass');
   await assertCount(visibleCases, 131);
   await page.locator('#clear-filters').click();
-  await assertCount(visibleCases, 143);
+  await assertCount(visibleCases, 144);
   for (const selector of ['#search', '#suite-filter', '#status-filter']) {
     assert.equal(await page.locator(selector).inputValue(), '');
   }
@@ -200,14 +200,14 @@ try {
   await page.fill('#example-search', 'text_layout');
   await assertCount(visibleExamples, 1);
   await page.locator('#example-filters button[type="reset"]').click();
-  await assertCount(visibleExamples, 7);
+  await assertCount(visibleExamples, 8);
   assert.deepEqual(await assertReady(), firstRelease);
 
   // Older cached HTML has no feature-gallery elements. The loose current app
   // must preserve the coverage table and display a refresh notice, not throw.
   for (const fixture of ['legacy-document', 'legacy-data']) {
     await page.goto(`${origin}/${fixture}/`);
-    await assertCount(visibleCases, 143);
+    await assertCount(visibleCases, 144);
     assert.equal(await page.locator('#example-list > .example-card').count(), 0);
     assert.equal(await page.locator('#example-list').count(), fixture === 'legacy-document' ? 0 : 1);
     assert.match(await page.locator('#scope-note').textContent(), /古いページまたはカタログ形式/);
@@ -220,11 +220,11 @@ try {
       assert(legacyRequests.includes(`/${fixture}/${asset}`), `${fixture} must exercise loose ${asset}`);
     }
     await page.selectOption('#suite-filter', 'browser');
-    await assertCount(visibleCases, 7);
+    await assertCount(visibleCases, 8);
     await page.fill('#search', 'text_wrapper');
     await assertCount(visibleCases, 1);
     await page.locator('#clear-filters').click();
-    await assertCount(visibleCases, 143);
+    await assertCount(visibleCases, 144);
     assert.deepEqual(errors, []);
   }
   // Reproduce the former catch-handler crash: old HTML has no gallery summary,
@@ -243,7 +243,7 @@ try {
   assert.deepEqual(errors, [], 'Only the intentional data.json HTTP 503 console error is expected');
   assert(expectedHTTP503Errors.length <= 1);
   assert.deepEqual(looseRequests, []);
-  console.log('PASS: atomic catalog; 7 cards, 143 rows, 7 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
+  console.log('PASS: atomic catalog; 8 cards, 144 rows, 8 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
 } finally {
   if (browser) await browser.close();
   server.closeAllConnections();

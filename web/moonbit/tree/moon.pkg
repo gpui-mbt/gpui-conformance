@@ -1,0 +1,13 @@
+import {
+  "f4ah6o/gpui/element",
+  "f4ah6o/gpui/layout",
+  "f4ah6o/gpui/primitives",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "foreign_library")
+
+options(
+  link: { "js": { "format": "esm" } },
+)

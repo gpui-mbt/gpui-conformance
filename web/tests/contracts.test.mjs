@@ -6,8 +6,8 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web']);
+  assert.equal(catalog.examples.length, 8);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -195,4 +195,15 @@ test('text_run host draws a translated run but rejects unsafe geometry', () => {
   assert(calls.some(call=>call[0]==='fillText' && call[1]==='hi' && call[2]===14));
   f.snapshot.items[1].transform.a=2;
   assert.throws(()=>validateFrame(f));
+});
+
+
+test('tree is a source-pinned, font-free 51-level real Element pair', async () => {
+  const example = selectExample(catalog, 'tree');
+  assert.equal(example.source_blob, '891be4790a59ae258da3380d2ef54fba26979346');
+  assert.deepEqual([example.width,example.height,example.interactive], [300,300,false]);
+  assert.equal(rustExampleUrl('https://example.test/lab/', example), 'https://example.test/lab/rust/?example=tree');
+  const source = await readFile(new URL('../../' + example.candidate_source, import.meta.url), 'utf8');
+  for (const api of ['Dimension::auto()', 'with_child', 'request_layout', 'prepaint', 'paint_snapshot']) assert(source.includes(api));
+  assert(!source.includes('SceneItem::quad'));
 });
