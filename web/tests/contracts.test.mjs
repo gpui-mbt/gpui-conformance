@@ -85,7 +85,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, 'fa27a6286479f84c1e303d3ce8c072918c3d11cc');
+  assert.equal(catalog.moonbit.revision, 'e671da15652dc298110ef0a819f5c7a2000aa15f');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -212,7 +212,7 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const example=selectExample(catalog,'scrollable');
   assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
   assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
-  assert.equal(catalog.moonbit.revision,'fa27a6286479f84c1e303d3ce8c072918c3d11cc');
+  assert.equal(catalog.moonbit.revision,'e671da15652dc298110ef0a819f5c7a2000aa15f');
   assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
   assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
   const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');

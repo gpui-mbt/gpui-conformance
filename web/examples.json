@@ -7,7 +7,7 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "fa27a6286479f84c1e303d3ce8c072918c3d11cc"
+    "revision": "e671da15652dc298110ef0a819f5c7a2000aa15f"
   },
   "examples": [
     {
