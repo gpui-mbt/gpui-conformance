@@ -1,5 +1,10 @@
 # Unchanged `tab_stop.rs` Rust-only baseline
 
+This is the historical Rust-only phase, frozen at `ad7e825415852e76ac1738e85842161be15d9266`.
+The current dedicated paired workflow has separate provenance and is described
+in [TAB_STOP_PAIR.md](TAB_STOP_PAIR.md). Historical strict runner/contracts keep
+their original pins and intentionally reject an implemented candidate catalog.
+
 This packages the actual upstream example without editing its Rust source. No
 MoonBit counterpart is registered. The existing engine pin remains
 `61b237b0963c3252736a27293aa1f5b7de3886fa`, tree
