@@ -43,6 +43,7 @@ BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", 
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
 BROWSER_THUMBNAIL_SOURCE = "web/evidence/20261016/moonbit.png"
 BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
+TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 BROWSER_FEATURES = {
     "hello_world": {
         "title": "基本レイアウトと描画",
@@ -132,6 +133,55 @@ def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any
         raise ValueError("duplicate browser example IDs in the inventory")
     if BROWSER_RESULT_EXAMPLE_ID not in recorded_implemented:
         raise ValueError("retained hello_world evidence is missing its implemented browser example")
+
+
+def saved_text_previews(inventory: dict[str, Any], revision: str) -> dict[str, dict[str, Any]]:
+    """Validate byte-exact captures independently of the hello_world pixel result."""
+    manifest = load_json(TEXT_CAPTURE_MANIFEST)
+    result_path = "web/evidence/20261016-text-examples/result.json"
+    if manifest["result_path"] != result_path or hashlib.sha256((ROOT / result_path).read_bytes()).hexdigest() != manifest["result_sha256"]:
+        raise ValueError("saved text capture report digest mismatch")
+    report = load_json(result_path)
+    validate_browser_inventory(report, inventory)
+    run = manifest["source_run"]
+    if report["build"]["lab_revision"] != run["build_revision"] or report["build"]["lab_tracked_dirty"]:
+        raise ValueError("saved text capture build provenance mismatch")
+    if any(report[key] != "passed" for key in ("overall", "candidate", "rust")) or report["errors"]:
+        raise ValueError("saved text captures require successful paired execution")
+    previews = {}
+    for entry in manifest["examples"]:
+        example_id = entry["id"]
+        if example_id not in {"text_layout", "text_wrapper"} or example_id in previews:
+            raise ValueError("unknown or duplicate saved text capture")
+        for side in ("moonbit", "rust"):
+            capture = entry[side]
+            expected = f"web/evidence/20261016-text-examples/{example_id.replace('_', '-')}-{side}.png"
+            if capture["path"] != expected:
+                raise ValueError("saved text capture path mismatch")
+            pixels = (ROOT / expected).read_bytes()
+            size = tuple(int.from_bytes(pixels[i:i + 4], "big") for i in (16, 20))
+            clip = report["captures"][f"{example_id}_{side}"]["clip"]
+            if pixels[:8] != b"\x89PNG\r\n\x1a\n" or pixels[12:16] != b"IHDR" or size != (800, 600) or size != (capture["width"], capture["height"]) or size != (clip["width"], clip["height"]):
+                raise ValueError("saved text capture dimensions mismatch")
+            if hashlib.sha256(pixels).hexdigest() != capture["sha256"]:
+                raise ValueError("saved text capture digest mismatch")
+        asset = f"catalog/assets/{example_id}-moonbit-20261016.png"
+        if entry["asset_path"] != asset or (ROOT / asset).read_bytes() != (ROOT / entry["moonbit"]["path"]).read_bytes():
+            raise ValueError("saved text preview must equal its retained capture")
+        previews[example_id] = {
+            "url": f"./assets/{example_id}-moonbit-20261016.png",
+            "source_url": source_url(revision, entry["moonbit"]["path"]),
+            "oracle_url": source_url(revision, entry["rust"]["path"]),
+            "provenance_url": source_url(revision, TEXT_CAPTURE_MANIFEST),
+            "capture_run_url": run["url"],
+            "capture_revision": run["head_revision"],
+            "capture_source_url": source_url(run["head_revision"], entry["candidate_source"]),
+            "sha256": entry["moonbit"]["sha256"],
+            "alt": f"保存済み {example_id} の gpui.mbt 実描画。文字の配置と装飾。" if example_id == "text_layout" else "保存済み text_wrapper の gpui.mbt 実描画。多言語の折り返し、省略記号、行数制限。",
+            "caption": f"gpui.mbt の保存画像 · {manifest['captured_date']} · 800×600 · {run['head_revision'][:8]}",
+            "width": 800, "height": 600,
+        }
+    return previews
 
 
 def normalize_browser_lab_base_url(value: Any) -> str | None:
@@ -358,6 +408,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     current_pins = load_json("pins.json")
     browser_inventory = load_json("web/examples.json")
     validate_browser_inventory(browser, browser_inventory)
+    text_previews = saved_text_previews(browser_inventory, revision)
     browser_lab_base_url = normalize_browser_lab_base_url(os.environ.get(BROWSER_LAB_BASE_URL_ENV))
     browser_build = browser["build"]
     browser_upstream = browser_build["upstream"]
@@ -386,6 +437,8 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         result_url = source_url(revision, BROWSER_RESULT_PATH) if has_evidence else None
         if has_evidence:
             evidence_note = f"保存済みの hello_world 比較では実行 {browser['overall']}、画像は {STATUS_LABELS[browser_status]}。他の例の検証結果ではありません。"
+        elif example_id in text_previews:
+            evidence_note = "gpui.mbt の CI 保存画像あり。撮影時のソースと gpui.rs の画像も参照できます。画像はプレビューであり、pixel 差分・native parity は未検証です。"
         elif implemented:
             evidence_note = "gpui.mbt の実装あり。この例の保存済み比較結果・画像はなく、描画の一致は未検証です。"
         else:
@@ -428,7 +481,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
                 "caption": "gpui.mbt の保存画像 · 2026-10-16 · 500×500",
                 "width": raster["width"],
                 "height": raster["height"],
-            } if has_evidence else None,
+            } if has_evidence else text_previews.get(example_id),
             "comparison_url": browser_lab_comparison_url(example_id, implemented, browser_lab_base_url),
             "suite_type": "browser",
         })

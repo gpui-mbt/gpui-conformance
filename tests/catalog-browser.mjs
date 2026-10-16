@@ -115,6 +115,10 @@ try {
     assert.equal(await page.locator('script[src], link[rel="stylesheet"]').count(), 0,
       'The generated document must carry its own application and styles');
     assert.equal(await page.locator('script#catalog-data[type="application/json"]').count(), 1);
+    const previews = page.locator('#example-list .example-preview img');
+    assert.equal(await previews.count(), 3, 'Each implemented example has its own retained capture');
+    assert.equal(await page.locator('#example-list a').evaluateAll(nodes => nodes.filter(node => node.textContent === '撮影記録').length), 2);
+    assert.equal(await page.locator('#example-list a').evaluateAll(nodes => nodes.filter(node => node.textContent === 'gpui.rs の保存画像').length), 2);
     assert.equal(await page.locator('#example-list').evaluate(node => getComputedStyle(node).display), 'grid',
       'Embedded styles must apply even when loose CSS is stale or unavailable');
     // Finish lazy image requests before navigating again, and verify retained
@@ -123,6 +127,8 @@ try {
       await image.scrollIntoViewIfNeeded();
       await image.evaluate(node => node.decode());
     }
+    assert.deepEqual(await previews.evaluateAll(nodes => nodes.map(node => [node.naturalWidth, node.naturalHeight])),
+      [[500, 500], [800, 600], [800, 600]]);
     const data = await page.locator('#catalog-data').evaluate(node => JSON.parse(node.textContent));
     assert.equal(data.browser.implemented_count, 4);
     assert.deepEqual(await page.locator('.example-card[data-implementation="implemented"] .example-id').allTextContents(), implemented);

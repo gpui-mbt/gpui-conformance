@@ -87,7 +87,7 @@ function featureCard(item) {
   body.append(sourceLinks);
   const evidenceLinks = document.createElement("div");
   evidenceLinks.className = "case-links evidence-links";
-  for (const node of [link("保存済み結果", item.result_url), link("元の保存画像", item.thumbnail?.source_url), link("ライブ比較を開く", item.comparison_url)]) {
+  for (const node of [link("保存済み結果", item.result_url), link("元の保存画像", item.thumbnail?.source_url), link("gpui.rs の保存画像", item.thumbnail?.oracle_url), link("撮影記録", item.thumbnail?.provenance_url), link("ライブ比較を開く", item.comparison_url)]) {
     if (node) evidenceLinks.append(node);
   }
   body.append(evidenceLinks);

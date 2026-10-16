@@ -16,6 +16,7 @@ on:
       - 'pins.json'
       - 'web/examples.json'
       - 'web/evidence/20261016/result.json'
+      - 'web/evidence/20261016-text-examples/**'
       - 'web/PIXEL_ANALYSIS_20261016.md'
       - 'web/README.md'
   push:
@@ -34,6 +35,7 @@ on:
       - 'pins.json'
       - 'web/examples.json'
       - 'web/evidence/20261016/result.json'
+      - 'web/evidence/20261016-text-examples/**'
       - 'web/PIXEL_ANALYSIS_20261016.md'
       - 'web/README.md'
   workflow_dispatch:
