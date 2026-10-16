@@ -7,7 +7,7 @@ const catalog = JSON.parse(await readFile(new URL('../examples.json', import.met
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
   assert.equal(catalog.examples.length, 7);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text_layout', 'text_wrapper']);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text_layout', 'text_wrapper', 'hello_web']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -118,4 +118,25 @@ test('text styling and clipping are validated before drawing', () => {
   f.text_styles[0].weight = 800;
   f.snapshot.items[1].clip_chain_id = 99;
   assert.throws(() => validateFrame(f));
+});
+
+test('Prime sieve routes the real interactive 640x560 pair with unchanged source pins',async()=>{
+  const example=selectExample(catalog,'hello_web');
+  assert.deepEqual([example.width,example.height,example.interactive],[640,560,true]);
+  assert.equal(example.source,'crates/gpui_web/examples/hello_web/main.rs');
+  assert.equal(example.source_blob,'31f30431e2a15963d7277047d0301e2510a90616');
+  assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=hello_web');
+  assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=hello_web');
+  const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
+  for(const api of ['request_layout','prepaint','paint_snapshot','dispatch_pointer']) assert(source.includes(api));
+  const worker=await readFile(new URL('../moonbit/site/prime-worker.mjs',import.meta.url),'utf8');
+  assert.match(worker,/import \{ hello_web_count \} from '.\/hello_web.mjs'/);
+  assert.match(worker,/hello_web_count\(start, end\)/);
+});
+test('rounded fills are explicit validated host extensions and never implicit scene capabilities',()=>{
+  const f=frame();f.decorations=[];f.rounded_fills=[{id:1,radius:6}];
+  validateFrame(f);
+  f.rounded_fills[0].id=999;assert.throws(()=>validateFrame(f));
+  f.rounded_fills[0].id=1;f.rounded_fills[0].radius=17;assert.throws(()=>validateFrame(f));
+  f.rounded_fills[0].radius=NaN;assert.throws(()=>validateFrame(f));
 });

@@ -72,9 +72,9 @@ class TestCatalogData(unittest.TestCase):
         examples = self.data["browser_examples"]
         self.assertEqual(len(examples), 7)
         self.assertEqual(examples[0]["status"], "difference")
-        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 4)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 2)
-        self.assertFalse(any(example["interactive"] for example in examples if example["implemented"]))
+        self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 3)
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 3)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["hello_web"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
@@ -96,8 +96,22 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text_layout", "text_wrapper"}
+            if example["id"] not in {"hello_world", "text_layout", "text_wrapper", "hello_web"}
         ))
+
+    def test_prime_sieve_is_interactive_without_borrowed_comparison_evidence(self):
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            prime = next(e for e in build_catalog("catalog-test-revision")["browser_examples"] if e["id"] == "hello_web")
+        self.assertTrue(prime["implemented"])
+        self.assertEqual((prime["width"], prime["height"], prime["interactive"]), (640, 560, True))
+        self.assertEqual(prime["comparison_url"], f"{base}/?example=hello_web")
+        self.assertEqual(prime["source_path"], "crates/gpui_web/examples/hello_web/main.rs")
+        self.assertEqual(prime["status"], "unverified")
+        self.assertEqual(prime["execution"], "unverified")
+        self.assertFalse(prime["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail"):
+            self.assertIsNone(prime[key], key)
 
     def test_browser_lab_url_is_optional_and_fails_closed_for_unsafe_values(self):
         self.assertIsNone(normalize_browser_lab_base_url(None))
@@ -196,7 +210,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 3)
+        self.assertEqual(self.data["browser"]["implemented_count"], 4)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -226,7 +240,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 143)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text_layout", "text_wrapper"},
+            {"hello_world", "text_layout", "text_wrapper", "hello_web"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):

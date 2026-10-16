@@ -20,6 +20,10 @@ export function validateFrame(frame) {
     if (!texts.has(style.id) || ![400,800].includes(style.weight) || !['normal','italic'].includes(style.style) || !['none','underline','line_through'].includes(style.decoration)) throw new Error('Invalid host text style');
   }
   const quads = new Map(snapshot.items.filter(i => i.kind === 'quad').map(i => [i.id, i]));
+  for (const rounded of frame.rounded_fills || []) {
+    const b = quads.get(rounded.id)?.bounds;
+    if (!b || !Number.isFinite(rounded.radius) || rounded.radius < 0 || rounded.radius > Math.min(b.width,b.height)/2) throw new Error('Invalid rounded fill');
+  }
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
     if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || d.border_width !== 1 || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && d.radius <= d.border_width / 2)) throw new Error('Invalid host decoration');
@@ -81,6 +85,7 @@ export function drawFrame(context, frame, metadata, scale) {
   validateFrame(frame);
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
+  const roundedFills = new Map((frame.rounded_fills || []).map(style => [style.id, style.radius]));
   const textStyles = new Map((frame.text_styles || []).map(style => [style.id, style]));
   const clips = new Map((frame.snapshot.clip_chains || []).map(clip => [clip.id, clip.rects]));
   context.save();
@@ -115,7 +120,7 @@ export function drawFrame(context, frame, metadata, scale) {
             context.fillRect(b.x, b.y + y, metrics.width, 1);
           }
         } else {
-          context.beginPath(); context.roundRect(b.x, b.y, b.width, b.height, style?.radius || 0);
+          context.beginPath(); context.roundRect(b.x, b.y, b.width, b.height, style?.radius || roundedFills.get(item.id) || 0);
           if (style?.shadow) {
             // Canvas blur is not the GPUI GPU shadow kernel; never turn this preview into a pixel pass.
             context.shadowColor = 'rgba(0,0,0,.1)'; context.shadowBlur = 15; context.shadowOffsetY = 10;

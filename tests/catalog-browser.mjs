@@ -22,7 +22,7 @@ for (const example of legacyData.browser_examples) {
 }
 const rawLabBase = (process.env.CATALOG_BROWSER_LAB_BASE_URL || '').trim();
 const labBase = rawLabBase ? new URL(rawLabBase).origin : '';
-const implemented = ['hello_world', 'text_layout', 'text_wrapper'];
+const implemented = ['hello_world', 'text_layout', 'text_wrapper', 'hello_web'];
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript',
   '.css': 'text/css', '.json': 'application/json', '.png': 'image/png' };
 const server = createServer(async (request, response) => {
@@ -130,14 +130,14 @@ try {
     assert.deepEqual(await previews.evaluateAll(nodes => nodes.map(node => [node.naturalWidth, node.naturalHeight])),
       [[500, 500], [800, 600], [800, 600]]);
     const data = await page.locator('#catalog-data').evaluate(node => JSON.parse(node.textContent));
-    assert.equal(data.browser.implemented_count, 3);
+    assert.equal(data.browser.implemented_count, 4);
     assert.deepEqual(await page.locator('.example-card[data-implementation="implemented"] .example-id').allTextContents(), implemented);
     assert.equal(await page.locator('#catalog-revision').textContent(), `Catalog source ${data.revision.slice(0, 12)}`);
     const comparisonLinks = await page.locator('#example-list a').evaluateAll(nodes =>
       nodes.filter(node => node.textContent === 'ライブ比較を開く').map(node => node.href).sort());
     assert.deepEqual(comparisonLinks, labBase ? implemented.map(id => `${labBase}/?example=${id}`).sort() : []);
     assert.equal(await page.locator('#case-list a').evaluateAll(nodes =>
-      nodes.filter(node => node.textContent === 'ライブ比較').length), labBase ? 3 : 0);
+      nodes.filter(node => node.textContent === 'ライブ比較').length), labBase ? implemented.length : 0);
     assert.deepEqual(looseRequests, [], 'A coherent release must never request loose JS, CSS, or JSON');
     assert.deepEqual(errors, []);
     return { revision: data.revision, release: await page.locator('meta[name="catalog-release"]').getAttribute('content') };
@@ -151,7 +151,7 @@ try {
   // Gallery search and implementation filters combine; native form reset also
   // restores the count and empty-state message after the asynchronous handler.
   await page.selectOption('#implementation-filter', 'implemented');
-  await assertCount(visibleExamples, 3);
+  await assertCount(visibleExamples, 4);
   await page.fill('#example-search', '  TEXT_WRAPPER  ');
   await assertCount(visibleExamples, 1);
   assert.equal(await page.locator(`${visibleExamples} .example-id`).textContent(), 'text_wrapper');
@@ -159,7 +159,7 @@ try {
   await assertCount(visibleExamples, 0);
   assert.equal(await page.locator('#examples-empty').isVisible(), true);
   await page.fill('#example-search', '');
-  await assertCount(visibleExamples, 4);
+  await assertCount(visibleExamples, 3);
   await page.locator('#example-filters button[type="reset"]').click();
   await assertCount(visibleExamples, 7);
   assert.equal(await page.locator('#implementation-filter').inputValue(), '');
@@ -169,7 +169,7 @@ try {
   await page.selectOption('#suite-filter', 'browser');
   await assertCount(visibleCases, 7);
   await page.selectOption('#status-filter', 'unsupported');
-  await assertCount(visibleCases, 4);
+  await assertCount(visibleCases, 3);
   await page.fill('#search', 'text_wrapper');
   await assertCount(visibleCases, 0);
   assert.equal(await page.locator('#empty-state').isVisible(), true);
@@ -243,7 +243,7 @@ try {
   assert.deepEqual(errors, [], 'Only the intentional data.json HTTP 503 console error is expected');
   assert(expectedHTTP503Errors.length <= 1);
   assert.deepEqual(looseRequests, []);
-  console.log('PASS: atomic catalog; 7 cards, 143 rows, 3 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
+  console.log('PASS: atomic catalog; 7 cards, 143 rows, 4 implemented ports, comparison links, search/filter/reset, repeat load, and saved HTML survive stale/failed loose assets with no loose-asset requests. Legacy HTML/data retain coverage; missing-gallery HTTP 503 recovery has no unhandled errors.');
 } finally {
   if (browser) await browser.close();
   server.closeAllConnections();

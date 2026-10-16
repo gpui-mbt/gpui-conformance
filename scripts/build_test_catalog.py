@@ -37,7 +37,7 @@ BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text_layout", "text_wrapper", "hello_web"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -81,7 +81,8 @@ BROWSER_FEATURES = {
     "hello_web": {
         "title": "バックグラウンド計算",
         "tags": ["非同期処理", "素数計算", "操作 UI"],
-        "description": "素数の計算をバックグラウンドで進める上流の Prime sieve 例です。",
+        "description": "10M・50M・100M の範囲を選び、12 分割の素数計算と進捗・履歴を表示する上流の例です。",
+        "implementation_note": "MoonBit の実計算を Web Worker で実行し、gpui.mbt の layout・pointer dispatch・SceneSnapshot を使用。10M の操作試験は CI artifact に保存。描画一致・性能同等性・50M/100M の完走は未検証です。",
     },
 }
 
