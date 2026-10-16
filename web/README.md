@@ -364,7 +364,20 @@ download/status messaging, and original Google Fonts raw-TTF URL.
 `moonbit/dynamic_fonts/dynamic_fonts.mbt` uses gpui.mbt Element →
 request_layout → prepaint → SceneSnapshot to position seven text rows, with long download errors wrapped and reflowed.
 Browser-measured text widths are inputs; positioning and SceneSnapshot
-emission are MoonBit outputs. The initial font is the bundled upstream
+emission are MoonBit outputs. Each row inherits the pinned GPUI `TextStyle`
+default `phi()` line height (1.618034 times its font size), snapped to the
+nearest device pixel with midpoint ties toward zero. At scale 1 the line
+heights are 39, 26, 65, 52, 26, 26, 26 logical pixels.
+The 32-pixel padding and 16-pixel gaps then place the rows at y = 32, 87, 129,
+210, 278, 320, 362. MoonBit unit tests and the normal paired browser E2E
+assert all seven line boxes, including after a mocked font-registration
+redraw and at device scales 1.5 and 2. The source rules are in the pinned
+`crates/gpui/src/style.rs` (`TextStyle::default`), `geometry.rs` (`phi`),
+`elements/text.rs` (`TextLayout::layout`), `window.rs` (`pixel_snap`) and
+`util.rs` (`round_to_device_pixel`). The candidate uses its scale-aware
+layout path to snap the example-local line boxes, padding and gaps.
+These assertions establish the example's logical layout only.
+The initial font is the bundled upstream
 IBM Plex Sans. When the known example text contains Devanagari, the host
 makes **one** request to the exact upstream TTF URL, validates the response,
 registers the returned bytes with FontFace, and redraws after completion.

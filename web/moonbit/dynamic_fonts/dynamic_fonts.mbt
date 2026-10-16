@@ -16,6 +16,11 @@ fn fixed(id : UInt64, height : Double, width : Double) -> @element.Element {
 }
 
 ///|
+fn dynamic_fonts_sizes() -> Array[Double] {
+  [24.0, 16.0, 40.0, 32.0, 16.0, 16.0, 16.0]
+}
+
+///|
 priv struct StatusWrap {
   lines : Array[String]
   widths : Array[Double]
@@ -54,8 +59,14 @@ fn wrap_status(status : String, prefixes : Array[Double]) -> StatusWrap {
 }
 
 ///|
-fn dynamic_fonts_layout(widths : Array[Double], wrapped : StatusWrap) -> @element.Prepainted {
-  let heights = [36.0, 26.0, 52.0, 42.0, 26.0, 26.0, 26.0]
+fn dynamic_fonts_layout(
+  widths : Array[Double], wrapped : StatusWrap, scale : Double,
+) -> @element.Prepainted {
+  // Pinned GPUI TextStyle defaults to phi(). TextLayout::layout uses
+  // Window::pixel_snap for each line height (nearest device pixel, half ties
+  // toward zero). Express size * phi here; the scale-aware layout below uses
+  // that same snapping rule before resolving the column's padding and gaps.
+  let sizes = dynamic_fonts_sizes()
   let ids : Array[UInt64] = [2, 3, 4, 5, 6, 7, 8]
   let column = @layout.FlexTreeStyle::new(@layout.FlowDirection::column())
     .with_gap(16.0).unwrap()
@@ -65,19 +76,24 @@ fn dynamic_fonts_layout(widths : Array[Double], wrapped : StatusWrap) -> @elemen
   for index = 0; index < ids.length(); index = index + 1 {
     if index == 4 {
       let mut status_element = fixed(
-        ids[index], wrapped.lines.length().to_double() * 26.0, 836.0,
+        ids[index], wrapped.lines.length().to_double() * sizes[index] * 1.618034,
+        836.0,
       ).with_children_style(@layout.FlexTreeStyle::new(@layout.FlowDirection::column()))
       for j = 0; j < wrapped.lines.length(); j = j + 1 {
         status_element = status_element.with_child(
-          fixed((60 + j).to_uint64(), 26.0, wrapped.widths[j]),
+          fixed((60 + j).to_uint64(), sizes[index] * 1.618034, wrapped.widths[j]),
         )
       }
       root = root.with_child(status_element)
     } else {
-      root = root.with_child(fixed(ids[index], heights[index], widths[index]))
+      root = root.with_child(fixed(
+        ids[index], sizes[index] * 1.618034, widths[index],
+      ))
     }
   }
-  root.request_layout(@primitives.Size::new(900.0, 500.0).unwrap()).unwrap()
+  root.request_layout_with_device_scale(
+    @primitives.Size::new(900.0, 500.0).unwrap(), scale,
+  ).unwrap()
     .prepaint().unwrap()
 }
 
@@ -113,7 +129,7 @@ pub fn dynamic_fonts_frame(
     return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
   }
   let wrapped = wrap_status(status, status_prefixes)
-  let prepainted = dynamic_fonts_layout(widths, wrapped)
+  let prepainted = dynamic_fonts_layout(widths, wrapped, scale)
   let base = prepainted.paint_snapshot(scale).unwrap()
   let items = base.items()
   let tree = prepainted.tree()
@@ -127,7 +143,7 @@ pub fn dynamic_fonts_frame(
     "Source: Google Fonts CDN · Noto Sans Devanagari · SIL Open Font License",
     "Use the browser Network panel to throttle or block the font request, then reload.",
   ]
-  let sizes = [24.0, 16.0, 40.0, 32.0, 16.0, 16.0, 16.0]
+  let sizes = dynamic_fonts_sizes()
   for index = 0; index < ids.length(); index = index + 1 {
     if index == 4 {
       for j = 0; j < wrapped.lines.length(); j = j + 1 {
