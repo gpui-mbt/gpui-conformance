@@ -106,3 +106,19 @@ test "captured drag reaches offscreen text and resolves above or below the line"
   assert_eq(input_head(), 0)
   input_pointer_end()
 }
+
+
+///|
+test "plain clicks in top and bottom field padding stay collapsed on release" {
+  input_reset()
+  assert_true(input_insert("abcdef"))
+  for y in [35.0, 70.0] {
+    assert_true(input_pointer(36.0, y, false))
+    assert_eq(input_anchor(), 2)
+    assert_eq(input_head(), 2)
+    assert_true(input_pointer_move(36.0, y))
+    assert_eq(input_anchor(), 2)
+    assert_eq(input_head(), 2)
+    input_pointer_end()
+  }
+}

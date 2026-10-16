@@ -209,16 +209,19 @@ pub fn input_pointer_move(x : Double, y : Double) -> Bool {
   // Use an in-bounds event to enter TextField's validated selection path,
   // but retain the captured position for the hit callback. Clamping the hit
   // itself to the viewport would make horizontally hidden text unreachable.
+  let bounds = current().bounds()
   let content = current().content_bounds()
   let clamped = @primitives.Point::new(
     point.x().max(content.left()).min(content.right()),
     point.y().max(content.top()).min(content.bottom()),
   ).unwrap()
   select_at(clamped, true, hit_test=fn(document, layout_point) {
-    // Match the single-line upstream example's above/below behavior while
+    // Apply the single-line above/below rule outside the full clickable field,
+      // so a click/release in its padding stays collapsed at the same caret.
+      // Match the upstream example's endpoint behavior while
     // retaining UTF-16 model offsets instead of its UTF-8 byte offsets.
-    if point.y() < content.top() || point.y() > content.bottom() {
-      let offset = if point.y() < content.top() {
+    if point.y() < bounds.top() || point.y() > bounds.bottom() {
+      let offset = if point.y() < bounds.top() {
         0
       } else {
         document.utf16_length()

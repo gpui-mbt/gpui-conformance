@@ -49,6 +49,11 @@ export async function checkInputPointers(page, moon) {
   assert(clipboard.some(e=>e.type==='cut' && e.length===1 && e.trusted));
 
   await reset('abcdef');
+  for (const y of [35,70]) {
+    await canvas.click({position:{x:36,y}});
+    assert.deepEqual(await selection(),[2,2],'A plain click in field padding must stay collapsed');
+    assert.equal(await focused(),true);
+  }
   await drag(12,60);
   assert.deepEqual(await selection(),[0,4]);
   await drag(72,24);
