@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "eb968228bbea56aff13721dc427875c2dacffc14",
-    "tree": "ae9072d350ef6d1546e408226218ec08efc96552"
+    "revision": "fc53cb382c66f68bfc1b3e1cc72d01056cd3c625",
+    "tree": "c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9"
   },
   "examples": [
     {
@@ -215,6 +215,26 @@
       ],
       "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot, core group-prefix traversal and owner-preserving live geometry refresh. Source border-box flex and this bounded Block-group profile are explicitly lowered into existing flex APIs. Shared browser input transport, Canvas border3/shadow_sm and font metrics are host extensions. Paired browser execution, native, GPU shadow-kernel, text and full-image parity remain unverified.",
       "candidate_source": "web/moonbit/tab_stop/tab_stop.mbt"
+    },
+    {
+      "id": "drag_drop",
+      "title": "Typed drag and drop",
+      "rust_route": "drag-drop",
+      "source": "crates/gpui/examples/drag_drop.rs",
+      "source_blob": "8f038ef3308fee9b097e7289665c9fa47cd6945b",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Typed shared drag session",
+        "Strict move-only activation threshold",
+        "One-shot drop delivery",
+        "Half-open target bounds",
+        "Pointer-centered translucent preview"
+      ],
+      "candidate_source": "web/moonbit/drag_drop/drag_drop.mbt",
+      "implementation_note": "Source-derived candidate using genuine Element layout/prepaint/SceneSnapshot and typed core DragSession for admission, activation, hit testing and one-shot delivery. Preview copies preserve the original typed payload. Browser pointer delivery, font metrics, signed preview placement and Canvas shadow_md are explicit host boundaries. Paired browser execution, native, touch, global capture, GPU shadow-kernel, text and full-image parity remain unverified."
     }
   ]
 }

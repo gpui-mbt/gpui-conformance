@@ -49,6 +49,22 @@ class RustSubsetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "already has an implemented"):
             module.selected_examples(catalog, module.extra_oracle_records(["tab_stop"]), True)
 
+    def test_drag_drop_implemented_subset_has_no_extra_oracle_backdoor(self):
+        catalog = fixture_catalog()
+        before = copy.deepcopy(catalog)
+        self.assertEqual(module.selected_examples(catalog, [], False, ["drag_drop"]), ["drag_drop"])
+        self.assertEqual(catalog, before)
+        for requested in [["drag_drop", "drag_drop"], ["drag_drop", "unknown"]]:
+            with self.subTest(requested=requested), self.assertRaises(ValueError):
+                module.selected_examples(catalog, [], False, requested)
+        missing = copy.deepcopy(catalog)
+        next(entry for entry in missing["examples"] if entry["id"] == "drag_drop")["moonbit"] = "not_implemented"
+        with self.assertRaises(ValueError):
+            module.selected_examples(missing, [], False, ["drag_drop"])
+        for only in (False, True):
+            with self.subTest(oracle_only=only), self.assertRaises(ValueError):
+                module.selected_examples(catalog, module.extra_oracle_records(["drag_drop"]), only, ["drag_drop"])
+
     def test_source_blob_mismatch_rejected_before_archive_or_compilation(self):
         catalog = fixture_catalog()
         actual_read = Path.read_text

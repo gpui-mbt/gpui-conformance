@@ -16,8 +16,8 @@ unit fixtures and retrospective paint analysis do not establish a pair.
   `5a5fbe79917971a4d52a96b6ddb04da198a5012e`, blob
   `cc7c34a9979ce4027578ec2c358f503d944ee26f`, SHA-256
   `be187a56c091ee0b609fa396cae4a13b49dcf98ff9e602d8caed3126de3f6a8e`.
-- Candidate core: public `eb968228bbea56aff13721dc427875c2dacffc14`, exact tree
-  `ae9072d350ef6d1546e408226218ec08efc96552`.
+- Candidate core: public `fc53cb382c66f68bfc1b3e1cc72d01056cd3c625`, exact tree
+  `c9ec59c5fbdbd84548b7d6ffe2c99b8403509db9`.
 - Current clean suite Git HEAD/tree and the exact current catalog bytes must
   match retained build/catalog provenance before a pair can be verified.
 - The implemented candidate catalog entry and compiled module are required.
@@ -97,3 +97,8 @@ shadow darkened an earlier focused blue border. The original failure evidence
 is preserved. [The bounded paint-order correction](TAB_STOP_SHADOW_PAINT_ORDER.md)
 records the pinned-source rationale, mutation controls, local validation and
 remaining requirement for a fresh actual paired browser run.
+
+The active profile is `tab_stop_paired_state_specific_v2_drag_session_pin`. The
+prior v1 artifacts retain their original `eb968228` core identity; a new clean
+current-checkout run is required after the additive drag-session pin advance.
+The source pixel and traversal predicates are unchanged.
