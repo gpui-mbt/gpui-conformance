@@ -396,6 +396,17 @@ try {
   });
   const scrolled=await moon.locator('html').evaluate(()=>gpuiExample.frame.scroll);
   assert(scrolled.y>0 && scrolled.y<=scrolled.max);
+  // Synthetic line/page units test the host conversion; trusted wheel delivery is tested above.
+  const wheelModes=await textCanvas.evaluate(canvas => {
+    const before=gpuiExample.frame.scroll.y;
+    canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:2,deltaMode:1,bubbles:true,cancelable:true}));
+    const afterLine=gpuiExample.frame.scroll.y;
+    canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:1,deltaMode:2,bubbles:true,cancelable:true}));
+    const afterPage=gpuiExample.frame.scroll.y;
+    return {before,afterLine,afterPage,max:gpuiExample.frame.scroll.max,height:gpuiExample.frame.scroll.height};
+  });
+  assert(Math.abs(wheelModes.afterLine-Math.min(wheelModes.max,wheelModes.before+41.6))<0.01);
+  assert(Math.abs(wheelModes.afterPage-Math.min(wheelModes.max,wheelModes.afterLine+wheelModes.height))<0.01);
   await writeFile(join(evidence,'text-moonbit-scrolled.png'),await captureCanvas(textCanvas,'text_scrolled',920,720));
   const typographyFonts = [];
   for (let step = 0; step < 5; step++) {
