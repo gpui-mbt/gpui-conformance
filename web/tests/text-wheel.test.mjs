@@ -5,7 +5,7 @@ import { wheelDeltaPixels } from '../moonbit/site/text-wheel.mjs';
 test('WheelEvent pixel, line, and page units become viewport pixels', () => {
   assert.equal(wheelDeltaPixels(125, 0, 668), 125);
   assert.equal(wheelDeltaPixels(2, 1, 668), 41.6);
-  assert.equal(wheelDeltaPixels(-3, 1, 668), -62.4);
+  assert(Math.abs(wheelDeltaPixels(-3, 1, 668) + 62.4) < 1e-9);
   assert.equal(wheelDeltaPixels(1, 2, 668), 668);
   assert.equal(wheelDeltaPixels(-1, 2, 668), -668);
 });
