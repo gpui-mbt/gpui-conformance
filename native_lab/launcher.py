@@ -430,6 +430,11 @@ def run_visible(args, out, executables, manifest, scenarios, token):
                               else "unverified"}
         if manifest["resize"]["status"] != "pass":
             manifest["reasons"].append("requested resize was not confirmed by both native event streams")
+        manifest["alive_after_observation"] = {
+            role: spawned[role].poll() is None for role in ROLES
+        }
+        if not all(manifest["alive_after_observation"].values()):
+            manifest["reasons"].append("at least one native fixture terminated before observation completed")
     finally:
         for role in ("upstream", "moonbit", "weston"):
             if role in spawned:
