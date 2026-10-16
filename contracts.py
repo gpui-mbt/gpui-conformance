@@ -68,6 +68,13 @@ def validate_scenarios(scenarios):
                 raise ValueError("invalid bounded layout device scale")
             if s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse"):
                 raise ValueError("unknown bounded flex wrapping mode")
+            for axis_gap in ("gap_x", "gap_y"):
+                if axis_gap in s and (
+                    type(s[axis_gap]) not in (int, float)
+                    or not math.isfinite(s[axis_gap])
+                    or not 0 <= s[axis_gap] <= 4096
+                ):
+                    raise ValueError("invalid bounded axis gap")
             child_count = len(s["children"])
             for field, default in (("grow", [0] * child_count), ("shrink", [1] * child_count)):
                 if not numbers(s.get(field, default), child_count, True) or max(s.get(field, default), default=0) > 16:
@@ -90,7 +97,7 @@ def validate_scenarios(scenarios):
                 for x in cross_maxima
             ) or any(limit is not None and minimum > limit for minimum, limit in zip(cross_minima, cross_maxima)):
                 raise ValueError("invalid bounded cross-axis maxima")
-        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation", "device_scale_factor", "align_content")):
+        elif any(field in s for field in ("min_main", "max_main", "min_cross", "max_cross", "layout_observation", "device_scale_factor", "align_content", "gap_x", "gap_y")):
             raise ValueError("layout-specific fields require a layout scenario")
         if kind == "pointer" and (s.get("wrap", "nowrap") not in ("nowrap", "wrap", "wrap_reverse") or not s.get("points") or any(not numbers(p, 2) for p in s["points"])):
             raise ValueError("invalid pointer samples")

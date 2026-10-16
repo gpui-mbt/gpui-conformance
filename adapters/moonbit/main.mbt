@@ -134,7 +134,7 @@ fn tree(s : Json) -> @element.Prepainted {
     Some(String("wrap_reverse")) => @layout.FlexWrap::wrap_reverse()
     _ => @layout.FlexWrap::no_wrap()
   }
-  let style = checked(
+  let mut style = checked(
     @layout.FlexTreeStyle::new(direction)
     .with_wrap(wrap)
     .with_justify(justify)
@@ -142,6 +142,12 @@ fn tree(s : Json) -> @element.Prepainted {
     .with_align_content(align_content)
     .with_gap(number(field(s, "gap"))),
   )
+  if optional(s, "gap_x") is Some(value) {
+    style = checked(style.with_gap_x(number(value)))
+  }
+  if optional(s, "gap_y") is Some(value) {
+    style = checked(style.with_gap_y(number(value)))
+  }
   let mut root = @element.Element::root(1, style).with_focusable(true)
   for i, child in array(field(s, "children")) {
     let dimensions = array(child)

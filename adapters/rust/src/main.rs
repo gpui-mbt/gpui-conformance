@@ -75,6 +75,12 @@ impl Render for View {
             "stretch" => root.items_stretch(),
             _ => root.items_start(),
         };
+        if let Some(value) = self.scenario.get("gap_x") {
+            root = root.gap_x(px(n(value)));
+        }
+        if let Some(value) = self.scenario.get("gap_y") {
+            root = root.gap_y(px(n(value)));
+        }
         root = match self.scenario["align_content"].as_str().unwrap_or("stretch") {
             "space-between" => root.content_between(),
             "space-around" => root.content_around(),

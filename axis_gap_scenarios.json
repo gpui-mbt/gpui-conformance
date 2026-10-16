@@ -1,0 +1,1007 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-default-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-main-override-wrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 90,
+      "height": 64,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-cross-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-both-overrides",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 90,
+      "height": 64,
+      "gap_x": 12,
+      "gap_y": 8
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-nowrap-main",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 90,
+      "height": 64,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-nowrap-cross-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 90,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          30,
+          10
+        ],
+        [
+          30,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-zero-main-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_x": 0
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-zero-cross",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 0
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap_reverse",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-reverse-cross",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "center",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-content-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "space-around",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-content-around",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "space-evenly",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-content-evenly",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "grow": [
+        1,
+        1
+      ],
+      "id": "axis-gap-row-grow-budget",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 64,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          60,
+          10
+        ],
+        [
+          60,
+          14
+        ]
+      ],
+      "shrink": [
+        1,
+        1
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-shrink-budget",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 64,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          26,
+          10
+        ],
+        [
+          26,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-main-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_x": 8
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-fractional-wrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_x": 3.5,
+      "gap_y": 7.5
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-row-fractional-nowrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_x": 3.5,
+      "gap_y": 7.5
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          40,
+          null
+        ],
+        [
+          40,
+          14
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "stretch",
+      "device_scale_factor": 2,
+      "align": "stretch",
+      "min_cross": [
+        10,
+        0
+      ],
+      "max_cross": [
+        18,
+        null
+      ],
+      "id": "axis-gap-row-stretch-auto-limits",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 60,
+      "height": 64,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-default-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-main-override-wrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 90,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-cross-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-both-overrides",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 90,
+      "gap_y": 12,
+      "gap_x": 8
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          14,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-nowrap-main",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 90,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          14,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-nowrap-cross-control",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 90,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          30
+        ],
+        [
+          14,
+          30
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-zero-main-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_y": 0
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-zero-cross",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 0
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap_reverse",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-reverse-cross",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "center",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-content-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "space-around",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-content-around",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "space-evenly",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-content-evenly",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          14,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "grow": [
+        1,
+        1
+      ],
+      "id": "axis-gap-column-grow-budget",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 100,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          60
+        ],
+        [
+          14,
+          60
+        ]
+      ],
+      "shrink": [
+        1,
+        1
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-shrink-budget",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 100,
+      "gap_y": 12
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          26
+        ],
+        [
+          14,
+          26
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-main-exact-fit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_y": 8
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-fractional-wrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_y": 3.5,
+      "gap_x": 7.5
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          10,
+          20
+        ],
+        [
+          14,
+          20
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "nowrap",
+      "align_content": "start",
+      "device_scale_factor": 2,
+      "id": "axis-gap-column-fractional-nowrap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_y": 3.5,
+      "gap_x": 7.5
+    },
+    {
+      "gap": 4,
+      "children": [
+        [
+          null,
+          40
+        ],
+        [
+          14,
+          40
+        ]
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "wrap": "wrap",
+      "align_content": "stretch",
+      "device_scale_factor": 2,
+      "align": "stretch",
+      "min_cross": [
+        10,
+        0
+      ],
+      "max_cross": [
+        18,
+        null
+      ],
+      "id": "axis-gap-column-stretch-auto-limits",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 64,
+      "height": 60,
+      "gap_x": 12
+    }
+  ]
+}
