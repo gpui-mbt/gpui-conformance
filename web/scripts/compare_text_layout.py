@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageEnhance
@@ -130,10 +131,10 @@ def compare(root: Path) -> dict:
         if category(item) not in ("underline_text", "strikethrough_text"):
             continue
         b = item["bounds"]
-        x0 = max(0, int(b["x"] + dx) - 1)
-        x1 = min(800, int(b["x"] + b["width"] + dx) + 1)
-        y0 = max(0, int(b["y"] + dy) - 1)
-        y1 = min(600, int(b["y"] + b["height"] + dy) + 2)
+        x0 = max(0, math.floor(b["x"] - dx) - 1)
+        x1 = min(800, math.ceil(b["x"] + b["width"] - dx) + 1)
+        y0 = max(0, math.floor(b["y"] - dy) - 1)
+        y1 = min(600, math.ceil(b["y"] + b["height"] - dy) + 2)
         results = {}
         for name, image in (("rust", ld), ("moonbit", rd)):
             dense = []

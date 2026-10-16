@@ -40,7 +40,7 @@ The paired CI continues running the old 500×500 path and adds the independent 8
     python3 web/scripts/compare_text_layout.py _build/browser-example-evidence
     python3 -m unittest discover -s web/tests -p 'test_text_layout_comparator.py' -v
 
-Synthetic comparator guard tests: changed background pixels and border pixels remain counted; exact equality is zero; wrong image size or mismatched capture offsets fail. Three tests passed in the local analysis environment; the new PR's paired browser CI is evaluated separately.
+Synthetic comparator guard tests: changed background pixels and border pixels remain counted; exact equality is zero; wrong image size or mismatched capture offsets fail. The original three tests passed in the local analysis environment. A fourth regression now checks that decoration scan windows subtract the capture offset when converting scene coordinates to image coordinates; it passes locally with the other three. The current-head paired browser CI is evaluated separately.
 
 ## Original run provenance
 

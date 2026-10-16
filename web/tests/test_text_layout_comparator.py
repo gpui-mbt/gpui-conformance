@@ -60,6 +60,28 @@ class TextLayoutComparisonTests(unittest.TestCase):
             self.assertEqual(json.loads((root / "text-layout-comparison.json").read_text())["changed_pixels"], 3)
             self.assertEqual(report["environment"]["browser"], "synthetic")
 
+    def test_decoration_scan_uses_scene_to_image_offsets(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.create_inputs(root)
+            record = json.loads((root / "result.json").read_text())
+            for side in ("rust", "moonbit"):
+                capture = record["captures"]["text_layout_" + side]
+                for axis in ("x", "y"):
+                    capture["clip"][axis] = capture["bounds"][axis] + 10
+                image = Image.open(root / ("text-layout-" + side + ".png")).convert("RGB")
+                # Scene item 105 starts at (16, 97); capture translation maps
+                # this dense scene row (16..65, 100) to (6..55, 90).
+                for x in range(6, 56):
+                    image.putpixel((x, 90), (0, 0, 0))
+                image.save(root / ("text-layout-" + side + ".png"))
+            (root / "result.json").write_text(json.dumps(record))
+            report = module.compare(root)
+            self.assertEqual(report["changed_pixels"], 0)
+            for side in ("rust", "moonbit"):
+                self.assertEqual(report["decoration_scanlines"]["105"][side],
+                                 [{"y": 90, "near_black_pixels": 50}])
+
     def test_exact_equality_is_zero_and_does_not_infer_layout_parity(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
