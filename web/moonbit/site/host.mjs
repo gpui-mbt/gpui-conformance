@@ -4,11 +4,12 @@ import { drawFrame } from './render.mjs';
 import { measureWrapperInputs, measureTypographyInputs } from './text-metrics.mjs';
 import { wheelDeltaPixels } from './text-wheel.mjs';
 import { createInputHost } from './input-host.mjs';
+import { createScrollableHost } from './scrollable-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
@@ -17,7 +18,7 @@ try {
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   if (!isTree) {
@@ -36,6 +37,7 @@ try {
   let prime;
   let input;
   let dynamicFonts;
+  let scrollable;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
     dynamicFonts = createDynamicFontHost({fetchFont: (...args) => fetch(...args), FontFaceType: FontFace, fonts: document.fonts, onChange: () => render()});
@@ -81,12 +83,16 @@ try {
     drawFrame(context, frame, metadata, scale);
     if (isText) { lastFrame=frame; scrollY=frame.scroll.y; }
     // Expose actual candidate output for inspection, never fabricated oracle results.
-    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}) };
+    globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, workers: prime.diagnostics } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
   if (example === 'input') { input = createInputHost({runtime,canvas,render}); render(); }
   if (dynamicFonts) void dynamicFonts.start(metadata.runs[2].text);
+  if (example === 'scrollable') {
+    scrollable = createScrollableHost({runtime,canvas,render});
+    window.addEventListener('pagehide', () => scrollable.stop(), {once:true});
+  }
   if (isText) {
     canvas.tabIndex=0;
     canvas.setAttribute('role','application');

@@ -1,4 +1,5 @@
-// Rust-only unchanged-source oracle. No MoonBit comparison or private state.
+// Run one independent screenshot-derived profile. Rust source stays unchanged;
+// --candidate executes the compiled MoonBit core port under the same inputs.
 // PLAYWRIGHT_ROOT=... PLAYWRIGHT_BROWSERS_PATH=... BROWSER_EVIDENCE=...
 // node web/tests/scrollable-oracle-browser.mjs _build/browser-lab
 import assert from 'node:assert/strict';
@@ -15,9 +16,11 @@ const sha256=data=>createHash('sha256').update(data).digest('hex');
 const site=resolve(process.argv.slice(2).find(arg=>!arg.startsWith('--'))||'_build/browser-lab');
 const evidence=resolve(process.env.BROWSER_EVIDENCE||'_build/browser-example-evidence');
 const dpr=Number(process.argv.find(arg=>arg.startsWith('--dpr='))?.slice(6)||1);
+const candidate=process.argv.includes('--candidate');
+const runtime=candidate?'moonbit':'rust';
 if(process.env.BROWSERS_PATH&&!process.env.PLAYWRIGHT_BROWSERS_PATH)
   process.env.PLAYWRIGHT_BROWSERS_PATH=process.env.BROWSERS_PATH;
-const result={status:'failed',scope:'unchanged scrollable.rs; actual Rust WASM; screenshot-derived browser behavior only',
+const result={status:'failed',runtime,scope:candidate?'compiled MoonBit core port; screenshot-derived browser behavior only':'unchanged scrollable.rs; actual Rust WASM; screenshot-derived browser behavior only',
   candidate:'not_implemented',comparison:'not_run',profile:{width:500,height:500,dpr,wheel:'trusted Chromium pixel wheel'},
   source_constraints:SOURCE_CONSTRAINTS,checks:{},captures:{},operations:[],requests:[],console:[],errors:[],
   unverified:['MoonBit comparison','native parity','private Rust scroll offsets','text rasterization parity',
@@ -32,11 +35,26 @@ try {
   assert.equal(manifest.rust_bundled,true,'Actual Rust WASM must be bundled');
   assert.equal(manifest.rust.source_modified,false,'Upstream Rust source must be unchanged');
   assert.equal(manifest.rust.packaging.upstream_files_modified,false);
-  const record=manifest.rust_oracle_only?.find(entry=>entry.id==='scrollable');
-  assert(record,'Explicit Rust-only oracle provenance record required');
-  for(const [key,value] of Object.entries({source:SCROLLABLE.source,source_blob:SCROLLABLE.sourceBlob,
-    upstream_revision:SCROLLABLE.revision,width:500,height:500,dpr,status:'rust_oracle_only',candidate:'not_implemented'}))
-    assert.equal(record[key],value,`Oracle provenance ${key}`);
+  const catalog=JSON.parse(await readFile(join(site,'examples.json'),'utf8'));
+  const entry=catalog.examples.find(entry=>entry.id==='scrollable'&&entry.moonbit==='implemented');
+  let record;
+  if(entry) {
+    assert.equal(entry.source,SCROLLABLE.source);assert.equal(entry.source_blob,SCROLLABLE.sourceBlob);
+    assert.deepEqual([entry.width,entry.height],[500,500]);
+    assert.deepEqual(catalog.upstream,manifest.upstream);assert.deepEqual(catalog.moonbit,manifest.moonbit);
+    assert(manifest.implemented.includes('scrollable'),'Compiled candidate must be in build manifest');
+    record={id:'scrollable',source:entry.source,source_blob:entry.source_blob,
+      upstream_revision:manifest.upstream.revision,width:500,height:500,dpr,
+      status:'paired_profile',candidate:'implemented'};
+    result.candidate='implemented';
+  } else {
+    assert(!candidate,'Candidate profile requires a compiled catalog entry');
+    record=manifest.rust_oracle_only?.find(entry=>entry.id==='scrollable');
+    assert(record,'Explicit Rust-only oracle provenance record required');
+    for(const [key,value] of Object.entries({source:SCROLLABLE.source,source_blob:SCROLLABLE.sourceBlob,
+      upstream_revision:SCROLLABLE.revision,width:500,height:500,dpr,status:'rust_oracle_only',candidate:'not_implemented'}))
+      assert.equal(record[key],value,`Oracle provenance ${key}`);
+  }
   result.source=record;
   assert(manifest.rust_implemented.includes('scrollable'));
   const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css',
@@ -84,8 +102,8 @@ try {
     },{capture:true,passive:true});
   });
   const base=`http://127.0.0.1:${server.address().port}/gpui-conformance/`;
-  await page.goto(base+'rust/?example=scrollable');
-  await page.locator('html[data-runtime-status="initialized"]').waitFor({timeout:60000});
+  await page.goto(base+runtime+'/?example=scrollable');
+  await page.locator(`html[data-runtime-status="${candidate?'ready':'initialized'}"]`).waitFor({timeout:60000});
   assert.equal(await page.evaluate(()=>crossOriginIsolated),true);
   assert.equal(await page.evaluate(()=>devicePixelRatio),dpr);
   const canvas=page.locator('canvas');
@@ -93,10 +111,11 @@ try {
   result.canvas={bounds,backing};
   assert.deepEqual(bounds,{x:0,y:0,width:500,height:500},'Integer origin and complete 500x500 canvas');
   assert.deepEqual(backing,{width:500*dpr,height:500*dpr},'No browser rescaling of the backing canvas');
-  for(const file of ['scrollable.js','scrollable_bg.wasm']) {
+  for(const file of candidate?['scrollable.mjs']:['scrollable.js','scrollable_bg.wasm']) {
     assert(result.requests.some(r=>new URL(r.url).pathname.endsWith('/'+file)&&r.status===200),`Actual runtime request for ${file}`);
-    const response=await page.request.get(base+'rust/'+file);assert.equal(response.status(),200);
-    assert.equal(sha256(await response.body()),manifest.rust.files[file],`Served ${file} must match manifest hash`);
+    const response=await page.request.get(base+runtime+'/'+file);assert.equal(response.status(),200);
+    const expected=candidate?manifest.runtime_sha256_by_example.scrollable:manifest.rust.files[file];
+    assert.equal(sha256(await response.body()),expected,`Served ${file} must match manifest hash`);
   }
   async function decode(buffer) {
     const image=await page.evaluate(async url=>{
@@ -120,11 +139,12 @@ try {
       stable=valid&&hash===previous;previous=valid?hash:null;
       if(!stable)await page.waitForTimeout(100);
     }while(!stable&&Date.now()<deadline);
-    const file=`scrollable-rust-${name}-dpr${dpr}.png`;
+    const file=`scrollable-${runtime}-${name}-dpr${dpr}.png`;
     await writeFile(join(evidence,file),buffer);
     result.captures[name]={file,png_sha256:sha256(buffer),rgba_sha256:sha256(image.data),
       width:image.width,height:image.height,stable,measurement,last_error:lastError,
       method:'full viewport screenshot; integer canvas origin; no cropping, resampling or replacement'};
+    if(candidate)result.captures[name].candidate_output=await page.evaluate(()=>globalThis.gpuiExample);
     images[name]=image;
     assert(stable,`${name}: expected pixel predicate and two stable captures not observed: ${lastError}`);
     return image;
@@ -198,16 +218,17 @@ try {
   await wheel('vertical_top_return',8,300,0,-100000,image=>assertUnchanged(initialUnhover,image,dpr));
   await wheel('vertical_top_repeat',8,300,0,-100000,image=>assertUnchanged(initialUnhover,image,dpr));
   result.negative_controls=scrollableNegativeControls(images,initial,dpr);
+  result.negative_controls_capture_sha256=Object.fromEntries(Object.entries(result.captures).map(([name,c])=>[name,c.rgba_sha256]));
   assert.deepEqual(result.errors,[],'Runtime errors are not allowed');
-  result.status='rust_oracle_passed';
-  console.log(`PASS: unchanged Rust scrollable screenshot translations, clipping/hover, wheel delivery and endpoint recovery at DPR ${dpr}. MoonBit NOT IMPLEMENTED; comparison NOT RUN.`);
+  result.status=candidate?'moonbit_profile_passed':'rust_oracle_passed';
+  console.log(`PASS: ${runtime} scrollable screenshot translations, clipping/hover, wheel delivery and endpoint recovery at DPR ${dpr}. Independent profile only; paired comparison NOT RUN.`);
 }catch(error){result.failure=error.stack;throw error;}
 finally {
   if(page) {
     try{result.events=await page.evaluate(()=>globalThis.scrollableOracleEvents||[]);}catch{}
     try{result.pointer_events=await page.evaluate(()=>globalThis.scrollableOraclePointers||[]);}catch{}
   }
-  await writeFile(join(evidence,`scrollable-rust-result-dpr${dpr}.json`),JSON.stringify(result,null,2)+'\n');
+  await writeFile(join(evidence,`scrollable-${runtime}-result-dpr${dpr}.json`),JSON.stringify(result,null,2)+'\n');
   if(browser)await browser.close();
   if(server)await new Promise(done=>server.close(done));
 }

@@ -6,8 +6,8 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 8);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree']);
+  assert.equal(catalog.examples.length, 9);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
@@ -85,7 +85,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, '01818aa4e96fc21d1676f747a6b23d91445648a1');
+  assert.equal(catalog.moonbit.revision, 'fa27a6286479f84c1e303d3ce8c072918c3d11cc');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -206,4 +206,19 @@ test('tree is a source-pinned, font-free 51-level real Element pair', async () =
   const source = await readFile(new URL('../../' + example.candidate_source, import.meta.url), 'utf8');
   for (const api of ['Dimension::auto()', 'with_child', 'request_layout', 'prepaint', 'paint_snapshot']) assert(source.includes(api));
   assert(!source.includes('SceneItem::quad'));
+});
+
+test('scrollable routes the pinned core-backed nested viewport pair', async () => {
+  const example=selectExample(catalog,'scrollable');
+  assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
+  assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
+  assert.equal(catalog.moonbit.revision,'fa27a6286479f84c1e303d3ce8c072918c3d11cc');
+  assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
+  assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
+  const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
+  for(const api of ['with_scroll_offset','scroll_viewport','tree.scroll_wheel','dispatch_pointer','request_layout_with_device_scale','paint_snapshot'])
+    assert(source.includes(api),api);
+  const host=await readFile(new URL('../moonbit/site/scrollable-host.mjs',import.meta.url),'utf8');
+  assert(host.includes('runtime.scrollable_wheel'));
+  assert(!host.includes('scrollLeft')&&!host.includes('scrollTop')&&!host.includes('context.translate'));
 });

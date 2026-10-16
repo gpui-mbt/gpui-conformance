@@ -14,7 +14,7 @@ Source: `zed-industries/zed`, revision
 The MoonBit implementation is `moonbit/hello_world/hello_world.mbt`. It uses
 **gpui.mbt Element → request_layout → prepaint → SceneSnapshot**, rather than a
 JavaScript recreation of the demo or hardcoded layout results. The candidate
-library is pinned to `01818aa4e96fc21d1676f747a6b23d91445648a1` in
+library is pinned to `fa27a6286479f84c1e303d3ce8c072918c3d11cc` in
 `examples.json`; native/headless `pins.json` remains untouched.
 
 The port retains the 500×500 logical viewport, gray background, centered
@@ -43,9 +43,9 @@ Plex Sans faces as upstream (the closest bundled bold face is SemiBold).
 
 `moonbit/text_layout/text_layout.mbt` constructs a real gpui.mbt Element tree
 and emits SceneSnapshot text items and clip chains. Browser-measured text widths
-are inputs; candidate layout computes the positions. Because this pinned gpui.mbt
-only has start/center/end justification, a flexible spacer composes the two-box
-`justify_between` layout. This is an example port, not a new library API claim.
+are inputs; candidate layout computes the positions. A flexible spacer still composes the two-box `justify_between` layout, as
+required by the older candidate pin when this port was introduced. This port
+does not exercise the newer core distributed-justification API.
 Font metrics, weight/style, and decoration drawing are explicit Canvas host
 extensions. Decoration formulas follow the pinned GPUI text renderer, but font
 shaping, rasterization, exact pixel equality and native parity remain unverified.
@@ -116,9 +116,9 @@ and the remaining six runs use 20-pixel text in 32-pixel line boxes.
 `moonbit/text_wrapper/text_wrapper.mbt` makes the wrapping and elision
 decisions in MoonBit from browser-measured font inputs. It builds gpui.mbt
 Elements and uses request_layout → prepaint → SceneSnapshot for the final
-text items, boxes and clipping. The pinned candidate
-`01818aa4e96fc21d1676f747a6b23d91445648a1` has no text-wrapping API, so this
-is an example-local algorithm rather than a library capability claim.
+text items, boxes and clipping. The original candidate
+`01818aa4e96fc21d1676f747a6b23d91445648a1` had no text-wrapping API; this remains
+an example-local algorithm rather than a library capability claim.
 The host segments with `Intl.Segmenter('und', { granularity: 'grapheme' })`
 and measures individual grapheme advances, whole-string prefix widths, and
 the 16/20-pixel ellipsis widths. It does not choose line breaks. MoonBit uses
@@ -235,31 +235,46 @@ Paired acceptance currently runs at DPR 1. A DPR 2 attempt was rejected because
 the pinned Rust backing canvas stayed 300×300 while the candidate was 600×600;
 no resampling is permitted and DPR 2 equivalence remains unverified.
 
-## Rust-only baseline: `scrollable`
+## Implemented port: `scrollable`
 
-`web/oracles/scrollable.json` records the unchanged upstream `scrollable.rs`
-source blob `c81795618875aecf06e06043bd1709c48630b58f` at the same browser pin.
-`build_rust.py --extra-example scrollable` builds it without adding a claimed
-MoonBit counterpart to the catalog. The opt-in binary is recorded separately in
-`build-manifest.json` as `rust_oracle_only` with `candidate: not_implemented`.
-The normal Rust build still includes only implemented catalog examples.
+The unchanged upstream `scrollable.rs`, blob
+`c81795618875aecf06e06043bd1709c48630b58f`, supplies the nested 500×500 example.
+The real core integration in the candidate pin supplies `with_scroll_offset`,
+`scroll_viewport`, and `scroll_wheel`: direct-child padded limits, same-delta
+ancestor routing, prepaint clamping, device-snapped descendant translation,
+scene clips, and half-open clipped pointer hit tests. Offsets, pointer state,
+hover selection, and layout live in MoonBit. JavaScript transports finite pixel
+wheel/pointer input and paints the resulting scene; it owns no scroll offsets
+or hit boxes. Three short text widths remain explicit host font inputs.
 
-The baseline uses a direct 500×500 browser viewport at DPR 1, trusted wheel
-input, and full actual screenshots. Any text/border coordinates derived from
-those images describe observed movement; the unchanged example exposes no
-private scroll offsets or ScrollHandle telemetry. Browser event logs establish
-input delivery only. No CSS scroll container or JavaScript-computed scroll
-state stands in for GPUI behavior. The first execution of this oracle remains
-pending CI while its baseline harness is being introduced.
+The source's anonymous green child has a subtle repaint rule. Actual initial
+Rust execution produced identical full screenshots after moving the pointer
+inside it. Source inspection confirmed anonymous elements have no retained
+hover-state notification. A real nonzero wheel notifies the identified scroll
+ancestor before prepaint clamps its offset; even a top-clamped upward wheel can
+therefore repaint the hover style without changing layout. The candidate
+retains pointer input without requesting presentation and follows that same
+rule. The failed move-only assumption and untouched screenshots remain part of
+the initial PR44 artifact history, rather than being patched out of Rust.
 
-Core integration is required for a faithful MoonBit counterpart: current
-`gpui.mbt` main `d4debae44d16bc9b6f631122b4b4164a3e1b64b5` has standalone
-`ScrollState`, but no scroll viewport, descendant translation or clipping in
-its Element lifecycle. Upstream `div.rs` applies the same wheel delta to each
-eligible ancestor, clamps offsets during prepaint, and applies inherited
-content masks to both painting and hit testing. A future candidate must test
-those semantics instead of assuming residual-delta scroll chaining. Native,
-other-DPR, private-state and MoonBit equivalence are not claimed by this baseline.
+Both independent profiles use a direct 500×500 DPR1 viewport, delivered trusted
+input, and complete retained screenshots. They measure initial border geometry,
+horizontal and ancestor vertical ink displacement, clipped padding strips,
+hover after a genuine redraw, both endpoints, and exact within-runtime recovery.
+The paired comparator compares those observed behaviors and reports fill-color
+differences explicitly. It does not compare text rasterization, fabricate Rust
+private offsets, or infer full pixel/native parity. Intentionally corrupted
+evidence must fail the comparator. The unchanged-Rust baseline passed all 16
+wheel operations and nine rejection controls in CI run 38892398129; final
+paired qualification is recorded separately by the retained CI artifact.
+Source-derived unit tests alone do not qualify it.
+
+`web/oracles/scrollable.json` retains the historical Rust-only baseline record.
+The current normal build takes scrollable from the implemented catalog; adding
+it again with `--extra-example scrollable` is rejected as a duplicate. The
+historical extra-oracle path is still independently tested. The engine-wide
+compatibility pin is unchanged, and neither this port nor its source snapshot
+claims arbitrary viewport, DPR, line/page wheel, native, or GPU equivalence.
 
 ## Upstream example inventory
 
@@ -267,16 +282,16 @@ Checked 2026-10-16 against upstream main
 `32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
 Rust example files**, with identical blob IDs. This count excludes asset/support
-subdirectories. Six of these now have browser counterparts: hello_world, text,
-text_layout, text_wrapper, input and tree. The two additional counterparts,
+subdirectories. Seven of these now have browser counterparts: hello_world, text,
+text_layout, text_wrapper, input, tree and scrollable. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-Eight catalog entries therefore do **not** mean all upstream examples are covered.
+Nine catalog entries therefore do **not** mean all upstream examples are covered.
 
-The remaining 35 top-level examples are: a11y, active_state_bug, anchor,
+The remaining 34 top-level examples are: a11y, active_state_bug, anchor,
 animation, data_table, drag_drop, focus_visible, gif_viewer, gradient,
 grid_layout, image_gallery, image_loading, layer_shell, list_example,
 mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
-ownership_post, painting, paths_bench, pattern, popover, scrollable, set_menus,
+ownership_post, painting, paths_bench, pattern, popover, set_menus,
 shadow, system_notifications, tab_stop, testing, toggle_headless, uniform_list,
 window, window_movable, window_positioning and window_shadow. These are an
 inventory of missing counterparts, not unsupported-feature verdicts or passes.

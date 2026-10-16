@@ -7,7 +7,7 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "01818aa4e96fc21d1676f747a6b23d91445648a1"
+    "revision": "fa27a6286479f84c1e303d3ce8c072918c3d11cc"
   },
   "examples": [
     {
@@ -155,6 +155,25 @@
       ],
       "candidate_source": "web/moonbit/tree/tree.mbt",
       "implementation_note": "Unchanged upstream default depth 50: 51 colored blocks with 2px padding. gpui.mbt auto measurement, layout and SceneSnapshot; block flow is represented by single-child stretched columns. Native and arbitrary-depth parity remain unverified."
+    },
+    {
+      "id": "scrollable",
+      "title": "Nested scrollable",
+      "rust_route": "scrollable",
+      "source": "crates/gpui/examples/scrollable.rs",
+      "source_blob": "c81795618875aecf06e06043bd1709c48630b58f",
+      "moonbit": "implemented",
+      "width": 500,
+      "height": 500,
+      "interactive": true,
+      "features": [
+        "Nested two-axis scroll viewports",
+        "Same-delta ancestor wheel propagation",
+        "Clipped paint and hit testing",
+        "Anonymous hover repaint behavior"
+      ],
+      "candidate_source": "web/moonbit/scrollable/scrollable.mbt",
+      "implementation_note": "Real gpui.mbt core viewport limits, wheel routing, descendant translation, scene clips and clipped pointer hits. Same-delta ancestor behavior and anonymous-hover invalidation follow unchanged upstream source. Browser text metrics/rasterization remain host extensions; native and full-pixel equivalence unverified."
     }
   ]
 }

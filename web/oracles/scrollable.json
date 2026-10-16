@@ -14,5 +14,6 @@
     "native renderer parity",
     "other DPRs",
     "private Rust scroll offsets"
-  ]
+  ],
+  "record_scope": "Historical Rust-only baseline from PR44 initial head3b2645a34154d9bdcec25541549cd12ce9d04b1f; current catalog independently declares the compiled counterpart."
 }

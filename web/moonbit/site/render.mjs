@@ -8,6 +8,7 @@ export function validateFrame(frame) {
     if (!b || ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0) throw new Error('Invalid scene bounds');
     const c = item.color;
     if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
+    if (item.opacity !== undefined && (!Number.isFinite(item.opacity) || item.opacity < 0 || item.opacity > 1)) throw new Error('Invalid scene opacity');
     if ((item.kind === 'text' || item.kind === 'text_run') && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
   if (frame.scroll) {
@@ -120,6 +121,7 @@ export function drawFrame(context, frame, metadata, scale) {
         }
         const b = item.bounds;
         const c = item.color;
+        context.globalAlpha = item.opacity ?? 1;
         const style = styles.get(item.id);
         for (const rect of clips.get(item.clip_chain_id) || []) {
           context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
