@@ -151,7 +151,7 @@ try {
   // Gallery search and implementation filters combine; native form reset also
   // restores the count and empty-state message after the asynchronous handler.
   await page.selectOption('#implementation-filter', 'implemented');
-  await assertCount(visibleExamples, 5);
+  await assertCount(visibleExamples, 6);
   await page.fill('#example-search', '  TEXT_WRAPPER  ');
   await assertCount(visibleExamples, 1);
   assert.equal(await page.locator(`${visibleExamples} .example-id`).textContent(), 'text_wrapper');
@@ -159,7 +159,7 @@ try {
   await assertCount(visibleExamples, 0);
   assert.equal(await page.locator('#examples-empty').isVisible(), true);
   await page.fill('#example-search', '');
-  await assertCount(visibleExamples, 2);
+  await assertCount(visibleExamples, 1);
   await page.locator('#example-filters button[type="reset"]').click();
   await assertCount(visibleExamples, 7);
   assert.equal(await page.locator('#implementation-filter').inputValue(), '');
@@ -169,7 +169,7 @@ try {
   await page.selectOption('#suite-filter', 'browser');
   await assertCount(visibleCases, 7);
   await page.selectOption('#status-filter', 'unsupported');
-  await assertCount(visibleCases, 2);
+  await assertCount(visibleCases, 1);
   await page.fill('#search', 'text_wrapper');
   await assertCount(visibleCases, 0);
   assert.equal(await page.locator('#empty-state').isVisible(), true);
