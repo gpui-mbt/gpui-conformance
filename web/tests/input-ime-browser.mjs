@@ -34,7 +34,7 @@ export async function checkInputIme(page, moon) {
           bubbles:true,inputType:args.inputType,data:args.data,
         }));
       }
-      return {cancelable:event.cancelable,prevented:event.defaultPrevented,value:el.value};
+      return {cancelable:event.cancelable,prevented:event.defaultPrevented,value:el.value,inputType:event.inputType};
     },{data,cancelable,inputType,applyNative});
   const observed={};
 
@@ -57,7 +57,10 @@ export async function checkInputIme(page, moon) {
 
   await reset();
   await compose('にほん','日本');
-  const canceled=await before('日本',{inputType:'insertFromComposition'});
+  // Chromium normalizes constructed insertFromComposition to an empty
+  // inputType; do not use that synthetic constructor to claim coverage here.
+  const canceled=await before('日本');
+  assert.equal(canceled.inputType,'insertText');
   assert.equal(canceled.prevented,true);
   assert.equal((await state()).text,'日本');
   const repeated=await before('日本');
@@ -71,7 +74,7 @@ export async function checkInputIme(page, moon) {
   await editor.evaluate(el=>{
     el.value='日本';
     el.dispatchEvent(new InputEvent('input',{
-      bubbles:true,inputType:'insertFromComposition',data:'日本',
+      bubbles:true,inputType:'insertText',data:'日本',
     }));
   });
   assert.equal((await state()).text,'日本','Input-only replay must be suppressed');
