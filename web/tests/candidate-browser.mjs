@@ -67,7 +67,7 @@ try {
       const names = observed.files.map(file => new URL(file.url).pathname.split('/').at(-1));
       assert.deepEqual(names, side === 'rust' ? [`${timing.example}.js`, `${timing.example}_bg.wasm`] :
         timing.example === 'hello_world' ? ['runtime.mjs', 'IBMPlexSans-Regular.ttf'] :
-        ['text_wrapper', 'hello_web'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
+        ['text_wrapper', 'hello_web', 'dynamic_fonts'].includes(timing.example) ? [`${timing.example}.mjs`, 'IBMPlexSans-Regular.ttf'] :
         ['text_layout.mjs', 'IBMPlexSans-Regular.ttf', 'IBMPlexSans-Italic.ttf', 'IBMPlexSans-SemiBold.ttf']);
     }
     report.load_runs ||= [];

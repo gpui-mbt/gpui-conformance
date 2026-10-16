@@ -45,7 +45,7 @@ try {
       context.font = `${run.font_size}px "${metadata.font_family}"`;
       return context.measureText(run.text).width;
     }) : example === 'text_wrapper' ? measureWrapperInputs(context, metadata) : metadata.runs ? metadata.runs.map(run => {
-      context.font = `${run.style} ${run.weight} ${metadata.font_size}px "${metadata.font_family}"`;
+      context.font = `${run.style || 'normal'} ${run.weight || 400} ${run.font_size || metadata.font_size}px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
       return context.measureText(run.text).width;
     }) : context.measureText(metadata.text).width;
     const frame = JSON.parse(example === 'text_wrapper'
