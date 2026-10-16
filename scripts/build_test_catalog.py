@@ -7,6 +7,7 @@ import json
 import hashlib
 import os
 import re
+import shutil
 import subprocess
 from collections import Counter, defaultdict
 from datetime import datetime
@@ -16,6 +17,7 @@ from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "catalog"
+SITE_OUTPUT = ROOT / "_build" / "catalog"
 REPOSITORY = "gpui-mbt/gpui-conformance"
 REPO_URL = f"https://github.com/{REPOSITORY}"
 SCENARIO_FILES = (
@@ -515,14 +517,45 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     }
 
 
+def write_site(data: dict[str, Any], output: Path = SITE_OUTPUT) -> None:
+    """Ship one coherent document, even when Pages caches different URLs separately.
+
+    The loose assets remain for older cached documents and machine consumers.
+    New documents never fetch those assets to initialize the catalog.
+    """
+    if output.resolve() == SITE.resolve() or SITE.resolve() in output.resolve().parents:
+        raise ValueError("Catalog output must not overwrite the source templates")
+    template = (SITE / "index.html").read_text(encoding="utf-8")
+    script = (SITE / "app.js").read_text(encoding="utf-8")
+    style = (SITE / "style.css").read_text(encoding="utf-8")
+    # These are trusted source files, but do not silently introduce an HTML end tag.
+    if re.search(r"</script", script, re.IGNORECASE) or re.search(r"</style", style, re.IGNORECASE):
+        raise ValueError("Inline catalog source contains an HTML closing tag")
+    serialized = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+    # JSON is inert, but a literal </script> would still terminate its HTML element.
+    embedded = serialized.replace("<", "\\u003c")
+    style_ref = '<link rel="stylesheet" href="./style.css">'
+    script_ref = '<script type="module" src="./app.js"></script>'
+    if template.count(style_ref) != 1 or template.count(script_ref) != 1:
+        raise ValueError("Catalog template must contain exactly one stylesheet and module reference")
+    release = hashlib.sha256((template + script + style + serialized).encode()).hexdigest()
+    html = template.replace(style_ref, f'<meta name="catalog-release" content="{release}">\n  <style>{style}</style>')
+    html = html.replace(script_ref, f'<script id="catalog-data" type="application/json">{embedded}</script>\n  <script type="module">{script}</script>')
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "index.html").write_text(html, encoding="utf-8")
+    (output / "data.json").write_text(serialized, encoding="utf-8")
+    for name in ("app.js", "style.css"):
+        shutil.copyfile(SITE / name, output / name)
+    shutil.copytree(SITE / "assets", output / "assets", dirs_exist_ok=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--revision", help="source revision used for GitHub links")
+    parser.add_argument("--output", type=Path, default=SITE_OUTPUT, help="generated site directory (default: _build/catalog)")
     args = parser.parse_args()
-    SITE.mkdir(parents=True, exist_ok=True)
-    target = SITE / "data.json"
-    target.write_text(json.dumps(build_catalog(args.revision), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"wrote {target.relative_to(ROOT)}")
+    write_site(build_catalog(args.revision), args.output)
+    print(f"wrote coherent catalog to {args.output}")
 
 
 if __name__ == "__main__":

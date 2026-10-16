@@ -1,6 +1,10 @@
 import unittest
 import os
 import hashlib
+import json
+import tempfile
+from html.parser import HTMLParser
+from pathlib import Path
 
 from copy import deepcopy
 from unittest.mock import patch
@@ -17,6 +21,7 @@ from scripts.build_test_catalog import (
     normalize_browser_lab_base_url,
     pixel_status,
     validate_browser_inventory,
+    write_site,
 )
 
 
@@ -278,6 +283,53 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(data["native_ax"]["status"], "unverified")
         self.assertEqual(len(data["native_cases"]), 2)
         self.assertTrue(all(case["status"] == "unverified" for case in data["native_cases"]))
+
+    def test_generated_document_contains_one_coherent_release(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            write_site(self.data, output)
+            html = (output / "index.html").read_text()
+            self.assertNotIn('src="./app.js"', html)
+            self.assertNotIn('href="./style.css"', html)
+            self.assertIn('<meta name="catalog-release"', html)
+            self.assertIn((ROOT / "catalog/app.js").read_text(), html)
+            self.assertIn((ROOT / "catalog/style.css").read_text(), html)
+            self.assertEqual(json.loads((output / "data.json").read_text()), self.data)
+            self.assertEqual((output / "app.js").read_bytes(), (ROOT / "catalog/app.js").read_bytes())
+            self.assertEqual((output / "assets/hello_world-moonbit-20261016.png").read_bytes(), (ROOT / BROWSER_THUMBNAIL_ASSET).read_bytes())
+
+    def test_embedded_json_cannot_escape_its_inert_script_element(self):
+        class Scripts(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+                self.active = None
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.active = {"attrs": dict(attrs), "text": ""}
+                    self.scripts.append(self.active)
+            def handle_data(self, data):
+                if self.active is not None:
+                    self.active["text"] += data
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.active = None
+        data = deepcopy(self.data)
+        data["scope_note"] = '</script><script>alert("unexpected")</script><p>& 日本語'
+        with tempfile.TemporaryDirectory() as directory:
+            write_site(data, Path(directory))
+            parser = Scripts()
+            parser.feed((Path(directory) / "index.html").read_text())
+            self.assertEqual(len(parser.scripts), 2)
+            embedded = parser.scripts[0]
+            self.assertEqual(embedded["attrs"], {"id": "catalog-data", "type": "application/json"})
+            self.assertEqual(json.loads(embedded["text"]), data)
+
+    def test_site_generation_does_not_overwrite_source_templates(self):
+        with self.assertRaisesRegex(ValueError, "source templates"):
+            write_site(self.data, ROOT / "catalog")
+        with self.assertRaisesRegex(ValueError, "source templates"):
+            write_site(self.data, ROOT / "catalog/generated")
 
 
 if __name__ == "__main__":

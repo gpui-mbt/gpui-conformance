@@ -7,6 +7,7 @@ on:
       - 'catalog/**'
       - 'scripts/build_test_catalog.py'
       - 'tests/test_catalog_site.py'
+      - 'tests/catalog-browser.mjs'
       - 'scenarios.json'
       - '*_scenarios.json'
       - 'results/cross-axis-limits-linux-x86_64-20261015.json'
@@ -24,6 +25,7 @@ on:
       - 'catalog/**'
       - 'scripts/build_test_catalog.py'
       - 'tests/test_catalog_site.py'
+      - 'tests/catalog-browser.mjs'
       - 'scenarios.json'
       - '*_scenarios.json'
       - 'results/cross-axis-limits-linux-x86_64-20261015.json'
@@ -46,7 +48,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
@@ -58,11 +60,23 @@ jobs:
         run: python3 scripts/build_test_catalog.py
       - name: Validate generated catalog and evidence qualifications
         run: python3 -m unittest discover -s tests -p 'test_catalog_site.py' -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install catalog browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify atomic catalog and legacy cache recovery in a browser
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          CATALOG_BROWSER_LAB_BASE_URL: ${{ vars.CATALOG_BROWSER_LAB_BASE_URL }}
+        run: node tests/catalog-browser.mjs _build/catalog
       - name: Upload the static catalog only
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:
-          path: catalog
+          path: _build/catalog
 
   deploy:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
