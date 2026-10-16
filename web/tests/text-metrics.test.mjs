@@ -38,3 +38,35 @@ test('invalid host metrics or metadata fail before runtime layout and restore co
   assert.equal(ctx.restores,1);
   assert.throws(() => measureWrapperInputs(context(),{runs:[]}),/Expected/);
 });
+
+test('typography supplies per-font whole-prefix measurements for all eighteen specimens', async () => {
+  const {measureTypographyInputs} = await import('../moonbit/site/text-metrics.mjs');
+  const phrase = 'The quick brown fox jumps over the lazy dog';
+  const metadata = {font_family:'Zed Mono', runs:[
+    {id:20,text:'.ZedMono',font_size:16,style:'normal',weight:400},
+    {id:500,text:'👩‍💻',font_size:24,style:'normal',weight:400},
+    ...Array.from({length:18},(_,i)=>({id:900+i,text:phrase,font_size:10+i,style:'normal',weight:400})),
+  ]};
+  const ctx = context();
+  ctx.measureText = function(text) {
+    const size = Number(this.font.match(/(\d+)px/)[1]);
+    return {width:text.length * size * (this.font.includes('Changed') ? 0.75 : 0.5)};
+  };
+  const first = measureTypographyInputs(ctx, metadata);
+  assert.deepEqual(Object.keys(first),['widths','prefixes']);
+  assert.equal(first.widths.length,20);
+  assert.equal(first.prefixes.length,18);
+  for(let i=0;i<18;i++) {
+    assert.equal(first.prefixes[i].length,phrase.length+1);
+    assert.equal(first.prefixes[i][0],0);
+    assert.equal(first.prefixes[i][1],(10+i)*0.5);
+    assert.equal(first.prefixes[i].at(-1),first.widths[2+i]);
+  }
+  metadata.font_family='Changed';
+  const changed = measureTypographyInputs(ctx,metadata);
+  assert.equal(changed.prefixes[17].at(-1),first.prefixes[17].at(-1)*1.5);
+  assert.deepEqual([ctx.saves,ctx.restores],[2,2]);
+  const bad = context(()=>NaN);
+  assert.throws(()=>measureTypographyInputs(bad,metadata),/Invalid browser text metrics/);
+  assert.equal(bad.restores,1);
+});

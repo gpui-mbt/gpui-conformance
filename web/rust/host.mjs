@@ -3,7 +3,7 @@ const loadTiming = createHostTiming('rust');
 try {
   if (!crossOriginIsolated) throw new Error('Shared-memory WASM requires COOP/COEP response headers on the whole comparison site.');
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {hello_world: './hello_world.js', text_layout: './text_layout.js', text_wrapper: './text_wrapper.js', hello_web: './hello_web.js', dynamic_fonts: './dynamic_fonts.js'};
+  const modules = {hello_world: './hello_world.js', text_layout: './text_layout.js', text_wrapper: './text_wrapper.js', text: './text.js', hello_web: './hello_web.js', dynamic_fonts: './dynamic_fonts.js'};
   if (!modules[example]) throw new Error(`Rust example not bundled: ${example}`);
   document.title = `${example} · gpui.rs`;
   const bindings = await import(modules[example]);

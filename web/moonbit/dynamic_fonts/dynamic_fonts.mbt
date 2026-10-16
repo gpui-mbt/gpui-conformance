@@ -21,7 +21,47 @@ fn dynamic_fonts_sizes() -> Array[Double] {
 }
 
 ///|
-fn dynamic_fonts_layout(widths : Array[Double], scale : Double) -> @element.Prepainted {
+priv struct StatusWrap {
+  lines : Array[String]
+  widths : Array[Double]
+}
+
+///|
+// Canvas supplies prefix advances, while MoonBit chooses complete status lines.
+// A remote-font failure may be longer than the upstream 836px content area.
+fn wrap_status(status : String, prefixes : Array[Double]) -> StatusWrap {
+  let characters = status.to_array()
+  let starts = [0]
+  let mut last = 0
+  let mut candidate = 0
+  for i = 0; i < characters.length(); i = i + 1 {
+    if i > 0 && characters[i] != ' ' && characters[i - 1] == ' ' {
+      candidate = i
+    }
+    if prefixes[i + 1] - prefixes[last] > 836.0 && i > last {
+      last = if candidate > last { candidate } else { i }
+      starts.push(last)
+      candidate = last
+    }
+  }
+  let lines = []
+  let widths = []
+  for i = 0; i < starts.length(); i = i + 1 {
+    let end = if i + 1 < starts.length() { starts[i + 1] } else { characters.length() }
+    let mut line = ""
+    for j = starts[i]; j < end; j = j + 1 {
+      line = line + characters[j].to_string()
+    }
+    lines.push(line)
+    widths.push(prefixes[end] - prefixes[starts[i]])
+  }
+  { lines, widths }
+}
+
+///|
+fn dynamic_fonts_layout(
+  widths : Array[Double], wrapped : StatusWrap, scale : Double,
+) -> @element.Prepainted {
   // Pinned GPUI TextStyle defaults to phi(). TextLayout::layout uses
   // Window::pixel_snap for each line height (nearest device pixel, half ties
   // toward zero). Express size * phi here; the scale-aware layout below uses
@@ -34,9 +74,22 @@ fn dynamic_fonts_layout(widths : Array[Double], scale : Double) -> @element.Prep
   let mut root = @element.Element::root(1, column)
     .with_background(Some(color(32, 32, 48)))
   for index = 0; index < ids.length(); index = index + 1 {
-    root = root.with_child(fixed(
-      ids[index], sizes[index] * 1.618034, widths[index],
-    ))
+    if index == 4 {
+      let mut status_element = fixed(
+        ids[index], wrapped.lines.length().to_double() * sizes[index] * 1.618034,
+        836.0,
+      ).with_children_style(@layout.FlexTreeStyle::new(@layout.FlowDirection::column()))
+      for j = 0; j < wrapped.lines.length(); j = j + 1 {
+        status_element = status_element.with_child(
+          fixed((60 + j).to_uint64(), sizes[index] * 1.618034, wrapped.widths[j]),
+        )
+      }
+      root = root.with_child(status_element)
+    } else {
+      root = root.with_child(fixed(
+        ids[index], sizes[index] * 1.618034, widths[index],
+      ))
+    }
   }
   root.request_layout_with_device_scale(
     @primitives.Size::new(900.0, 500.0).unwrap(), scale,
@@ -52,16 +105,31 @@ pub fn dynamic_fonts_metadata() -> String {
 
 ///|
 #export_name("dynamic_fonts_frame")
-pub fn dynamic_fonts_frame(widths : Array[Double], status : String, scale : Double) -> String {
-  if widths.length() != 7 || !(scale > 0.0 && scale <= 4.0) {
+pub fn dynamic_fonts_frame(
+  widths : Array[Double], status : String, status_prefixes : Array[Double], scale : Double,
+) -> String {
+  if widths.length() != 7 || !(scale > 0.0 && scale <= 4.0) ||
+    status_prefixes.length() != status.to_array().length() + 1 ||
+    status_prefixes[0] != 0.0 {
     return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
   }
-  for width in widths {
-    if !(width >= 0.0 && width <= 2048.0) {
+  for index = 0; index < widths.length(); index = index + 1 {
+    let limit = if index == 4 { 100000.0 } else { 2048.0 }
+    if !(widths[index] >= 0.0 && widths[index] <= limit) {
       return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
     }
   }
-  let prepainted = dynamic_fonts_layout(widths, scale)
+  for i = 1; i < status_prefixes.length(); i = i + 1 {
+    if !(status_prefixes[i] >= status_prefixes[i - 1] &&
+      status_prefixes[i] <= 100000.0) {
+      return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
+    }
+  }
+  if (status_prefixes[status_prefixes.length() - 1] - widths[4]).abs() > 0.000001 {
+    return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
+  }
+  let wrapped = wrap_status(status, status_prefixes)
+  let prepainted = dynamic_fonts_layout(widths, wrapped, scale)
   let base = prepainted.paint_snapshot(scale).unwrap()
   let items = base.items()
   let tree = prepainted.tree()
@@ -77,14 +145,25 @@ pub fn dynamic_fonts_frame(widths : Array[Double], status : String, scale : Doub
   ]
   let sizes = dynamic_fonts_sizes()
   for index = 0; index < ids.length(); index = index + 1 {
-    items.push(@scene.SceneItem::text(
-      ids[index], tree.node(ids[index]).unwrap().bounds(), texts[index],
-      sizes[index], color(255, 255, 255),
-      @scene.AffineTransform::identity(), 1.0, None,
-    ).unwrap())
+    if index == 4 {
+      for j = 0; j < wrapped.lines.length(); j = j + 1 {
+        let id : UInt64 = if j == 0 { (6).to_uint64() } else { (60 + j).to_uint64() }
+        items.push(@scene.SceneItem::text(
+          id, tree.node((60 + j).to_uint64()).unwrap().bounds(), wrapped.lines[j],
+          16.0, color(255, 255, 255),
+          @scene.AffineTransform::identity(), 1.0, None,
+        ).unwrap())
+      }
+    } else {
+      items.push(@scene.SceneItem::text(
+        ids[index], tree.node(ids[index]).unwrap().bounds(), texts[index],
+        sizes[index], color(255, 255, 255),
+        @scene.AffineTransform::identity(), 1.0, None,
+      ).unwrap())
+    }
   }
   let snapshot = @scene.SceneSnapshot::new(
     base.viewport(), scale, [], [], items,
   ).unwrap()
-  "{\"ok\":true,\"snapshot\":\{snapshot.canonical_json()},\"decorations\":[],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"font_fallback\",\"missing_glyph_probe\",\"remote_font_fetch\",\"font_registration\"]}"
+  "{\"ok\":true,\"snapshot\":\{snapshot.canonical_json()},\"status_lines\":\{@json.to_json(wrapped.lines).stringify()},\"decorations\":[],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"font_fallback\",\"missing_glyph_probe\",\"remote_font_fetch\",\"font_registration\"]}"
 }
