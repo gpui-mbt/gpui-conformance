@@ -18,3 +18,10 @@ error handler. It cannot add the gallery to a historical document without reload
 CI checks the generated document in Chromium, including blocked/stale loose assets,
 repeat navigation, filters and legacy-document recovery. This tests the catalog UI;
 it does not establish GPUI rendering or native parity.
+
+All four implemented example cards have retained actual browser captures. Prime
+sieve's paired 640×560 result images come from the successful full 10M run linked
+in `web/evidence/20261016-prime-sieve/captures.json`. Its report, scene and raw OCR
+are retained with digests; generation verifies the 664,579 count, all 12 contiguous
+chunks, terminated workers, dimensions and byte-identical thumbnail. Different
+worker counts make the pictured timings unsuitable for performance comparisons.

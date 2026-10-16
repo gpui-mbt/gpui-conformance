@@ -1,0 +1,10 @@
+Prime Sieve — GPUI Web
+Background threads: 2 - Chunks per run: 12
+Count primes below:
+50M 100M
+
+Found 664,579 primes below 10,000,000 in 815 ms
+————
+eoccccccccce
+History
+11(10,000,000) = 664,579 (815 ms, 12 chunks)
