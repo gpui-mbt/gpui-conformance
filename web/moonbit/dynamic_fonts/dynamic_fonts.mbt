@@ -131,7 +131,7 @@ pub fn dynamic_fonts_frame(
   for index = 0; index < ids.length(); index = index + 1 {
     if index == 4 {
       for j = 0; j < wrapped.lines.length(); j = j + 1 {
-        let id = if j == 0 { 6.to_uint64() } else { (60 + j).to_uint64() }
+        let id : UInt64 = if j == 0 { (6).to_uint64() } else { (60 + j).to_uint64() }
         items.push(@scene.SceneItem::text(
           id, tree.node((60 + j).to_uint64()).unwrap().bounds(), wrapped.lines[j],
           16.0, color(255, 255, 255),
