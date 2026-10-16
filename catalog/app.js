@@ -53,7 +53,7 @@ function resultItem(item) {
   const source = link("source", item.source_url);
   const evidence = link("result", item.result_url);
   const inventory = link("inventory", item.inventory_url);
-  const comparison = link("interactive comparison", item.comparison_url);
+  const comparison = link("ライブ比較", item.comparison_url);
   for (const node of [source, evidence, inventory, comparison]) if (node) links.append(node);
   article.append(links);
 

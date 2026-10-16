@@ -1,11 +1,16 @@
 import unittest
+import os
 
 from copy import deepcopy
+from unittest.mock import patch
 
 from scripts.build_test_catalog import (
+    BROWSER_LAB_BASE_URL_ENV,
     BROWSER_RESULT_PATH,
+    browser_lab_comparison_url,
     build_catalog,
     load_json,
+    normalize_browser_lab_base_url,
     pixel_status,
     validate_browser_inventory,
 )
@@ -14,7 +19,8 @@ from scripts.build_test_catalog import (
 class TestCatalogData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.data = build_catalog("catalog-test-revision")
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: ""}):
+            cls.data = build_catalog("catalog-test-revision")
 
     def test_headless_totals_are_derived_from_retained_comparison(self):
         data = self.data
@@ -58,6 +64,50 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(examples[0]["status"], "difference")
         self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 6)
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
+
+    def test_verified_base_url_links_only_the_implemented_static_hello_world_example(self):
+        base_url = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base_url}):
+            examples = build_catalog("catalog-test-revision")["browser_examples"]
+
+        hello_world = next(example for example in examples if example["id"] == "hello_world")
+        self.assertEqual(hello_world["comparison_url"], f"{base_url}/?example=hello_world")
+        self.assertFalse(hello_world["interactive"])
+        self.assertTrue(all(
+            example["comparison_url"] is None
+            for example in examples
+            if example["id"] != "hello_world"
+        ))
+
+    def test_browser_lab_url_is_optional_and_fails_closed_for_unsafe_values(self):
+        self.assertIsNone(normalize_browser_lab_base_url(None))
+        self.assertIsNone(normalize_browser_lab_base_url(""))
+        self.assertIsNone(normalize_browser_lab_base_url("  "))
+        self.assertIsNone(browser_lab_comparison_url("hello_world", True, None))
+        self.assertIsNone(browser_lab_comparison_url("text", True, "https://gpui-conformance-browser-lab.account.workers.dev"))
+        self.assertIsNone(browser_lab_comparison_url("hello_world", False, "https://gpui-conformance-browser-lab.account.workers.dev"))
+        with self.assertRaises(ValueError):
+            browser_lab_comparison_url("hello_world", True, "http://gpui-conformance-browser-lab.account.workers.dev")
+
+        for unsafe in (
+            False,
+            "false",
+            "http://gpui-conformance-browser-lab.account.workers.dev",
+            "https://other-account.workers.dev",
+            "https://gpui-conformance-browser-lab.account.workers.dev.evil.example",
+            "https://gpui-conformance-browser-lab.account.workers.dev/path",
+            "https://gpui-conformance-browser-lab.account.workers.dev/?example=text",
+            "https://gpui-conformance-browser-lab.account.workers.dev/#fragment",
+            "https://user@gpui-conformance-browser-lab.account.workers.dev",
+            "https://gpui-conformance-browser-lab.account.workers.dev:8443",
+        ):
+            with self.subTest(unsafe=unsafe):
+                with self.assertRaises(ValueError):
+                    normalize_browser_lab_base_url(unsafe)
+
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: "http://gpui-conformance-browser-lab.account.workers.dev"}):
+            with self.assertRaises(ValueError):
+                build_catalog("catalog-test-revision")
 
     def test_browser_inventory_must_match_retained_build_provenance(self):
         browser = load_json(BROWSER_RESULT_PATH)
