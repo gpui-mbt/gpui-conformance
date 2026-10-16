@@ -46,8 +46,11 @@ outside the upstream tree; no source changes are applied.
       --moonbit-source /path/to/gpui.mbt \
       --output _build/native-lab-run --online
 
-Default Cargo mode is locked and offline. Pass --online when dependencies
-have not yet been cached. For build-only checks:
+Default Cargo mode is offline. Pass --online when dependencies have not yet
+been cached. The Linux/X11 adapter resolves its target-specific dependency graph
+from the copied native probe lockfile and retains rust-resolved-Cargo.lock plus
+its digest. A resolved lock is therefore evidence, not yet a committed
+cross-platform dependency pin. For build-only checks:
 
     python3 native_lab/launcher.py --build-only --output _build/native-lab-build
 
