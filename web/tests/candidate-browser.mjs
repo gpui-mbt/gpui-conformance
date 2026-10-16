@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { checkInputPointers } from './input-pointer-browser.mjs';
 import {execFileSync} from 'node:child_process';
 import { createRequire } from 'node:module';
 import { createServer } from 'node:http';
@@ -697,7 +698,10 @@ try {
     'Actual gpui.mbt TextField.paint_items run must be rendered');
   assert.equal(inputFrame.input.text,'');
   const inputEditor = moon.locator('textarea[data-gpui-input="true"]');
-  await inputEditor.focus();
+  const pointerChecks = await checkInputPointers(page, moon);
+  await writeFile(join(evidence,'input-pointer-events.json'),JSON.stringify(pointerChecks,null,2));
+  report.operations.push({action:'trusted Chromium input pointer regressions',result:pointerChecks.checked});
+  await moon.locator('canvas').click({position:{x:12,y:50}});
   const getInput = () => moon.locator('html').evaluate(() => globalThis.gpuiExample.input);
   await page.keyboard.type('abc');
   assert.deepEqual([ (await getInput()).text, (await getInput()).head ],['abc',3]);

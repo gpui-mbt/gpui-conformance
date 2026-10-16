@@ -2,6 +2,11 @@
 let field_state : Ref[@text_field.TextField?] = { val: None }
 
 ///|
+/// Gesture ownership stays beside the authoritative TextField. The browser
+/// transports a single captured pointer; it never stores selection offsets.
+let pointer_selecting : Ref[Bool] = { val: false }
+
+///|
 /// Uniform scalar widths are an explicit candidate layout proxy, not GPUI or
 /// browser font-shaping evidence. TextField owns all document transactions.
 fn measure(
@@ -95,6 +100,7 @@ fn current() -> @text_field.TextField {
 ///|
 #export_name("input_reset")
 pub fn input_reset() -> Unit {
+  pointer_selecting.val = false
   field_state.val = Some(initial_field())
 }
 
@@ -141,13 +147,75 @@ pub fn input_key(label : String, shift : Bool, control : Bool, meta : Bool) -> B
 ///|
 #export_name("input_pointer")
 pub fn input_pointer(x : Double, y : Double, shift : Bool) -> Bool {
-  let position = @primitives.Point::new(x, y).unwrap()
-  update(@primitives.PointerButtonPressed(
-    position~, button=@primitives.Primary,
-    modifiers=@primitives.Modifiers::new(
-      shift~, control=false, alt=false, meta=false,
+  pointer_selecting.val = false
+  let position = match @primitives.Point::new(x, y) {
+    Ok(value) => value
+    Err(_) => return false
+  }
+  if !current().bounds().contains(position) || current().is_composing() {
+    return false
+  }
+  let accepted = select_at(position, shift)
+  pointer_selecting.val = accepted
+  accepted
+}
+
+///|
+fn select_at(position : @primitives.Point, shift : Bool) -> Bool {
+  // The pinned TextField exposes click/Shift-click rather than a drag API.
+  // Reuse that validated path to retain its anchor, scroll offset, UTF-16
+  // cursor stops and edit history throughout the example-local gesture.
+  update(
+    @primitives.PointerButtonPressed(
+      position~,
+      button=@primitives.Primary,
+      modifiers=@primitives.Modifiers::new(
+        shift~,
+        control=false,
+        alt=false,
+        meta=false,
+      ),
     ),
-  ))
+  )
+}
+
+///|
+#export_name("input_pointer_move")
+pub fn input_pointer_move(x : Double, y : Double) -> Bool {
+  if !pointer_selecting.val || current().is_composing() {
+    return false
+  }
+  let point = match @primitives.Point::new(x, y) {
+    Ok(value) => value
+    Err(_) => return false
+  }
+  // A captured pointer can leave both field and canvas. Clamp to the field's
+  // closed edges; TextField maps through its current horizontal scroll offset
+  // and keeps the moving head visible without changing the original anchor.
+  let bounds = current().bounds()
+  let clamped = @primitives.Point::new(
+    point.x().max(bounds.left()).min(bounds.right()),
+    point.y().max(bounds.top()).min(bounds.bottom()),
+  ).unwrap()
+  select_at(clamped, true)
+}
+
+///|
+#export_name("input_pointer_end")
+pub fn input_pointer_end() -> Unit {
+  pointer_selecting.val = false
+}
+
+///|
+#export_name("input_selecting")
+pub fn input_selecting() -> Bool {
+  pointer_selecting.val
+}
+
+///|
+#export_name("input_scroll_offset")
+pub fn input_scroll_offset() -> Double {
+  current().scroll_offset()
 }
 
 ///|

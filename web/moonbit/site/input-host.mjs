@@ -14,6 +14,7 @@ export function createInputHost({runtime, canvas, render, onError = error => con
   let cancellation = false;
   let suppressFinalInput = false;
   let finalCompositionText = '';
+  let activePointer = null;
   const events = [];
   const record = (type, extra = {}) => {
     events.push({type, ...extra});
@@ -42,13 +43,27 @@ export function createInputHost({runtime, canvas, render, onError = error => con
     canUndo:runtime.input_can_undo(),
     canRedo:runtime.input_can_redo(),
     hostComposing,
+    selecting:runtime.input_selecting(),
+    scrollOffset:runtime.input_scroll_offset(),
   });
+  const endPointer = (reason) => {
+    if (activePointer === null) return;
+    const pointerId = activePointer;
+    activePointer = null;
+    // Clear ownership before release: lostpointercapture may be dispatched
+    // synchronously by a host and must not end a newer gesture.
+    mutate(() => {runtime.input_pointer_end(); return true;}, reason);
+    if (canvas.hasPointerCapture(pointerId)) canvas.releasePointerCapture(pointerId);
+    record(reason, {pointerId});
+  };
   const api = {editor, events, readState, reset() {
+    endPointer('pointer-reset');
     hostComposing = false; cancellation = false; suppressFinalInput = false; finalCompositionText = '';
     mutate(() => {runtime.input_reset(); return true;}, 'reset');
     record('reset');
   }};
   editor.addEventListener('compositionstart', event => {
+    endPointer('pointer-composition');
     hostComposing = true; cancellation = false;
     suppressFinalInput = false; finalCompositionText = '';
     record('compositionstart', {trusted:event.isTrusted});
@@ -147,17 +162,58 @@ export function createInputHost({runtime, canvas, render, onError = error => con
     mutate(() => runtime.input_insert(value), 'paste');
     record('paste', {text:value, trusted:event.isTrusted});
   });
-  canvas.addEventListener('pointerdown', event => {
-    if (event.button !== 0) return;
+  const coordinates = event => {
     const rect = canvas.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return null;
     const x = (event.clientX-rect.left)*300/rect.width;
     const y = (event.clientY-rect.top)*300/rect.height;
-    if (y < 30 && x >= 244) api.reset();
-    else mutate(() => runtime.input_pointer(x,y,event.shiftKey), 'pointer');
+    return Number.isFinite(x) && Number.isFinite(y) ? {x,y} : null;
+  };
+  canvas.style.touchAction = 'none';
+  canvas.addEventListener('pointerdown', event => {
+    if (event.button !== 0 || !event.isPrimary || activePointer !== null) return;
+    const point = coordinates(event);
+    if (!point) return;
+    const {x,y} = point;
+    const reset = x >= 244 && x <= 294 && y >= 2 && y <= 28;
+    if (reset) api.reset();
+    else if (!mutate(() => runtime.input_pointer(x,y,event.shiftKey), 'pointer')) return;
+    // Cancel the following native mouse-focus action before focusing the
+    // transport textarea. Otherwise a trusted field click blurs it to BODY.
+    event.preventDefault();
     editor.focus({preventScroll:true});
-    record('pointer', {x,y,shift:event.shiftKey,trusted:event.isTrusted});
+    if (!reset) {
+      activePointer = event.pointerId;
+      try { canvas.setPointerCapture(activePointer); }
+      catch { endPointer('pointer-capture-failed'); }
+    }
+    record('pointer', {x,y,pointerId:event.pointerId,shift:event.shiftKey,trusted:event.isTrusted});
   });
+  canvas.addEventListener('pointermove', event => {
+    if (event.pointerId !== activePointer) return;
+    if (!(event.buttons & 1)) { endPointer('pointer-buttons-released'); return; }
+    const point = coordinates(event);
+    if (!point) return;
+    event.preventDefault();
+    mutate(() => runtime.input_pointer_move(point.x,point.y), 'pointermove');
+    record('pointermove', {...point,pointerId:event.pointerId,trusted:event.isTrusted});
+  });
+  canvas.addEventListener('pointerup', event => {
+    if (event.pointerId !== activePointer) return;
+    const point = coordinates(event);
+    if (point) mutate(() => runtime.input_pointer_move(point.x,point.y), 'pointerup');
+    endPointer('pointerup');
+  });
+  canvas.addEventListener('pointercancel', event => {
+    if (event.pointerId === activePointer) endPointer('pointercancel');
+  });
+  canvas.addEventListener('lostpointercapture', event => {
+    if (event.pointerId === activePointer) endPointer('lostpointercapture');
+  });
+  window.addEventListener('blur', () => endPointer('pointer-window-blur'));
+  window.addEventListener('pagehide', () => endPointer('pointer-pagehide'));
   editor.addEventListener('blur', () => {
+    endPointer('pointer-blur');
     if (hostComposing) {
       hostComposing = false;
       cancellation = true;
