@@ -76,20 +76,25 @@ def build_pair(args, output, env, pins, manifest):
     rust_env = {**env, "CARGO_TARGET_DIR": str(build / "rust-target")}
     specs = {
         "upstream": (
-            ["cargo", "+1.98.1", "build", "--locked"] + ([] if args.online else ["--offline"]) +
+            ["cargo", "+1.98.1", "build"] + ([] if args.online else ["--offline"]) +
             ["--manifest-path", str(cargo)], ROOT, rust_env,
             build / "rust-target/debug/gpui-conformance-linux-lab"
         ),
         "moonbit": (
-            ["moon", "build", "--target", "native", "--deny-warn", "conformance_lab"],
+            ["moon", "build", "--target", "native", "--deny-warn", "conformance_probe"],
             moon_dir, env,
-            moon_dir / "_build/native/debug/build/conformance_lab/conformance_lab.exe"
+            moon_dir / "_build/native/debug/build/conformance_probe/conformance_probe.exe"
         ),
     }
     executables = {}
     for role in ROLES:
         command, cwd, run_env, exe = specs[role]
         entry = log_command(command, cwd, run_env, build / role, args.build_timeout)
+        if role == "upstream" and (rust_dir / "Cargo.lock").is_file():
+            out_lock = output / "rust-resolved-Cargo.lock"
+            shutil.copy2(rust_dir / "Cargo.lock", out_lock)
+            entry["resolved_lock_sha256"] = sha256(out_lock)
+            entry["resolved_lock_path"] = out_lock.name
         manifest["builds"][role] = entry
         if entry["returncode"] != 0 or not exe.is_file():
             manifest["reasons"].append(f"{role}: native build did not produce an executable")
