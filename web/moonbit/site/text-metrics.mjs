@@ -27,3 +27,25 @@ export function measureWrapperInputs(context, metadata) {
     return {graphemes, advances, prefixes, ellipsisWidths};
   } finally { context.restore(); }
 }
+
+// Typography uses one fixed ASCII phrase, so UTF-16/scalar/grapheme boundaries
+// coincide. Supply measurements for every prefix; MoonBit chooses all breaks.
+export function measureTypographyInputs(context, metadata) {
+  const widths = [], prefixes = [];
+  context.save();
+  try {
+    for (const run of metadata.runs) {
+      context.font = `${run.style} ${run.weight} ${run.font_size}px "${metadata.font_family}"`;
+      widths.push(context.measureText(run.text).width);
+      if (run.id >= 900) {
+        let prefix = '';
+        prefixes.push([0, ...Array.from(run.text, character => {
+          prefix += character;
+          return context.measureText(prefix).width;
+        })]);
+      }
+    }
+    if ([...widths, ...prefixes.flat()].some(width => !Number.isFinite(width) || width < 0)) throw new Error('Invalid browser text metrics');
+    return {widths, prefixes};
+  } finally { context.restore(); }
+}

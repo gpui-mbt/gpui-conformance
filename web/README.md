@@ -62,6 +62,45 @@ The catalog labels text_layout as implemented but unverified until its own
 retained comparison evidence exists. The build and E2E execute the real pair
 and retain separate text_layout candidate/Rust images and candidate scene output.
 
+## Implemented port: `text` (typography)
+
+This port follows the real unchanged upstream `crates/gpui/examples/text.rs` at
+the pinned revision, source blob `7fa2a157601277cb3c0d58de045f1d5a6f21ab2e`.
+Its independent 920×720 selection is **not** the earlier `text_layout` fixture.
+The initial `.ZedMono` font-switch button, Unicode/CJK/emoji samples, upstream
+20-column character grid, and paired inverse specimens over the original 1.33
+type scale are created by `moonbit/text/text.mbt` using gpui.mbt
+`Element → request_layout → prepaint → SceneSnapshot`. The layout is
+recomputed from browser-provided text measurements, rather than screenshot
+coordinates. The unmodified Rust `text.rs` binary is built as WASM alongside it.
+
+Browser-host adaptations are explicit: the default Zed Mono family uses
+the pinned Lilex face; subsequent family selections rely on browser/system
+fallback; font metrics/shaping run in Canvas. Trusted canvas pointer and
+keyboard events cycle the upstream five families. Wheel/arrow input controls
+a host-side viewport clip/translation; that operation is **not** a native
+gpui.mbt scroll implementation. The upstream uses GPUI hit testing, event
+dispatch and overflow scrolling, so interactive/native equivalence is not
+established by this adapter. Grid rows use the available 888-pixel inner width;
+the original 62-pixel cell bases shrink through gpui.mbt flex resolution, with
+browser-measured text minima. The final row retains upstream's flexible empty
+cells. All 20 columns fit the 920-pixel viewport with the tested font choices.
+
+The ASCII type-scale phrase wraps within its 900-pixel padded content width.
+The host supplies shaped-prefix measurements, while MoonBit chooses word breaks
+(with character fallback), creates every line as a real Element, and computes
+specimen heights and the scroll extent from the resulting layout. Per-specimen
+frame diagnostics retain the complete chosen lines. Font changes remeasure and
+reflow the specimens and clamp a prior scroll offset to the new content extent.
+This remains a fixture-local wrapping adapter; Canvas prefix measurements are
+only a proxy for native glyph advances, and broader text semantics are unverified.
+
+The browser workflow captures both 920×720 outputs and the candidate scene,
+then exercises the font cycle and scroll with trusted browser events. Image
+artifacts are inspection evidence, not pixel equality. Unicode fallback,
+line shaping, CSS/native font resolution, interaction semantics, compositor
+presentation and native parity are **unverified**.
+
 ## Implemented port: `text_wrapper`
 
 The third port follows the same pinned upstream revision and unchanged

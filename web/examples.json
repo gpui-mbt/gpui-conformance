@@ -31,11 +31,17 @@
       "title": "Styled text",
       "rust_route": "text",
       "source": "crates/gpui/examples/text.rs",
-      "moonbit": "not_implemented",
+      "moonbit": "implemented",
       "features": [
         "Typography",
         "Font switching"
-      ]
+      ],
+      "candidate_source": "web/moonbit/text/text.mbt",
+      "width": 920,
+      "height": 720,
+      "interactive": true,
+      "source_blob": "7fa2a157601277cb3c0d58de045f1d5a6f21ab2e",
+      "implementation_note": "Upstream typography with the original character grid, CJK/emoji and type-scale specimens; GPUI layout/SceneSnapshot with browser-host font fallback, scroll and pointer extensions. Interactive/browser parity is unverified."
     },
     {
       "id": "text_layout",
@@ -91,7 +97,7 @@
       "interactive": true,
       "candidate_source": "web/moonbit/input/input.mbt",
       "source_blob": "106d06dc7e3ab225d0fda1aee009f601767b34da",
-      "implementation_note": "gpui.mbt TextField/TextComposition own text, selection, undo/redo and composition; DOM IME/Clipboard transport is an isolated host adapter. Fixed scalar width proxy, actual Japanese IME, grapheme shaping, native and pixel parity unverified."
+      "implementation_note": "MoonBit TextField/TextComposition own edit, UTF-16 selection, undo/redo and composition; browser IME/Clipboard is host-only. Fixed scalar advance proxy, Japanese IME and pixel/native conformance unverified."
     },
     {
       "id": "dynamic_fonts",
