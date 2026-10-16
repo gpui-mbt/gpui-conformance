@@ -110,6 +110,7 @@ jobs:
           path: |
             _build/native-lab-actual/comparison.json
             _build/native-lab-actual/scenarios.json
+            _build/native-lab-actual/rust-resolved-Cargo.lock
             _build/native-lab-actual/*.png
             _build/native-lab-actual/*.stdout
             _build/native-lab-actual/*.stderr
