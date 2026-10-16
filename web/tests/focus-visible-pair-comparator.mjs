@@ -9,7 +9,7 @@ import {FOCUS_VISIBLE,GEOMETRY,inspectState,assertImage,assertDelivery,assertPan
 // No private renderer state, claimed check status, or cross-renderer text/image
 // equality is an oracle. The profile below is fixed independently of reports.
 export const FOCUS_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'61b237b0963c3252736a27293aa1f5b7de3886fa',tree:'29449e394c0faf2b25beb2a1b6a4bce2806b3231'});
+  revision:'eb968228bbea56aff13721dc427875c2dacffc14',tree:'ae9072d350ef6d1546e408226218ec08efc96552'});
 export const FOCUS_PROFILE=Object.freeze({width:800,height:600,dpr:1,input:'Trusted Chromium mouse, keyboard and pixel wheel'});
 const sha=data=>createHash('sha256').update(data).digest('hex');
 const HASH=/^[0-9a-f]{64}$/;

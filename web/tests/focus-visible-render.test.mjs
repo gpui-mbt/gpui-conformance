@@ -10,7 +10,7 @@ text_styles:[{id:2,weight:700,style:'normal',decoration:'none'}]});
 
 test('focus borders and bold700 remain explicit validated host extensions',()=>{
   assert.doesNotThrow(()=>validateFrame(frame()));
-  for(const width of [0,2,3,5,-1,NaN,Infinity,'4',null]) {
+  for(const width of [0,2,5,-1,NaN,Infinity,'4',null]) {
     const value=frame();value.decorations[0].border_width=width;
     assert.throws(()=>validateFrame(value),/decoration/);
   }

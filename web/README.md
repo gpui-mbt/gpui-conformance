@@ -14,7 +14,7 @@ Source: `zed-industries/zed`, revision
 The MoonBit implementation is `moonbit/hello_world/hello_world.mbt`. It uses
 **gpui.mbt Element → request_layout → prepaint → SceneSnapshot**, rather than a
 JavaScript recreation of the demo or hardcoded layout results. The candidate
-library is pinned to `61b237b0963c3252736a27293aa1f5b7de3886fa` in
+library is pinned to `eb968228bbea56aff13721dc427875c2dacffc14` in
 `examples.json`; native/headless `pins.json` remains untouched.
 
 The port retains the 500×500 logical viewport, gray background, centered
@@ -282,19 +282,27 @@ Checked 2026-10-16 against upstream main
 `32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
 Rust example files**, with identical blob IDs. This count excludes asset/support
-subdirectories. Eight of these now have browser counterparts: hello_world, text,
-text_layout, text_wrapper, input, tree, scrollable and focus_visible. The two additional counterparts,
+subdirectories. Nine of these now have source-derived browser counterparts: hello_world, text,
+text_layout, text_wrapper, input, tree, scrollable, focus_visible and tab_stop. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-Ten catalog entries therefore do **not** mean all upstream examples are covered.
+The catalog has eleven counterparts, each retaining its own verification status. Eleven
+entries therefore do **not** mean all upstream examples are covered.
 
-The remaining 33 top-level examples are: a11y, active_state_bug, anchor,
+The remaining 32 top-level examples are: a11y, active_state_bug, anchor,
 animation, data_table, drag_drop, gif_viewer, gradient,
 grid_layout, image_gallery, image_loading, layer_shell, list_example,
 mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
 ownership_post, painting, paths_bench, pattern, popover, set_menus,
-shadow, system_notifications, tab_stop, testing, toggle_headless, uniform_list,
+shadow, system_notifications, testing, toggle_headless, uniform_list,
 window, window_movable, window_positioning and window_shadow. These are an
 inventory of missing counterparts, not unsupported-feature verdicts or passes.
+
+The unchanged `tab_stop.rs` has a source-derived MoonBit candidate using genuine
+core group-prefix traversal and owner-preserving geometry refresh. See
+[moonbit/tab_stop/README.md](moonbit/tab_stop/README.md) for source lowering,
+input contracts and local tests. Historical Rust-only discovery retains its own
+original source/executable/PNG provenance in [TAB_STOP_ORACLE.md](TAB_STOP_ORACLE.md).
+The new candidate has no paired browser or native qualification yet.
 
 ## Build and verify the actual pairs
 

@@ -1,0 +1,7 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:280 ("new one-pixel focused card bottom row routes current geometry and invents no click") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:294:3-294:49@f4ah6o/gpui FAILED: `"invented card callback" != "You have pressed `Tab`."`
+diff:
+-"invented card callback" +"You have pressed `Tab`."
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:301 ("cards disabled card and group buttons have focus but no authored click listeners") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:311:5-311:51@f4ah6o/gpui FAILED: `"invented card callback" != "Press `Tab`, `Shift-Tab` to switch focus."`
+diff:
+-"invented card callback" +"Press `Tab`, `Shift-Tab` to switch focus."
+Total tests: 18, passed: 16, failed: 2.

@@ -6,23 +6,23 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 10);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible']);
+  assert.equal(catalog.examples.length, 11);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible', 'tab_stop']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
 test('all current browser routes share the published core commit and exact tree', () => {
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
-  assert.equal(catalog.moonbit.tree, '29449e394c0faf2b25beb2a1b6a4bce2806b3231');
+  assert.equal(catalog.moonbit.revision, 'eb968228bbea56aff13721dc427875c2dacffc14');
+  assert.equal(catalog.moonbit.tree, 'ae9072d350ef6d1546e408226218ec08efc96552');
   const routes = {hello_world:'hello-world',text:'text',text_layout:'text-layout',
     text_wrapper:'text-wrapper',input:'input',dynamic_fonts:'dynamic-fonts',
-    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible'};
+    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop'};
   assert.deepEqual(Object.fromEntries(catalog.examples.map(example => [example.id, example.rust_route])), routes);
-  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 8);
+  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 9);
   assert.deepEqual(catalog.examples.filter(example => example.source.startsWith('crates/gpui_web/examples/')).map(example => example.id),
     ['dynamic_fonts', 'hello_web']);
-  for (const example of catalog.examples) {
+  for (const example of catalog.examples.filter(example => example.moonbit === 'implemented')) {
     assert.equal(rustExampleUrl('https://example.test/lab/', example), `https://example.test/lab/rust/?example=${example.id}`);
     assert.equal(moonbitExampleUrl('https://example.test/lab/', example), `https://example.test/lab/moonbit/?example=${example.id}`);
   }
@@ -33,8 +33,7 @@ test('a selected example resolves the same pair under a GitHub Pages subpath', (
   assert.equal(moonbitExampleUrl('https://gpui-mbt.github.io/gpui-conformance/?example=hello_world', example), 'https://gpui-mbt.github.io/gpui-conformance/moonbit/?example=hello_world');
 });
 test('missing implementations and runtimes cannot be treated as a pair', () => {
-  // Both remaining holds (#34 and #37) land together, so no catalog entry is
-  // unimplemented anymore; keep the routing guard covered with a fixture.
+  // Rust-only baseline entries must never imply a compiled candidate pair.
   const missing = { id: 'unimplemented_fixture', moonbit: 'not_implemented' };
   assert.equal(moonbitExampleUrl('https://example.test/lab/', missing), null);
   assert.equal(rustExampleUrl('https://example.test/lab/', missing), null);
@@ -101,7 +100,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, '61b237b0963c3252736a27293aa1f5b7de3886fa');
+  assert.equal(catalog.moonbit.revision, 'eb968228bbea56aff13721dc427875c2dacffc14');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -228,7 +227,7 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const example=selectExample(catalog,'scrollable');
   assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
   assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
-  assert.equal(catalog.moonbit.revision,'61b237b0963c3252736a27293aa1f5b7de3886fa');
+  assert.equal(catalog.moonbit.revision,'eb968228bbea56aff13721dc427875c2dacffc14');
   assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
   assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
   const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
@@ -276,4 +275,21 @@ test('pinned PNG decoder is installed before independent comparator unit tests',
   assert(decoder >= 0 && unitTests > decoder, 'PNG-decoding unit tests require Pillow before the host gate');
   assert(workflow.indexOf('node web/tests/compare-focus-visible-results.mjs') > unitTests,
     'Retained browser evidence uses the same installed decoder later');
+});
+
+test('tab_stop is a source-pinned genuine group candidate without borrowed runtime qualification', async () => {
+  const entry = selectExample(catalog, 'tab_stop');
+  assert.equal(entry.moonbit, 'implemented'); assert.equal(entry.rust, undefined);
+  assert.equal(entry.source_blob, 'cc7c34a9979ce4027578ec2c358f503d944ee26f');
+  assert.equal(entry.source, 'crates/gpui/examples/tab_stop.rs');
+  assert.equal(entry.candidate_source, 'web/moonbit/tab_stop/tab_stop.mbt');
+  assert.equal(rustExampleUrl('https://example.test/lab/', entry), 'https://example.test/lab/rust/?example=tab_stop');
+  assert.equal(moonbitExampleUrl('https://example.test/lab/', entry), 'https://example.test/lab/moonbit/?example=tab_stop');
+  const source = await readFile(new URL('../../' + entry.candidate_source, import.meta.url), 'utf8');
+  for (const api of ['@element.Element::root', 'request_layout_with_device_scale', '.prepaint()', 'paint_snapshot', 'tree.with_layout_bounds(prepainted)', '.with_tab_group_index(Some(group_index))', 'tree.focus_prev()', 'tree.focus_next()', 'tree.focus_owner()', 'state.modality.after_input']) assert(source.includes(api), api);
+  const adapter = await readFile(new URL('../moonbit/site/tab-stop-host.mjs', import.meta.url), 'utf8');
+  assert(adapter.includes('createFocusVisibleHost'));
+  for (const forbidden of ['focus_next','focus_prev','getBoundingClientRect','tab_order','pending_keyboard','message =']) assert(!adapter.includes(forbidden),forbidden);
+  for (const key of ['result_url','result_date','changed_pixels','total_pixels','thumbnail','evidence_scope']) assert.equal(entry[key], undefined,key);
+  assert(entry.implementation_note.includes('remain unverified'));
 });
