@@ -16,6 +16,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import uuid
 
@@ -286,8 +287,8 @@ def run_visible(args, out, executables, manifest, scenarios, token):
     rust_env = {**env, "XDG_SESSION_TYPE": "x11"}
     rust_env.pop("WAYLAND_DISPLAY", None)
     rust_env.pop("WAYLAND_SOCKET", None)
-    runtime = out / "xdg-runtime"
-    runtime.mkdir(mode=0o700)
+    # XDG_RUNTIME_DIR must not make the AF_UNIX socket exceed Linux sun_path's 108-byte limit.
+    runtime = Path(tempfile.mkdtemp(prefix="gpui-lab-"))
     runtime.chmod(0o700)
     socket = "gpui-lab-" + token[:12]
     weston_env = {**env, "XDG_RUNTIME_DIR": str(runtime), "XDG_SESSION_TYPE": "x11"}
@@ -387,6 +388,7 @@ def run_visible(args, out, executables, manifest, scenarios, token):
         manifest["native_events"] = {
             role: events(logs[role], role, token) for role in ROLES
         }
+        shutil.rmtree(runtime)
 
 
 def main(argv=None):
