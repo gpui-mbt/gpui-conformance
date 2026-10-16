@@ -33,7 +33,7 @@ export function validateFrame(frame) {
     if (t.a !== 1 || t.b !== 0 || t.c !== 0 || t.d !== 1) throw new Error('Unsupported text run transform');
   }
   for (const style of frame.text_styles || []) {
-    if (!texts.has(style.id) || ![400,800].includes(style.weight) || !['normal','italic'].includes(style.style) || !['none','underline','line_through'].includes(style.decoration)) throw new Error('Invalid host text style');
+    if (!texts.has(style.id) || ![400,700,800].includes(style.weight) || !['normal','italic'].includes(style.style) || !['none','underline','line_through'].includes(style.decoration)) throw new Error('Invalid host text style');
   }
   const quads = new Map(snapshot.items.filter(i => i.kind === 'quad').map(i => [i.id, i]));
   for (const rounded of frame.rounded_fills || []) {
@@ -42,7 +42,10 @@ export function validateFrame(frame) {
   }
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
-    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || d.border_width !== 1 || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && d.radius <= d.border_width / 2)) throw new Error('Invalid host decoration');
+    // The focus_visible port needs a 4px solid border. Wider dashed strokes
+    // remain unsupported; this is an explicit Canvas host boundary, not a
+    // rounded-border addition to the portable SceneSnapshot contract.
+    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width === 4 && Math.min(b.width,b.height) < 8)) throw new Error('Invalid host decoration');
   }
   return frame;
 }

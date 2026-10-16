@@ -14,7 +14,7 @@ Source: `zed-industries/zed`, revision
 The MoonBit implementation is `moonbit/hello_world/hello_world.mbt`. It uses
 **gpui.mbt Element → request_layout → prepaint → SceneSnapshot**, rather than a
 JavaScript recreation of the demo or hardcoded layout results. The candidate
-library is pinned to `e671da15652dc298110ef0a819f5c7a2000aa15f` in
+library is pinned to `61b237b0963c3252736a27293aa1f5b7de3886fa` in
 `examples.json`; native/headless `pins.json` remains untouched.
 
 The port retains the 500×500 logical viewport, gray background, centered
@@ -282,13 +282,13 @@ Checked 2026-10-16 against upstream main
 `32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
 Rust example files**, with identical blob IDs. This count excludes asset/support
-subdirectories. Seven of these now have browser counterparts: hello_world, text,
-text_layout, text_wrapper, input, tree and scrollable. The two additional counterparts,
+subdirectories. Eight of these now have browser counterparts: hello_world, text,
+text_layout, text_wrapper, input, tree, scrollable and focus_visible. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-Nine catalog entries therefore do **not** mean all upstream examples are covered.
+Ten catalog entries therefore do **not** mean all upstream examples are covered.
 
-The remaining 34 top-level examples are: a11y, active_state_bug, anchor,
-animation, data_table, drag_drop, focus_visible, gif_viewer, gradient,
+The remaining 33 top-level examples are: a11y, active_state_bug, anchor,
+animation, data_table, drag_drop, gif_viewer, gradient,
 grid_layout, image_gallery, image_loading, layer_shell, list_example,
 mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
 ownership_post, painting, paths_bench, pattern, popover, set_menus,
@@ -547,3 +547,29 @@ reporting, or keyboard-layout changes. Actual Japanese IME, Rust–MoonBit
 interactive equivalence, exact pixel matching, font shaping and native
 composition behavior remain **UNVERIFIED**. Recorded independent browser
 runtime behavior must be distinguished from these boundaries.
+
+## Implemented port: `focus_visible`
+
+The unchanged upstream `focus_visible.rs`, blob
+`c5b3d5dfec3a189d088a621baff55eb55a121b6c`, has a core-backed MoonBit counterpart
+in [moonbit/focus_visible](moonbit/focus_visible/README.md). Its 800×600 layout,
+three source buttons, yellow/green 4px rings, exact messages and source event
+rules are retained. A persistent input ElementTree owns focus acquisitions,
+signed flat tab order, routing and Mouse/Keyboard modality; fresh paint trees
+never borrow that ownership. JavaScript transports events and shaped widths.
+Rounded strokes, font selection/measurement and rasterization remain explicit
+Canvas host boundaries, including the source's weight700 request.
+
+The independent Rust-only baseline was introduced at public head
+`f7974606caa91a4de7bee4283961c1d770970a05`. Its source record is retained with
+historical scope, not relabeled as candidate evidence. The current normal build
+compiles both catalog entries and rejects a duplicate `--extra-example` request.
+The shared trusted-input profile and decoded-image comparator test bounded
+focus, hover, traversal and activation behavior independently for each renderer.
+Actual paired execution is pending; neither candidate diagnostics nor unit tests
+establish it. Source provenance and baseline boundaries are described in
+[FOCUS_VISIBLE_ORACLE.md](FOCUS_VISIBLE_ORACLE.md).
+
+Full-image/text equality, native rendering, nested tab groups, touch, pointer
+capture, arbitrary viewport/DPR changes and complete keymap semantics remain
+unverified. No preview or result from another example is borrowed for this port.
