@@ -65,7 +65,7 @@ jobs:
         run: |
           mkdir -p _build/anchor-pair-evidence
           python3 web/scripts/build_anchor_pair.py --gpui-source _sources/core --upstream-source _sources/zed --out _build/anchor-candidate 2>&1 | tee _build/anchor-pair-evidence/moonbit-build.log
-          GPUI_ANCHOR_RUNTIME="$PWD/_build/anchor-candidate/moonbit/anchor.mjs" node --test web/tests/anchor-candidate-runtime.test.mjs
+          GPUI_ANCHOR_RUNTIME="$PWD/_build/anchor-candidate/moonbit/anchor.mjs" node --test web/tests/anchor-candidate-runtime.test.mjs web/tests/anchor-live-runtime.test.mjs
       - name: Prepare isolated unchanged Rust site
         run: python3 web/scripts/prepare_anchor_site.py --out _build/anchor-rust-site
       - name: Install fixed Rust toolchain and binding generator
@@ -92,6 +92,14 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise embedded live anchor viewport, DPR, hover, clipping and recovery
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/anchor-live-evidence
+        run: |
+          node web/tests/anchor-live-browser.mjs _build/anchor-candidate
+          node web/tests/verify-anchor-live-captures.mjs _build/anchor-live-evidence
       - name: Independently capture and verify actual unchanged Rust
         id: rust_capture
         timeout-minutes: 20
@@ -129,4 +137,5 @@ jobs:
             _build/anchor-pair-evidence
             _build/anchor-oracle-evidence
             _build/anchor-executed-controls
+            _build/anchor-live-evidence
           if-no-files-found: warn

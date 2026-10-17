@@ -92,6 +92,12 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Exercise ordinary embedded live viewport and DPR resize recovery
+        timeout-minutes: 5
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/grid-layout-live-evidence
+        run: node web/tests/grid-layout-live-browser.mjs _build/grid-layout-candidate
       - name: Independently capture and verify actual unchanged Rust
         id: rust_capture
         timeout-minutes: 20
@@ -129,4 +135,5 @@ jobs:
             _build/grid-layout-pair-evidence
             _build/grid-layout-oracle-evidence
             _build/grid-layout-executed-controls
+            _build/grid-layout-live-evidence
           if-no-files-found: warn

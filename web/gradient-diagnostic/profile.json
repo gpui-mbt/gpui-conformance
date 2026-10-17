@@ -1,0 +1,1179 @@
+{
+  "schema_version": 1,
+  "kind": "synthetic_rust_gpu_diagnostic_only",
+  "original_example": false,
+  "viewport": {
+    "width": 1000,
+    "height": 900,
+    "dpr": 1
+  },
+  "cases": [
+    {
+      "id": "srgb-half-green",
+      "color_space": "Srgb",
+      "kind": "solid",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        16,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-float-alpha-green",
+      "color_space": "Srgb",
+      "kind": "alpha",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        16,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          0.5
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle45-wide",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 45,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        16,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle45-tall",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 45,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        592,
+        16,
+        65,
+        81
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle135",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 135,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        16,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle225",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 225,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        124,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle315",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 315,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        124,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle0",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        124,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle90",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        592,
+        124,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle180",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        124,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-angle360",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 360,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        232,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-equal-stops",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        0.5,
+        0.5
+      ],
+      "bounds": [
+        208,
+        232,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-outside-stops",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        -0.25,
+        1.25
+      ],
+      "bounds": [
+        400,
+        232,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-reversed-stops",
+      "color_space": "Srgb",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        1,
+        0
+      ],
+      "bounds": [
+        592,
+        232,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-polygon-tight",
+      "color_space": "Srgb",
+      "kind": "path",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        232,
+        161,
+        80
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white",
+      "tight_bounds": [
+        784,
+        262,
+        161,
+        50
+      ],
+      "mask_bounds": null,
+      "coordinate_model": "synthetic_absolute_canvas_origin; original example X-origin omission is not reproduced here"
+    },
+    {
+      "id": "srgb-polygon-clipped",
+      "color_space": "Srgb",
+      "kind": "clip",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        340,
+        161,
+        80
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white",
+      "tight_bounds": [
+        16,
+        370,
+        161,
+        50
+      ],
+      "mask_bounds": [
+        16,
+        385,
+        161,
+        35
+      ],
+      "coordinate_model": "synthetic_absolute_canvas_origin; original example X-origin omission is not reproduced here"
+    },
+    {
+      "id": "srgb-unequal-alpha",
+      "color_space": "Srgb",
+      "kind": "unequal",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        340,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          0.25
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          0.75
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "srgb-transparent-colored",
+      "color_space": "Srgb",
+      "kind": "transparent",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        340,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          0
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          0.75
+        ]
+      ],
+      "explicit_background": "black"
+    },
+    {
+      "id": "oklab-half-green",
+      "color_space": "Oklab",
+      "kind": "solid",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        448,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-float-alpha-green",
+      "color_space": "Oklab",
+      "kind": "alpha",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        448,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          0.5
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle45-wide",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 45,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        448,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle45-tall",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 45,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        592,
+        448,
+        65,
+        81
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle135",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 135,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        448,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle225",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 225,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        556,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle315",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 315,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        556,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle0",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 0,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        556,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle90",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        592,
+        556,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle180",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        556,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-angle360",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 360,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        664,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-equal-stops",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        0.5,
+        0.5
+      ],
+      "bounds": [
+        208,
+        664,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-outside-stops",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        -0.25,
+        1.25
+      ],
+      "bounds": [
+        400,
+        664,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-reversed-stops",
+      "color_space": "Oklab",
+      "kind": "quad",
+      "angle": 90,
+      "stops": [
+        1,
+        0
+      ],
+      "bounds": [
+        592,
+        664,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-polygon-tight",
+      "color_space": "Oklab",
+      "kind": "path",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        784,
+        664,
+        161,
+        80
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white",
+      "tight_bounds": [
+        784,
+        694,
+        161,
+        50
+      ],
+      "mask_bounds": null,
+      "coordinate_model": "synthetic_absolute_canvas_origin; original example X-origin omission is not reproduced here"
+    },
+    {
+      "id": "oklab-polygon-clipped",
+      "color_space": "Oklab",
+      "kind": "clip",
+      "angle": 180,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        16,
+        772,
+        161,
+        80
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          1
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          1
+        ]
+      ],
+      "explicit_background": "white",
+      "tight_bounds": [
+        16,
+        802,
+        161,
+        50
+      ],
+      "mask_bounds": [
+        16,
+        817,
+        161,
+        35
+      ],
+      "coordinate_model": "synthetic_absolute_canvas_origin; original example X-origin omission is not reproduced here"
+    },
+    {
+      "id": "oklab-unequal-alpha",
+      "color_space": "Oklab",
+      "kind": "unequal",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        208,
+        772,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0.3333333333333333,
+          1,
+          0.25,
+          0.25
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          0.75
+        ]
+      ],
+      "explicit_background": "white"
+    },
+    {
+      "id": "oklab-transparent-colored",
+      "color_space": "Oklab",
+      "kind": "transparent",
+      "angle": 90,
+      "stops": [
+        0,
+        1
+      ],
+      "bounds": [
+        400,
+        772,
+        161,
+        65
+      ],
+      "colors_hsla": [
+        [
+          0,
+          1,
+          0.5,
+          0
+        ],
+        [
+          0.6666666666666666,
+          1,
+          0.5,
+          0.75
+        ]
+      ],
+      "explicit_background": "black"
+    }
+  ],
+  "equal_stop_rule": "unresolved_until_actual_backend_observation",
+  "tolerance_policy": "No fitted tolerance or expected-pixel rule in capture. Retain raw RGBA samples.",
+  "polygon": {
+    "vertices_relative": [
+      [
+        0,
+        80
+      ],
+      [
+        80,
+        30
+      ],
+      [
+        81,
+        30
+      ],
+      [
+        161,
+        80
+      ]
+    ],
+    "clip_relative": [
+      0,
+      45,
+      161,
+      35
+    ],
+    "normalization_hypotheses": [
+      "nominal allocation y0..80",
+      "tight path y30..80",
+      "clipped path y45..80"
+    ]
+  }
+}

@@ -22,8 +22,8 @@ class GridPairPackaging(unittest.TestCase):
         self.assertEqual(p['upstream']['tree'], original['upstream_tree'])
         for field in ['source', 'source_blob', 'source_sha256']:
             self.assertEqual(p['upstream'][field], original[field])
-        self.assertEqual(p['candidate']['revision'], '0153b1963bb6b2e434189ecf8591fb2c4c5a7929')
-        self.assertEqual(p['candidate']['tree'], 'c29dd688e359c6f306d807d081fbaa28d21fdbbe')
+        self.assertEqual(p['candidate']['revision'], '89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a')
+        self.assertEqual(p['candidate']['tree'], 'dd5612a412d251b468c358a25baa0b0dd592c807')
         self.assertEqual(p['sequence'], [500, 399, 400, 401, 500, 399, 400, 500])
         self.assertEqual(p['viewport'], {'widths': [399, 400, 401, 500], 'height': 500, 'dpr': 1})
         self.assertEqual(p['tolerances_physical_pixels'], {'fill_edge': 2, 'exposed_gray_gap': 1, 'fill_separation': 4})

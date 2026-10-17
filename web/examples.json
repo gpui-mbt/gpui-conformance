@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
-    "tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe"
+    "revision": "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a",
+    "tree": "dd5612a412d251b468c358a25baa0b0dd592c807"
   },
   "examples": [
     {
@@ -273,7 +273,7 @@
         "Actual browser viewport resize"
       ],
       "candidate_source": "web/moonbit/grid_layout/grid_layout.mbt",
-      "implementation_note": "Source-derived candidate using genuine core container_query_root, deferred prepaint and grid/flex layout with five equal-fraction tracks, spans and a 224px overflowing table of contents. The first supported browser profile is widths 399/400/401/500px, height 500px, DPR 1; other viewports are visibly rejected. Source Block text starts at its 1px border inset, with browser font metrics and bounded MoonBit word wrapping. Canvas rounded dashed borders and both shadow_lg layers remain explicit approximations. Content preflight and frame each request a fresh core layout, for two host layout passes; this is not Rust callback-count parity. Paired browser, text, full-image, shadow-kernel and native parity remain unverified."
+      "implementation_note": "Source-derived candidate using genuine core container_query_root, deferred prepaint and grid/flex layout with five equal-fraction tracks, spans and a 224px overflowing table of contents. The unchanged comparison profile is widths 399/400/401/500px, height 500px, DPR 1. Live rendering accepts resource-bounded viewport sizes and DPRs, labels outside-profile rendering as unverified, and rejects invalid or oversized canvases. Source Block text starts at its 1px border inset, with browser font metrics and bounded MoonBit word wrapping. Canvas rounded dashed borders and both shadow_lg layers remain explicit approximations. Content preflight and frame each request a fresh core layout, for two host layout passes; this is not Rust callback-count parity. Paired browser, text, full-image, shadow-kernel and native parity remain unverified."
     },
     {
       "id": "anchor",
@@ -292,7 +292,26 @@
         "Source-sized grid and inert center"
       ],
       "candidate_source": "web/moonbit/anchor/anchor.mbt",
-      "implementation_note": "Source-derived bounded candidate using genuine core grid/flex layout, anchored_after Local placement, snap-to-window, deferred prepaint and hit routing. Browser text measurements, Canvas rounded border/shadow_sm and pointer/viewport transport are explicit host boundaries. Supported profile: widths 750 and 480, height 600, DPR1. Popup dimensions derive from measured label widths, source min_w100, px2/py0p5 and rounded phi line height at text_sm14. Paired browser, text raster, exact shadow/opacity, full-image, native and callback-count parity remain unverified."
+      "implementation_note": "Source-derived bounded candidate using genuine core grid/flex layout, anchored_after Local placement, snap-to-window, deferred prepaint and hit routing. Browser text measurements, Canvas rounded border/shadow_sm and pointer/viewport transport are explicit host boundaries. Live viewport: width 4–4096 and height 4–16384, DPR0.25–4, rounded Canvas sides at most 16384 and area at most 33554432 pixels. Frozen comparison profile remains widths 750 and 480, height 600, DPR1; all other viewports remain unverified. Popup dimensions derive from measured label widths, source min_w100, px2/py0p5 and device-snapped phi line height at text_sm14. Paired browser, text raster, exact shadow/opacity, full-image, native and callback-count parity remain unverified."
+    },
+    {
+      "id": "gradient",
+      "title": "Gradient color spaces",
+      "rust_route": "gradient",
+      "source": "crates/gpui/examples/gradient.rs",
+      "source_blob": "df1398fff58b637abf0c0b31934f6ad523d84a21",
+      "moonbit": "implemented",
+      "width": 960,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Twelve gradient quads and two solids",
+        "sRGB/Oklab trusted toggle",
+        "Tight clipped polygon basis",
+        "Core float sampling and ordered raster transport"
+      ],
+      "candidate_source": "web/moonbit/gradient/gradient.mbt",
+      "implementation_note": "Source-derived candidate using genuine core ElementTree layout/prepaint, dispatch, canonical Scene/PaintCommand and float gradient sampling. Frozen comparison profiles are 960×600 and 600×960, DPR1. Live logical sizes width240–2048 and height300–2048 retain actual device layout scale; effective raster resolution is explicitly reduced to fit 2048-side/1048576-pixel core caps. Browser font measurements and Canvas text/pixel presentation are host boundaries. Equal-stop core policy is deterministic and backend-scoped. Paired browser, text, antialias edges, arbitrary translucent/interleaved-text composition, full-image and native/Metal parity remain unverified."
     }
   ]
 }

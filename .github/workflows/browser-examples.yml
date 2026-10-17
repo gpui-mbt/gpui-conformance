@@ -43,6 +43,7 @@ jobs:
           name: browser-build-inputs
           path: _build/browser-build-inputs.json
           if-no-files-found: error
+          retention-days: 3
           overwrite: true
 
   build-moonbit:
@@ -110,6 +111,7 @@ jobs:
           path: _build/browser-build-moonbit
           if-no-files-found: error
           compression-level: 1
+          retention-days: 3
           overwrite: true
 
   build-rust:
@@ -177,6 +179,7 @@ jobs:
             _build/browser-example-evidence/rust-build.log
           if-no-files-found: warn
           compression-level: 1
+          retention-days: 3
           overwrite: true
 
   matched-examples:

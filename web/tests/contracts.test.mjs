@@ -6,20 +6,20 @@ import { validateFrame, drawFrame, roundedDashSegments } from '../moonbit/site/r
 const catalog = JSON.parse(await readFile(new URL('../examples.json', import.meta.url), 'utf8'));
 
 test('the catalog maps upstream names rather than substituting Weekboard', () => {
-  assert.equal(catalog.examples.length, 15);
-  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible', 'tab_stop', 'drag_drop', 'uniform_list', 'grid_layout', 'anchor']);
+  assert.equal(catalog.examples.length, 16);
+  assert.deepEqual(catalog.examples.filter(e => e.moonbit === 'implemented').map(e => e.id), ['hello_world', 'text', 'text_layout', 'text_wrapper', 'input', 'dynamic_fonts', 'hello_web', 'tree', 'scrollable', 'focus_visible', 'tab_stop', 'drag_drop', 'uniform_list', 'grid_layout', 'anchor', 'gradient']);
   assert.equal(selectExample(catalog, 'hello_world').source, 'crates/gpui/examples/hello_world.rs');
   assert.throws(() => selectExample(catalog, 'unknown'));
 });
 test('all current browser routes share the published core commit and exact tree', () => {
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, '0153b1963bb6b2e434189ecf8591fb2c4c5a7929');
-  assert.equal(catalog.moonbit.tree, 'c29dd688e359c6f306d807d081fbaa28d21fdbbe');
+  assert.equal(catalog.moonbit.revision, '89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a');
+  assert.equal(catalog.moonbit.tree, 'dd5612a412d251b468c358a25baa0b0dd592c807');
   const routes = {hello_world:'hello-world',text:'text',text_layout:'text-layout',
     text_wrapper:'text-wrapper',input:'input',dynamic_fonts:'dynamic-fonts',
-    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop',drag_drop:'drag-drop',uniform_list:'uniform-list',grid_layout:'grid-layout',anchor:'anchor'};
+    hello_web:'prime-sieve',tree:'tree',scrollable:'scrollable',focus_visible:'focus-visible',tab_stop:'tab-stop',drag_drop:'drag-drop',uniform_list:'uniform-list',grid_layout:'grid-layout',anchor:'anchor',gradient:'gradient'};
   assert.deepEqual(Object.fromEntries(catalog.examples.map(example => [example.id, example.rust_route])), routes);
-  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 13);
+  assert.equal(catalog.examples.filter(example => example.source.startsWith('crates/gpui/examples/')).length, 14);
   assert.deepEqual(catalog.examples.filter(example => example.source.startsWith('crates/gpui_web/examples/')).map(example => example.id),
     ['dynamic_fonts', 'hello_web']);
   for (const example of catalog.examples.filter(example => example.moonbit === 'implemented')) {
@@ -100,7 +100,7 @@ test('text_layout routes the real second pair and retains its upstream viewport'
 test('text_wrapper routes the real third pair with pinned sources and its upstream viewport', async () => {
   const example = selectExample(catalog, 'text_wrapper');
   assert.equal(catalog.upstream.revision, '5a5fbe79917971a4d52a96b6ddb04da198a5012e');
-  assert.equal(catalog.moonbit.revision, '0153b1963bb6b2e434189ecf8591fb2c4c5a7929');
+  assert.equal(catalog.moonbit.revision, '89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a');
   assert.equal(example.source, 'crates/gpui/examples/text_wrapper.rs');
   assert.equal(example.candidate_source, 'web/moonbit/text_wrapper/text_wrapper.mbt');
   assert.deepEqual([example.width, example.height, example.interactive], [800, 600, false]);
@@ -227,7 +227,7 @@ test('scrollable routes the pinned core-backed nested viewport pair', async () =
   const example=selectExample(catalog,'scrollable');
   assert.deepEqual([example.width,example.height,example.interactive],[500,500,true]);
   assert.equal(example.source_blob,'c81795618875aecf06e06043bd1709c48630b58f');
-  assert.equal(catalog.moonbit.revision,'0153b1963bb6b2e434189ecf8591fb2c4c5a7929');
+  assert.equal(catalog.moonbit.revision,'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a');
   assert.equal(rustExampleUrl('https://example.test/lab/',example),'https://example.test/lab/rust/?example=scrollable');
   assert.equal(moonbitExampleUrl('https://example.test/lab/',example),'https://example.test/lab/moonbit/?example=scrollable');
   const source=await readFile(new URL('../../'+example.candidate_source,import.meta.url),'utf8');
@@ -280,6 +280,23 @@ test('each isolated host or browser job installs the same PNG decoder before com
     assert.equal(source.split(install).length - 1, 1, `${job} needs its own pinned decoder`);
     assert(source.indexOf(gate) > source.indexOf(install), `${job} must install Pillow before the image gate`);
   }
+});
+
+test('parallel build keeps callable browser verification as a Cloudflare publish gate', async () => {
+  const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
+  const publish = await readFile(new URL('../../.github/workflows/browser-lab-cloudflare.yml', import.meta.url), 'utf8');
+  assert(workflow.includes('  workflow_call:'));
+  assert(workflow.includes('  build-moonbit:\\n    needs: pins'.replace('\\n', '\n')));
+  assert(workflow.includes('  build-rust:\\n    needs: pins'.replace('\\n', '\n')));
+  assert(workflow.includes('  matched-examples:\\n    needs: [pins, build-moonbit, build-rust]'.replace('\\n', '\n')));
+  assert(workflow.includes('name: browser-example-evidence'));
+  assert(publish.includes('  build:\\n    needs: preflight\\n    uses: ./.github/workflows/browser-examples.yml'.replaceAll('\\n', '\n')));
+  assert(publish.includes('  publish:\\n    needs: build'.replace('\\n', '\n')));
+  assert(publish.includes('name: browser-example-evidence'));
+  assert(publish.includes("result['overall'] == 'passed'"));
+  assert(publish.includes("result['candidate'] == result['rust'] == 'passed'"));
+  assert(publish.includes("result['raster_comparison']['width'] == 500"));
+  assert(publish.includes('  workflow_dispatch:'));
 });
 
 test('tab_stop is a source-pinned genuine group candidate without borrowed runtime qualification', async () => {

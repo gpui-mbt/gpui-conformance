@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-headless-anchor-margin",
+  "suite_base": "46659f7e8d8e503964e41c4e9eb20e0ace08931a",
+  "core_context_only": "4c2e525f02c00a9c1a560152a914f523a4c2fe47",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "case_count": 88,
+  "authored_placements": 22,
+  "margins": [
+    0,
+    8
+  ],
+  "requested_scales": [
+    1,
+    1.25
+  ],
+  "bootstrap_scale": 2,
+  "client_inset": null,
+  "input_sha256": "f7c77a70496e51a9da902b726ba74f5331b24fdd9a09de915ebbd6e94a6a52fb",
+  "frozen_original": {
+    "case_count": 24,
+    "previous_observed_frames": 82,
+    "fractional_extension_case_count": 2,
+    "rerun_claim": false,
+    "sha256": {
+      ".github/workflows/anchor-diagnostic.yml": "1fb55e25d3556ac9462a7f312de7f65ca2f6b0b18236cc7abdb1f9d5e82ab988",
+      ".github/workflows/anchor-pair.yml": "b477eeace02929ea3bd0ef984a40fb62ffa9b97efd52273548abf5d71f0deb12",
+      "adapters/anchor_moonbit/main.mbt": "6e247312c001a3b7cbdd7734eaf4a2361ac1edaaffe6a91afef44b65587701ee",
+      "adapters/anchor_moonbit/moon.pkg": "89accd5c11583eba5f72330e9a29dee64e728f74119eef1032b1b7e774130f05",
+      "adapters/anchor_rust/Cargo.lock": "a3e90b5098d0df9f05958ff49b0ce55d0d945f2d7ac923a531cb0c11a4bc0c72",
+      "adapters/anchor_rust/Cargo.toml": "fab4e7fcccf0b5be97dffe4cbd03d85833f7a1fc5679a9e970ee9c86b9f0c302",
+      "adapters/anchor_rust/src/main.rs": "653004af0272b3a71773e47fa224c95080de176748ffadfe07122116922ae157",
+      "diagnostics/anchor/README.md": "a4bd49a12f4b016961ea8d14e56173c6f3bcf17a7fa037c670c09365dd55cb96",
+      "diagnostics/anchor/epsilon-regression.json": "f4360f1e5b0945fc514ef43ddb9f69e4ca4b1763a7f06217a126413b05f7cc97",
+      "diagnostics/anchor/raw.schema.json": "1945f598209b54e710e5031c7d72ed27b78a02bc364dd2f3561e22d932ab3bd1",
+      "diagnostics/anchor/run.py": "142744a3abbbbffcce1de3a11be3b971e73300c58cbb2a318fb36d5d723e3458",
+      "diagnostics/anchor/scenarios.json": "ad4ef97ec09a56d4314f85258eda0d54e1b314f949859580f79d2a0190967c6a",
+      "diagnostics/anchor/verify.py": "e090caa89727350c487a9f72b0d5230f6651eba05580e31977490dbc56215eee",
+      "diagnostics/anchor_pair/README.md": "f62a1709cf5eead213fb38f0d8184f9fdf7a89a03f1d4f01f469021f4d91a0b8",
+      "diagnostics/anchor_pair/compare.py": "5b9954c062cd9be8cd72a4bffcabbce4d60d0b621a40664cbabd70622b39bec3",
+      "diagnostics/anchor_pair/fractional_viewport.py": "0d6d3fad89debb3e28e6c39ee7e310bbbe6295bdd8c3026c0c4aa4517a833ba5",
+      "diagnostics/anchor_pair/mutations.json": "b018e4fa408ca60de9493a807ee5cbcecd1d4b82770fd553d54917259ddced18",
+      "diagnostics/anchor_pair/profile.json": "69750e147f079ebec9c6c897cf9fe7ac14bd4bd5754937c3c1052ac0203c9c9a",
+      "diagnostics/anchor_pair/raw.schema.json": "cdb8bd377bc892c83a85f462be9b1c91b6b0383e49607659b4e6ebabf8178d25",
+      "diagnostics/anchor_pair/run.py": "134605ae1c831e0cce4b2576bd38d131f2b660e51277bb02312d6a6b389af86c",
+      "diagnostics/anchor_pair/run_controls.py": "b361ded6f334bc97aaa79595a26d56ad0bcc38923d55cbf50eca0ae1dd66c84a",
+      "diagnostics/anchor_pair/run_mutants.py": "664401733aff48a42bbcc3df6b8ab358cc6740cf19b844323904144f6474dd56",
+      "diagnostics/anchor_pair/verify.py": "4938ba8e2feda8e23bca88eea9b4c041d424365671c142b31e8d69bdd6f04fae",
+      "diagnostics/anchor_pair/verify_mutants.py": "2b767b2f423f94ce0eab510147f1340011e43c36f22259d2f0be2332b2b5286f",
+      "tests/test_anchor_diagnostic.py": "ea523ca587f2bde9438d3b492956ec3c0c29b89854f76af1484177b5b43c6e5c",
+      "tests/test_anchor_pair.py": "457c39fc4872e60d47cd03bc422d781a681028d779f19d3896a0ac077f7182f7"
+    }
+  },
+  "scope": "Separate font-free actual GPUI layout/prepaint/paint callback diagnostic. No candidate execution, hit testing, raster clipping, native-window, browser or full popover claim.",
+  "anchor_domain": {
+    "TopLeft": "all20 edge/corner/oversized placement families and positive Local half-offset",
+    "BottomRight": "negative Local half-offset only",
+    "other_six_anchors": "not exercised by this margin extension; unchanged original eight-anchor suite retained separately"
+  },
+  "position_modes": {
+    "Window": "20 edge/corner/oversized placement families",
+    "Local": "2 half-logical-offset families"
+  }
+}

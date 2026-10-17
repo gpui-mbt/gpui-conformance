@@ -461,6 +461,14 @@ runner image before interpreting a difference. The sum of individual job
 durations measures runner use; it is not the elapsed time when jobs overlap.
 Observed timings and run links are recorded in the implementation PR.
 
+Measured 15-example historical comparison: cache-HIT serial 10m41s (641s) vs
+cache-HIT parallel 8m32s (512s), 129s / 20.12% observed reduction. Rust and
+MoonBit completed on separate runners and the critical path included artifact
+handoff. The comparison had one serial and two parallel observations across
+non-identical runner regions; it is not a normalized benchmark. After main
+adds the 16th gradient example and changes source pins, remeasure on a matched
+16-example serial baseline rather than transplanting that 20.12% rate.
+
 The reused Browser example ports workflow reports the Rust and MoonBit
 scrollable/focus-visible captures and retained-image comparisons as separate
 steps, so Actions exposes their elapsed times. Screenshot analysis still
