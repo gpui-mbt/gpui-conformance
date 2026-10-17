@@ -1,0 +1,924 @@
+{
+  "schema_version": 1,
+  "coordinate_system": "logical window pixels; actual bootstrap scale2 then explicit configured scale; interior pointer points only",
+  "cases": [
+    {
+      "id": "example-local-TopLeft",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            0,
+            0
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-TopCenter",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopCenter",
+          "position": [
+            60,
+            0
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-TopRight",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopRight",
+          "position": [
+            120,
+            0
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-LeftCenter",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "LeftCenter",
+          "position": [
+            120,
+            -32.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-RightCenter",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "RightCenter",
+          "position": [
+            0,
+            -32.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-BottomLeft",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomLeft",
+          "position": [
+            0,
+            -65
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-BottomCenter",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomCenter",
+          "position": [
+            60,
+            -65
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "example-local-BottomRight",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomRight",
+          "position": [
+            120,
+            -65
+          ],
+          "position_mode": "Local",
+          "size": [
+            100,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "nonzero-origin-local",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            160,
+            120
+          ],
+          "position_mode": "Local",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "nonzero-origin-window",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            160,
+            120
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "overflow-left",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            -20,
+            120
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "overflow-right",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            630,
+            120
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "overflow-top",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            160,
+            -8
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "overflow-bottom",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            160,
+            470
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "oversized-popup",
+      "window": [
+        160,
+        120
+      ],
+      "parent_origin": [
+        8,
+        8
+      ],
+      "parent_size": [
+        120,
+        100
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            80,
+            60
+          ],
+          "position_mode": "Window",
+          "size": [
+            240,
+            160
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-positive-1",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            0.5,
+            0.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-negative-1",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomRight",
+          "position": [
+            23.5,
+            11.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-positive-1.25",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1.25,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            0.5,
+            0.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-negative-1.25",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1.25,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomRight",
+          "position": [
+            23.5,
+            11.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-positive-2",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 2,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            0.5,
+            0.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "half-translation-negative-2",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        40,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 2,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "BottomRight",
+          "position": [
+            23.5,
+            11.5
+          ],
+          "position_mode": "Local",
+          "size": [
+            24,
+            12
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": null,
+      "hits": []
+    },
+    {
+      "id": "flat-priority-zero-ties",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup0",
+          "anchor": "TopLeft",
+          "position": [
+            220,
+            180
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": true
+        },
+        {
+          "id": "popup1",
+          "anchor": "TopLeft",
+          "position": [
+            220,
+            180
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": true
+        },
+        {
+          "id": "popup2",
+          "anchor": "TopLeft",
+          "position": [
+            220,
+            180
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": true
+        }
+      ],
+      "later_sibling": null,
+      "hits": [
+        {
+          "id": "overlap",
+          "position": [
+            230,
+            190
+          ]
+        }
+      ]
+    },
+    {
+      "id": "later-sibling-transparent",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            220,
+            180
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": false
+        }
+      ],
+      "later_sibling": [
+        220,
+        180,
+        80,
+        24
+      ],
+      "hits": [
+        {
+          "id": "overlap",
+          "position": [
+            230,
+            190
+          ]
+        },
+        {
+          "id": "button-hit",
+          "position": [
+            90,
+            90
+          ]
+        }
+      ]
+    },
+    {
+      "id": "later-sibling-interactive",
+      "window": [
+        640,
+        480
+      ],
+      "parent_origin": [
+        80,
+        80
+      ],
+      "parent_size": [
+        160,
+        120
+      ],
+      "scale_factor": 1,
+      "popups": [
+        {
+          "id": "popup",
+          "anchor": "TopLeft",
+          "position": [
+            220,
+            180
+          ],
+          "position_mode": "Window",
+          "size": [
+            80,
+            24
+          ],
+          "priority": 0,
+          "interactive": true
+        }
+      ],
+      "later_sibling": [
+        220,
+        180,
+        80,
+        24
+      ],
+      "hits": [
+        {
+          "id": "overlap",
+          "position": [
+            230,
+            190
+          ]
+        },
+        {
+          "id": "button-hit",
+          "position": [
+            90,
+            90
+          ]
+        }
+      ]
+    }
+  ]
+}
