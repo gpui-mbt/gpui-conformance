@@ -1,0 +1,26 @@
+{
+  "id": "anchor",
+  "source": "crates/gpui/examples/anchor.rs",
+  "source_blob": "b4b280b714a61cea2cd3f3a8ffd82a8f0000eb6b",
+  "source_sha256": "5be423ce91b36db94857a8f7758f7f5967d0103b77941fa7bc7c5a64e3c4fe72",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "width": 750,
+  "height": 600,
+  "widths": [
+    750,
+    480
+  ],
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Original unchanged-source Rust PNGs; independently discovered eight button outlines, trusted mouse entry/exit, inert center, Local anchor geometry, clipped-origin inference and conditional measured window snapping.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "Text content, shaping or exact glyph pixels",
+    "Rounded corner, border antialias and shadow raster fidelity",
+    "Exact full-image or native parity",
+    "Internal deferred dispatch ordering, callbacks or hidden offscreen work",
+    "Other browsers/GPUs/viewports/DPRs"
+  ]
+}
