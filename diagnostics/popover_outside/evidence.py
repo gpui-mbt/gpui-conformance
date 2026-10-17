@@ -12,7 +12,9 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = "717506fb6e752fb8f375bcac786d8fc5cd52a5d1"
+# Published baseline shares the local review base 717506fb tree; the local
+# commit is intentionally not required in a fresh public CI checkout.
+BASE = "cd205b17b6650bd7e518560640fc31084e723eeb"
 BASE_TREE = "96d216f94a10d73591416ca09a74cfbb3ca80311"
 UPSTREAM = "5a5fbe79917971a4d52a96b6ddb04da198a5012e"
 UPSTREAM_TREE = "990fb995914d51a546b20e5cf0382dafc105c299"
@@ -20,10 +22,10 @@ FROZEN = {
  "adapters/popover_outside_rust/Cargo.toml":"ed6ece3ea5594ffdd3e9f80cf8e741bd06bc410ad98ba19933f1ca1e60ed5f5d",
  "adapters/popover_outside_rust/Cargo.lock":"25285cd666a15821a6a939d65e464040386b6185982139c8f0857d8e8c7e09d8",
  "adapters/popover_outside_rust/src/main.rs":"ce9326dbe8fde78fb97b7bafdbc4cd0ff02ea3c62ce680edf4f01c4fc62ead64",
- "diagnostics/popover_outside/README.md":"06afbd06fe5e23e3417b0831958678001898a5d992b4e56b9da0b9f1b4556e47",
+ "diagnostics/popover_outside/README.md":"805d211863e4db2d70c92f841ca3796923e61d5cbd6b3d97ac572a45a84a47e7",
  "diagnostics/popover_outside/scenarios.json":"6e8995f1748926208547d68c372678b0d0db12bc661ad7fb2fdbbb45dbb6facb",
  "diagnostics/popover_outside/verify.py":"aa632457173d9ae6321a0a8ea8c8428d472fd300d2b9c3dad329ba0142414f6a",
- "tests/test_popover_outside.py":"c0f210dac30f30d00a29ece204b6b07ad7415e7c8e8c3f735b324cde53315151",
+ "tests/test_popover_outside.py":"b635d2cd93973e44ac873e13ba61b6bf18a7cebd8414add3bccfc3b952c942c4",
 }
 ADDED = list(FROZEN) + ["diagnostics/popover_outside/run.py", "diagnostics/popover_outside/evidence.py",
  "tests/test_popover_outside_evidence.py", ".github/workflows/popover-outside-diagnostic.yml"]

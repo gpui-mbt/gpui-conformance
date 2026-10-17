@@ -132,7 +132,7 @@ class PopoverOutsideTests(unittest.TestCase):
         self.assertNotIn(".contains(", source)
 
     def test_preserves_all_723_baseline_files(self):
-        base="717506fb6e752fb8f375bcac786d8fc5cd52a5d1"
+        base="cd205b17b6650bd7e518560640fc31084e723eeb"
         entries=subprocess.check_output(["git","-C",str(ROOT),"ls-tree","-r",base],text=True).splitlines()
         self.assertEqual(len(entries),723)
         for entry in entries:

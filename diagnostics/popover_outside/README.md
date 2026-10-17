@@ -4,7 +4,7 @@ Status: source-only, uncompiled and unexecuted. This addition is a prospective a
 
 ## Exact lineage and additive boundary
 
-Suite base: `717506fb6e752fb8f375bcac786d8fc5cd52a5d1`, tree `96d216f94a10d73591416ca09a74cfbb3ca80311`. All 723 historical tracked blobs and executable modes are preserved. Exactly seven additions are allowed: this README, `scenarios.json`, `verify.py`, `tests/test_popover_outside.py`, and `adapters/popover_outside_rust/{Cargo.toml,Cargo.lock,src/main.rs}`. Old scripts and evidence must not be relabeled or rerun as this diagnostic.
+Local source-review base: `717506fb6e752fb8f375bcac786d8fc5cd52a5d1`. Published merged baseline: `cd205b17b6650bd7e518560640fc31084e723eeb`. Both have the identical tree `96d216f94a10d73591416ca09a74cfbb3ca80311`. The local commit is not public ancestry; remote CI and the preservation test resolve the published baseline commit. This is an explicit same-tree mapping, not a claim that the local commit was merged. All 723 historical tracked blobs and executable modes are preserved. Exactly seven additions are allowed: this README, `scenarios.json`, `verify.py`, `tests/test_popover_outside.py`, and `adapters/popover_outside_rust/{Cargo.toml,Cargo.lock,src/main.rs}`. Old scripts and evidence must not be relabeled or rerun as this diagnostic.
 
 Upstream: `5a5fbe79917971a4d52a96b6ddb04da198a5012e`, tree `990fb995914d51a546b20e5cf0382dafc105c299`.
 
@@ -76,3 +76,7 @@ Excluded: unchanged/full popover example parity; native-window/browser integrati
 ## Source-review correction
 
 The initial source review found that separate prepaint/paint arrays and a host-return count accepted impossible cross-phase ordering. Its synthetic emitter also placed host return after deferred paint. The corrected checker compares one combined chronological stream, and the emitter places host return after ordinary root/trigger paint but before deferred paint, matching `window.rs3760–3765` and the transparent observer. Initial review/proof evidence is retained separately unchanged. This is a checker/source correction, not a runtime finding.
+
+## Publication lineage correction
+
+Publication preflight confirmed the local review-base commit is absent from the public repository. Before publishing, the baseline lookup in the preservation test and additive evidence runner was corrected to the existing public merged commit above; their baseline tree and all 723 historical entries are unchanged. This README and the test were explicitly unfrozen for that correction, and their new hashes are pinned in the additive evidence checker. The original eleven-file local source commit remains intact; the correction is a subsequent commit and requires independent review. The supplemental runner/workflow add four paths beyond this original seven-path source-stage description.
