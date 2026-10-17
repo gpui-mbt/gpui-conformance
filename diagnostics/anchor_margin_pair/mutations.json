@@ -1,0 +1,47 @@
+[
+  {
+    "name": "wrong-margin",
+    "path": "element/anchored.mbt",
+    "old": "  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < 0.0 {\n    x = spec.margin\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = spec.margin\n  }\n",
+    "new": "  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + 0.0\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < 0.0 {\n    x = 0.0\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + 0.0\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = 0.0\n  }\n",
+    "scope": "rust-paired-margin-semantics",
+    "predicate": "A crossed right raw edge must apply the authored8px scalar margin.",
+    "required_witnesses": [
+      {
+        "case": "cross-right-margin8-scale1",
+        "operation": "configured",
+        "field": "bounds/popup"
+      }
+    ]
+  },
+  {
+    "name": "always-inset",
+    "path": "element/anchored.mbt",
+    "old": "  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < 0.0 {\n    x = spec.margin\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = spec.margin\n  }\n",
+    "new": "  if x + size.width() > viewport.width() - spec.margin {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < spec.margin {\n    x = spec.margin\n  }\n  if y + size.height() > viewport.height() - spec.margin {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < spec.margin {\n    y = spec.margin\n  }\n",
+    "scope": "rust-paired-margin-semantics",
+    "predicate": "An exact noncrossing raw edge must not receive automatic scalar inset.",
+    "required_witnesses": [
+      {
+        "case": "exact-left-margin8-scale1",
+        "operation": "configured",
+        "field": "bounds/popup"
+      }
+    ]
+  },
+  {
+    "name": "swapped-opposite-edges",
+    "path": "element/anchored.mbt",
+    "old": "  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < 0.0 {\n    x = spec.margin\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = spec.margin\n  }\n",
+    "new": "  if x < 0.0 {\n    x = spec.margin\n  }\n  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = spec.margin\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n",
+    "scope": "rust-paired-margin-semantics",
+    "predicate": "Opposite raw edges resolve right-before-left and bottom-before-top.",
+    "required_witnesses": [
+      {
+        "case": "oversized-both-margin8-scale1",
+        "operation": "configured",
+        "field": "bounds/popup"
+      }
+    ]
+  }
+]
