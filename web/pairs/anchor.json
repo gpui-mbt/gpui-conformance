@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "candidate": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
+    "tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe"
+  },
+  "id": "anchor",
+  "profile": "anchor_actual_browser_pair_v1",
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+    "source": "crates/gpui/examples/anchor.rs",
+    "source_blob": "b4b280b714a61cea2cd3f3a8ffd82a8f0000eb6b",
+    "source_sha256": "5be423ce91b36db94857a8f7758f7f5967d0103b77941fa7bc7c5a64e3c4fe72"
+  },
+  "viewport": {
+    "widths": [
+      750,
+      480
+    ],
+    "height": 600,
+    "dpr": 1
+  },
+  "sequence": [
+    "initial",
+    "wideTopLeft",
+    "wideTopLeftExit",
+    "wideTopCenter",
+    "wideTopCenterExit",
+    "wideTopRight",
+    "wideTopRightExit",
+    "wideLeftCenter",
+    "wideLeftCenterExit",
+    "wideRightCenter",
+    "wideRightCenterExit",
+    "wideBottomLeft",
+    "wideBottomLeftExit",
+    "wideBottomCenter",
+    "wideBottomCenterExit",
+    "wideBottomRight",
+    "wideBottomRightExit",
+    "wideCenter",
+    "wideCenterExit",
+    "narrowIdle",
+    "narrowTopLeft",
+    "narrowTopLeftExit",
+    "narrowTopCenter",
+    "narrowTopCenterExit",
+    "narrowTopRight",
+    "narrowTopRightExit",
+    "narrowLeftCenter",
+    "narrowLeftCenterExit",
+    "narrowRightCenter",
+    "narrowRightCenterExit",
+    "narrowBottomLeft",
+    "narrowBottomLeftExit",
+    "narrowBottomCenter",
+    "narrowBottomCenterExit",
+    "narrowBottomRight",
+    "narrowBottomRightExit",
+    "narrowCenter",
+    "narrowCenterExit",
+    "restoredIdle",
+    "repeatTopLeft",
+    "repeatTopLeftExit"
+  ],
+  "status": "implemented_pending_exact_current_pair_ci",
+  "tolerances_physical_pixels": {
+    "fill_edge": 2
+  },
+  "claims": [
+    "Measured original-PNG button, hover, popup bounds; all eight anchors, inert center, two left snaps, exact same-runtime restoration in 41 states"
+  ],
+  "not_claimed": [
+    "Full-image equality",
+    "Text/shaping/glyph/typography parity",
+    "Exact shadow kernel or opacity parity",
+    "Native parity",
+    "Callback counts",
+    "Other viewports/DPRs/browsers/GPUs"
+  ],
+  "executed_controls": {
+    "wrong_geometry": {
+      "find": "@primitives.Point::new(x, y).unwrap()",
+      "replace": "@primitives.Point::new(x + 12, y).unwrap()",
+      "occurrences": 1,
+      "kind": "compiled_layout_fault"
+    },
+    "wrong_color": {
+      "find": "@primitives.Color::rgba(0, 0, 0, 191)",
+      "replace": "@primitives.Color::rgba(128, 0, 128, 191)",
+      "occurrences": 1,
+      "kind": "compiled_paint_fault"
+    }
+  }
+}
