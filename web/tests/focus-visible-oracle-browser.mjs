@@ -6,6 +6,7 @@ import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join,sep,extname} from 'node:path';
+import {decodeScreenshotRgba} from './screenshot-rgba.mjs';
 import {FOCUS_VISIBLE,SOURCE_CONSTRAINTS,inspectState,assertPanelSame,assertPanelDifferent,
   assertUnchanged,assertDelivery,assertProvenance,provenanceNegativeControls,focusVisibleNegativeControls}
   from './focus-visible-comparator.mjs';
@@ -151,19 +152,10 @@ try {
   async function frames() {
     await page.evaluate(()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(()=>done()))));
   }
-  async function decode(buffer) {
-    const image=await page.evaluate(async url=>{
-      const source=new Image();source.src=url;await source.decode();
-      const target=document.createElement('canvas');target.width=source.width;target.height=source.height;
-      const context=target.getContext('2d',{willReadFrequently:true});context.drawImage(source,0,0);
-      return {width:source.width,height:source.height,data:Array.from(context.getImageData(0,0,source.width,source.height).data)};
-    },'data:image/png;base64,'+buffer.toString('base64'));
-    image.data=Uint8Array.from(image.data);return image;
-  }
   async function capture(name,state,extra=()=>({})) {
     const deadline=Date.now()+30000,attempts=[];let prior=null,buffer,image,measurement,lastError,stable=false;
     do {
-      buffer=await page.screenshot({animations:'disabled',scale:'device'});image=await decode(buffer);
+      buffer=await page.screenshot({animations:'disabled',scale:'device'});image=await decodeScreenshotRgba(page,buffer);
       const hash=sha256(image.data);let valid=false;
       try{measurement={state:inspectState(image,state),...extra(image)};valid=true;lastError=null;}
       catch(error){lastError=error.message;}
