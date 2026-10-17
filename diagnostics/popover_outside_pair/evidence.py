@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 import re
 import shlex
-from run_rust import (ORACLE,ORACLE_TREE,CORE,CORE_TREE,UPSTREAM,UPSTREAM_TREE,FLOOR,
+from run_rust import (ORACLE,ORACLE_TREE,BASELINE,BASELINE_TREE,BASELINE_FILE_COUNT,CORE,CORE_TREE,UPSTREAM,UPSTREAM_TREE,FLOOR,
     ORACLE_PATHS,UPSTREAM_PATHS,STAGED_PATHS,UNSET,digest,git,inventory,load,require,
     safe_file,validate_source,rust_build_graph,staged_inventory)
 
@@ -32,9 +32,12 @@ def validate_pair(pair,oracle,commit,tree):
     require(re.fullmatch('[0-9a-f]{40}',commit) and re.fullmatch('[0-9a-f]{40}',tree),'exact pair identity')
     validate_source(pair,commit,tree);validate_source(oracle,ORACLE,ORACLE_TREE)
     require(git(pair,'rev-parse',ORACLE+'^{tree}').decode().strip()==ORACLE_TREE,'oracle lineage object')
-    git(pair,'merge-base','--is-ancestor',ORACLE,commit)
-    before,after=entries(oracle,ORACLE),entries(pair,commit)
-    require(len(before)==734 and all(after.get(p)==v for p,v in before.items()),'734 baseline files changed')
+    require(len(entries(oracle,ORACLE))==734,'immutable oracle file count')
+    require(git(pair,'rev-parse',BASELINE+'^{tree}').decode().strip()==BASELINE_TREE,'integration baseline tree')
+    git(pair,'merge-base','--is-ancestor',ORACLE,BASELINE)
+    git(pair,'merge-base','--is-ancestor',BASELINE,commit)
+    before,after=entries(pair,BASELINE),entries(pair,commit)
+    require(len(before)==BASELINE_FILE_COUNT and all(after.get(p)==v for p,v in before.items()),'738 integration baseline files changed')
     require(set(after)-set(before)==ADDITIONS,'exact owned pair additions')
     require(all(after[p].startswith('100644 blob ') for p in ADDITIONS),'pair file modes')
     require(sum(len(git(pair,'show',commit+':'+p)) for p in ADDITIONS)<=2*1024**2,'source cap')
@@ -295,6 +298,7 @@ def verify_bundle(directory,*,pair_source,oracle_source,core_source,upstream_sou
                   repository,run_id,run_attempt,recorded_execution_root):
     directory=Path(directory);record=load(safe_file(directory,'manifest.json'))
     expected={'pair':{'commit':pair_commit,'tree':pair_tree},'oracle':{'commit':ORACLE,'tree':ORACLE_TREE},
+              'baseline':{'commit':BASELINE,'tree':BASELINE_TREE},
               'core':{'commit':CORE,'tree':CORE_TREE},'upstream':{'commit':UPSTREAM,'tree':UPSTREAM_TREE}}
     require(record['sources']==expected,'external source identities')
     validate_pair(pair_source,oracle_source,pair_commit,pair_tree)

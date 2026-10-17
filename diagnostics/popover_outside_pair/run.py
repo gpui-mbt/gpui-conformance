@@ -6,7 +6,7 @@ from pathlib import Path
 import shutil
 import uuid
 
-from run_rust import (CORE, CORE_TREE, ORACLE, ORACLE_TREE, UPSTREAM, UPSTREAM_TREE,
+from run_rust import (BASELINE, BASELINE_TREE, CORE, CORE_TREE, ORACLE, ORACLE_TREE, UPSTREAM, UPSTREAM_TREE,
     digest, execute, git, inventory, load, now, require, run_rust, save,
     snapshot_source, validate_source)
 from compare import compare
@@ -34,16 +34,20 @@ def blobs(source, revision='HEAD'):
 
 
 def validate_pair(pair, oracle):
-    baseline, current = blobs(oracle), blobs(pair)
-    require(len(baseline)==734,'oracle source count')
-    for source in (oracle,pair):
-        entries={row.split(b'\t',1)[1].decode():row.split(b'\t',1)[0] for row in git(source,'ls-tree','-rz','HEAD').split(b'\0') if row}
+    baseline, current = blobs(pair,BASELINE), blobs(pair)
+    require(git(pair,'rev-parse',BASELINE+'^{tree}').decode().strip()==BASELINE_TREE,'integration baseline tree')
+    validate_source(oracle,ORACLE,ORACLE_TREE)
+    require(git(pair,'rev-parse',ORACLE+'^{tree}').decode().strip()==ORACLE_TREE,'oracle lineage tree')
+    git(pair,'merge-base','--is-ancestor',ORACLE,BASELINE)
+    require(len(baseline)==738,'integration baseline source count')
+    for source,revision in ((pair,BASELINE),(pair,'HEAD')):
+        entries={row.split(b'\t',1)[1].decode():row.split(b'\t',1)[0] for row in git(source,'ls-tree','-rz',revision).split(b'\0') if row}
         require(all(entries[path].startswith(b'100644 blob ') for path in baseline),'baseline source mode changed')
     require(all(entries[path].startswith(b'100644 blob ') for path in ADDITIONS if path in entries),'pair source mode')
     require(all(current.get(path)==sha for path,sha in baseline.items()),'original source changed')
     require(set(current)-set(baseline)==set(ADDITIONS),'pair additions')
     require(not git(pair,'status','--porcelain','--untracked-files=all').strip(),'dirty pair source')
-    git(pair,'merge-base','--is-ancestor',ORACLE,'HEAD')
+    git(pair,'merge-base','--is-ancestor',BASELINE,'HEAD')
     return {'commit':git(pair,'rev-parse','HEAD').decode().strip(),
             'tree':git(pair,'rev-parse','HEAD^{tree}').decode().strip()}
 
@@ -169,7 +173,7 @@ def main():
     out.mkdir(parents=True)
     token=str(uuid.uuid4())
     manifest={'schema_version':1,'status':'preflight','run_token':token,'execution_root':str(out),
-        'started_at':now(),'sources':{'pair':pair_identity,'core':{'commit':CORE,'tree':CORE_TREE},
+        'started_at':now(),'sources':{'pair':pair_identity,'baseline':{'commit':BASELINE,'tree':BASELINE_TREE},'core':{'commit':CORE,'tree':CORE_TREE},
         'oracle':{'commit':ORACLE,'tree':ORACLE_TREE},'upstream':{'commit':UPSTREAM,'tree':UPSTREAM_TREE}},
         'session':{'repository':os.environ['GITHUB_REPOSITORY'],'run_id':os.environ['GITHUB_RUN_ID'],
         'run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],'sha':os.environ['GITHUB_SHA'],'job':os.environ['GITHUB_JOB']},

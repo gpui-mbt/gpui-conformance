@@ -1,8 +1,10 @@
 # Fresh actual popover outside pairing
 
-This additive diagnostic preserves every original file at public oracle commit
-`d24cf54f770bd8146944a6e13b7aead7a6a7115a` (734 files). It executes that Rust
-observer afresh against upstream `5a5fbe79917971a4d52a96b6ddb04da198a5012e` and
+This additive diagnostic preserves all 738 files at integration baseline
+`044d1a1982f7cc407e483b90a5f36f5dd33ded29` (tree
+`3c110221f33168a295b76360674ed6c24f0b836e`). The separate actual oracle remains
+`d24cf54f770bd8146944a6e13b7aead7a6a7115a` with its original 734-file checkout.
+It executes that unchanged Rust observer afresh against upstream `5a5fbe79917971a4d52a96b6ddb04da198a5012e` and
 pairs it with compiled production MoonBit core
 `e2f7a23d65702b9b21d7bf654d1168afb4841648`.
 
@@ -66,3 +68,29 @@ source checks do not establish actual paired behavior.
 
 These sources were reconstructed after a workspace reset. Fresh hashes and fresh
 review apply; they are not claimed byte-identical to the lost unpublished draft.
+
+## Explicit current-main integration
+
+PR45 and then PR55 advanced main while this diagnostic was in review. The
+original baseline check correctly rejected the third CI merge-ref because it contained three
+changed browser IME files and two added browser regression files. The source
+branch now integrates the later public main commit, including PR55, and pins it
+as the 738-file preservation baseline. No browser changes are reverted or allowlisted
+out of validation. PR45 added input-ime-browser.mjs and
+input-ime-host.test.mjs; its changed files are web/README.md,
+web/moonbit/site/input-host.mjs and web/tests/candidate-browser.mjs. None overlap
+the actual Rust observer, fixtures or original evidence verifier.
+
+The original oracle checkout and old tests remain pinned at d24. The integration
+baseline is additionally recorded in the outer source attestation. GitHub's
+actual merge-ref checkout and GITHUB_SHA are unchanged, so CI still exercises the
+integrated tree. This is an explicit baseline-code correction plus main
+integration, not a claim that all 734 historical suite files stayed identical
+in the integrated current tree.
+
+PR55 additionally changes the separate browser-examples workflow, web/README.md
+and web/tests/contracts.test.mjs, and adds web/scripts/browser_build_artifacts.py
+and web/tests/test_browser_build_artifacts.py. Those five paths remain byte-for-
+byte equal to the explicit 044d integration baseline. The popover workflow does
+not call that browser workflow or its packaging helper; its own checkout,
+process execution and source/session binding remain unchanged.

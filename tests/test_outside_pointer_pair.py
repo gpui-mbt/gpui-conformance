@@ -240,4 +240,27 @@ class PairSourceTests(unittest.TestCase):
         self.assertEqual(pair_run.version_command('node','/bin/node'),['/bin/node','--version'])
         with self.assertRaises(ValueError):pair_run.version_command('other','/bin/other')
 
+    def test_explicit_baseline_preserves_separate_oracle(self):
+        self.assertNotEqual(run_rust.BASELINE,run_rust.ORACLE)
+        profile=json.loads((ROOT/'diagnostics/popover_outside_pair/profile.json').read_text())
+        self.assertEqual(profile['integration_baseline_commit'],run_rust.BASELINE)
+        self.assertEqual(profile['integration_baseline_tree'],run_rust.BASELINE_TREE)
+        self.assertEqual(profile['integration_baseline_files'],738)
+        original=pair_run.blobs(ORACLE,run_rust.ORACLE)
+        # Dedicated CI's pair checkout includes the integration baseline;
+        # the local source test may use its explicitly supplied oracle Git store.
+        repository=ROOT if (ROOT/'.git').exists() else ORACLE
+        baseline=pair_run.blobs(repository,run_rust.BASELINE)
+        self.assertEqual(len(original),734)
+        self.assertEqual(len(baseline),738)
+        changed={p for p in baseline if baseline[p]!=original.get(p)}
+        self.assertEqual(changed,{'web/README.md','web/moonbit/site/input-host.mjs',
+            'web/tests/candidate-browser.mjs','web/tests/input-ime-browser.mjs',
+            'web/tests/input-ime-host.test.mjs','.github/workflows/browser-examples.yml',
+            'web/scripts/browser_build_artifacts.py','web/tests/contracts.test.mjs',
+            'web/tests/test_browser_build_artifacts.py'})
+        self.assertTrue(set(original)<=set(baseline))
+        for path in original:
+            if 'popover_outside' in path:self.assertEqual(original[path],baseline[path])
+
 if __name__=='__main__':unittest.main()

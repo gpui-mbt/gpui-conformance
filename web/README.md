@@ -418,6 +418,57 @@ existing Pages site can link to it as a top-level navigation. An unisolated
 Pages iframe is not presented as a working shared-memory runtime host.
 Neither workflow runs deployment on push or pull request.
 
+### Parallel builds and verified artifact assembly
+
+The reusable `browser-examples.yml` workflow first records one clean lab
+commit and tree, the complete catalog and its dependency revisions, and the
+catalog/Cargo.lock SHA-256 values. Every later job checks out that exact lab
+commit and verifies the common input artifact against the SHA-256 passed
+through the pin job's outputs. Pull requests therefore use one frozen merge
+commit even if the branch advances while the jobs are queued.
+
+The MoonBit and Rust jobs both depend only on the pin job. Host/catalog
+contracts, immutable packaging tests and all MoonBit compilation/unit tests
+run on the MoonBit runner while the Rust runner prepares the unchanged
+upstream package and builds its full implemented catalog. Rust uses its own
+intermediate manifest; that artifact does not claim a MoonBit build or a
+successful browser comparison. Both build artifacts retain the original
+manifest and SHA-256 values for every shipped file.
+
+The `matched-examples` job requires both build jobs to succeed. Before it
+starts a browser, `web/scripts/browser_build_artifacts.py merge` validates
+both artifacts against the current pinned checkout, the input digest,
+dependency revisions, implemented examples and recorded file hashes. It
+rejects missing, changed or mismatched artifacts before assembling the
+existing `_build/browser-lab` layout with both runtimes on one origin. Input
+and build provenance are retained in `browser-example-evidence`; assembly
+leaves comparison status unverified until the existing browser commands run.
+Each isolated image-comparison runner installs the same pinned Pillow version.
+
+Artifacts are scoped to the current workflow run. A failed-job rerun may use
+successful artifacts from an earlier attempt of that run only when their
+common pinned inputs still match. It cannot borrow an artifact from another
+run or relabel a different source revision. Intermediate artifact names are
+separate from the final `browser-example-evidence` artifact consumed by the
+manual Cloudflare workflow. The existing publication branch, credentials,
+environment, full-workflow-success and result checks remain required.
+
+Measure changes from the Actions run's `run_started_at` to the final
+comparison job's `completed_at`, including pin-job startup, build-job
+startup, artifact uploads/downloads, assembly and verification. Compare
+catalog/lock digests, source pins, compiler versions, cache hit/miss and
+runner image before interpreting a difference. The sum of individual job
+durations measures runner use; it is not the elapsed time when jobs overlap.
+Observed timings and run links are recorded in the implementation PR.
+
+Measured 15-example historical comparison: cache-HIT serial 10m41s (641s) vs
+cache-HIT parallel 8m32s (512s), 129s / 20.12% observed reduction. Rust and
+MoonBit completed on separate runners and the critical path included artifact
+handoff. The comparison had one serial and two parallel observations across
+non-identical runner regions; it is not a normalized benchmark. After main
+adds the 16th gradient example and changes source pins, remeasure on a matched
+16-example serial baseline rather than transplanting that 20.12% rate.
+
 The reused Browser example ports workflow reports the Rust and MoonBit
 scrollable/focus-visible captures and retained-image comparisons as separate
 steps, so Actions exposes their elapsed times. Screenshot analysis still
@@ -574,6 +625,17 @@ The upstream uses grapheme segmentation; this port currently exposes scalar
 boundaries instead, so grapheme movement equivalence (combining marks and
 ZWJ emoji) is **UNVERIFIED**. `TextField` owns undo/redo; these shortcuts
 are an additive candidate behavior absent from this upstream example.
+
+The IME host suppresses post-`compositionend` duplicate text only after
+reconciling the corresponding browser edit. For cancelable `beforeinput`, a
+successful `preventDefault()` allows the guard to be cleared immediately;
+for non-cancelable `beforeinput`, the guard survives until `input` has
+consumed the browser textarea value. Ordinary non-cancelable `insertText`
+also passes through `input` only, never both delivery callbacks.
+`web/tests/input-ime-host.test.mjs` exercises those paths with a mock
+TextField boundary; the paired `candidate-browser.mjs` also runs them in
+actual Chromium against the **compiled MoonBit TextField**. These are synthetic
+DOM IME event sequences, distinct from actual Japanese IME integration.
 
 Synthetic Chromium composition event tests cannot activate a genuine
 Japanese IME or validate its candidate window, platform-specific selection

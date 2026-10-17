@@ -8,5 +8,13 @@
   "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
   "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
   "scope": "Any-button rendered-frame outside-down dismissal, production layout/hit routing and Button activation for the frozen 23-event fixture.",
-  "non_claims": ["General GPUI listener interleaving parity", "Rust paint phase equivalence", "General click parity", "Cryptographic execution authentication"]
+  "non_claims": [
+    "General GPUI listener interleaving parity",
+    "Rust paint phase equivalence",
+    "General click parity",
+    "Cryptographic execution authentication"
+  ],
+  "integration_baseline_commit": "044d1a1982f7cc407e483b90a5f36f5dd33ded29",
+  "integration_baseline_tree": "3c110221f33168a295b76360674ed6c24f0b836e",
+  "integration_baseline_files": 738
 }
