@@ -170,6 +170,68 @@ class AnchorDiagnosticContracts(unittest.TestCase):
             if entry["operation"] == "configured" and event.get("node") == "popup0" and "bounds" in event: event["bounds"][0] = 81
         with self.assertRaises(ValueError): verify.verify_observations(raw, corpus)
 
+    def test_retained_original_epsilon_false_acceptance_now_rejected(self):
+        report = json.loads((ROOT / "diagnostics/anchor/epsilon-regression.json").read_text())
+        self.assertEqual(report["baseline_commit"], "abbc3c7337faec3239f07f54268a567a335f47c5")
+        self.assertEqual(report["baseline_result"], "ACCEPTED (checker false acceptance)")
+        self.assertEqual(len(report["affected_records"]), 4)
+        raw, corpus = synthetic_checker_input()
+        for entry in raw["cases"][0]["events"]:
+            event = entry["event"]
+            if event.get("node") == "popup0" and "bounds" in event: event["bounds"][0] += .004
+        import hashlib
+        canonical = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+        self.assertEqual(hashlib.sha256(canonical).hexdigest(), report["canonical_mutated_raw_sha256"])
+        with self.assertRaisesRegex(ValueError, "physical edge"): verify.verify_observations(raw, corpus)
+
+    def test_named_logical_geometry_allowance_boundaries(self):
+        allowance = verify.GEOMETRY_F32_ALLOWANCE
+        self.assertEqual(allowance, 2 ** -10)
+        verify.close(220 + allowance, 220, "within logical geometry bound")
+        with self.assertRaises(ValueError): verify.close(220 + allowance + 2 ** -20, 220, "beyond logical geometry bound")
+        # Coherent raw jitter inside BOTH allowances is accepted as synthetic
+        # checker input. It is never described as observed GPUI precision.
+        raw, corpus = synthetic_checker_input()
+        for entry in raw["cases"][0]["events"]:
+            event = entry["event"]
+            if event.get("node") == "popup0" and "bounds" in event: event["bounds"][0] += allowance / 2
+        verify.verify_observations(raw, corpus)
+
+    def test_named_physical_grid_allowance_boundaries_at_each_scale(self):
+        allowance = verify.PHYSICAL_GRID_F32_ALLOWANCE
+        self.assertEqual(allowance, 2 ** -10)
+        for scale in (1, 1.25, 2):
+            within = [220 + (allowance - 2 ** -20) / scale, 180, 80, 24]
+            beyond = [220 + (allowance + 2 ** -20) / scale, 180, 80, 24]
+            with self.subTest(scale=scale):
+                verify.physical_grid(within, scale, "within device-pixel bound")
+                with self.assertRaisesRegex(ValueError, "physical edge"):
+                    verify.physical_grid(beyond, scale, "beyond device-pixel bound")
+
+    def test_raw_coordinate_size_far_edge_numerical_qualification(self):
+        verify.qualify_bounds([4095, -4096, 1, 2048], "boundary")
+        for rectangle, reason in [([4096.25, 0, 0, 0], "coordinate"),
+                ([0, 0, 2048.25, 1], "size"), ([4096, 0, .25, 1], "far edge")]:
+            with self.subTest(reason=reason), self.assertRaisesRegex(ValueError, "numerically unqualified raw " + reason):
+                verify.qualify_bounds(rectangle, "out-of-domain synthetic output")
+        raw, corpus = synthetic_checker_input()
+        for entry in raw["cases"][0]["events"]:
+            event = entry["event"]
+            if event.get("node") == "anchor_popup0" and "bounds" in event: event["bounds"][0] = 4096.25
+        with self.assertRaisesRegex(ValueError, "numerically unqualified"): verify.verify_observations(raw, corpus)
+
+    def test_requested_scales_and_reused_bounds_are_exact(self):
+        for kind in ("frame_start", "operation_end"):
+            raw, corpus = synthetic_checker_input()
+            event = next(entry["event"] for entry in raw["cases"][0]["events"] if entry["event"]["type"] == kind)
+            event["scale_factor"] += verify.GEOMETRY_F32_ALLOWANCE / 2
+            with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, "binary-exact scale"):
+                verify.verify_observations(raw, corpus)
+        raw, corpus = synthetic_checker_input()
+        event = next(entry["event"] for entry in raw["cases"][0]["events"] if entry["event"]["type"] == "paint" and entry["event"].get("node") == "popup0")
+        event["bounds"][0] += 2 ** -20
+        with self.assertRaisesRegex(ValueError, "paint/prepaint agreement"): verify.verify_observations(raw, corpus)
+
     def test_lifecycle_and_identity_corruptions(self):
         for mutation in ("return", "missing", "frame", "operation", "sequence", "trailing", "layer", "pin", "input"):
             raw, corpus = synthetic_checker_input()

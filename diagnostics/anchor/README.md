@@ -83,6 +83,76 @@ Root→Leaf for the ordinary sibling. It does not claim that GPUI mouse dispatch
 itself follows the keyboard dispatch tree. Background-only popups must allow
 that ordinary sibling's real callbacks through.
 
+## Numerical qualification and f32 allowances
+
+This is a numerical contract for the fixed 24-case corpus above. It does not
+claim a general all-GPUI error bound or support arbitrary quarter-size popup
+layout. These cases deliberately use fixed popup dimensions that are integral
+physical lengths at their requested scales. A broader corpus needs its own
+layout-snapping qualification.
+
+Before applying any allowance, every raw prepaint/paint rectangle and content
+mask is checked: each origin coordinate has absolute value at most 4096 logical
+pixels, each size is between 0 and 2048, and each far edge has absolute value at
+most 4096. These are numerical eligibility guards. They do not assert a particular
+Block static origin or a wider anchor-layout guarantee. An output outside this
+envelope fails as numerically unqualified; it is retained for investigation,
+never rescaled or fitted away. The authored input corpus is unchanged.
+
+The named allowances are GEOMETRY_F32_ALLOWANCE = 2^-10 logical pixels and
+PHYSICAL_GRID_F32_ALLOWANCE = 2^-10 device pixels, both 0.0009765625 in their
+respective units. Their derivation is independent of actual GPUI output, which
+has not been produced during source authoring:
+
+- Authored scales 1, 1.25 and 2 are exact binary constants. At 1× and 2×, conversion
+  of the bounded snapped integer physical coordinates and integral logical
+  offsets is binary-exact. Fractional 1.25× is the conservative case.
+- Taffy supplies snapped integer physical coordinates divided by scale. Under
+  the qualified coordinate envelope, a static-origin division contributes at
+  most 2^-13 logical pixels, half the local f32 ULP below 4096. The exact 4096
+  endpoint contributes no division error.
+- After viewport clamping, the logical translation has magnitude below 8192.
+  Its rounded integral value times 1.25 remains an exactly representable quarter
+  integer. The snapped-offset division contributes at most 2^-12 logical pixels,
+  half the f32 ULP below 8192. The final bounded origin addition contributes at
+  most 2^-13 logical pixels. The exact power-of-two endpoints are representable.
+- A size division contributes at most 2^-14 logical pixels, half the local ULP
+  below 2048; the exact 2048 endpoint is representable. These statements concern
+  the fixed-size, physically integral dimensions in this corpus.
+- serde_json emits a shortest f32-round-tripping decimal. Parsing that decimal
+  as Python f64 can add up to half a local f32 ULP compared with the binary f32:
+  at most 2^-13 for an origin and 2^-14 for a size. Decimal terms must not be
+  silently treated as exact binary f32 preservation.
+
+The physical far-edge bound therefore includes static division, offset division,
+final origin addition, origin decimal, size division and size decimal:
+
+    1.25 × (2^-13 + 2^-12 + 2^-13 + 2^-13 + 2^-14 + 2^-14)
+    = 0.00091552734375 device pixels < 2^-10 device pixels
+
+For logical geometry comparison, the Python formula uses the observed static
+origin. Its static division error cancels, but the static and child decimals do
+not cancel exactly. Static decimal, offset division, final origin addition and
+child decimal total:
+
+    2^-13 + 2^-12 + 2^-13 + 2^-13
+    = 0.0006103515625 logical pixels < 2^-10 logical pixels
+
+Requested scales, pointer coordinates cloned from input, shared deferred/anchor
+bounds and reused prepaint/paint bounds are compared exactly. No independent
+arithmetic error exists in those copies. Separate tests exercise the logical
+geometry allowance at and just beyond its bound, the physical-grid allowance
+just within and just beyond its bound at every requested scale, and each raw
+domain guard.
+
+The original checker defect is preserved in epsilon-regression.json, bound to
+commit abbc3c7337faec3239f07f54268a567a335f47c5 and hashes of its checker/test
+source and corrupted synthetic input. Its coherent popup x +0.004 at both frames
+was accepted by the old undocumented 0.01 allowance, despite 0.008/0.004-device-
+pixel grid errors. The corrected checker rejects that exact synthetic input.
+This is evidence of a checker false acceptance, never observed GPUI or an engine
+fault.
+
 ## Run and retained evidence
 
 Source/schema/checker tests, with explicitly synthetic trace fixtures:

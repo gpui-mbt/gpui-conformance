@@ -15,7 +15,7 @@ LAYER = "supplemental-headless-anchor-deferred"
 RETAIN = ["adapters/anchor_rust/Cargo.toml", "adapters/anchor_rust/Cargo.lock",
     "adapters/anchor_rust/src/main.rs", "diagnostics/anchor/scenarios.json",
     "diagnostics/anchor/raw.schema.json", "diagnostics/anchor/run.py", "diagnostics/anchor/verify.py",
-    "diagnostics/anchor/README.md", "tests/test_anchor_diagnostic.py", ".github/workflows/anchor-diagnostic.yml"]
+    "diagnostics/anchor/README.md", "diagnostics/anchor/epsilon-regression.json", "tests/test_anchor_diagnostic.py", ".github/workflows/anchor-diagnostic.yml"]
 UPSTREAM_RETAIN = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "crates/gpui/Cargo.toml",
     "crates/gpui/src/elements/anchored.rs", "crates/gpui/src/elements/deferred.rs", "crates/gpui/src/elements/div.rs",
     "crates/gpui/src/element.rs", "crates/gpui/src/styled.rs", "crates/gpui/src/style.rs",
@@ -27,6 +27,14 @@ ANCHORS = {"TopLeft": (0, 0), "TopCenter": (.5, 0), "TopRight": (1, 0),
     "LeftCenter": (0, .5), "RightCenter": (1, .5), "BottomLeft": (0, 1),
     "BottomCenter": (.5, 1), "BottomRight": (1, 1)}
 
+# Numerical eligibility for this fixed font-free corpus, not a layout witness.
+# Derivation and logical/physical units are documented in README.md.
+RAW_COORDINATE_LIMIT = 4096
+RAW_SIZE_LIMIT = 2048
+RAW_FAR_EDGE_LIMIT = 4096
+GEOMETRY_F32_ALLOWANCE = 2 ** -10  # logical pixels
+PHYSICAL_GRID_F32_ALLOWANCE = 2 ** -10  # device pixels
+
 def retained_path(relative):
     return "retained/workflows/anchor-diagnostic.yml" if relative == RETAIN[-1] else "retained/" + relative
 
@@ -36,13 +44,31 @@ def require(condition, message):
 def number(value, label):
     require(type(value) in (int, float) and math.isfinite(value), label + ": finite number required")
 
-def close(actual, expected, label):
+def close(actual, expected, label, allowance=GEOMETRY_F32_ALLOWANCE):
     number(actual, label)
-    require(abs(actual - expected) <= .01, f"{label}: {actual} != {expected}")
+    number(expected, label + " expected")
+    require(abs(actual - expected) <= allowance, f"{label}: {actual} != {expected}; allowance {allowance}")
 
-def vector(actual, expected, label):
+def vector(actual, expected, label, allowance=GEOMETRY_F32_ALLOWANCE):
     require(isinstance(actual, list) and len(actual) == len(expected), label + ": vector shape")
-    for index, (a, b) in enumerate(zip(actual, expected)): close(a, b, label + f"[{index}]")
+    for index, (a, b) in enumerate(zip(actual, expected)): close(a, b, label + f"[{index}]", allowance)
+
+def exact_scale(actual, expected, label):
+    number(actual, label)
+    require(actual == expected, label + ": requested binary-exact scale mismatch")
+
+def qualify_bounds(rectangle, label):
+    require(isinstance(rectangle, list) and len(rectangle) == 4, label + ": bounds shape")
+    for value in rectangle: number(value, label)
+    require(all(abs(value) <= RAW_COORDINATE_LIMIT for value in rectangle[:2]), label + ": numerically unqualified raw coordinate")
+    require(all(0 <= value <= RAW_SIZE_LIMIT for value in rectangle[2:]), label + ": numerically unqualified raw size")
+    require(all(abs(rectangle[axis] + rectangle[axis + 2]) <= RAW_FAR_EDGE_LIMIT for axis in (0, 1)), label + ": numerically unqualified raw far edge")
+
+def physical_grid(rectangle, scale, label):
+    qualify_bounds(rectangle, label)
+    for edge in (rectangle[0], rectangle[1], rectangle[0] + rectangle[2], rectangle[1] + rectangle[3]):
+        physical = edge * scale
+        close(physical, round(physical), label + " physical edge", PHYSICAL_GRID_F32_ALLOWANCE)
 
 def bounded(values, count, low, high, label):
     require(isinstance(values, list) and len(values) == count, label + ": vector shape")
@@ -110,8 +136,8 @@ def verify_frame(entries, case, scale):
     label = case["id"] + f"/frame-{entries[0]['frame']}"
     first = entries[0]["event"]
     require(set(first) == {"type", "scale_factor", "window_size"} and first["type"] == "frame_start", label + ": frame start")
-    close(first["scale_factor"], scale, label + " scale")
-    vector(first["window_size"], case["window"], label + " viewport")
+    exact_scale(first["scale_factor"], scale, label + " scale")
+    vector(first["window_size"], case["window"], label + " viewport", 0)
     names = node_names(case)
     stack, phases, prepaint, painted, locations, parents = [], {}, {}, [], {}, {}
     for index, entry in enumerate(entries[1:], 1):
@@ -128,18 +154,15 @@ def verify_frame(entries, case, scale):
             stack.append((kind, node))
             if kind in ("prepaint", "paint"):
                 rectangle = event["bounds"]
-                require(isinstance(rectangle, list) and len(rectangle) == 4, label + ": bounds shape")
-                vector(rectangle, rectangle, label + " bounds")
-                require(min(rectangle[2:]) >= 0, label + ": nonnegative dimensions")
-                # All observed layout bounds, including window-snapped anchored
-                # element offsets, have physical-pixel edges.
-                for edge in (rectangle[0], rectangle[1], rectangle[0] + rectangle[2], rectangle[1] + rectangle[3]):
-                    close(edge * scale, round(edge * scale), label + " physical edge")
+                # Qualify the raw domain before applying the separately named
+                # device-pixel grid allowance. This is not a static-origin witness.
+                physical_grid(rectangle, scale, label)
                 if kind == "prepaint":
-                    vector(event["content_mask"], [0, 0, *case["window"]], label + " content mask")
+                    qualify_bounds(event["content_mask"], label + " mask")
+                    vector(event["content_mask"], [0, 0, *case["window"]], label + " content mask", 0)
                     prepaint[node] = event
                 else:
-                    vector(rectangle, prepaint[node]["bounds"], label + " paint/prepaint agreement")
+                    vector(rectangle, prepaint[node]["bounds"], label + " paint/prepaint agreement", 0)
                     painted.append(node)
         elif kind in ("request_layout_end", "prepaint_end", "paint_end"):
             phase = kind[:-4]
@@ -164,9 +187,9 @@ def verify_frame(entries, case, scale):
         identifier = popup["id"]
         anchor_node, deferred_node = "anchor_" + identifier, "deferred_" + identifier
         static = prepaint[anchor_node]["bounds"]
-        vector(prepaint[deferred_node]["bounds"], static, label + " shared deferred/anchored layout")
+        vector(prepaint[deferred_node]["bounds"], static, label + " shared deferred/anchored layout", 0)
         child = prepaint[identifier]["bounds"]
-        vector(child[2:], static[2:], label + " child measured size")
+        vector(child[2:], static[2:], label + " child measured size", 0)
         # The corpus isolates anchor translation with integral physical sizes.
         vector(child[2:], popup["size"], label + " authored fixed popup size")
         fractions = ANCHORS[popup["anchor"]]
@@ -242,7 +265,7 @@ def verify_observations(raw, corpus):
             require(cursor < len(events), "unfinished operation")
             end = events[cursor]; cursor += 1
             require(end["operation"] == operation and end["frame"] == frame_number and set(end["event"]) == {"type", "scale_factor"}, "operation end")
-            close(end["event"]["scale_factor"], scale, "operation scale")
+            exact_scale(end["event"]["scale_factor"], scale, "operation scale")
             if operation in ("initial", "configured"): require(frames, "required redraw absent")
             if input_value["action"] == "click":
                 require(hit_frame is not None, "no rendered hit frame")
@@ -260,11 +283,11 @@ def verify_observations(raw, corpus):
                         require(callback["contexts"] == expected_contexts, "actual focused dispatch ancestry")
                         if callback["type"] == "mouse_down":
                             require(set(callback) == {"type", "node", "position", "contexts"}, "mouse callback shape")
-                            vector(callback["position"], position, "mouse down")
+                            vector(callback["position"], position, "mouse down", 0)
                         else:
                             require(set(callback) == {"type", "node", "detail", "contexts"} and callback["detail"].get("kind") == "mouse" and set(callback["detail"]) == {"kind", "down", "up"}, "click shape/kind")
-                            vector(callback["detail"]["down"], position, "click down")
-                            vector(callback["detail"]["up"], position, "click up")
+                            vector(callback["detail"]["down"], position, "click down", 0)
+                            vector(callback["detail"]["up"], position, "click up", 0)
             else: require(not callbacks, "callback without input")
             result.append({"id": operation, "frames": frames, "callbacks": callbacks})
         require(cursor == len(events), "trailing events")
