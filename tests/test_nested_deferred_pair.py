@@ -221,7 +221,7 @@ class SelectedProductionSourceTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.core = Path(self.temp.name) / 'core'
         self.core.mkdir()
-        self.blobs = {'moon.mod': b'synthetic module', 'element/pkg.generated.mbti': b'synthetic API context'}
+        self.blobs = {'moon.mod': b'synthetic module', **{p: b'synthetic API context' for p in runner.CORE_API_FILES}}
         for package in runner.PACKAGES:
             self.blobs[package + '/moon.pkg'] = b''
             self.blobs[package + '/' + package + '.mbt'] = b'// synthetic production source'
@@ -240,7 +240,7 @@ class SelectedProductionSourceTests(unittest.TestCase):
         self.assertIn('element/container_query.mbt', self.paths)
         self.assertIn('element/layout_bounds.mbt', self.paths)
         self.assertNotIn('element/pkg.generated.mbti', self.paths)
-        self.assertEqual(runner.CORE_API_FILES, ('element/pkg.generated.mbti',))
+        self.assertEqual(runner.CORE_API_FILES, ('element/pkg.generated.mbti', 'scene/pkg.generated.mbti'))
 
     def test_extra_missing_alternate_and_duplicate_sources_fail_preflight(self):
         extra = self.core / 'element/ignored-extra.mbt'; extra.write_text('// extra ignored source')
@@ -258,7 +258,8 @@ class SelectedProductionSourceTests(unittest.TestCase):
 
     def test_retained_api_rehashed_alternate_missing_extra_duplicate_reject(self):
         evidence = Path(self.temp.name) / 'evidence'; api = evidence / 'core-api'; target = api / runner.CORE_API_FILES[0]
-        target.parent.mkdir(parents=True); target.write_bytes(self.blobs[runner.CORE_API_FILES[0]])
+        for relative in runner.CORE_API_FILES:
+            path = api / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(self.blobs[relative])
         manifest = {'core_api_context': {'role': 'noncompiled-published-api-context', 'files': list(runner.CORE_API_FILES)}}
         runner.verify_core_api(evidence, manifest, self.core, 'a' * 40)
         target.write_bytes(target.read_bytes() + b'\n// rehashed alternate bytes')
@@ -590,6 +591,144 @@ class ExactOraclePairLineageTests(unittest.TestCase):
         self.assertIn("--baseline-suite-commit '${{ steps.pins.outputs.oracle }}'",text[end:])
 
 
+
+
+class IntegratedCoreSourceTests(unittest.TestCase):
+    """Exact Git source/projection checks only; never invoke a compiler or candidate."""
+    def test_selected_integrated_inventory_and_all_regression_projections(self):
+        import hashlib
+        origin=Path(os.environ.get('GPUI_SELECTED_CORE_TEST_SOURCE',ROOT/'_build/core-source'))
+        if not origin.is_dir():
+            self.assertNotIn('GPUI_SELECTED_CORE_TEST_SOURCE',os.environ,'Required CI core source is missing')
+            self.skipTest('Pinned core checkout required; dedicated CI supplies it')
+        profile=compare.load_json((PAIR/'profile.json').read_text())
+        commit=profile['candidate_commit'];expected=profile['selected_core_inventory']
+        self.assertEqual(runner.command(['git','rev-parse',commit+'^{tree}'],origin),profile['candidate_tree'])
+        entries=runner.git_tree_entries(origin,commit)
+        selected=runner.selected_production_paths(origin,commit)
+        self.assertEqual(selected,sorted(expected['compiled_inputs']));self.assertEqual(len(selected),34)
+        self.assertIn('scene/builder.mbt',selected)
+        self.assertEqual(set(expected['module_context']),{'moon.mod'})
+        self.assertEqual(set(expected['api_context']),set(runner.CORE_API_FILES))
+        all_inputs={key:value for group in expected.values() for key,value in group.items()}
+        for relative,metadata in all_inputs.items():
+            value=subprocess.check_output(['git','show',commit+':'+relative],cwd=origin)
+            self.assertEqual(entries[relative],{'mode':metadata['mode'],'type':metadata['type'],'oid':metadata['blob']})
+            self.assertEqual(metadata['mode'],'100644');self.assertEqual(metadata['type'],'blob')
+            self.assertEqual(metadata['size'],len(value));self.assertEqual(metadata['sha256'],hashlib.sha256(value).hexdigest())
+        self.assertGreater(shutil.disk_usage(tempfile.gettempdir()).free,runner.DISK_FLOOR+64*1024**2)
+        self.assertGreater(shutil.disk_usage(ROOT).free,runner.DISK_FLOOR+64*1024**2)
+        regressions=load_module('integrated_core_regressions',PAIR/'regressions.py')
+        outcomes=[]
+        with tempfile.TemporaryDirectory(prefix='nested-pair-selected-core-') as temporary:
+            workspace=Path(temporary);core=workspace/'core-source'
+            subprocess.check_call(['git','init','-q',str(core)])
+            common=Path(runner.command(['git','rev-parse','--git-common-dir'],origin))
+            common=common if common.is_absolute() else origin/common
+            (core/'.git/objects/info/alternates').write_text(str(common.resolve()/'objects')+'\n')
+            subprocess.check_call(['git','config','core.sparseCheckout','true'],cwd=core)
+            (core/'.git/info/sparse-checkout').write_text(''.join('/'+p+'\n' for p in sorted(all_inputs)))
+            subprocess.check_call(['git','checkout','--detach','-q',commit],cwd=core)
+            self.assertEqual(runner.identity(core),{'commit':commit,'tree':profile['candidate_tree'],'clean':True})
+            self.assertEqual(runner.source_preflight(core,commit),selected)
+            builder=core/'scene/builder.mbt';original=builder.read_bytes()
+            builder.unlink()
+            with self.assertRaisesRegex(ValueError,'source inventory'):runner.source_preflight(core,commit)
+            builder.write_bytes(original+b'\n// alternate production source')
+            with self.assertRaisesRegex(ValueError,'preexecution core Git blob'):runner.source_preflight(core,commit)
+            builder.write_bytes(original)
+            extra=core/'scene/extra.mbt';extra.write_text('// unselected production input')
+            with self.assertRaisesRegex(ValueError,'source inventory'):runner.source_preflight(core,commit)
+            extra.unlink()
+            for relative in (*runner.CORE_API_FILES,'moon.mod'):
+                path=core/relative;value=path.read_bytes();path.write_bytes(value+b'\n// alternate context')
+                with self.assertRaisesRegex(ValueError,'preexecution core Git blob'):runner.source_preflight(core,commit)
+                path.write_bytes(value)
+            self.assertTrue(runner.identity(core)['clean'])
+            pair=workspace/'pair';stage=pair/'build-source';stage.mkdir(parents=True)
+            for relative in selected:
+                path=stage/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((core/relative).read_bytes())
+            (stage/'moon.mod').write_text(runner.MODULE)
+            for relative in (*runner.CORE_API_FILES,):
+                path=pair/'core-api'/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((core/relative).read_bytes())
+            api_manifest={'core_api_context':{'role':'noncompiled-published-api-context','files':list(runner.CORE_API_FILES)}}
+            runner.verify_core_api(pair,api_manifest,core,commit)
+            scene_api=pair/'core-api/scene/pkg.generated.mbti';value=scene_api.read_bytes()
+            scene_api.unlink()
+            with self.assertRaisesRegex(ValueError,'complete retained API'):runner.verify_core_api(pair,api_manifest,core,commit)
+            scene_api.write_bytes(value+b'\n// rehashed alternate scene API')
+            with self.assertRaisesRegex(ValueError,'core API Git blob'):runner.verify_core_api(pair,api_manifest,core,commit)
+            scene_api.write_bytes(value)
+            for relative in ('diagnostics/nested_deferred_pair/profile.json',regressions.COMPATIBILITY,
+                    *('adapters/'+name+'/'+filename for name in ('anchor_moonbit','anchor_margin_moonbit','deferred_priority_moonbit') for filename in ('main.mbt','moon.pkg'))):
+                path=pair/runner.retained_path(relative);path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/relative).read_bytes())
+            manifest={'core_inputs':selected}
+            descriptor=json.loads((PAIR/'observer_compatibility.json').read_text())
+            for name,adapter,context,project in (
+                    ('original','anchor_moonbit',regressions.original_modules,regressions._projection),
+                    ('fractional','anchor_moonbit',regressions.original_modules,regressions._projection),
+                    ('margin','anchor_margin_moonbit',regressions.margin_modules,regressions._margin_source),
+                    ('flat','deferred_priority_moonbit',regressions.flat_modules,regressions._flat_source)):
+                directory=workspace/name;target=directory/'build-source';shutil.copytree(stage,target)
+                shutil.copytree(ROOT/'adapters'/adapter,target/'probe')
+                if name in ('original','fractional'):
+                    observer=target/'probe/main.mbt';observer.write_bytes(regressions.derive_observer(observer.read_bytes(),descriptor))
+                with context() as old:
+                    def check():
+                        return project(pair,directory,manifest,old) if name in ('original','fractional') else project(
+                            pair,directory,manifest,old,core_source=core,core_commit=commit)
+                    result=check();self.assertIn('scene/builder.mbt',result)
+                    self.assertEqual(set(result),set(selected)|{'moon.mod','probe/main.mbt','probe/moon.pkg'})
+                    path=target/'scene/builder.mbt';value=path.read_bytes();path.unlink()
+                    with self.assertRaises(ValueError):check()
+                    path.write_bytes(value+b'\n// wrong same-core bytes')
+                    with self.assertRaisesRegex(ValueError,'core'):check()
+                    path.write_bytes(value)
+                    extra=target/'scene/extra.mbt';extra.write_text('// unselected')
+                    with self.assertRaises(ValueError):check()
+                    extra.unlink();self.assertEqual(check(),result)
+                    outcomes.append({'regression':name,'compiled_input_count':len(selected),'source_projection':'passed',
+                                     'missing_builder':'rejected','altered_builder':'rejected','extra_source':'rejected'})
+                shutil.rmtree(directory) # only this test's regenerable noncompiled source fixture
+            shutil.copytree(ROOT/'adapters/nested_deferred_moonbit',stage/'probe')
+            inputs=runner.staged_package_inputs(stage)
+            self.assertIn('./scene/builder.mbt',inputs['scene']['sources'])
+            # Start with a non-executable checker plan and replace its package
+            # argv with the exact selected source and metadata imports. This
+            # exercises the unchanged strict plan checker without moon/moonc.
+            fixture=SyntheticNativeLineageTests();fixture.setUp()
+            try:
+                commands=[shlex.split(line) for line in fixture.plan().splitlines()]
+                for command in commands:
+                    if command[:2]!=['moonc','build-package']:continue
+                    package=command[command.index('-pkg')+1].rsplit('/',1)[-1]
+                    end=command.index('-w');command[2:end]=inputs[package]['sources']
+                    while '-i' in command:
+                        i=command.index('-i');del command[i:i+2]
+                    i=command.index('-pkg-sources');imports=[]
+                    for imported in inputs[package]['imports']:imports.extend(['-i',imported])
+                    command[i:i]=imports
+                plan='\n'.join(shlex.join(command) for command in commands)
+                checked=runner.native_build_plan(plan,fixture.tools(),stage)
+                self.assertEqual(checked['backend'],'direct-native-object')
+                for changed in (plan.replace('./scene/builder.mbt ',''),plan.replace('./scene/builder.mbt','./scene/alternate.mbt')):
+                    with self.assertRaisesRegex(ValueError,'exact staged production'):runner.native_build_plan(changed,fixture.tools(),stage)
+            finally:fixture.doCleanups()
+            fixture_bytes=sum(p.stat().st_size for p in workspace.rglob('*') if p.is_file())
+            self.assertLess(fixture_bytes,8*1024**2)
+            self.assertTrue(runner.identity(core)['clean'])
+        text=(ROOT/'.github/workflows/nested-deferred-native-pair.yml').read_text()
+        self.assertIn('GPUI_SELECTED_CORE_TEST_SOURCE: ${{ github.workspace }}/pair-suite/_build/core-source',text)
+        self.assertIn('GPUI_SELECTED_CORE_TEST_REPORT: ${{ github.workspace }}/pair-suite/_build/nested-deferred-pair-logs/selected-core-source-preflight.json',text)
+        if os.environ.get('GPUI_SELECTED_CORE_TEST_REPORT'):
+            Path(os.environ['GPUI_SELECTED_CORE_TEST_REPORT']).write_text(json.dumps({
+                'qualification':'source-only exact Git and synthetic plan/projection checks; no compiler or candidate execution',
+                'core_commit':commit,'core_tree':profile['candidate_tree'],'selected_core_inventory':expected,
+                'regression_projections':outcomes,'fixture_bytes':fixture_bytes,
+                'negative_checks':['missing production input','altered production input','extra production input',
+                    'alternate element API','alternate scene API','alternate original module','missing retained scene API',
+                    'rehashed alternate retained scene API','omitted builder native argv','alternate builder native argv'],
+                'fixture_cleanup':'temporary regenerable fixtures removed after test'},indent=2)+'\n')
 
 
 class WorkflowLayoutIntegrationTests(unittest.TestCase):

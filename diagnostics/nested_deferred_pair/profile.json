@@ -2,8 +2,8 @@
   "schema_version": 1,
   "layer": "supplemental-two-level-nested-deferred-native-pair",
   "candidate_repository": "gpui-mbt/gpui.mbt",
-  "candidate_commit": "1015a4e43e97f785c94f1c051eae677c93d84c79",
-  "candidate_tree": "a64e034fa85f286c39b87802b4cbef754d0c5322",
+  "candidate_commit": "5dbcc1cfdeaede4e3698d63f29a699259c9cc3be",
+  "candidate_tree": "df567d739aa78eaa9a12003e0e433a2b67e998f3",
   "candidate_pin_status": "published-exact-commit-tree",
   "suite_base_public_commit": "efc197a0ef9d64a35df6efe0ee2c97dff98ece04",
   "suite_base_tree": "62ada6494e6f6ec6d463a1425f6e7daa2dadbce2",
@@ -140,9 +140,278 @@
     "compared_operations": 144
   },
   "approved_core_gate": {
-    "reviewed_local_commit": "cae46e42fa3832caeb17c598f6e6cf1abbb51cd8",
-    "source_review_sha256": "eeedbdb7e9c5f43b073f15fe919ca65ca3b09ae247ee38e10dc6fd95583c8406",
-    "public_mapping_sha256": "0aee47083176dd958ce54716e90be34c3033025354213f48e624f5e6da178ea1",
-    "scope": "bounded exactly two anchored deferred levels; native pair actual-artifact gate remains separate"
+    "reviewed_local_commit": "392c273307f230f3d998c1b84f1c873eefd787d0",
+    "source_review_sha256": "cfc835b91a7b19e7afab454ffc81937cf6931b491679d38495f35e81e4c9b7e3",
+    "public_mapping_sha256": "3f610b59b5d1499db352be0f25c39678ef6b3b6b44b5e1702c3fc07131bd160a",
+    "prior_public_commit": "1015a4e43e97f785c94f1c051eae677c93d84c79",
+    "release_parent_commit": "916e2b28a4f5e83b2796044fe0a3ac6da7aad9cb",
+    "scope": "reviewed exact release integration; bounded exactly two anchored deferred levels; native pair actual-artifact gate remains separate"
+  },
+  "selected_core_inventory": {
+    "compiled_inputs": {
+      "element/anchored.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4d18613a2c1acc12303114e838d0bc952e61bf74",
+        "sha256": "e0809ba04b1e4ad0a2f37e1a5d86726ebb130cc97decd3ef540e88f2304f7fff",
+        "size": 21529
+      },
+      "element/container_query.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "73fc2d074dff83ef9b7557919efff76272af6ae1",
+        "sha256": "3b0d68508e14b58904504899b46a1bb77fb6656abbefa3891ee19cc2b2f02aef",
+        "size": 15365
+      },
+      "element/deferred.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "a07230434e8405530cbaa2148a00b21ed0a65918",
+        "sha256": "71e913a9da923805e009b36f268efbcbbf9f76c459dabae725b291baab403f3c",
+        "size": 3902
+      },
+      "element/drag.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "447799fdb2ea372e8381d73db1f80de62f534ad0",
+        "sha256": "aba619ada8162381af8f887992004944f96c215de7ca5fa7bc4df17e93d033ba",
+        "size": 5642
+      },
+      "element/drag_session.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "8f4d062fc4d5c14a5da0493d19994cb98b67b047",
+        "sha256": "8c188844be38dca1655d9a8ea00c01ece3b91886e711a5e00c6bfc21d147dd8b",
+        "size": 9482
+      },
+      "element/element.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "77b924802cc4b223e5d96c566bfabd5331903f39",
+        "sha256": "c4d6cd8c6a34745c2a08821157fab7d2deeda401998fa5be2b87d05870694bb0",
+        "size": 27822
+      },
+      "element/focus_scope.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "74beeb19db759480981465c74b55c96474c92a0f",
+        "sha256": "7d716d7f24eaa07b139e96424bfa0f7890fb7ce46e1d38519c1e1efe7c71532f",
+        "size": 23133
+      },
+      "element/focus_traversal.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "77064b465c9c9fdcdbac940e656fea5846b856f2",
+        "sha256": "7b1958af66533691e9060aaad9136425578aac9b15d97abf17663b852d673fea",
+        "size": 13168
+      },
+      "element/layout_bounds.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "6d45cc7df11f54189e2eb61f61ffcb53670731de",
+        "sha256": "aa56ea26396950cb53c05d16519e170e34ce95f77b0e0db224fcbfb211832144",
+        "size": 2163
+      },
+      "element/lifecycle.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "e3475ef04594d607b18a4b341dbaf07179679838",
+        "sha256": "c4a32549e212a5fa45c541094b76ec3934011caf698e76139d70d8f7c5c7c0e4",
+        "size": 17781
+      },
+      "element/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "24ddc5e9f55b05e9f1cc7d8d6a77c3528b7975dd",
+        "sha256": "6cfa670404f18a543f08707b519e13e105ba6144304e397171155a66ed8e7649",
+        "size": 247
+      },
+      "element/paint_binding.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "10512312694b43751e2154bda57488e8393bfc3e",
+        "sha256": "a6a659b8a84701ebeebe24ce4ce63aee6648b755122e6d084777761e01f00e75",
+        "size": 1969
+      },
+      "element/scroll.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "85fb5921290fa644d9af0ef18b87b8645c87e049",
+        "sha256": "313a1e6fbe4f5ea750a010e5b39719bcbdf20daf72e43c50d635159d226bc8bf",
+        "size": 5627
+      },
+      "element/scroll_viewport.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "df627aee2b39a3fde0e4348d3a72c6894b86a2ba",
+        "sha256": "83937f0c18b42475b9ad239dacef9e35612e1e5a8ef5e84de6580dcaa1d61164",
+        "size": 12563
+      },
+      "element/uniform_list.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "2ac6c455253fd9a326481034abed9bc2ee3f4919",
+        "sha256": "b9c8712092f31ec4897d02b236b2a02f4fb7b646ce6145eb38a49b25e911d235",
+        "size": 16704
+      },
+      "element/uniform_list_click.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "05d9073926bf56b31884723eb48c8de46a332ec0",
+        "sha256": "2a46a3f684e7a0cfe4820122e13e84030c203af913740db10b29cf0439d6118a",
+        "size": 4252
+      },
+      "layout/flex_resolution.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "d78cfc0257860e2c6e3dc56a7e6cb0e5bec8a703",
+        "sha256": "c63b4a5aecbbcdbd9185c1406f651c559a71fb2602cf7762ae99146e7fc4aeca",
+        "size": 5069
+      },
+      "layout/grid.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "2571b3c86e1006c7cc8e0ea7d51eecb1a0f5f95f",
+        "sha256": "fda462a3434eb943782b4889e197cd8aa42e34c0a784d3d10e8240652fc6cf01",
+        "size": 8479
+      },
+      "layout/layout.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "52f6873ccf30e0b304ecc85abcedff837dd4f7ed",
+        "sha256": "454311212da7c86ff8fef1cf1ffe36305bda336b841dc9febcb8b7aa84cb7a46",
+        "size": 39004
+      },
+      "layout/mixed_tree.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "86f1d345a616f24a5da9e5c7bc55e83851560d7c",
+        "sha256": "e0945894169d95e30db05b5224c62d8ee73a6fa250e01fba5a4c1b5f5307407a",
+        "size": 12842
+      },
+      "layout/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "b2f2933273ee3b785613f02c8332c390367d8d35",
+        "sha256": "5a72e56765b5d95562d31a53718246dc1629ca05189673688397db67a64d6d58",
+        "size": 147
+      },
+      "layout/tree.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "23b1e3124e3fc33cb13135038b16988117dfe101",
+        "sha256": "497c5a21e45cf612bebb94a72d58bb78f47b9a18dca2fc919586d5511ad8a02b",
+        "size": 27372
+      },
+      "primitives/color.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "07d98bc6baab87e88a3d67ca770fc45889e284a2",
+        "sha256": "79af9c911e0afc3ded6b9e5e9d3ec9a0cfd3729a2c6ebb1c7252793de232deb3",
+        "size": 1188
+      },
+      "primitives/float_color.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4aafa834bcc30fb3cae47d87ff762dc97ecc9759",
+        "sha256": "949759f0cf54f0117d1951f26f2dee711b77a718fd45466b2d1f5ea372c8c4c6",
+        "size": 1914
+      },
+      "primitives/geometry.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "a4f7f449a936953b2128d4bae14363fb126b6742",
+        "sha256": "991796bf5abd69bdf900b97cc1397c14c16fee170c01801583f1b23f1a7920a9",
+        "size": 7189
+      },
+      "primitives/input.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "da3cf84b0174f318ccc3da6a3b53f651278e5081",
+        "sha256": "261b7de4e5cb0e9fd77a7de67fef440e1a87268c8e8e3b4d0765e62282982be3",
+        "size": 2068
+      },
+      "primitives/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "d03e356b2acad907f9c1bab835a9b1a39a343e43",
+        "sha256": "167282a3abba1b414f1d4c6aff015179ad08e85e717944e08f9ca69996f5a247",
+        "size": 112
+      },
+      "scene/builder.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "fc7c6320ec3b25a211a747d0a1773aaaeebfdbda",
+        "sha256": "95fbe9d524df32e0082b9965f99ebd075f0e30afdcf26ef312bcb57dd6f5debd",
+        "size": 9903
+      },
+      "scene/gradient.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "ea2e1e8b0ea0b0073383ef0c7ad0a32ddc8c59cd",
+        "sha256": "ae5a2643c3881a3b87b34e3794cbb6ca9d5b1c7dafc1c837ab23093fe9614c02",
+        "size": 10221
+      },
+      "scene/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "f7d00eb6071e2f9507b22cbf0a6786cea3251970",
+        "sha256": "a9a6c452751fd60feb0047514d9a53944a6a6e2b4f25571ad36625bbe94ad272",
+        "size": 202
+      },
+      "scene/paint.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "ccc355a659126daf4256bf4cecb8684252011fe6",
+        "sha256": "05c2beb5b458efb99efc7bf511e3de8371f2b43613a382953496b75acc85f736",
+        "size": 9484
+      },
+      "scene/paint_raster.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "9a82b131009867f60faf7fdbb96d84bc149523d7",
+        "sha256": "932fe25eb76a93a88a91ba8089cba5cd59e64dc0f33809e03eb79b845c89f5cf",
+        "size": 15274
+      },
+      "scene/scene.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "467f9b949eb41f0bd320b53209d47344117dd313",
+        "sha256": "9ac7a4a14e7906422ebf6711321cb217096ac2453c44320bbd8d0c02ab0e8a92",
+        "size": 8104
+      },
+      "scene/snapshot.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "e81ac74304579bb21f2f2e85c8ef54f1bc017906",
+        "sha256": "cb0af9bc57f67c41e28259256d3771cc18cf6ce6b8880cec32f22f7b2f91cbc0",
+        "size": 22001
+      }
+    },
+    "module_context": {
+      "moon.mod": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "99da32ac781e0658c69c39930ae9195e394ac593",
+        "sha256": "2e90647efc31fb1e1b3b6684de02a1439b1afaa1d6c6e2e6b29a20c7af1faddc",
+        "size": 321
+      }
+    },
+    "api_context": {
+      "element/pkg.generated.mbti": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "45527b47e75a7423da7c49683dc94b4e32baac66",
+        "sha256": "de299efe3cfc9a908b35a39062d0dc4f03d5ba86a3f4719714667b5b4e604244",
+        "size": 19028
+      },
+      "scene/pkg.generated.mbti": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "beefaa2dc11a78651de33bde30963cbd0772d1c0",
+        "sha256": "dd8d5ccce0709a69e94b3d13003a4c275ac9110dc221030a380285926f7af56f",
+        "size": 11166
+      }
+    }
   }
 }

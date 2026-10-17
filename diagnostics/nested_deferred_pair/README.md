@@ -44,6 +44,26 @@ exact public commit/tree publication. The runner requires a clean, exact selecte
 suite and core and binds all production inputs to Git before staging. Existing
 fixture hashes and the old public pins stay unchanged.
 
+The selected integrated core is public commit
+`5dbcc1cfdeaede4e3698d63f29a699259c9cc3be`, tree
+`df567d739aa78eaa9a12003e0e433a2b67e998f3`. Its exact source union with the
+secured 0.8.0 release was separately reviewed and independently mapped. The
+profile records all 34 selected production inputs by Git mode/blob and SHA-256,
+the original module, and element/scene published API context. Selection remains
+complete from the selected Git tree, with every byte checked before compilation
+and independently on reopening. The additive `scene/builder.mbt` is included in
+all native package plans and every same-core regression; the existing 33 inputs,
+element API, actual scene command enum/emission and mutation anchors are unchanged.
+The new scene builder API is unused by this adapter. Published API context is
+retained as noncompiled context; generated native `.mi` files remain the actual
+compiler inputs. No adapter or observer compatibility derivation is changed.
+
+The historical unqualified local native smoke executed the earlier public core
+`1015a4e43e97f785c94f1c051eae677c93d84c79` against its then-current source.
+Neither that smoke nor earlier suite source approvals qualify this integrated
+pin or this appended suite source. Fresh final-pin native pair, four regressions,
+three production controls and independent actual-artifact review remain required.
+
 The four unchanged Rust observers execute from a separate full-history checkout
 of suite commit `efc197a0ef9d64a35df6efe0ee2c97dff98ece04`, tree
 `62ada6494e6f6ec6d463a1425f6e7daa2dadbce2`. They never execute at pair HEAD:
@@ -123,6 +143,14 @@ these synthetic bundles never qualify as actual evidence. Local source-only test
 runs without an upstream checkout explicitly skip this one integration test; CI
 sets the required path and fails if it is missing. The temporary synthetic
 fixtures are cleaned up, while CI retains the integration report.
+
+The workflow additionally requires `GPUI_SELECTED_CORE_TEST_SOURCE` for an exact
+selected-core Git inventory test and retains its report. Bounded temporary sparse
+source checkouts verify all 34 inputs, both API contexts, synthetic native plans,
+and each original/fractional, margin and flat source projection, including
+missing/altered/extra-source negatives. This is source-only: no compiler or
+candidate process is executed. A missing explicitly configured checkout fails;
+local runs without a checkout explicitly skip the integration test.
 
 Heavy execution needs a separately checked capacity budget, at least 2 GiB of
 execution/evidence headroom above a strict 1 GiB free-space floor. No evidence is

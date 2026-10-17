@@ -90,6 +90,8 @@ jobs:
           PYLINEAGE
       - name: Run unchanged and new checker regressions
         env:
+          GPUI_SELECTED_CORE_TEST_SOURCE: ${{ github.workspace }}/pair-suite/_build/core-source
+          GPUI_SELECTED_CORE_TEST_REPORT: ${{ github.workspace }}/pair-suite/_build/nested-deferred-pair-logs/selected-core-source-preflight.json
           GPUI_LAYOUT_TEST_UPSTREAM_SOURCE: ${{ github.workspace }}/pair-suite/_build/upstream-source
           GPUI_LAYOUT_TEST_REPORT: ${{ github.workspace }}/pair-suite/_build/nested-deferred-pair-logs/layout-source-preflight.json
         run: |

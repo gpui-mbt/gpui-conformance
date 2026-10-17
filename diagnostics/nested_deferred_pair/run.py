@@ -18,7 +18,7 @@ from compare import load_json, ROOT, LAYER, baseline, compare_observations, requ
 
 PACKAGES = ('element', 'layout', 'primitives', 'scene')
 # Published API context only; the actual compiler consumes retained generated .mi.
-CORE_API_FILES = ('element/pkg.generated.mbti',)
+CORE_API_FILES = ('element/pkg.generated.mbti', 'scene/pkg.generated.mbti')
 MODULE = 'name = "f4ah6o/gpui"\nversion = "0.0.0"\n'
 NEW_SUITE_FILES = ('adapters/nested_deferred_moonbit/main.mbt', 'adapters/nested_deferred_moonbit/moon.pkg',
     'diagnostics/nested_deferred_pair/compare.py', 'diagnostics/nested_deferred_pair/run.py',
