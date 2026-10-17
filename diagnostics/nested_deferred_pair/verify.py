@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 from compare import load_json, ROOT, LAYER, baseline, compare_observations, require, require_semantic_match
-from run import MODULE, SUITE_FILES, POLICY_FILES, OMITTED_BUILD_CACHES, TOOLCHAIN_ROOTS, inventory, production_file, validate_baseline, retained_path, native_build_plan, native_generated_inventory, require_native_environment, selected_production_paths, CORE_API_FILES, verify_core_api, verify_process_guard, DISK_FLOOR
+from run import MODULE, SUITE_FILES, POLICY_FILES, OMITTED_BUILD_CACHES, TOOLCHAIN_ROOTS, inventory, production_file, validate_baseline, retained_path, native_build_plan, native_generated_inventory, require_native_environment, selected_production_paths, CORE_API_FILES, verify_core_api, verify_process_guard, DISK_FLOOR, validate_source_lineage
 
 
 def git_blob(source, commit, relative):
@@ -50,7 +50,11 @@ def verify(directory, suite_source, upstream_source, core_source, suite_commit, 
                 and path.is_file() and path.resolve().is_relative_to(directory), 'unsafe evidence path')
         require(baseline.digest(path) == metadata['sha256'] and path.stat().st_size == metadata['size'], 'changed evidence: ' + relative)
     require(inventory(directory) == manifest['files'], 'inventory must cover every retained file')
-    approved = validate_baseline(directory / 'rust-baseline', suite_source, upstream_source, baseline_suite_commit or suite_commit,
+    oracle_commit = baseline_suite_commit or profile['suite_base_public_commit']
+    lineage = validate_source_lineage(suite_source, suite_commit, suite_source, oracle_commit)
+    require(manifest['source_lineage'] == lineage, 'independently selected oracle/pair source lineage')
+    require(manifest['oracle_suite'] == manifest['oracle_suite_after'] == dict(lineage['oracle_suite'], clean=True), 'unchanged clean pinned oracle suite')
+    approved = validate_baseline(directory / 'rust-baseline', suite_source, upstream_source, oracle_commit,
         recorded_execution_root=manifest['baseline']['recorded_execution_root'])
     require(manifest['baseline'] == approved, 'Rust baseline binding')
     require((directory / 'scenarios.json').read_bytes() == (directory / 'rust-baseline/scenarios.json').read_bytes(), 'same executed corpus')

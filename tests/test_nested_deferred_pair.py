@@ -2,6 +2,8 @@
 import copy
 import importlib.util
 import json
+import os
+import subprocess
 from pathlib import Path
 import shlex
 import sys
@@ -424,6 +426,164 @@ class FrozenObserverCompatibilityTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.regressions._require_original_compile_rejection(directory, {'compatibility_original_build': process})
 
+
+
+
+
+class ExactOraclePairLineageTests(unittest.TestCase):
+    """Real Git-object preflights only; no compiler or oracle execution."""
+    def setUp(self):
+        self.pair_commit = runner.command(['git', 'rev-parse', 'HEAD'], ROOT)
+        self.profile = compare.load_json((PAIR/'profile.json').read_text())
+        self.oracle = self.profile['suite_base_public_commit']
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.repo = Path(self.temp.name)
+        subprocess.check_call(['git', 'init', '-q', str(self.repo)])
+        self.environment = dict(os.environ, GIT_AUTHOR_NAME='Source lineage test', GIT_AUTHOR_EMAIL='lineage@example.invalid',
+                                GIT_COMMITTER_NAME='Source lineage test', GIT_COMMITTER_EMAIL='lineage@example.invalid')
+
+    def use_shared_objects(self):
+        common = Path(runner.command(['git', 'rev-parse', '--git-common-dir'], ROOT))
+        common = common if common.is_absolute() else ROOT/common
+        (self.repo/'.git/objects/info/alternates').write_text(str(common.resolve()/'objects')+'\n')
+
+    def git(self, *args, data=None):
+        return subprocess.check_output(['git', *args], cwd=self.repo, input=data, env=self.environment).decode().strip()
+
+    def changed_pair(self, relative=None, mode='100644', remove=False, unrelated=False):
+        self.use_shared_objects()
+        self.git('read-tree', self.pair_commit)
+        if relative:
+            if remove:
+                self.git('update-index', '--force-remove', relative)
+            else:
+                oid = self.git('hash-object', '-w', '--stdin', data=b'synthetic source-lineage negative only\n')
+                self.git('update-index', '--add', '--cacheinfo', mode+','+oid+','+relative)
+        tree = self.git('write-tree')
+        return self.git('commit-tree', tree, *([] if unrelated else ['-p', self.pair_commit]), data=b'isolated nonexecuted lineage fixture\n')
+
+    def lineage(self, source=None, commit=None, oracle_source=None, oracle_commit=None):
+        return runner.validate_source_lineage(source or ROOT, commit or self.pair_commit,
+                                              oracle_source or ROOT, oracle_commit or self.oracle)
+
+    def test_actual_pair_head_and_exact_oracle_objects_pass(self):
+        result = self.lineage()
+        self.assertEqual(result['oracle_suite'], {'commit':self.oracle,'tree':self.profile['suite_base_tree']})
+        self.assertEqual(result['pair_suite']['commit'], self.pair_commit)
+        self.assertEqual(len(result['baseline_entries']),674)
+        self.assertEqual(set(result['pair_additions']),set(runner.NEW_SUITE_FILES))
+        # Preserve the original failed boundary: the frozen oracle still rejects
+        # pair HEAD and accepts only its separately selected original source.
+        compare.baseline.validate_baseline_source(ROOT,self.oracle)
+        with self.assertRaisesRegex(ValueError,'changed baseline or non-owned'):
+            compare.baseline.validate_baseline_source(ROOT,self.pair_commit)
+
+    def test_real_descendant_pair_preserves_all_oracle_entries(self):
+        commit=self.changed_pair('diagnostics/nested_deferred_pair/README.md')
+        self.assertEqual(self.lineage(self.repo,commit)['pair_suite']['commit'],commit)
+
+    def test_alternate_or_same_suite_identity_is_rejected(self):
+        with self.assertRaisesRegex(ValueError,'exact pinned oracle'):
+            self.lineage(oracle_commit=compare.baseline.SUITE_BASE)
+        with self.assertRaisesRegex(ValueError,'distinct pair and oracle'):
+            self.lineage(commit=self.oracle)
+        with self.assertRaisesRegex(ValueError,'exact selected suite'):
+            self.lineage(commit='HEAD')
+
+    def test_changed_or_deleted_baseline_blob_is_rejected(self):
+        for remove in (False,True):
+            with self.subTest(remove=remove):
+                commit=self.changed_pair('diagnostics/nested_deferred/scenarios.json',remove=remove)
+                with self.assertRaisesRegex(ValueError,'baseline Git source entry'):
+                    self.lineage(self.repo,commit)
+
+    def test_changed_baseline_mode_is_rejected(self):
+        self.use_shared_objects();self.git('read-tree',self.pair_commit)
+        entry=runner.git_tree_entries(ROOT,self.oracle)['diagnostics/nested_deferred/scenarios.json']
+        self.git('update-index','--cacheinfo','100755,'+entry['oid']+',diagnostics/nested_deferred/scenarios.json')
+        commit=self.git('commit-tree',self.git('write-tree'),'-p',self.pair_commit,data=b'mode-only fixture\n')
+        with self.assertRaisesRegex(ValueError,'baseline Git source entry'):self.lineage(self.repo,commit)
+
+    def test_missing_or_extra_owned_addition_is_rejected(self):
+        for path,remove in (('unrelated-new-file',False),('diagnostics/nested_deferred_pair/README.md',True)):
+            with self.subTest(path=path):
+                commit=self.changed_pair(path,remove=remove)
+                with self.assertRaisesRegex(ValueError,'nineteen owned'):self.lineage(self.repo,commit)
+
+    def test_pair_addition_mode_and_unrelated_history_rejected(self):
+        commit=self.changed_pair('diagnostics/nested_deferred_pair/README.md',mode='100755')
+        with self.assertRaisesRegex(ValueError,'regular nonexecutable'):self.lineage(self.repo,commit)
+        commit=self.changed_pair(unrelated=True)
+        with self.assertRaises(subprocess.CalledProcessError):self.lineage(self.repo,commit)
+
+    def test_missing_actual_historical_objects_rejected(self):
+        # Minimal source store has the exact selected commit/root-tree objects,
+        # but genuinely lacks the e576 historical object needed by frozen code.
+        for commit in (self.oracle,self.pair_commit):
+            tree=runner.command(['git','rev-parse',commit+'^{tree}'],ROOT)
+            for kind,oid in (('commit',commit),('tree',tree)):
+                value=subprocess.check_output(['git','cat-file',kind,oid],cwd=ROOT)
+                self.assertEqual(self.git('hash-object','-w','-t',kind,'--stdin',data=value),oid)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.lineage(oracle_source=self.repo)
+
+    def test_missing_source_objects_and_wrong_tree_rejected(self):
+        with self.assertRaises(subprocess.CalledProcessError):self.lineage(oracle_source=self.repo)
+        with patch.object(runner,'load_json',return_value=dict(self.profile,suite_base_tree='0'*40)):
+            with self.assertRaisesRegex(ValueError,'oracle suite tree'):self.lineage()
+
+    def test_all_regression_wrappers_reopen_distinct_lineage_before_builds(self):
+        module=load_module('nested_lineage_regressions',PAIR/'regressions.py')
+        lineage=self.lineage();parent={'suite':dict(lineage['pair_suite'],clean=True),'source_lineage':lineage,
+                                    'recorded_execution_root':str(self.repo.resolve())}
+        context={'pair_manifest':parent,'pair_suite_source':ROOT,'suite_source':ROOT,'suite_commit':self.oracle}
+        with patch.dict(sys.modules,{'run':runner}):
+            self.assertEqual(module._execution_lineage(parent,context),lineage)
+            self.assertEqual(module._verification_lineage(parent,ROOT,self.pair_commit),self.oracle)
+            for execute,scope in ((module.execute_regressions,'original_modules'),
+                                  (module.execute_margin_regression,'margin_modules'),
+                                  (module.execute_flat_regression,'flat_modules')):
+                with self.subTest(execute=execute.__name__),patch.object(module,scope) as legacy:
+                    bad=dict(context,suite_commit=self.pair_commit)
+                    with self.assertRaisesRegex(ValueError,'exact pinned oracle'):
+                        execute(self.repo,{},self.repo,bad)
+                    legacy.assert_not_called()
+            bad=copy.deepcopy(parent);bad['source_lineage']['pair_suite']['commit']='0'*40
+            with self.assertRaisesRegex(ValueError,'parent source lineage differs'):
+                module._execution_lineage(bad,context)
+            with self.assertRaisesRegex(ValueError,'independently selected regression pair'):
+                module._verification_lineage(parent,ROOT,self.oracle)
+
+    def test_wrong_or_dirty_oracle_checkout_stops_runner_before_execution(self):
+        args=['run.py','--core-source','/tmp/nonexistent-core','--core-commit',self.profile['candidate_commit'],
+            '--baseline','/tmp/no-baseline','--regression-baseline','/tmp/no-original',
+            '--margin-baseline','/tmp/no-margin','--flat-baseline','/tmp/no-flat',
+            '--baseline-suite-commit',self.oracle,'--baseline-suite-source',str(self.repo),
+            '--upstream-source','/tmp/no-upstream','--output',str(ROOT/'_build/no-execution')]
+        core={'commit':self.profile['candidate_commit'],'tree':self.profile['candidate_tree'],'clean':True}
+        pair={'commit':self.pair_commit,'tree':runner.command(['git','rev-parse','HEAD^{tree}'],ROOT),'clean':True}
+        for oracle in ({'commit':self.pair_commit,'tree':pair['tree'],'clean':True},
+                       {'commit':self.oracle,'tree':self.profile['suite_base_tree'],'clean':False}):
+            with self.subTest(oracle=oracle),patch.object(sys,'argv',args),\
+                 patch.object(runner,'identity',side_effect=[core,pair,oracle]),\
+                 patch.object(runner,'execute') as execute,patch.object(runner,'validate_baseline') as baseline_call:
+                with self.assertRaisesRegex(ValueError,'exact clean oracle checkout'):runner.main()
+                execute.assert_not_called();baseline_call.assert_not_called()
+
+    def test_workflow_uses_full_history_isolated_oracle_for_all_four_observers(self):
+        text=(ROOT/'.github/workflows/nested-deferred-native-pair.yml').read_text()
+        self.assertEqual(text.count('fetch-depth: 0'),2)
+        self.assertIn('ref: ${{ steps.pins.outputs.oracle }}',text)
+        start=text.index('      - name: Compile and execute four unchanged actual Rust observers')
+        end=text.index('      - name: Compile deferred pair',start)
+        observer=text[start:end]
+        self.assertIn('working-directory: _build/oracle-suite',observer)
+        for name in ('nested_deferred','anchor_margin','anchor','deferred_priority'):
+            self.assertIn('python3 diagnostics/'+name+'/run.py',observer)
+            self.assertIn('python3 diagnostics/'+name+'/verify.py',observer)
+        self.assertIn('--baseline-suite-source _build/oracle-suite',text[end:])
+        self.assertIn("--baseline-suite-commit '${{ steps.pins.outputs.oracle }}'",text[end:])
 
 
 if __name__ == "__main__": unittest.main()

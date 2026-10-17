@@ -261,12 +261,25 @@ def _require_success(manifest, phase):
             'regression ' + phase + ' failed; evidence retained')
 
 
+def _execution_lineage(parent, context):
+    from run import regression_source_context
+    return regression_source_context(parent, context['pair_suite_source'], context['suite_source'], context['suite_commit'])
+
+
+def _verification_lineage(parent, suite_source, suite_commit):
+    from run import regression_source_context
+    require(parent['suite']['commit'] == suite_commit, 'independently selected regression pair suite commit')
+    profile = json.loads((ROOT / PROFILE).read_text())
+    lineage = regression_source_context(parent, suite_source, suite_source, profile['suite_base_public_commit'])
+    return lineage['oracle_suite']['commit']
+
+
 def execute_regressions(pair: Path, environment: dict, original_rust: Path, source_context: dict) -> dict:
     """Build the exact compatibility-derived original adapter and run both genuine regressions."""
     pair, original_rust = Path(pair).resolve(), Path(original_rust).resolve()
     parent = source_context['pair_manifest']
     require(parent['recorded_execution_root'] == str(pair), 'regression parent execution root')
-    require(source_context['suite_commit'] == parent['suite']['commit'], 'regression Rust and pair must use same selected suite commit')
+    _execution_lineage(parent, source_context)
     with original_modules() as old:
         profile = _profile(pair, old)
         observer_hashes = _observer_binding(pair, profile, old)
@@ -284,6 +297,7 @@ def execute_regressions(pair: Path, environment: dict, original_rust: Path, sour
         manifest = {'schema_version': 1, 'layer': LAYER, 'qualification': QUALIFICATION,
                     'recorded_execution_root': str(directory), 'run_token': token,
                     'core': deepcopy(parent['core']), 'suite': deepcopy(parent['suite']),
+                    'source_lineage': deepcopy(parent['source_lineage']),
                     'requested_core_commit': parent['requested_core_commit'], 'core_inputs': list(parent['core_inputs']),
                     'observer_compatibility': compatibility,
                     'baseline': approved, 'observer_sha256': observer_hashes, 'native_helper_sha256': native_hashes,
@@ -373,6 +387,7 @@ def verify_regressions(pair: Path, pair_manifest: dict, suite_source: Path, upst
     """Reopen copied evidence without executing either retained binary."""
     pair = Path(pair).resolve()
     directory = pair / 'regressions'
+    oracle_commit = _verification_lineage(pair_manifest, suite_source, suite_commit)
     _safe_tree(directory)
     with original_modules() as old:
         digest = old.compare.baseline.digest
@@ -389,7 +404,7 @@ def verify_regressions(pair: Path, pair_manifest: dict, suite_source: Path, upst
         require(manifest['observer_sha256'] == _observer_binding(pair, profile, old, suite_source, suite_commit), 'regression complete observer hashes')
         require(manifest['native_helper_sha256'] == _native_helper_binding(pair, old, suite_source, suite_commit), 'regression scoped native helper hashes')
         require(manifest['scoped_profile_sha256'] == digest(pair / retained_path(PROFILE)), 'regression scoped profile hash')
-        for key in ('core', 'suite', 'requested_core_commit', 'core_inputs', 'platform'):
+        for key in ('core', 'suite', 'source_lineage', 'requested_core_commit', 'core_inputs', 'platform'):
             require(manifest[key] == pair_manifest[key], 'regression enclosing provenance differs: ' + key)
         require(manifest['platform']['system'] == 'Linux' and manifest['requested_core_commit'] == core_commit, 'regression native Linux/core identity')
         require(pair_manifest['core_after'] == manifest['core'] and pair_manifest['suite_after'] == manifest['suite'], 'regression enclosing sources changed')
@@ -425,7 +440,7 @@ def verify_regressions(pair: Path, pair_manifest: dict, suite_source: Path, upst
                     not path.is_symlink() and path.resolve().is_relative_to(directory), 'unsafe regression inventory path')
             require(metadata == {'sha256': digest(path), 'size': path.stat().st_size}, 'regression file changed: ' + relative)
         require(old.run.inventory(directory) == manifest['files'], 'regression inventory must cover every retained file')
-        approved = old.verify.validate_baseline(directory / 'rust-baseline', suite_source, upstream_source, suite_commit,
+        approved = old.verify.validate_baseline(directory / 'rust-baseline', suite_source, upstream_source, oracle_commit,
                                                 manifest['baseline']['recorded_execution_root'])
         require(approved == manifest['baseline'], 'regression freshly source-bound original Rust baseline')
         require((directory / 'scenarios.json').read_bytes() == (directory / 'rust-baseline/scenarios.json').read_bytes() ==
@@ -531,14 +546,14 @@ def _margin_counts(comparison):
 
 def execute_margin_regression(pair,environment,original_rust,context):
     pair,original_rust=Path(pair).resolve(),Path(original_rust).resolve(); parent=context['pair_manifest']
-    require(context['suite_commit']==parent['suite']['commit'],'margin regression exact suite commit')
+    _execution_lineage(parent, context)
     with margin_modules() as old:
         approved=_margin_baseline(original_rust,context,old)
         _safe_tree(original_rust); _require_space(pair,sum(p.stat().st_size for p in original_rust.rglob('*') if p.is_file()))
         directory=pair/'margin-regression'; directory.mkdir(exist_ok=False); token=str(uuid.uuid4())
         manifest={'schema_version':1,'layer':'supplemental-same-core-margin-regression','qualification':'same-final-core-frozen-margin-observer',
             'recorded_execution_root':str(directory),'run_token':token,'baseline':approved,
-            **{k:deepcopy(parent[k]) for k in ('core','suite','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform')},
+            **{k:deepcopy(parent[k]) for k in ('core','suite','source_lineage','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform')},
             'started_at':old.native.now()}
         try:
             stage=directory/'build-source'; stage.mkdir()
@@ -580,12 +595,13 @@ def execute_margin_regression(pair,environment,original_rust,context):
 
 
 def verify_margin_regression(pair,parent,suite_source,upstream_source,core_source,suite_commit,core_commit):
+    oracle_commit = _verification_lineage(parent, suite_source, suite_commit)
     pair=Path(pair).resolve(); directory=pair/'margin-regression'; _safe_tree(directory)
     with margin_modules() as old:
         manifest=old.compare.load_json((directory/'manifest.json').read_text());digest=old.compare.baseline.digest
         require(manifest['schema_version']==1 and manifest['layer']=='supplemental-same-core-margin-regression' and
                 manifest['qualification']=='same-final-core-frozen-margin-observer' and 'failure' not in manifest,'margin regression identity/success')
-        for key in ('core','suite','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform'):
+        for key in ('core','suite','source_lineage','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform'):
             require(manifest[key]==parent[key],'margin enclosing provenance: '+key)
         require(manifest['core']['commit']==core_commit and manifest['suite']['commit']==suite_commit,'margin selected exact source commits')
         require(manifest['source_inputs']==manifest['source_inputs_after']==_margin_source(pair,directory,parent,old,suite_source,suite_commit,core_source,core_commit),'margin exact source inputs')
@@ -597,7 +613,7 @@ def verify_margin_regression(pair,parent,suite_source,upstream_source,core_sourc
             p=old.compare.baseline.strict_file(directory,relative)
             require(metadata=={'sha256':digest(p),'size':p.stat().st_size},'margin inventory: '+relative)
         require(old.native.inventory(directory)==manifest['files'],'margin complete retained evidence')
-        approved=_margin_baseline(directory/'rust-baseline',{'suite_source':suite_source,'suite_commit':suite_commit,'upstream_source':upstream_source,
+        approved=_margin_baseline(directory/'rust-baseline',{'suite_source':suite_source,'suite_commit':oracle_commit,'upstream_source':upstream_source,
             'recorded_execution_root':manifest['baseline']['recorded_execution_root']},old)
         require(approved==manifest['baseline'],'margin baseline source binding')
         require((directory/'scenarios.json').read_bytes()==(directory/'rust-baseline/scenarios.json').read_bytes()==
@@ -686,14 +702,14 @@ def _flat_counts(comparison):
 
 def execute_flat_regression(pair,environment,original_rust,context):
     pair,original_rust=Path(pair).resolve(),Path(original_rust).resolve(); parent=context['pair_manifest']
-    require(context['suite_commit']==parent['suite']['commit'],'flat regression exact suite commit')
+    _execution_lineage(parent, context)
     with flat_modules() as old:
         approved=_flat_baseline(original_rust,context,old)
         _safe_tree(original_rust); _require_space(pair,sum(p.stat().st_size for p in original_rust.rglob('*') if p.is_file()))
         directory=pair/'flat-regression'; directory.mkdir(exist_ok=False); token=str(uuid.uuid4())
         manifest={'schema_version':1,'layer':'supplemental-same-core-flat-regression','qualification':'same-final-core-frozen-flat-observer',
             'recorded_execution_root':str(directory),'run_token':token,'baseline':approved,
-            **{k:deepcopy(parent[k]) for k in ('core','suite','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform')},
+            **{k:deepcopy(parent[k]) for k in ('core','suite','source_lineage','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform')},
             'started_at':old.native.now()}
         try:
             stage=directory/'build-source'; stage.mkdir()
@@ -735,12 +751,13 @@ def execute_flat_regression(pair,environment,original_rust,context):
 
 
 def verify_flat_regression(pair,parent,suite_source,upstream_source,core_source,suite_commit,core_commit):
+    oracle_commit = _verification_lineage(parent, suite_source, suite_commit)
     pair=Path(pair).resolve(); directory=pair/'flat-regression'; _safe_tree(directory)
     with flat_modules() as old:
         manifest=old.compare.load_json((directory/'manifest.json').read_text());digest=old.compare.baseline.digest
         require(manifest['schema_version']==1 and manifest['layer']=='supplemental-same-core-flat-regression' and
                 manifest['qualification']=='same-final-core-frozen-flat-observer' and 'failure' not in manifest,'flat regression identity/success')
-        for key in ('core','suite','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform'):
+        for key in ('core','suite','source_lineage','requested_core_commit','core_inputs','tool_binaries','toolchain_inputs','toolchain_home','platform'):
             require(manifest[key]==parent[key],'flat enclosing provenance: '+key)
         require(manifest['core']['commit']==core_commit and manifest['suite']['commit']==suite_commit,'flat selected exact source commits')
         require(manifest['source_inputs']==manifest['source_inputs_after']==_flat_source(pair,directory,parent,old,suite_source,suite_commit,core_source,core_commit),'flat exact source inputs')
@@ -752,7 +769,7 @@ def verify_flat_regression(pair,parent,suite_source,upstream_source,core_source,
             p=old.compare.baseline.strict_file(directory,relative)
             require(metadata=={'sha256':digest(p),'size':p.stat().st_size},'flat inventory: '+relative)
         require(old.native.inventory(directory)==manifest['files'],'flat complete retained evidence')
-        approved=_flat_baseline(directory/'rust-baseline',{'suite_source':suite_source,'suite_commit':suite_commit,'upstream_source':upstream_source,
+        approved=_flat_baseline(directory/'rust-baseline',{'suite_source':suite_source,'suite_commit':oracle_commit,'upstream_source':upstream_source,
             'recorded_execution_root':manifest['baseline']['recorded_execution_root']},old)
         require(approved==manifest['baseline'],'flat baseline source binding')
         require((directory/'scenarios.json').read_bytes()==(directory/'rust-baseline/scenarios.json').read_bytes()==

@@ -44,6 +44,21 @@ exact public commit/tree publication. The runner requires a clean, exact selecte
 suite and core and binds all production inputs to Git before staging. Existing
 fixture hashes and the old public pins stay unchanged.
 
+The four unchanged Rust observers execute from a separate full-history checkout
+of suite commit `efc197a0ef9d64a35df6efe0ee2c97dff98ece04`, tree
+`62ada6494e6f6ec6d463a1425f6e7daa2dadbce2`. They never execute at pair HEAD:
+the frozen nested oracle intentionally rejects the nineteen pair additions.
+Both source checkouts retain history, including the oracle's `e576fd9e` base.
+A new source-lineage preflight preserves that complete frozen check, requires
+all 674 baseline Git mode/type/blob entries unchanged at the selected descendant
+pair commit, and requires exactly the nineteen owned pair additions. The parent
+and all original/fractional, margin and flat regression manifests retain this
+explicit oracle-suite/pair-suite distinction. Independent reopening uses the
+exact pinned oracle Git objects from the full-history pair source and rechecks
+lineage before applying the unchanged Rust bundle verifiers. Missing history,
+alternate baseline pins, changed baseline bytes/modes, unrelated pair history,
+or missing/extra owned paths fail before candidate execution.
+
 All native evidence is retained: exact module/package projections, original core
 module and published API context, compiler/linker binaries and runtime inputs,
 dry-run argv, generated `.mi`/`.core`/native objects/archive, built and executed

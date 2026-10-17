@@ -302,6 +302,57 @@ def verify_process_guard(record):
 
 
 
+def git_tree_entries(source, commit):
+    """Read complete mode/type/blob identities, not a selected-path allowlist."""
+    raw = subprocess.check_output(['git', 'ls-tree', '-rz', '--full-tree', commit], cwd=source)
+    entries = {}
+    for record in raw.split(b'\0'):
+        if not record:
+            continue
+        metadata, name = record.split(b'\t', 1)
+        mode, kind, oid = metadata.decode('ascii').split()
+        relative = name.decode('utf-8')
+        require(relative not in entries, 'duplicate Git source entry')
+        entries[relative] = {'mode': mode, 'type': kind, 'oid': oid}
+    return entries
+
+
+def validate_source_lineage(pair_source, pair_commit, oracle_source, oracle_commit):
+    """Bind two distinct selected suites while preserving the frozen oracle gate."""
+    profile = load_json((ROOT / 'diagnostics/nested_deferred_pair/profile.json').read_text())
+    for selected in (pair_commit, oracle_commit):
+        require(isinstance(selected, str) and re.fullmatch('[0-9a-f]{40}', selected), 'exact selected suite commit required')
+    require(oracle_commit == profile['suite_base_public_commit'], 'exact pinned oracle suite commit required')
+    require(pair_commit != oracle_commit, 'distinct pair and oracle suite commits required')
+    oracle_tree = command(['git', 'rev-parse', oracle_commit + '^{tree}'], oracle_source)
+    require(oracle_tree == profile['suite_base_tree'], 'exact pinned oracle suite tree required')
+    # This deliberately needs the historical e576 object. Never bypass or widen
+    # the unchanged oracle's eleven-addition preflight for pair-owned paths.
+    baseline.validate_baseline_source(oracle_source, oracle_commit)
+    require(command(['git', 'rev-parse', oracle_commit + '^{tree}'], pair_source) == oracle_tree,
+            'pair source must contain the exact oracle Git object')
+    subprocess.check_call(['git', 'merge-base', '--is-ancestor', oracle_commit, pair_commit], cwd=pair_source)
+    original = git_tree_entries(oracle_source, oracle_commit)
+    selected = git_tree_entries(pair_source, pair_commit)
+    require(len(original) == 674, 'complete 674-entry oracle source inventory')
+    require(all(selected.get(path) == entry for path, entry in original.items()), 'changed or missing baseline Git source entry')
+    require(set(selected) - set(original) == set(NEW_SUITE_FILES), 'exact nineteen owned pair additions required')
+    require(all(selected[path]['type'] == 'blob' and selected[path]['mode'] == '100644' for path in NEW_SUITE_FILES),
+            'regular nonexecutable pair source additions required')
+    return {'oracle_suite': {'commit': oracle_commit, 'tree': oracle_tree},
+            'pair_suite': {'commit': pair_commit, 'tree': command(['git', 'rev-parse', pair_commit + '^{tree}'], pair_source)},
+            'historical_oracle_base': {'commit': baseline.SUITE_BASE, 'tree': baseline.SUITE_BASE_TREE},
+            'baseline_entries': original, 'pair_additions': sorted(NEW_SUITE_FILES)}
+
+
+def regression_source_context(parent, pair_source, oracle_source, oracle_commit):
+    """Every wrapper independently reopens the parent's explicit source lineage."""
+    lineage = validate_source_lineage(pair_source, parent['suite']['commit'], oracle_source, oracle_commit)
+    require(parent['source_lineage'] == lineage, 'regression parent source lineage differs')
+    require(parent['suite']['tree'] == lineage['pair_suite']['tree'], 'regression selected pair tree differs')
+    return lineage
+
+
 def validate_baseline(directory, suite_source, upstream_source, suite_commit, recorded_execution_root=None):
     profile = load_json((ROOT / 'diagnostics/nested_deferred_pair/profile.json').read_text())
     require(isinstance(suite_commit, str) and re.fullmatch('[0-9a-f]{40}', suite_commit), 'independently selected exact baseline suite commit required')
@@ -343,12 +394,16 @@ def main():
     mutation_descriptors()
     core, original = args.core_source.resolve(), args.baseline.resolve()
     profile = load_json((ROOT / 'diagnostics/nested_deferred_pair/profile.json').read_text())
-    approved = validate_baseline(original, args.baseline_suite_source, args.upstream_source, args.baseline_suite_commit,
-                                 args.baseline_recorded_execution_root)
     core_before, suite_before = identity(core), identity(ROOT)
     require(core_before['clean'] and suite_before['clean'], 'exact clean sources required')
     require(args.core_commit == profile['candidate_commit'] == core_before['commit'] and core_before['tree'] == profile['candidate_tree'], 'candidate public commit/tree pin')
     require(profile['candidate_pin_status'] == 'published-exact-commit-tree', 'candidate publication pin still pending')
+    oracle_before = identity(args.baseline_suite_source)
+    require(oracle_before['clean'] and oracle_before['commit'] == args.baseline_suite_commit, 'exact clean oracle checkout required')
+    lineage = validate_source_lineage(ROOT, suite_before['commit'], args.baseline_suite_source, args.baseline_suite_commit)
+    require(oracle_before['tree'] == lineage['oracle_suite']['tree'], 'oracle checkout tree')
+    approved = validate_baseline(original, args.baseline_suite_source, args.upstream_source, args.baseline_suite_commit,
+                                 args.baseline_recorded_execution_root)
     inputs = source_preflight(core, args.core_commit)
     resource_budget = require_capacity(ROOT, 2 * 1024**3)
     require(shutil.disk_usage(ROOT).free >= 3 * 1024**3, 'Need 2GiB execution/evidence budget plus strict 1GiB floor; preserve evidence and run heavy pair in CI')
@@ -409,7 +464,8 @@ def main():
     require(toolchain_inputs, 'native toolchain input inventory missing')
     manifest = {'schema_version': 1, 'layer': LAYER, 'run_token': token, 'qualification': 'exact-clean-source-pair',
         'review_or_publication_claim': False, 'requested_core_commit': args.core_commit, 'recorded_execution_root': str(out),
-        'core': core_before, 'suite': suite_before, 'baseline': approved, 'core_inputs': inputs,
+        'core': core_before, 'suite': suite_before, 'oracle_suite': oracle_before,
+        'source_lineage': lineage, 'baseline': approved, 'core_inputs': inputs,
         'core_api_context': {'role': 'noncompiled-published-api-context', 'files': list(CORE_API_FILES)},
         'preexecution_contract_sha256': {p: baseline.digest(ROOT / p) for p in POLICY_FILES},
         'toolchain_inputs': sorted(toolchain_inputs), 'toolchain_home': str(moon_home),
@@ -443,18 +499,18 @@ def main():
         from regressions import execute_regressions
         try:
             manifest['regressions'] = execute_regressions(out, environment, args.regression_baseline.resolve(),
-                {'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
+                {'pair_suite_source': ROOT, 'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
                  'suite_commit': args.baseline_suite_commit,
                  'recorded_execution_root': args.regression_baseline_recorded_execution_root,
                  'pair_manifest': manifest})
             from regressions import execute_margin_regression
             manifest['margin_regression'] = execute_margin_regression(out, environment, args.margin_baseline.resolve(),
-                {'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
+                {'pair_suite_source': ROOT, 'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
                  'suite_commit': args.baseline_suite_commit,
                  'recorded_execution_root': args.margin_baseline_recorded_execution_root, 'pair_manifest': manifest})
             from regressions import execute_flat_regression
             manifest['flat_regression'] = execute_flat_regression(out, environment, args.flat_baseline.resolve(),
-                {'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
+                {'pair_suite_source': ROOT, 'suite_source': args.baseline_suite_source, 'upstream_source': args.upstream_source,
                  'suite_commit': args.baseline_suite_commit,
                  'recorded_execution_root': args.flat_baseline_recorded_execution_root, 'pair_manifest': manifest})
         except (ValueError, TypeError, KeyError, IndexError, OSError) as error:
@@ -465,6 +521,9 @@ def main():
     manifest['tool_binaries_after'] = {name: baseline.digest(Path(item['path'])) for name, item in tools.items()}
     manifest['tool_commands_after'] = {name: baseline.digest(Path(item['command_path'])) for name, item in tools.items()}
     manifest['toolchain_inputs_after'] = {name: baseline.digest(moon_home / name) for name in toolchain_inputs}
+    manifest['oracle_suite_after'] = identity(args.baseline_suite_source)
+    require(manifest['oracle_suite_after'] == oracle_before, 'oracle source identity changed; evidence retained')
+    require(validate_source_lineage(ROOT, suite_before['commit'], args.baseline_suite_source, args.baseline_suite_commit) == lineage, 'source lineage changed')
     manifest['finished_at'] = now()
     manifest['files'] = inventory(out)
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
