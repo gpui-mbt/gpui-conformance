@@ -266,15 +266,30 @@ test('focus_visible is a pinned interactive core-backed candidate with unverifie
 });
 
 
-test('pinned PNG decoder is installed before independent comparator unit tests', async () => {
+test('each parallel test runner installs the same pinned PNG decoder before pixel checks', async () => {
   const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
+  const moon = workflow.slice(workflow.indexOf('  moonbit-js:'), workflow.indexOf('  rust-wasm:'));
+  const join = workflow.slice(workflow.indexOf('  matched-examples:'));
   const install = 'python3 -m pip install Pillow==12.0.0';
-  assert.equal(workflow.split(install).length - 1, 1, 'One shared exact decoder version');
-  const decoder = workflow.indexOf(install);
-  const unitTests = workflow.indexOf('node --test web/tests/*.test.mjs');
-  assert(decoder >= 0 && unitTests > decoder, 'PNG-decoding unit tests require Pillow before the host gate');
-  assert(workflow.indexOf('node web/tests/compare-focus-visible-results.mjs') > unitTests,
-    'Retained browser evidence uses the same installed decoder later');
+  assert.equal(moon.split(install).length - 1, 1, 'MoonBit host tests install exactly one pinned decoder');
+  assert.equal(join.split(install).length - 1, 1, 'Chromium checks install exactly one pinned decoder');
+  assert(moon.indexOf(install) >= 0 && moon.indexOf(install) < moon.indexOf('node --test web/tests/*.test.mjs'),
+    'PNG-decoding host tests must have Pillow before the host gate');
+  assert(join.indexOf(install) >= 0 && join.indexOf(install) < join.indexOf('node web/tests/compare-focus-visible-results.mjs'),
+    'retained Chromium evidence uses Pillow in its own independent runner');
+  assert(!join.includes('node --test web/tests/*.test.mjs'), 'host gate must run alongside compilation, not after Rust joins');
+});
+
+test('parallel build must complete verification before reusable Cloudflare publish', async () => {
+  const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
+  const publish = await readFile(new URL('../../.github/workflows/browser-lab-cloudflare.yml', import.meta.url), 'utf8');
+  assert(workflow.includes('  workflow_call:'));
+  assert(workflow.includes('  moonbit-js:') && workflow.includes('  rust-wasm:'));
+  assert(workflow.includes('  matched-examples:\n    needs: [moonbit-js, rust-wasm]'));
+  assert(workflow.includes('name: browser-example-evidence'));
+  assert(publish.includes('  build:\n    needs: preflight\n    uses: ./.github/workflows/browser-examples.yml'));
+  assert(publish.includes('  publish:\n    needs: build'));
+  assert(publish.includes('name: browser-example-evidence'));
 });
 
 test('tab_stop is a source-pinned genuine group candidate without borrowed runtime qualification', async () => {
