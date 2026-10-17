@@ -35,6 +35,16 @@ try {
     document.body.append(gridNotice);
   }
   const isAnchor = example === 'anchor';
+  let anchorNotice;
+  if (isAnchor) {
+    anchorNotice = document.createElement('p');
+    anchorNotice.id = 'anchor-live-notice';
+    anchorNotice.setAttribute('role', 'status');
+    anchorNotice.hidden = true;
+    Object.assign(anchorNotice.style, {position:'fixed',bottom:'0',right:'0',maxWidth:'30rem',margin:'0',padding:'.4rem .6rem',background:'#fff4d6',color:'#49340b',font:'12px system-ui',pointerEvents:'none'});
+    anchorNotice.textContent = 'Live anchor preview is outside the frozen 750/480 × 600, DPR 1 reference profile. This viewport remains unverified.';
+    document.body.append(anchorNotice);
+  }
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
@@ -84,8 +94,9 @@ try {
         const {frame,width,height,scale,widths} = readAnchorFrame(runtime,context,window,metadata);
         metadata.width = width; metadata.height = height;
         canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
-        canvas.width = width * scale; canvas.height = height * scale;
+        canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale);
         drawFrame(context,frame,metadata,scale);
+        anchorNotice.hidden = frame.anchor.comparison_profile_match;
         globalThis.gpuiExample = {metadata,frame,textWidth:widths,scale,anchorEvents:anchor?.events || []};
         canvas.hidden = false; error.hidden = true;
         document.documentElement.dataset.runtimeStatus = 'ready';
@@ -93,7 +104,9 @@ try {
         delete globalThis.gpuiExample;
         canvas.hidden = true; error.hidden = false;
         document.documentElement.dataset.runtimeStatus = 'failed';
-        error.textContent = `Anchor candidate failed: ${cause.message}. Supported profile: widths 750 or 480px; height 600px; DPR 1.`;
+        runtime.anchor_reset();
+        anchorNotice.hidden = true;
+        error.textContent = `Anchor candidate failed: ${cause.message}. Live viewport requires width 4–4096px and height 4–16384px, DPR 0.25–4, and a rounded Canvas of 1–16384px per side and at most 33554432 pixels.`;
       }
       return;
     }
@@ -175,7 +188,18 @@ try {
   render();
   if (isAnchor) {
     anchor = createAnchorHost({runtime,canvas,render});
-    window.addEventListener('pagehide', () => anchor.stop(), {once:true});
+    let stopScaleWatch = watchGridDeviceScale(window, render);
+    window.addEventListener('pagehide', () => {
+      anchor?.stop(); anchor = null;
+      stopScaleWatch?.(); stopScaleWatch = null;
+    });
+    window.addEventListener('pageshow', () => {
+      if (!anchor) {
+        anchor = createAnchorHost({runtime,canvas,render});
+        stopScaleWatch = watchGridDeviceScale(window, render);
+        render();
+      }
+    });
   }
   if (example === 'input') { input = createInputHost({runtime,canvas,render}); render(); }
   if (dynamicFonts) void dynamicFonts.start(metadata.runs[2].text);
