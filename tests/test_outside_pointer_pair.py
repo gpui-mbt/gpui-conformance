@@ -198,4 +198,38 @@ class PairSourceTests(unittest.TestCase):
             with self.subTest(stdout=bad_out,stderr=bad_err):
                 with self.assertRaises(ValueError):run_rust.rust_build_graph(record,bad_out,bad_err)
 
+    def test_cargo_verbose_build_script_protocol(self):
+        record={'build_root':'/build','tools':{'rustc':{'path':'/toolchain/bin/rustc'}}}
+        artifact={'reason':'compiler-artifact','target':{'name':'gpui-popover-outside-diagnostic',
+            'kind':['bin'],'src_path':'/build/adapter/src/main.rs'},'fresh':False,
+            'executable':'/build/target/debug/gpui-popover-outside-diagnostic',
+            'filenames':['/build/target/debug/gpui-popover-outside-diagnostic'],
+            'profile':{'test':False,'opt_level':'0','debug_assertions':True}}
+        script={'reason':'build-script-executed',
+            'package_id':'registry+https://github.com/rust-lang/crates.io-index#libm@0.2.16',
+            'cfgs':['arch_enabled'],'env':[['CFG_OPT_LEVEL','0']]}
+        directives='\n'.join([
+            '[libm 0.2.16] cargo:rerun-if-changed=build.rs',
+            '[libm 0.2.16] cargo::rerun-if-env-changed=RUSTC_BOOTSTRAP',
+            '[libm 0.2.16] cargo:rustc-check-cfg=cfg(arch_enabled)',
+            '[libm 0.2.16] cargo:rustc-cfg=arch_enabled',
+            '[libm 0.2.16] cargo:rustc-env=CFG_OPT_LEVEL=0'])
+        stdout=directives+'\n'+'\n'.join(json.dumps(m) for m in [script,artifact,{'reason':'build-finished','success':True}])
+        stderr='Running `CARGO_MANIFEST_DIR=/build/adapter /toolchain/bin/rustc --crate-name gpui_popover_outside_diagnostic src/main.rs --crate-type bin --emit=dep-info,link --out-dir /build/target/debug/deps`'
+        result=run_rust.rust_build_graph(record,stdout,stderr)
+        self.assertEqual(len(result['build_script_output']),5)
+        self.assertEqual(result['artifact'],artifact)
+        for bad in [
+            stdout+'\nunknown build chatter',
+            stdout+'\n{"reason":',
+            stdout+'\n{"reason":"not-a-cargo-record"}',
+            stdout+'\n{"reason":"build-finished","reason":"build-finished","success":true}',
+            stdout.replace('[libm 0.2.16]','[unknown 0.2.16]'),
+            stdout.replace('cargo:rustc-cfg=arch_enabled','cargo:rustc-cfg=unreported_cfg'),
+            stdout.replace('cargo:rustc-env=CFG_OPT_LEVEL=0','cargo:rustc-env=CFG_OPT_LEVEL=3'),
+            stdout.replace('cargo:rerun-if-changed=build.rs','cargo:unexpected=build.rs'),
+        ]:
+            with self.subTest(stdout=bad):
+                with self.assertRaises(ValueError):run_rust.rust_build_graph(record,bad,stderr)
+
 if __name__=='__main__':unittest.main()

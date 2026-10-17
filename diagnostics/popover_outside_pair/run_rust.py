@@ -154,7 +154,41 @@ def rust_build_graph(record,stdout,stderr):
     """Reconstruct the selected Cargo artifact and its actual verbose rustc argv."""
     stage = Path(record['build_root'])/'adapter'
     target = Path(record['build_root'])/'target'
-    messages = [json.loads(line) for line in stdout.splitlines() if line.strip()]
+    # Cargo -vv deliberately interleaves prefixed build-script directives with
+    # its JSON stream. Recognize only the observed protocol, never arbitrary text.
+    messages,script_lines = [],[]
+    script_pattern = re.compile(r'\[([A-Za-z0-9_-]+) ([0-9]+\.[0-9]+\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?)\] cargo::?(rerun-if-changed|rerun-if-env-changed|rustc-check-cfg|rustc-cfg|rustc-env)=(.+)')
+    def pairs(items):
+        value={}
+        for key,item in items:
+            require(key not in value,'duplicate Cargo JSON key')
+            value[key]=item
+        return value
+    def invalid(value):raise ValueError('nonfinite Cargo JSON: '+value)
+    for line in stdout.splitlines():
+        if not line.strip():continue
+        matched=script_pattern.fullmatch(line)
+        if matched:
+            script_lines.append((line,matched.groups()))
+        else:
+            message=json.loads(line,object_pairs_hook=pairs,parse_constant=invalid)
+            require(type(message) is dict and message.get('reason') in
+                    ('compiler-artifact','compiler-message','build-script-executed','build-finished'),
+                    'unknown Cargo JSON record')
+            messages.append(message)
+    scripts=[m for m in messages if m.get('reason')=='build-script-executed']
+    classified=[]
+    for line,(name,version,directive,value) in script_lines:
+        matching=[m for m in scripts if m['package_id'].endswith('#'+name+'@'+version) or
+                  m['package_id'].endswith('/'+name+'#'+version)]
+        require(len(matching)==1,'build-script prefix lacks unique Cargo package record')
+        script=matching[0]
+        if directive=='rustc-cfg':require(value in script['cfgs'],'build-script cfg differs from Cargo JSON')
+        if directive=='rustc-env':
+            require('=' in value and value.split('=',1) in script['env'],'build-script env differs from Cargo JSON')
+        if directive=='rerun-if-env-changed':require(re.fullmatch('[A-Za-z_][A-Za-z0-9_]*',value),'build-script environment name')
+        if directive=='rustc-check-cfg':require(value.startswith('cfg(') and value.endswith(')'),'build-script check-cfg')
+        classified.append({'line':line,'package_id':script['package_id'],'directive':directive,'value':value})
     selected = [m for m in messages if m.get('reason')=='compiler-artifact' and
                 m.get('target',{}).get('name')=='gpui-popover-outside-diagnostic' and
                 m.get('target',{}).get('kind')==['bin']]
@@ -192,7 +226,7 @@ def rust_build_graph(record,stdout,stderr):
     require('..' not in source.parts and (source if source.is_absolute() else stage/source)==stage/'src/main.rs','actual compiler source')
     require(value('--crate-type')=='bin' and value('--out-dir')==str(target/'debug/deps'),'actual compiler output')
     require('--emit=dep-info,link' in args or ('--emit' in args and value('--emit')=='dep-info,link'),'actual compiler emits link')
-    return {'artifact':artifact,'compiler_command':command}
+    return {'artifact':artifact,'compiler_command':command,'build_script_output':classified}
 
 
 def run_rust(pair_source,oracle_source,upstream_source,output_subdir,token):
