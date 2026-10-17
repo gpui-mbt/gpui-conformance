@@ -1,4 +1,5 @@
 import unittest
+import re
 import os
 import hashlib
 import json
@@ -91,6 +92,36 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(sum(example["status"] == "unverified" for example in examples), 14)
         self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
+
+    def test_browser_unverified_count_matches_both_browser_assertions(self):
+        # Run without Chromium: the CI assertion and filtered row count must use
+        # one explicit expectation matching the generated catalog, not stale
+        # literals that only fail after a browser launches.
+        source = (ROOT / "tests/catalog-browser.mjs").read_text()
+        counts = re.findall(r"const expectedUnverifiedExamples = (\d+);", source)
+        self.assertEqual(len(counts), 1)
+        actual = sum(item["status"] == "unverified" for item in self.data["browser_examples"])
+        self.assertEqual(int(counts[0]), actual)
+        self.assertIn("filter(example => example.status === 'unverified').length, expectedUnverifiedExamples)", source)
+        self.assertIn("await assertCount(visibleCases, expectedUnverifiedExamples);", source)
+        self.assertNotRegex(source, r"filter\(example => example.status === 'unverified'\)\.length, \d+")
+
+    def test_anchor_card_is_bounded_unverified_without_borrowed_evidence(self):
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            anchor = next(item for item in build_catalog("anchor-card-contract")["browser_examples"] if item["id"] == "anchor")
+        self.assertTrue(anchor["implemented"])
+        self.assertTrue(anchor["interactive"])
+        self.assertEqual((anchor["width"], anchor["height"]), (750, 600))
+        self.assertEqual(anchor["source_path"], "crates/gpui/examples/anchor.rs")
+        self.assertEqual(anchor["comparison_url"], f"{base}/?example=anchor")
+        self.assertEqual(anchor["status"], "unverified")
+        self.assertEqual(anchor["execution"], "unverified")
+        self.assertFalse(anchor["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
+            self.assertIsNone(anchor[key], key)
+        self.assertIn("widths 750 and 480, height 600, DPR1", anchor["implementation"]["note"])
+        self.assertIn("remain unverified", anchor["implementation"]["note"])
 
     def test_verified_base_url_links_only_supported_implemented_examples(self):
         base_url = "https://gpui-conformance-browser-lab.account-name.workers.dev"
