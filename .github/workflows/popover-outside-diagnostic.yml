@@ -1,0 +1,70 @@
+name: Supplemental actual GPUI popover outside dismissal
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/popover_outside_rust/**'
+      - 'diagnostics/popover_outside/**'
+      - 'tests/test_popover_outside*.py'
+      - '.github/workflows/popover-outside-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: popover-outside-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-gpui-popover-outside:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check synthetic and source contracts without compiling Rust
+        run: python3 -m unittest discover -s tests -p 'test_popover_outside*.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install pinned compiler and Linux link dependencies
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+      - name: Build and execute actual GPUI TestWindow observer
+        run: |
+          set -o pipefail
+          mkdir -p _build/popover-run-logs
+          python3 diagnostics/popover_outside/run.py \
+            --upstream-source _build/upstream-source --output _build/popover-evidence \
+            2>&1 | tee _build/popover-run-logs/run.log
+      - name: Independently reopen source, session, executable and raw callbacks
+        run: |
+          python3 diagnostics/popover_outside/evidence.py _build/popover-evidence \
+            --suite-source . --upstream-source _build/upstream-source \
+            --suite-commit "$GITHUB_SHA" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --recorded-execution-root "$GITHUB_WORKSPACE/_build/popover-evidence" \
+            > _build/popover-independent-verification.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: popover-outside-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            _build/popover-evidence
+            _build/popover-run-logs
+            _build/popover-independent-verification.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
