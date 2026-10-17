@@ -1,0 +1,24 @@
+{
+  "id": "uniform_list",
+  "source": "crates/gpui/examples/uniform_list.rs",
+  "source_blob": "4a2c4788b192d802ee3d51714c250e7c5a82db76",
+  "source_sha256": "939b065c2db96ce38400c0ea79a0dd74803aa27793698bb5d00f6652a58f4e3a",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "compatibility_revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+  "compatibility_source_blob": "4a2c4788b192d802ee3d51714c250e7c5a82db76",
+  "width": 300,
+  "height": 300,
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Unchanged Rust source-only browser paint, trusted wheel delivery, original PNG translation and surface-edge clipping. Supplemental test-platform diagnostics are separate.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "OCR, exact text/full-image/native parity",
+    "lazy factories, callback ranges and internal row identities",
+    "internal content-mask versus drawing-surface clipping",
+    "clicked ID or callback execution (wasm println is a no-op)",
+    "other browsers/GPUs/viewports/DPRs"
+  ]
+}

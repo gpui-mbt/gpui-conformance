@@ -1,0 +1,22 @@
+test_grid_layout_diagnostic (unittest.loader._FailedTest.test_grid_layout_diagnostic) ... ERROR
+
+======================================================================
+ERROR: test_grid_layout_diagnostic (unittest.loader._FailedTest.test_grid_layout_diagnostic)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_grid_layout_diagnostic
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 396, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/unittest/loader.py", line 339, in _get_module_from_name
+    __import__(name)
+  File "/workspace/shared/gpui-grid-layout-example-20261017/tests/test_grid_layout_diagnostic.py", line 191
+    for value in ("witnesses.json", "expected_bounds", "floor(", "ceil(", "layout_as_root(", "layout_bounds(")):
+                                                                                                              ^
+SyntaxError: unmatched ')'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

@@ -1,0 +1,462 @@
+{
+  "schema_version": 1,
+  "coordinate_system": "logical px; integral physical extents at scales 1, 1.25 and bootstrap 2",
+  "cases": [
+    {
+      "id": "increasing-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "nested_priority": 2,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 2,
+          "nested_priority": 3,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 3,
+      "remove_nested": "a"
+    },
+    {
+      "id": "increasing-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "nested_priority": 2,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 2,
+          "nested_priority": 3,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 3,
+      "remove_nested": "a"
+    },
+    {
+      "id": "child-lower-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "nested_priority": 0,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 3,
+          "nested_priority": 1,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 4,
+      "remove_nested": "a"
+    },
+    {
+      "id": "child-lower-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "nested_priority": 0,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 3,
+          "nested_priority": 1,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 4,
+      "remove_nested": "a"
+    },
+    {
+      "id": "all-equal-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "nested_priority": 1,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "nested_priority": 1,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2,
+      "remove_nested": "a"
+    },
+    {
+      "id": "all-equal-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "nested_priority": 1,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "nested_priority": 1,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2,
+      "remove_nested": "a"
+    },
+    {
+      "id": "reversed-parents-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "nested_priority": 3,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "nested_priority": 3,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 0,
+      "remove_nested": "a"
+    },
+    {
+      "id": "reversed-parents-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "ancestor_origin": [
+        24,
+        20
+      ],
+      "ancestor_size": [
+        272,
+        192
+      ],
+      "ancestor_movement": [
+        16,
+        12
+      ],
+      "anchor": "TopLeft",
+      "margin": 8,
+      "outer_size": [
+        96,
+        72
+      ],
+      "nested_size": [
+        40,
+        32
+      ],
+      "nested_position": [
+        32,
+        24
+      ],
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "nested_priority": 3,
+          "position": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "nested_priority": 3,
+          "position": [
+            144,
+            64
+          ]
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 0,
+      "remove_nested": "a"
+    }
+  ]
+}

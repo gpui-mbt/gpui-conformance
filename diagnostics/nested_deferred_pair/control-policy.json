@@ -1,0 +1,56 @@
+[
+  {
+    "name": "structural-dfs-ties",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Replace discovery-dependent equal-priority child ties with structural DFS order.",
+    "required_witnesses": [
+      {
+        "case": "reversed-parents-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "all-equal-scale1",
+        "operation": "updated",
+        "field": "paint_order"
+      }
+    ]
+  },
+  {
+    "name": "parent-contiguous-scheduling",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Keep nested content contiguous with its parent instead of globally sorting independent groups.",
+    "required_witnesses": [
+      {
+        "case": "child-lower-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "reversed-parents-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      }
+    ]
+  },
+  {
+    "name": "lost-outer-local-offset",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Drop the inherited outer Local translation once when placing nested content.",
+    "required_witnesses": [
+      {
+        "case": "increasing-scale1",
+        "operation": "base",
+        "field": "bounds/a.nested.root"
+      },
+      {
+        "case": "increasing-scale1",
+        "operation": "moved",
+        "field": "bounds/a.nested.root"
+      }
+    ]
+  }
+]

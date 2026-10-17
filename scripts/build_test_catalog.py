@@ -34,10 +34,23 @@ NATIVE_SCENARIO_PATH = "native_scenarios.json"
 NATIVE_RESULT_PATH = "results/native-merged-macos-arm64-20261014.json"
 RESULT_PATH = "results/cross-axis-limits-linux-x86_64-20261015.json"
 BROWSER_RESULT_PATH = "web/evidence/20261016/result.json"
+TEXT_RESULT_PATH = "web/evidence/20261016-text-examples/result.json"
+PRIME_RESULT_PATH = "web/evidence/20261016-prime-sieve/result.json"
+# Retained measurements have their own immutable dependency provenance. New
+# inventory pins describe today's build inputs, never a rewrite of these runs.
+RETAINED_BROWSER_PINS = {
+    "upstream": {"repository": "zed-industries/zed", "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e"},
+    "moonbit": {"repository": "gpui-mbt/gpui.mbt", "revision": "01818aa4e96fc21d1676f747a6b23d91445648a1"},
+}
+RETAINED_BROWSER_EXAMPLES = {
+    BROWSER_RESULT_PATH: frozenset({"hello_world"}),
+    TEXT_RESULT_PATH: frozenset({"text_layout", "text_wrapper"}),
+    PRIME_RESULT_PATH: frozenset({"hello_web"}),
+}
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -46,6 +59,46 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "gradient": {
+        "title": "グラデーションの色空間",
+        "tags": ["gradient", "sRGB", "Oklab", "polygon", "core raster"],
+        "description": "12 個のグラデーション、2 個の単色とクリップされた多角形を持つ上流例。比較対象は 960×600 / 600×960、DPR 1。高 DPR のライブ表示は解像度を明示的に制限します。ブラウザー比較・文字・画像全体・Metal の一致は未検証です。",
+    },
+    "anchor": {
+        "title": "8 方向のアンカーポップアップ",
+        "tags": ["anchor", "Local", "deferred", "hover", "viewport resize"],
+        "description": "8 方向の hover と空の中央セルを持つ上流例。コアが配置・画面端への補正・クリップを担当します。対象は幅 750/480px、高さ 600px、DPR 1。文字・影・画像全体とブラウザー比較は未検証です。",
+    },
+    "grid_layout": {
+        "title": "幅に応じて切り替わるグリッド",
+        "tags": ["container query", "5×5 grid", "span", "固定サイズの overflow", "viewport resize"],
+        "description": "コンテナの測定幅が 400px 未満なら縦並び、400px 以上なら 5×5 のグリッドになる上流例。候補の対象は幅 399/400/401/500px、高さ 500px、DPR 1。224px の目次と span を扱います。ブラウザー比較・文字・画像全体の一致は未検証です。",
+    },
+    "uniform_list": {
+        "title": "可視範囲だけを作るリスト",
+        "tags": ["uniform list", "遅延構築", "行の測定", "安定した ID", "スクロールとクリップ"],
+        "description": "300×300 に 50 行を表示する上流例。コアが行を測定し、可視範囲だけを構築します。文字の右端には描画系による差があり、文字全体の一致は未達です。配置・スクロール・クリップの比較と分けて扱います。",
+    },
+    "drag_drop": {
+        "title": "型付きドラッグとドロップ",
+        "tags": ["drag session", "2px 境界", "一度だけの drop", "半開区間", "半透明 preview"],
+        "description": "800×600 の上流例。3 色の項目、移動による開始判定、型付き payload とドロップ領域、半透明の preview を扱います。MoonBit 実装の比較結果は未検証です。",
+    },
+    "tab_stop": {
+        "title": "Tab 順序とグループ",
+        "tags": ["tab stop", "重複 index", "tab group", "逆順・折り返し"],
+        "description": "800×600 の上流例。5 枚のカード、2 個のボタン、2 組の子ボタンでグループ付き Tab 移動と動的な hit testing を扱います。MoonBit 実装の比較結果は未検証です。",
+    },
+    "focus_visible": {
+        "title": "入力方法に応じたフォーカス表示",
+        "tags": ["focus-visible", "Tab 移動", "入力 modality", "focus ownership", "クリック・キー操作"],
+        "description": "800×600 の上流例。3 個のボタンで .focus() と .focus_visible() の境界線、Tab・Shift-Tab による移動、マウスとキーボードの操作を扱います。",
+    },
+    "scrollable": {
+        "title": "入れ子のスクロールとクリップ",
+        "tags": ["縦横スクロール", "wheel 配送", "クリップ", "hit testing", "hover"],
+        "description": "500×500 の上流例。入れ子の縦横スクロール領域、同じ wheel 差分の祖先への伝播、クリップと hover 再描画を扱います。",
+    },
     "tree": {
         "title": "深い入れ子のレイアウト",
         "tags": ["51 階層", "内在サイズ", "padding", "描画順"],
@@ -119,14 +172,29 @@ def pixel_status(recorded_status: str | None) -> str:
     return {"equal": "pass", "different": "difference"}.get(recorded_status, "unverified")
 
 
-def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any]) -> None:
-    """Keep pins strict while allowing new ports without borrowing old results."""
+def validate_browser_inventory(
+    browser: dict[str, Any], inventory: dict[str, Any], result_path: str = BROWSER_RESULT_PATH,
+) -> None:
+    """Validate historical pins independently from current build declarations.
+
+    A valid new inventory revision is allowed, but cannot relabel a retained
+    measurement. Repository identity, exact retained pins and measured ports
+    remain strict for each known report.
+    """
+    if result_path not in RETAINED_BROWSER_EXAMPLES:
+        raise ValueError("unknown retained browser report provenance")
     build = browser["build"]
     for key in ("upstream", "moonbit"):
         recorded = build.get(key, {})
         declared = inventory.get(key, {})
-        if recorded.get("repository") != declared.get("repository") or recorded.get("revision") != declared.get("revision"):
-            raise ValueError(f"browser {key} pin in examples.json differs from retained result")
+        expected = RETAINED_BROWSER_PINS[key]
+        if any(recorded.get(field) != expected[field] for field in ("repository", "revision")):
+            raise ValueError(f"retained browser {key} pin differs from its historical provenance")
+        if declared.get("repository") != expected["repository"] or not re.fullmatch(r"[0-9a-f]{40}", str(declared.get("revision", ""))):
+            raise ValueError(f"current browser {key} pin must declare the expected repository and an exact revision")
+
+    if not re.fullmatch(r"[0-9a-f]{40}", str(inventory.get("moonbit", {}).get("tree", ""))):
+        raise ValueError("current browser moonbit tree pin must declare an exact tree")
 
     recorded_implemented = set(build.get("implemented", []))
     declared_implemented = {
@@ -138,18 +206,38 @@ def validate_browser_inventory(browser: dict[str, Any], inventory: dict[str, Any
     ids = [example["id"] for example in inventory.get("examples", [])]
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate browser example IDs in the inventory")
-    if BROWSER_RESULT_EXAMPLE_ID not in recorded_implemented:
-        raise ValueError("retained hello_world evidence is missing its implemented browser example")
+    if not RETAINED_BROWSER_EXAMPLES[result_path].issubset(recorded_implemented):
+        raise ValueError("retained browser evidence is missing its measured implemented examples")
+
+
+def browser_pin_links(pins: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {"label": label, "revision": pins[key]["revision"],
+         **({"tree": pins[key]["tree"]} if "tree" in pins[key] else {}),
+         "url": f"https://github.com/{pins[key]['repository']}/commit/{pins[key]['revision']}"}
+        for key, label in (("upstream", "gpui.rs · GPUI 0.2.2"), ("moonbit", "gpui.mbt"))
+    ]
+
+
+def browser_evidence_provenance(browser: dict[str, Any], inventory: dict[str, Any]) -> dict[str, Any]:
+    """Expose measured dependency pins without treating them as current evidence."""
+    return {
+        "pins": browser_pin_links(browser["build"]),
+        "pins_match_current_inventory": all(
+            browser["build"][key]["revision"] == inventory[key]["revision"]
+            for key in ("upstream", "moonbit")
+        ),
+    }
 
 
 def saved_text_previews(inventory: dict[str, Any], revision: str) -> dict[str, dict[str, Any]]:
     """Validate byte-exact captures independently of the hello_world pixel result."""
     manifest = load_json(TEXT_CAPTURE_MANIFEST)
-    result_path = "web/evidence/20261016-text-examples/result.json"
+    result_path = TEXT_RESULT_PATH
     if manifest["result_path"] != result_path or hashlib.sha256((ROOT / result_path).read_bytes()).hexdigest() != manifest["result_sha256"]:
         raise ValueError("saved text capture report digest mismatch")
     report = load_json(result_path)
-    validate_browser_inventory(report, inventory)
+    validate_browser_inventory(report, inventory, result_path)
     run = manifest["source_run"]
     if report["build"]["lab_revision"] != run["build_revision"] or report["build"]["lab_tracked_dirty"]:
         raise ValueError("saved text capture build provenance mismatch")
@@ -176,6 +264,7 @@ def saved_text_previews(inventory: dict[str, Any], revision: str) -> dict[str, d
         if entry["asset_path"] != asset or (ROOT / asset).read_bytes() != (ROOT / entry["moonbit"]["path"]).read_bytes():
             raise ValueError("saved text preview must equal its retained capture")
         previews[example_id] = {
+            **browser_evidence_provenance(report, inventory),
             "url": f"./assets/{example_id}-moonbit-20261016.png",
             "source_url": source_url(revision, entry["moonbit"]["path"]),
             "oracle_url": source_url(revision, entry["rust"]["path"]),
@@ -183,6 +272,7 @@ def saved_text_previews(inventory: dict[str, Any], revision: str) -> dict[str, d
             "capture_run_url": run["url"],
             "capture_revision": run["head_revision"],
             "capture_source_url": source_url(run["head_revision"], entry["candidate_source"]),
+            "capture_report_url": source_url(revision, result_path),
             "sha256": entry["moonbit"]["sha256"],
             "alt": f"保存済み {example_id} の gpui.mbt 実描画。文字の配置と装飾。" if example_id == "text_layout" else "保存済み text_wrapper の gpui.mbt 実描画。多言語の折り返し、省略記号、行数制限。",
             "caption": f"gpui.mbt の保存画像 · {manifest['captured_date']} · 800×600 · {run['head_revision'][:8]}",
@@ -201,7 +291,7 @@ def saved_prime_preview(inventory: dict[str, Any], revision: str) -> dict[str, d
         if manifest[f"{name}_path"] != expected or hashlib.sha256((ROOT / expected).read_bytes()).hexdigest() != manifest[f"{name}_sha256"]:
             raise ValueError("saved Prime report digest/path mismatch")
     report = load_json(manifest["result_path"])
-    validate_browser_inventory(report, inventory)
+    validate_browser_inventory(report, inventory, PRIME_RESULT_PATH)
     run = manifest["source_run"]
     if report["build"]["lab_revision"] != run["build_revision"] or report["build"]["lab_tracked_dirty"]:
         raise ValueError("saved Prime build provenance mismatch")
@@ -242,12 +332,14 @@ def saved_prime_preview(inventory: dict[str, Any], revision: str) -> dict[str, d
     if entry["asset_path"] != asset or (ROOT / asset).read_bytes() != (ROOT / entry["moonbit"]["path"]).read_bytes():
         raise ValueError("saved Prime preview must equal its retained capture")
     return {"hello_web": {
+        **browser_evidence_provenance(report, inventory),
         "url": "./assets/hello_web-moonbit-20261016.png",
         "source_url": source_url(revision, entry["moonbit"]["path"]),
         "oracle_url": source_url(revision, entry["rust"]["path"]),
         "provenance_url": source_url(revision, PRIME_CAPTURE_MANIFEST),
         "capture_run_url": run["url"], "capture_revision": run["head_revision"],
         "capture_source_url": source_url(run["head_revision"], entry["candidate_source"]),
+        "capture_report_url": source_url(revision, PRIME_RESULT_PATH),
         "sha256": entry["moonbit"]["sha256"],
         "alt": "保存済み Prime sieve の gpui.mbt 実描画。10M の実計算で 664,579 個の素数、12 分割の進捗と履歴。",
         "caption": f"gpui.mbt の CI 実計算 · {manifest['captured_date']} · 640×560 · 経過時間は性能比較ではありません",
@@ -482,15 +574,12 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
     text_previews = saved_text_previews(browser_inventory, revision)
     text_previews.update(saved_prime_preview(browser_inventory, revision))
     browser_lab_base_url = normalize_browser_lab_base_url(os.environ.get(BROWSER_LAB_BASE_URL_ENV))
-    browser_build = browser["build"]
-    browser_upstream = browser_build["upstream"]
-    browser_moonbit = browser_build["moonbit"]
     raster = browser["raster_comparison"]
     browser_status = pixel_status(raster.get("status"))
     changed = raster["changed_pixels"]
     total = raster["total_pixels"]
     examples = browser_inventory
-    upstream_revision = browser_upstream["revision"]
+    upstream_revision = browser_inventory["upstream"]["revision"]
     # Preserve the saved image bytes exactly; the catalog only scales its display.
     thumbnail_sha = raster.get("sha256", {}).get("moonbit.png")
     for path in (BROWSER_THUMBNAIL_SOURCE, BROWSER_THUMBNAIL_ASSET):
@@ -508,7 +597,7 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         implementation_path = example.get("candidate_source", f"web/moonbit/{example_id}/{example_id}.mbt") if implemented else None
         result_url = source_url(revision, BROWSER_RESULT_PATH) if has_evidence else None
         if has_evidence:
-            evidence_note = f"保存済みの hello_world 比較では実行 {browser['overall']}、画像は {STATUS_LABELS[browser_status]}。他の例の検証結果ではありません。"
+            evidence_note = f"撮影時 pin の hello_world 比較では実行 {browser['overall']}、画像は {STATUS_LABELS[browser_status]}。現行ソースや他の例の検証結果ではありません。"
         elif example_id in text_previews:
             evidence_note = "gpui.mbt の CI 保存画像あり。撮影時のソースと gpui.rs の画像も参照できます。画像はプレビューであり、pixel 差分・native parity は未検証です。"
         elif implemented:
@@ -540,12 +629,14 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
             "width": example.get("width"),
             "height": example.get("height"),
             "evidence_available": has_evidence,
+            "evidence_scope": "retained" if has_evidence else None,
             "result_url": result_url,
             "result_date": recorded_date(BROWSER_RESULT_PATH) if has_evidence else None,
             "execution": browser["overall"] if has_evidence else "unverified",
             "changed_pixels": changed if has_evidence else None,
             "total_pixels": total if has_evidence else None,
             "thumbnail": {
+                **browser_evidence_provenance(browser, browser_inventory),
                 "url": "./assets/hello_world-moonbit-20261016.png",
                 "source_url": source_url(revision, BROWSER_THUMBNAIL_SOURCE),
                 "sha256": thumbnail_sha,
@@ -576,10 +667,10 @@ def build_catalog(revision: str | None = None) -> dict[str, Any]:
         "result_url": source_url(revision, BROWSER_RESULT_PATH),
         "details_url": source_url(revision, "web/PIXEL_ANALYSIS_20261016.md"),
         "examples_url": source_url(revision, "web/README.md"),
-        "pins": [
-            {"label": "gpui.rs · GPUI 0.2.2", "revision": browser_upstream["revision"], "url": f"https://github.com/{browser_upstream['repository']}/commit/{browser_upstream['revision']}"},
-            {"label": "gpui.mbt", "revision": browser_moonbit["revision"], "url": f"https://github.com/{browser_moonbit['repository']}/commit/{browser_moonbit['revision']}"},
-        ],
+        **browser_evidence_provenance(browser, browser_inventory),
+        "current_pins": browser_pin_links(browser_inventory),
+        "inventory_url": source_url(revision, "web/examples.json"),
+        "current_status": "unverified",
     }
     ax_status = native_ax.get("status", "unverified")
     ax_summary = {

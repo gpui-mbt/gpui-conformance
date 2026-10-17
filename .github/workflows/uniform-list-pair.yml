@@ -1,0 +1,120 @@
+name: Uniform-list actual compiled browser pair
+on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/uniform-list-pair.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: uniform-list-pair-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  actual-browser-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read exact source and published candidate pins
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          p = json.load(open('web/pairs/uniform_list.json'))
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate']['revision'] or ''), 'Published core pin is required'
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate']['tree'] or '')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('core=' + p['candidate']['revision'], file=out)
+              print('zed=' + p['upstream']['revision'], file=out)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.core }}
+          path: _sources/core
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+      - name: Install MoonBit and fixed original-PNG decoder
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
+          bash "$RUNNER_TEMP/install-moon.sh"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          python3 -m pip install Pillow==12.0.0
+      - name: Run host/comparator regressions and packaging tests
+        run: |
+          node --test web/tests/*.test.mjs
+          python3 -m unittest discover -s web/tests -p 'test_uniform_list*.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_subset.py' -v
+      - name: Compile genuine MoonBit candidate and retain exact core/source/toolchain inputs
+        run: |
+          mkdir -p _build/uniform-list-pair-evidence
+          python3 web/scripts/build_uniform_list_pair.py --gpui-source _sources/core --upstream-source _sources/zed --out _build/uniform-list-candidate 2>&1 | tee _build/uniform-list-pair-evidence/moonbit-build.log
+          UNIFORM_LIST_RUNTIME="$PWD/_build/uniform-list-candidate/moonbit/uniform_list.mjs" node --test web/tests/uniform-list-pair-compiled.test.mjs
+      - name: Prepare isolated unchanged Rust site
+        run: python3 web/scripts/prepare_uniform_list_site.py --out _build/uniform-list-rust-site
+      - name: Install fixed Rust toolchain and binding generator
+        run: |
+          rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+          curl -fL --retry 3 https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz -o "$RUNNER_TEMP/bindgen.tar.gz"
+          echo "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  $RUNNER_TEMP/bindgen.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/bindgen.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            _build/uniform-list-rust-target
+          key: uniform-list-pair-rust-${{ runner.os }}-20261014-${{ steps.pins.outputs.zed }}-${{ hashFiles('web/rust/Cargo.lock') }}
+      - name: Build exact unchanged source5a oracle
+        env:
+          CARGO_BUILD_JOBS: '2'
+        run: |
+          mkdir -p _build/uniform-list-oracle-evidence
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed --site _build/uniform-list-rust-site --target-dir _build/uniform-list-rust-target --oracle-only --extra-example uniform_list 2>&1 | tee _build/uniform-list-oracle-evidence/rust-build.log
+      - name: Install pinned Chromium runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Independently capture and verify actual unchanged Rust
+        timeout-minutes: 20
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/uniform-list-oracle-evidence
+        run: |
+          node web/tests/uniform-list-oracle-browser.mjs _build/uniform-list-rust-site
+          node web/tests/verify-uniform-list-results.mjs _build/uniform-list-oracle-evidence
+      - name: Independently capture actual compiled MoonBit using the observed Rust wheel corpus
+        timeout-minutes: 15
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/uniform-list-pair-evidence
+        run: node web/tests/uniform-list-pair-browser.mjs _build/uniform-list-candidate _build/uniform-list-oracle-evidence
+      - name: Reopen original runtime, worker, source, input and PNG evidence and compare
+        timeout-minutes: 15
+        run: node web/tests/verify-uniform-list-pair.mjs _build/uniform-list-pair-evidence _build/uniform-list-oracle-evidence _sources/core
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uniform-list-actual-compiled-browser-pair
+          path: |
+            _build/uniform-list-candidate
+            _build/uniform-list-rust-site
+            _build/uniform-list-pair-evidence
+            _build/uniform-list-oracle-evidence
+          if-no-files-found: warn

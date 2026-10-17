@@ -1,0 +1,11 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:249 ("ordinary button border-box flex bases move both live hit bounds while owners survive redraw") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:261:3-261:71@f4ah6o/gpui FAILED: `false` is not true
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:280 ("new one-pixel focused card bottom row routes current geometry and invents no click") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:293:3-293:71@f4ah6o/gpui FAILED: `false` is not true
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:432 ("native core Enter waits for release and cross-key activation shares current owner") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:439:3-439:70@f4ah6o/gpui FAILED: `"Press `Tab`, `Shift-Tab` to switch focus." != "You have clicked Button 1."`
+diff:
+-"Press `Tab`, `Shift-Tab` to switch focus."
++"You have clicked Button 1."
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:450 ("fresh paint geometry retains pending acquisition and reset forbids old ownership") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:463:5-463:66@f4ah6o/gpui FAILED: `false` is not true
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:501 ("modified and intervening keys cancel activation while repeats keep same owner") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:535:3-535:60@f4ah6o/gpui FAILED: `false` is not true
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:541 ("wheel releases and modified Tab preserve focus and do not invent messages") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:553:3-553:71@f4ah6o/gpui FAILED: `false` is not true
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:558 ("invalid metrics input and scale changes cannot mutate live ownership or pending gestures") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:606:3-606:47@f4ah6o/gpui FAILED: `false` is not true
+Total tests: 18, passed: 11, failed: 7.

@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "claim": "Retained false-acceptance reproduction of a synthetic checker fixture; not GPUI output or an engine fault",
+  "baseline_commit": "abbc3c7337faec3239f07f54268a567a335f47c5",
+  "baseline_verifier_sha256": "7024f6e0d15b5fe9cb0bf9768a3c92de5200b39580d09920e6308811652c05d7",
+  "baseline_test_source_sha256": "10ea3bb07bcecd92040fbc3de484c31004a46faaa1706898b93dd0b0700f5d84",
+  "fixture": "synthetic_checker_input(interactive=False,count=1)",
+  "mutation": "For each popup0 event containing bounds, add 0.004 to bounds[0]; preserve prepaint/paint agreement and event sequencing",
+  "baseline_allowance": 0.01,
+  "logical_x_delta": 0.004,
+  "physical_edge_delta_by_scale": {
+    "2": 0.008,
+    "1": 0.004
+  },
+  "affected_records": [
+    {
+      "frame": 1,
+      "operation": "initial",
+      "phase": "prepaint",
+      "bounds": [
+        220.004,
+        180,
+        80,
+        24
+      ]
+    },
+    {
+      "frame": 1,
+      "operation": "initial",
+      "phase": "paint",
+      "bounds": [
+        220.004,
+        180,
+        80,
+        24
+      ]
+    },
+    {
+      "frame": 2,
+      "operation": "configured",
+      "phase": "prepaint",
+      "bounds": [
+        220.004,
+        180,
+        80,
+        24
+      ]
+    },
+    {
+      "frame": 2,
+      "operation": "configured",
+      "phase": "paint",
+      "bounds": [
+        220.004,
+        180,
+        80,
+        24
+      ]
+    }
+  ],
+  "baseline_result": "ACCEPTED (checker false acceptance)",
+  "corrected_expected_result": "REJECTED by documented physical-grid and geometry allowances",
+  "canonical_mutated_raw_sha256": "5e79d9c89f876f4a0c2ab4f6113687bfd66cef6858b6e7f02c42594757629551",
+  "canonical_corpus_sha256": "339452615a0d54d420240c8c7fabd8666c709e1af236ec1724d435af17d26d34",
+  "baseline_stdout": "BASELINE FALSE ACCEPT: synthetic popup x shifted by +0.004 at scales 2 and 1",
+  "runtime_execution": "None; exact committed Python checker and synthetic fixture only"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "tab_stop",
+  "source": "crates/gpui/examples/tab_stop.rs",
+  "source_blob": "cc7c34a9979ce4027578ec2c358f503d944ee26f",
+  "source_sha256": "be187a56c091ee0b609fa396cae4a13b49dcf98ff9e602d8caed3126de3f6a8e",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "compatibility_revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+  "compatibility_source_blob": "cc7c34a9979ce4027578ec2c358f503d944ee26f",
+  "width": 800,
+  "height": 600,
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Unchanged WASM with trusted browser inputs and original full-viewport PNGs; discovery records observed border geometry without predeclaring conformance.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "fixed unobserved layout dimensions",
+    "full-image or text parity",
+    "native parity",
+    "other browsers/GPUs/viewports/DPRs",
+    "touch/IME"
+  ]
+}

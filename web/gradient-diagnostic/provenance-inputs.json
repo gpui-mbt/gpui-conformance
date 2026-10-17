@@ -1,0 +1,36 @@
+{
+  "suite_inputs": [
+    "web/gradient-diagnostic/provenance-inputs.json",
+    "web/gradient-diagnostic/main.rs",
+    "web/gradient-diagnostic/profile.json",
+    "web/gradient-diagnostic/host.mjs",
+    "web/gradient-diagnostic/index.html",
+    "web/gradient-diagnostic/README.md",
+    "web/gradient-diagnostic/upstream-sources.json",
+    "web/tests/gradient-diagnostic-browser.mjs",
+    "web/tests/gradient-diagnostic-contract.mjs",
+    "web/tests/gradient-diagnostic-provenance.mjs",
+    "web/tests/gradient-backend-observer.mjs",
+    "web/tests/verify-gradient-diagnostic.mjs",
+    "web/scripts/decode_gradient_diagnostic_png.py",
+    "web/scripts/build_gradient_diagnostic.py",
+    "web/scripts/build_rust.py",
+    "web/scripts/build_moonbit.py",
+    "web/rust/Cargo.lock",
+    "web/tests/fixtures/drag-drop-wasm-thread-0cf96c7-worker.js.txt",
+    ".github/workflows/gradient-diagnostic.yml",
+    "web/tests/gradient-diagnostic-contract.test.mjs",
+    "web/tests/gradient-diagnostic-provenance.test.mjs",
+    "web/tests/test_gradient_diagnostic.py"
+  ],
+  "fixed_inputs": {
+    "main.rs": "web/gradient-diagnostic/main.rs",
+    "profile.json": "web/gradient-diagnostic/profile.json",
+    "host.mjs": "web/gradient-diagnostic/host.mjs",
+    "index.html": "web/gradient-diagnostic/index.html",
+    "README.md": "web/gradient-diagnostic/README.md",
+    "upstream-sources.json": "web/gradient-diagnostic/upstream-sources.json",
+    "provenance-inputs.json": "web/gradient-diagnostic/provenance-inputs.json",
+    "Cargo.lock": "web/rust/Cargo.lock"
+  }
+}

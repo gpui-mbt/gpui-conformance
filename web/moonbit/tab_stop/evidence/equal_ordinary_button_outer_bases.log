@@ -1,0 +1,2 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:249 ("ordinary button border-box flex bases move both live hit bounds while owners survive redraw") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:85:3-88:4@f4ah6o/gpui FAILED: unexpected bounds for 20
+Total tests: 18, passed: 17, failed: 1.

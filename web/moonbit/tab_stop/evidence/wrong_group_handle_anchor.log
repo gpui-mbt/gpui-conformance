@@ -1,0 +1,5 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:111 ("original fourteen labels metadata non-stop root and independent group indices") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:141:5-141:39@f4ah6o/gpui FAILED: `0 != 6`
+diff:
+-0 +6
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:230 ("non-stop anchors include group handles inside their own prefix") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:69:3-69:63@f4ah6o/gpui FAILED: `false` is not true
+Total tests: 18, passed: 16, failed: 2.

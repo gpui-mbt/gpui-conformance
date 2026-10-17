@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "scope": "Hand-authored integer-layout assertions; fractional cases preserve raw observations and enforce device-edge alignment, not a substitute layout solver. The negative-origin query regression has explicit per-scale witnesses for independent local midpoint rounding.",
+  "cases": {
+    "equal-tracks": {
+      "bounds": {
+        "grid": [
+          20,
+          30,
+          210,
+          110
+        ],
+        "a": [
+          20,
+          30,
+          100,
+          50
+        ],
+        "b": [
+          130,
+          30,
+          100,
+          50
+        ],
+        "c": [
+          20,
+          90,
+          100,
+          50
+        ],
+        "d": [
+          130,
+          90,
+          100,
+          50
+        ]
+      },
+      "hits": {
+        "inside-a": [
+          "a"
+        ],
+        "column-gap": [],
+        "right-edge": []
+      }
+    },
+    "sparse-hole": {
+      "bounds": {
+        "a": [
+          20,
+          30,
+          210,
+          50
+        ],
+        "b": [
+          20,
+          90,
+          210,
+          50
+        ],
+        "c": [
+          240,
+          90,
+          100,
+          50
+        ]
+      },
+      "hits": {
+        "unfilled-hole": [],
+        "next-row-tail": [
+          "c"
+        ]
+      }
+    },
+    "explicit-collision": {
+      "bounds": {
+        "under": [
+          20,
+          30,
+          100,
+          50
+        ],
+        "over": [
+          20,
+          30,
+          100,
+          50
+        ],
+        "auto": [
+          130,
+          30,
+          100,
+          50
+        ]
+      },
+      "hits": {
+        "collision-top": [
+          "over"
+        ],
+        "auto-neighbor": [
+          "auto"
+        ]
+      }
+    },
+    "fixed-height-overflow": {
+      "bounds": {
+        "tall": [
+          20,
+          30,
+          100,
+          150
+        ],
+        "c": [
+          20,
+          90,
+          100,
+          50
+        ]
+      },
+      "hits": {
+        "overflow-in-gap": [
+          "tall"
+        ],
+        "overflow-outside-grid": [
+          "tall"
+        ]
+      }
+    },
+    "full-column-lines": {
+      "bounds": {
+        "header": [
+          20,
+          30,
+          516,
+          100
+        ],
+        "side": [
+          20,
+          134,
+          100,
+          224
+        ],
+        "content": [
+          124,
+          134,
+          308,
+          308
+        ],
+        "ad": [
+          436,
+          134,
+          100,
+          308
+        ],
+        "footer": [
+          20,
+          446,
+          516,
+          100
+        ]
+      },
+      "hits": {
+        "header-hit": [
+          "header"
+        ],
+        "footer-hit": [
+          "footer"
+        ]
+      }
+    },
+    "auto-span": {
+      "bounds": {
+        "left": [
+          20,
+          30,
+          100,
+          110
+        ],
+        "wide": [
+          130,
+          30,
+          210,
+          50
+        ],
+        "lower": [
+          130,
+          90,
+          210,
+          50
+        ],
+        "full": [
+          20,
+          150,
+          320,
+          50
+        ]
+      },
+      "hits": {}
+    },
+    "nested-query": {
+      "bounds": {
+        "outer-query": [
+          20,
+          30,
+          240,
+          75
+        ],
+        "inner-grid": [
+          20,
+          30,
+          240,
+          75
+        ],
+        "inner-a": [
+          20,
+          30,
+          117,
+          75
+        ],
+        "inner-query": [
+          143,
+          30,
+          117,
+          75
+        ],
+        "inner-leaf": [
+          143,
+          30,
+          117,
+          75
+        ]
+      },
+      "hits": {
+        "nested-hit": [
+          "inner-leaf"
+        ]
+      }
+    },
+    "content-independent-small": {
+      "bounds": {
+        "query": [
+          20,
+          30,
+          115,
+          120
+        ],
+        "content": [
+          20,
+          30,
+          8,
+          7
+        ],
+        "sibling": [
+          145,
+          30,
+          115,
+          120
+        ]
+      },
+      "hits": {
+        "query-content": [
+          "content"
+        ]
+      }
+    },
+    "content-independent-large": {
+      "bounds": {
+        "query": [
+          20,
+          30,
+          115,
+          120
+        ],
+        "content": [
+          20,
+          30,
+          900,
+          700
+        ],
+        "sibling": [
+          145,
+          30,
+          115,
+          120
+        ]
+      },
+      "hits": {
+        "query-content": [
+          "content"
+        ]
+      }
+    },
+    "query-negative-origin-midpoint": {
+      "bounds": {
+        "$host": [
+          0,
+          0,
+          100,
+          10
+        ],
+        "query": [
+          0,
+          -2,
+          10,
+          12
+        ],
+        "returned-grid": [
+          0,
+          -2,
+          10,
+          12
+        ]
+      },
+      "bounds_by_scale": {
+        "1": {
+          "leaf": [
+            0,
+            -2,
+            10,
+            1
+          ]
+        },
+        "2": {
+          "leaf": [
+            0,
+            -2,
+            10,
+            1.5
+          ]
+        }
+      }
+    }
+  }
+}

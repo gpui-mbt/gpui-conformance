@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-font-free-uniform-list-semantic-pair",
+  "candidate_repository": "gpui-mbt/gpui.mbt",
+  "candidate_commit": "b9916950350b7d433ecca0d6fa88e39c957b8b6b",
+  "candidate_tree": "be95df375c707bd6cf961ef7959e93772b34a966",
+  "upstream_repository": "zed-industries/zed",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "approved_fixture_sha256": {
+    "adapters/uniform_list_rust/Cargo.toml": "ab44d0fe90b25ab6c1a8f1b3335c22b382da7aefeeb0656a200060fff2fe969b",
+    "adapters/uniform_list_rust/Cargo.lock": "9f0f0b730284290171215df350344daebdcc9c6cd452bf2bdd2e4ee0188b2016",
+    "adapters/uniform_list_rust/src/main.rs": "67fe448d64cd184b7b406d27031454358bcc210bff6b19f4d9b6108f26152270",
+    "diagnostics/uniform_list/scenarios.json": "840c3f22d61fc37e3f52d4a6db73e22e6abd2a2dd6eaa9fb3bd011ec599ca794",
+    "diagnostics/uniform_list/raw.schema.json": "6e1c5e44f40c464c2b8c75eec8675c9776ae97d2e6dc6a947f4ca7f86002c314",
+    "diagnostics/uniform_list/run.py": "830ef2cd67a208c94c0db6db360ee0b42181351b49f3efcc5a1f2142c7530928",
+    "diagnostics/uniform_list/verify.py": "698736ab024278ef7bcab5e48a4b7959add1087469cf6004b255bf095568775c"
+  },
+  "limits": [
+    "original separately authored font-free diagnostic only",
+    "operational1x Rust versus logical candidate, bootstrap2x retained/excluded",
+    "no unchanged example, font, browser/native pixel, OS input or platform-scale equivalence"
+  ]
+}
