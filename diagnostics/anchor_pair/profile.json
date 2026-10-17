@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-font-free-anchor-semantic-pair",
+  "candidate_repository": "gpui-mbt/gpui.mbt",
+  "candidate_commit": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
+  "candidate_tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe",
+  "candidate_pin_status": "published-exact-commit-tree",
+  "upstream_repository": "zed-industries/zed",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "approved_fixture_sha256": {
+    "adapters/anchor_rust/Cargo.toml": "fab4e7fcccf0b5be97dffe4cbd03d85833f7a1fc5679a9e970ee9c86b9f0c302",
+    "adapters/anchor_rust/Cargo.lock": "a3e90b5098d0df9f05958ff49b0ce55d0d945f2d7ac923a531cb0c11a4bc0c72",
+    "adapters/anchor_rust/src/main.rs": "653004af0272b3a71773e47fa224c95080de176748ffadfe07122116922ae157",
+    "diagnostics/anchor/scenarios.json": "ad4ef97ec09a56d4314f85258eda0d54e1b314f949859580f79d2a0190967c6a",
+    "diagnostics/anchor/raw.schema.json": "1945f598209b54e710e5031c7d72ed27b78a02bc364dd2f3561e22d932ab3bd1",
+    "diagnostics/anchor/run.py": "142744a3abbbbffcce1de3a11be3b971e73300c58cbb2a318fb36d5d723e3458",
+    "diagnostics/anchor/verify.py": "e090caa89727350c487a9f72b0d5230f6651eba05580e31977490dbc56215eee",
+    "diagnostics/anchor/README.md": "a4bd49a12f4b016961ea8d14e56173c6f3bcf17a7fa037c670c09365dd55cb96",
+    "diagnostics/anchor/epsilon-regression.json": "f4360f1e5b0945fc514ef43ddb9f69e4ca4b1763a7f06217a126413b05f7cc97",
+    "tests/test_anchor_diagnostic.py": "ea523ca587f2bde9438d3b492956ec3c0c29b89854f76af1484177b5b43c6e5c",
+    ".github/workflows/anchor-diagnostic.yml": "1fb55e25d3556ac9462a7f312de7f65ca2f6b0b18236cc7abdb1f9d5e82ab988"
+  },
+  "supported_cases": 24,
+  "paired_clicks": 5,
+  "unsupported_cases": {},
+  "limits": [
+    "supplemental font-free fixed corpus only; unchanged browser example is a separate oracle",
+    "initial Rust test-platform scale2 and requested1/1.25/2 both observed",
+    "every raw frame validated; operation-final semantic states compared without redraw-count assumptions",
+    "actual Rust mouse/click callbacks compared with actual candidate down/up dispatch and focused structural paths",
+    "no native-window, fonts, screenshots, browser pixels, OS events or full backend parity",
+    "fractional logical viewport extension is independently executed and separately counted; root device rounding is not a content mask"
+  ],
+  "initial_rust_evidence": {
+    "run_id": 38991697984,
+    "job_id": 117275285071,
+    "artifact_id": 12085561966,
+    "artifact_sha256": "2e646c17c14a475226d65738bfc9c5c99d61a8a6b9feff1513ffba7287806906",
+    "suite_public_head": "12fe1ef3a27461d353a8d21595090374ca41435c",
+    "suite_executed_merge": "d44b141f36c6133986ccd19e4137bed52ebc0852",
+    "suite_tree": "3b867eb88a8ef35062eaadbbef091c45d61ddcc0",
+    "status": "source-bound independently audited actual Rust baseline; distinct from future pair executions"
+  },
+  "separate_fractional_viewport_extension": {
+    "cases": 2,
+    "paired_click_operations": 4,
+    "input_owner": "diagnostics/anchor_pair/fractional_viewport.py",
+    "qualification": "separate-actual-Rust-pair; never added to frozen 24 cases"
+  }
+}

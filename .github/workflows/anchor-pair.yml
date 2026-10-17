@@ -1,0 +1,116 @@
+name: Supplemental native anchor semantic pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/anchor_moonbit/**'
+      - 'diagnostics/anchor_pair/**'
+      - 'tests/test_anchor_pair.py'
+      - '.github/workflows/anchor-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anchor-pair-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-source-bound-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Require exact published core commit and tree
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          p = json.load(open('diagnostics/anchor_pair/profile.json'))
+          assert p['candidate_pin_status'] == 'published-exact-commit-tree', 'Core review/publication remains a hard gate'
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_commit'] or '')
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_tree'] or '')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('core=' + p['candidate_commit'], file=out)
+              print('upstream=' + p['upstream_commit'], file=out)
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.core }}
+          path: _build/core-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.upstream }}
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install compiler and schema checker
+        run: |
+          mkdir -p _build/anchor-pair-logs
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+          python3 -m pip install jsonschema==4.26.0
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/anchor-pair-logs/install-moon.sh
+          bash _build/anchor-pair-logs/install-moon.sh
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Run original and supplemental checker regressions
+        run: |
+          python3 -m unittest discover -s tests -p 'test_anchor_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_pair.py' -v
+      - name: Compile and execute the unchanged frozen actual-Rust baseline
+        run: |
+          set -o pipefail
+          python3 diagnostics/anchor/run.py --online --upstream-source _build/upstream-source \
+            --output _build/anchor-baseline 2>&1 | tee _build/anchor-pair-logs/rust-baseline.log
+          python3 diagnostics/anchor/verify.py _build/anchor-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/anchor-pair-logs/rust-independent.json
+      - name: Compile genuine native core and execute both separately qualified pairs
+        run: |
+          set -o pipefail
+          python3 diagnostics/anchor_pair/run.py --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' --baseline _build/anchor-baseline \
+            --baseline-suite-source . --baseline-suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --output _build/anchor-pair-evidence \
+            2>&1 | tee _build/anchor-pair-logs/native-pair.log
+          python3 diagnostics/anchor_pair/verify.py _build/anchor-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            > _build/anchor-pair-logs/native-independent.json
+      - name: Corrupt retained JSON separately from executed production mutations
+        run: |
+          python3 diagnostics/anchor_pair/run_controls.py --evidence _build/anchor-pair-evidence \
+            --output _build/anchor-pair-checker-controls
+          python3 diagnostics/anchor_pair/run_mutants.py --evidence _build/anchor-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            --output _build/anchor-pair-mutants
+      - name: Independently reopen relocated bundles and recompute all mutation outcomes
+        run: |
+          cp -a _build/anchor-pair-evidence _build/anchor-pair-copy
+          cp -a _build/anchor-pair-mutants _build/anchor-mutants-copy
+          python3 diagnostics/anchor_pair/verify_mutants.py --evidence _build/anchor-pair-copy \
+            --mutants _build/anchor-mutants-copy --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' > _build/anchor-pair-logs/copied-bundles-independent.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-anchor-pair-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/anchor-baseline
+            _build/anchor-pair-evidence
+            _build/anchor-pair-mutants
+            _build/anchor-pair-checker-controls
+            _build/anchor-pair-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
