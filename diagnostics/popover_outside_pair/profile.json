@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "fresh-actual-popover-outside-pair",
+  "oracle_commit": "d24cf54f770bd8146944a6e13b7aead7a6a7115a",
+  "oracle_tree": "0e71d50fd4cfbff3f42cb4d66919822f9943a062",
+  "core_commit": "e2f7a23d65702b9b21d7bf654d1168afb4841648",
+  "core_tree": "773b51155f892b734c998a6375189fa117ce09a0",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "scope": "Any-button rendered-frame outside-down dismissal, production layout/hit routing and Button activation for the frozen 23-event fixture.",
+  "non_claims": ["General GPUI listener interleaving parity", "Rust paint phase equivalence", "General click parity", "Cryptographic execution authentication"]
+}
