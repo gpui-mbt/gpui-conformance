@@ -1,0 +1,82 @@
+[
+  {
+    "name": "local-window-selection",
+    "path": "element/anchored.mbt",
+    "old": "    Window => spec.position\n    Local =>",
+    "new": "    Local => spec.position\n    Window =>",
+    "predicate": "Local and Window use distinct actual static-origin translation",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "oversized-clamp-order",
+    "path": "element/anchored.mbt",
+    "old": "  if x < 0.0 {\n    x = 0.0\n  }",
+    "new": "  if x < 0.0 && size.width() <= viewport.width() {\n    x = 0.0\n  }",
+    "predicate": "oversized right-edge adjustment must still clamp left to zero",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "logical-ties-toward-zero",
+    "path": "element/anchored.mbt",
+    "old": "    let rounded = (value.abs() + 0.5).floor()",
+    "new": "    let rounded = (value.abs() - 0.5).ceil()",
+    "predicate": "logical positive and negative half translations round away from zero before physical snapping",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "skip-device-offset-snap",
+    "path": "element/anchored.mbt",
+    "old": "  scroll_translation(offset, scale_factor)",
+    "new": "  let _ = scale_factor\n  Ok(offset)",
+    "predicate": "fractional scale applies distinct device snap to rounded logical offset",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "deferred-paint-ties-reversed",
+    "path": "element/deferred.mbt",
+    "old": "  for index = 0; index < nodes.length(); index = index + 1 {\n    if nodes[index].deferred {",
+    "new": "  for index = nodes.length() - 1; index >= 0; index = index - 1 {\n    if nodes[index].deferred {",
+    "predicate": "flat equal-priority deferred attachments preserve insertion order",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "paint-in-structural-order",
+    "path": "element/deferred.mbt",
+    "old": "  for index = 0; index < nodes.length(); index = index + 1 {\n    if !nodes[index].deferred {\n      order.push(index)\n    }\n  }\n  for index = 0; index < nodes.length(); index = index + 1 {\n    if nodes[index].deferred {\n      order.push(index)\n    }\n  }",
+    "new": "  for index = 0; index < nodes.length(); index = index + 1 {\n    order.push(index)\n  }",
+    "predicate": "deferred popup paints after later ordinary sibling",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "hit-in-forward-paint-order",
+    "path": "element/element.mbt",
+    "old": "    let node = self.nodes[order[index]]",
+    "new": "    let node = self.nodes[order[order.length() - 1 - index]]",
+    "predicate": "topmost painted interactive leaf wins the real hit and input route",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "dispatch-structural-lineage-loss",
+    "path": "element/element.mbt",
+    "old": "          path.push(reversed[index])",
+    "new": "          if index == reversed.length() - 1 || index == 0 {\n            path.push(reversed[index])\n          }",
+    "predicate": "real pointer callback and focused input traversal retain actual parent ancestry",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "drop-window-clip-push",
+    "path": "element/element.mbt",
+    "old": "      Some(bounds) =>\n        commands.push(@scene.PaintCommand::clip_push(node.id, bounds))",
+    "new": "      Some(_) => ()",
+    "predicate": "actual scene retains balanced window and attachment clip commands",
+    "scope": "rust-paired-semantics"
+  },
+  {
+    "name": "rounded-root-viewport-mask",
+    "path": "element/anchored.mbt",
+    "old": "        Some(window_clip)",
+    "new": "        let _ = window_clip\n        Some(ordinary.layout.root_bounds())",
+    "predicate": "Original 24 cases pass, but separate actual-Rust fractional logical viewport pair rejects rounded-root masks and boundary-strip hit behavior",
+    "scope": "fractional-viewport-rust-pair"
+  }
+]

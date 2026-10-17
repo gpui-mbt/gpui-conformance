@@ -40,8 +40,29 @@ def grid_layout_oracle_catalog_bytes(web: Path) -> bytes:
     return raw
 
 
+ANCHOR_CATALOG = "tests/fixtures/anchor-rust-only-catalog-a20e5888.json"
+ANCHOR_CATALOG_SHA256 = "2bf21a873708712eeb43cfb028138b15f8859ae6660c73407b7e83b4ae9adae8"
+
+
+def anchor_oracle_catalog_bytes(web: Path) -> bytes:
+    raw = (web / ANCHOR_CATALOG).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != ANCHOR_CATALOG_SHA256:
+        raise ValueError("immutable anchor oracle catalog bytes changed")
+    return raw
+
+
 def site_catalog(site: Path, manifest: dict, extra_examples: list[str],
                  oracle_only: bool, implemented_examples: list[str] | None) -> dict:
+    if manifest.get("site_kind") == "anchor_rust_oracle_only":
+        if not oracle_only or extra_examples != ["anchor"] or implemented_examples is not None:
+            raise ValueError("isolated anchor site requires only its explicit Rust oracle")
+        raw = anchor_oracle_catalog_bytes(WEB)
+        if (site / "examples.json").read_bytes() != raw:
+            raise ValueError("isolated anchor site catalog differs from immutable source")
+        catalog = json.loads(raw)
+        if manifest.get("moonbit") != catalog["moonbit"]:
+            raise ValueError("isolated anchor unused engine metadata differs")
+        return catalog
     if manifest.get("site_kind") == "grid_layout_rust_oracle_only":
         if not oracle_only or extra_examples != ["grid_layout"] or implemented_examples is not None:
             raise ValueError("isolated grid-layout site requires only its explicit Rust oracle")
@@ -78,7 +99,7 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout"]:
+    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor"]:
         if name in examples:
             relative = f"crates/gpui/examples/{name}.rs"
             path = os.path.relpath(source / relative, gallery)
@@ -98,7 +119,7 @@ def extra_oracle_records(names: list[str]) -> list[dict]:
     """Opt-in unchanged Rust baselines never imply a candidate implementation."""
     records = []
     for name in names:
-        if name not in {"scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout"} or name in [record["id"] for record in records]:
+        if name not in {"scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor"} or name in [record["id"] for record in records]:
             raise ValueError(f"unknown or duplicate extra oracle: {name}")
         record = json.loads((WEB / "oracles" / f"{name}.json").read_text())
         if (record["id"] != name or record["source"] != f"crates/gpui/examples/{name}.rs"
@@ -137,7 +158,7 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
           oracle_only: bool = False, implemented_examples: list[str] | None = None) -> None:
     manifest_path = site / "build-manifest.json"
     manifest = None
-    if oracle_only and extra_examples in (["uniform_list"], ["grid_layout"]) and implemented_examples is None:
+    if oracle_only and extra_examples in (["uniform_list"], ["grid_layout"], ["anchor"]) and implemented_examples is None:
         manifest = json.loads(manifest_path.read_text())
         catalog = site_catalog(site, manifest, extra_examples, oracle_only, implemented_examples)
     else:
@@ -167,7 +188,7 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
                                    "status": "implemented_subset", "candidate": "implemented"})
     if manifest is None:
         manifest = json.loads(manifest_path.read_text())
-    if manifest.get("site_kind") in {"uniform_list_rust_oracle_only", "grid_layout_rust_oracle_only"}:
+    if manifest.get("site_kind") in {"uniform_list_rust_oracle_only", "grid_layout_rust_oracle_only", "anchor_rust_oracle_only"}:
         site_catalog(site, manifest, extra_examples or [], oracle_only, implemented_examples)
     if manifest["upstream"] != catalog["upstream"] or (site / "rust").exists():
         raise ValueError("site provenance mismatch or Rust output already exists")
@@ -246,7 +267,7 @@ if __name__ == "__main__":
     parser.add_argument("--upstream-source", required=True, type=Path)
     parser.add_argument("--site", type=Path, default=Path("_build/browser-lab"))
     parser.add_argument("--target-dir", type=Path, default=Path("_build/rust-target"))
-    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout"], default=[],
+    parser.add_argument("--extra-example", action="append", choices=["scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor"], default=[],
                         help="also build an unchanged Rust-only oracle without claiming a MoonBit counterpart")
     parser.add_argument("--oracle-only", action="store_true",
                         help="build only explicitly named Rust-only oracles; requires --extra-example")

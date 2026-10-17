@@ -41,8 +41,8 @@ function metadata(runtime='rust') {
 }
 const synthetic=syntheticPixels();
 test('paired source and core pins are exact and historical oracle claims are rejected',()=>{
-  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'aafa754affa049c1eaf69c75c1d04c5d895d3677');
-  assert.equal(TAB_CANDIDATE.tree,'a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
+  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'0153b1963bb6b2e434189ecf8591fb2c4c5a7929');
+  assert.equal(TAB_CANDIDATE.tree,'c29dd688e359c6f306d807d081fbaa28d21fdbbe');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
   assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,13);
   const changed=structuredClone(report.catalog);changed.examples[0].moonbit='not_implemented';assert.throws(()=>assertPairedProvenance(report.build,changed));
 });
