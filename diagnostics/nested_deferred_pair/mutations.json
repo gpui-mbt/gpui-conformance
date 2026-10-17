@@ -1,0 +1,62 @@
+[
+  {
+    "name": "structural-dfs-ties",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Replace discovery-dependent equal-priority child ties with structural DFS order.",
+    "required_witnesses": [
+      {
+        "case": "reversed-parents-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "all-equal-scale1",
+        "operation": "updated",
+        "field": "paint_order"
+      }
+    ],
+    "old": "    sort_deferred_groups(nodes, round)\n    let next",
+    "new": "    // Wrong control: retain structural parent discovery order.\n    let next"
+  },
+  {
+    "name": "parent-contiguous-scheduling",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Keep nested content contiguous with its parent instead of globally sorting independent groups.",
+    "required_witnesses": [
+      {
+        "case": "child-lower-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "reversed-parents-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      }
+    ],
+    "old": "  if paint {\n    sort_deferred_groups(nodes, groups)\n  }",
+    "new": "  if paint {\n    sort_deferred_groups(nodes, groups)\n    let contiguous : Array[Int32] = []\n    for root in groups {\n      let mut parent_group : UInt64? = None\n      for parent in nodes {\n        if Some(parent.id) == nodes[root].parent {\n          parent_group = parent.deferred_group\n        }\n      }\n      if parent_group is None {\n        contiguous.push(root)\n        for child in groups {\n          for parent in nodes {\n            if Some(parent.id) == nodes[child].parent && parent.deferred_group == Some(nodes[root].id) {\n              contiguous.push(child)\n              break\n            }\n          }\n        }\n      }\n    }\n    groups.clear()\n    for root in contiguous {\n      groups.push(root)\n    }\n  }"
+  },
+  {
+    "name": "lost-outer-local-offset",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-box-projection",
+    "predicate": "Drop the inherited outer Local translation once when placing nested content.",
+    "required_witnesses": [
+      {
+        "case": "increasing-scale1",
+        "operation": "base",
+        "field": "bounds/a.nested.root"
+      },
+      {
+        "case": "increasing-scale1",
+        "operation": "moved",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "old": "let absolute = match inherited.translated(relative)",
+    "new": "let absolute = match zero.translated(relative)"
+  }
+]
