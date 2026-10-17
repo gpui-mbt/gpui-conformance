@@ -232,4 +232,12 @@ class PairSourceTests(unittest.TestCase):
             with self.subTest(stdout=bad):
                 with self.assertRaises(ValueError):run_rust.rust_build_graph(record,bad,stderr)
 
+    def test_compiler_version_flags_match_retained_cli_help(self):
+        # Fresh CI39077117020 retained moonc's rejection of --version and its
+        # explicit help: '-v show version'. This test invokes no compiler.
+        self.assertEqual(pair_run.version_command('moonc','/moon/moonc'),['/moon/moonc','-v'])
+        self.assertEqual(pair_run.version_command('moon','/moon/moon'),['/moon/moon','--version'])
+        self.assertEqual(pair_run.version_command('node','/bin/node'),['/bin/node','--version'])
+        with self.assertRaises(ValueError):pair_run.version_command('other','/bin/other')
+
 if __name__=='__main__':unittest.main()

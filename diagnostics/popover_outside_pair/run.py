@@ -60,6 +60,11 @@ def require_selected_source(source, original):
     require(not (Path(source)/original).is_symlink(),'selected input symlink')
 
 
+def version_command(name, resolved_path):
+    require(name in ('moon','moonc','node'),'known tool version command')
+    return [str(resolved_path), '-v' if name=='moonc' else '--version']
+
+
 def require_success(record, label):
     require(type(record.get('returncode')) is int and record['returncode']==0 and
             record.get('timed_out') is False and record.get('resource_floor_breached') is False, label)
@@ -112,7 +117,7 @@ def compile_candidate(pair_source, core_source, out, fixture, token, mutation=No
             if shared_toolchain is None:
                 shutil.copy2(path,out/'tools'/name)
             require(digest(shared/'tools'/name)==digest(path),'tool hash binding')
-            version = execute([str(path),'--version'],out,name+'-version',env,cwd=stage)
+            version = execute(version_command(name,path),out,name+'-version',env,cwd=stage)
             manifest['toolchain'][name] = {'command_path':command,'resolved_path':str(path),
                 'sha256':digest(path),'version':version}
             require_success(version,name+' version')

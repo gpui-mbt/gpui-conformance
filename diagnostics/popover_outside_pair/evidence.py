@@ -274,7 +274,7 @@ def verify_candidate(directory,record,core_source,pair_source,token,root,fixture
         require(set(info)=={'command_path','resolved_path','sha256','version'},'tool metadata')
         require(Path(info['command_path']).is_absolute() and Path(info['resolved_path']).is_absolute(),'tool paths')
         require(digest(safe_file(shared,'tools/'+tool))==info['sha256'],'retained compiler bytes')
-        intervals.append(process_ok(info['version'],[info['resolved_path'],'--version'],source))
+        intervals.append(process_ok(info['version'],[info['resolved_path'],'-v' if tool=='moonc' else '--version'],source))
         require(safe_file(out,tool+'-version.stdout').stat().st_size>0,'tool version output');safe_file(out,tool+'-version.stderr')
     bundle=shared/'toolchain-inputs/js-bundle'
     require(bundle.is_dir() and any(p.is_file() for p in bundle.rglob('*')),'shared standard library missing')
