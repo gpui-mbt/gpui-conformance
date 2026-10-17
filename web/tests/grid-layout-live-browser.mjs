@@ -1,5 +1,6 @@
 // Live-use regression only. No Rust comparison or parity claim outside the frozen profile.
 import assert from 'node:assert/strict';
+import {prepareHistoryDprProbe} from './grid-layout-live-history.mjs';
 import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
@@ -36,7 +37,7 @@ try {
   page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/live-embed`);
   const iframe=await page.waitForSelector('iframe');frame=await iframe.contentFrame();
-  const cdp=await context.newCDPSession(page);
+  let cdp=await context.newCDPSession(page);
   let restored;
   for(const [width,height,scale] of [[800,600,2],[320,713,1.25],[500,500,1],[399,500,1],[400,500,1],[800,600,2],[800,600,4],[800,600,5],[800,600,1],[8,32,1],[500,500,1]]) {
     attempted={width,height,scale};
@@ -64,12 +65,13 @@ try {
   // Real history navigation may restore BFCache or reload, depending on Chromium
   // policy. Record which happened; neither path may lose DPR observation.
   await frame.evaluate(()=>{globalThis.liveGridHistoryMarker=true;});
-  attempted={operation:'history_back_and_same_size_dpr',width:500,height:500,scale:2};
+  attempted={operation:'observe_history_return'};
   await page.goto(`http://127.0.0.1:${server.address().port}/away`);
   await page.goBack();
   frame=await (await page.waitForSelector('iframe')).contentFrame();
-  await frame.waitForFunction(()=>globalThis.gpuiExample?.metadata.width===500&&globalThis.gpuiExample?.scale===1);
-  report.history={bfcache_restored:await frame.evaluate(()=>globalThis.liveGridHistoryMarker===true)};
+  const historyProbe=await prepareHistoryDprProbe({frame,page,context,cdp,restored,onAttempt:state=>{attempted=state;}});
+  cdp=historyProbe.cdp;report.history=historyProbe.history;
+  attempted={operation:'history_return_same_size_dpr',width:500,height:500,scale:2};
   await cdp.send('Emulation.setDeviceMetricsOverride',{width:500,height:500,deviceScaleFactor:2,mobile:false});
   await frame.waitForFunction(()=>globalThis.gpuiExample?.metadata.width===500&&globalThis.gpuiExample?.scale===2);
   assert(await frame.evaluate(()=>document.documentElement.dataset.runtimeStatus==='ready'&&document.querySelector('canvas').width===1000&&!document.querySelector('canvas').hidden));
