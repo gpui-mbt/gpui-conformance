@@ -8,6 +8,7 @@ import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join,sep,extname} from 'node:path';
+import {decodeScreenshotRgba} from './screenshot-rgba.mjs';
 import {SCROLLABLE,SOURCE_CONSTRAINTS,inspectInitial,assertTranslation,assertUnchanged,
   assertClipping,assertHover,assertSameFill,assertHorizontalEnd,assertVerticalEnd,
   assertWheelDelivery,scrollableNegativeControls} from './scrollable-comparator.mjs';
@@ -117,22 +118,13 @@ try {
     const expected=candidate?manifest.runtime_sha256_by_example.scrollable:manifest.rust.files[file];
     assert.equal(sha256(await response.body()),expected,`Served ${file} must match manifest hash`);
   }
-  async function decode(buffer) {
-    const image=await page.evaluate(async url=>{
-      const source=new Image();source.src=url;await source.decode();
-      const target=document.createElement('canvas');target.width=source.width;target.height=source.height;
-      const ctx=target.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);
-      return {width:source.width,height:source.height,data:Array.from(ctx.getImageData(0,0,source.width,source.height).data)};
-    },'data:image/png;base64,'+buffer.toString('base64'));
-    image.data=Uint8Array.from(image.data);return image;
-  }
   async function frames() {
     await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
   }
   async function capture(name,predicate=()=>true) {
     const deadline=Date.now()+30000;let previous=null,lastError,buffer,image,measurement,stable=false;
     do {
-      buffer=await page.screenshot({animations:'disabled',scale:'device'});image=await decode(buffer);
+      buffer=await page.screenshot({animations:'disabled',scale:'device'});image=await decodeScreenshotRgba(page,buffer);
       assert.equal(image.width,500*dpr);assert.equal(image.height,500*dpr);
       const hash=sha256(image.data);let valid=false;
       try{measurement=predicate(image);valid=true;lastError=null;}catch(error){lastError=error.message;}

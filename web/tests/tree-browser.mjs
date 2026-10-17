@@ -2,19 +2,10 @@ import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
+import {decodeScreenshotRgba} from './screenshot-rgba.mjs';
 import {TREE,assertTreeScene,inspectTreeImage,compareTreeImages,treeNegativeControls} from './tree-comparator.mjs';
 
 const sha256=data=>createHash('sha256').update(data).digest('hex');
-
-async function decodeScreenshot(page,buffer) {
-  const image=await page.evaluate(async url=>{
-    const image=new Image();image.src=url;await image.decode();
-    const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
-    const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0);
-    return {width:image.width,height:image.height,data:Array.from(context.getImageData(0,0,image.width,image.height).data)};
-  },'data:image/png;base64,'+buffer.toString('base64'));
-  image.data=Uint8Array.from(image.data);return image;
-}
 
 // Reusable from candidate-browser.mjs. Use direct runtime pages at an integer
 // origin: no fractional iframe clipping, resizing, masks, or candidate-drawn oracle.
@@ -72,7 +63,7 @@ export async function checkTreePair({page,evidence,paired=true}) {
       do {
         buffer=await runtimePage.screenshot({animations:'disabled',scale:'device'});
         assert.equal(buffer.readUInt32BE(16),300*dpr);assert.equal(buffer.readUInt32BE(20),300*dpr);
-        image=await decodeScreenshot(runtimePage,buffer);
+        image=await decodeScreenshotRgba(runtimePage,buffer);
         let hasGreen=false,hasBlue=false;
         for(let i=0;i<image.data.length;i+=4) {
           hasGreen ||= image.data[i]===0&&image.data[i+1]===128&&image.data[i+2]===0;
