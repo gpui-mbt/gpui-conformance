@@ -37,3 +37,24 @@ export function readGridFrame(runtime, context, windowObject, scale) {
   frame.grid_layout.host_layout_passes = content.layout_passes + frame.grid_layout.frame_layout_passes;
   return {frame,content,prefixes,width,height};
 }
+
+// A monitor/zoom DPR change need not resize the logical viewport. Listen to the
+// current resolution and rearm after each change so later transitions also fire.
+export function watchGridDeviceScale(windowObject, onChange) {
+  let query, stopped=false;
+  function changed() {
+    if (stopped) return;
+    query.removeEventListener('change', changed);
+    arm();
+    onChange();
+  }
+  function arm() {
+    query=windowObject.matchMedia(`(resolution: ${windowObject.devicePixelRatio}dppx)`);
+    query.addEventListener('change', changed);
+  }
+  arm();
+  return () => {
+    stopped=true;
+    query.removeEventListener('change', changed);
+  };
+}

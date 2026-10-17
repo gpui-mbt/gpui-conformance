@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
-import {readGridViewport,measureGridInputs,readGridFrame} from '../moonbit/site/grid-layout-host.mjs';
+import {readGridViewport,measureGridInputs,readGridFrame,watchGridDeviceScale} from '../moonbit/site/grid-layout-host.mjs';
 
 // Synthetic host fixtures exercise transport only, not compiled MoonBit or Rust.
 function fixture() {
@@ -66,19 +66,22 @@ test('invalid viewport and invalid runtime content fail without inventing a cand
 });
 
 async function route(width=500) {
-  const f=fixture(),events=new Map(),draws=[],imports=[],timing=[];
+  const f=fixture(),events=new Map(),queries=[],draws=[],imports=[],timing=[];
   const canvas={style:{},setAttribute(){},getContext:()=>f.context},error={hidden:true},notice={hidden:true,style:{},setAttribute(){}};
   const document={createElement:()=>notice,body:{append(){}},getElementById:id=>id==='canvas'?canvas:id==='grid-live-notice'?notice:error,documentElement:{dataset:{}},fonts:{add(){},ready:Promise.resolve()}};
-  const window={innerWidth:width,innerHeight:500,addEventListener:(name,callback)=>events.set(name,callback)};
+  const window={innerWidth:width,innerHeight:500,
+    get devicePixelRatio(){return sandbox.devicePixelRatio;},
+    matchMedia:media=>{const query={media,listeners:new Set(),addEventListener:(_type,fn)=>query.listeners.add(fn),removeEventListener:(_type,fn)=>query.listeners.delete(fn)};queries.push(query);return query;},
+    addEventListener:(name,callback)=>events.set(name,callback)};
   const source=readFileSync(new URL('../moonbit/site/host.mjs',import.meta.url),'utf8')
     .replace(/^import .*;\n/gm,'').replace('await import(modules[example])','await load(modules[example])');
   const sandbox={URL,location:{href:'http://127.0.0.1/moonbit/?example=grid_layout'},window,document,devicePixelRatio:1,
-    FontFace:class {async load(){return this;}},readGridFrame,
+    FontFace:class {async load(){return this;}},readGridFrame,watchGridDeviceScale,
     drawFrame:(_context,frame,metadata,scale)=>draws.push({frame,metadata:{...metadata},scale}),
     load:async path=>{imports.push(path);return f.runtime;},
     createHostTiming:()=>({complete:(...args)=>timing.push(['complete',...args]),fail:()=>timing.push(['fail'])})};
   await vm.runInNewContext(`(async()=>{${source}})()`,sandbox);
-  return {...f,window,events,draws,imports,timing,sandbox,canvas,error,notice,document};
+  return {...f,window,events,queries,draws,imports,timing,sandbox,canvas,error,notice,document};
 }
 
 test('shared host imports real candidate route and updates Canvas size on actual resize events',async()=>{
@@ -141,4 +144,29 @@ test('live resource validation matches rounded Canvas allocation and rejects inv
   for(const [width,height,scale] of [[16,32,.25],[16.01,32.01,.25],[16384,32,1],[8192,4096.49,1]]) {
     assert.equal(readGridFrame(f.runtime,f.context,{innerWidth:width,innerHeight:height},scale).width,width);
   }
+});
+
+
+test('DPR-only transitions repaint, rearm, reject and recover without a resize event, then clean up',async()=>{
+  const f=await route(800);
+  for(const scale of [2,4,5,1,2]) {
+    const previous=f.queries.at(-1);assert(previous,'A resolution subscription must be armed');assert.equal(previous.listeners.size,1);
+    f.sandbox.devicePixelRatio=scale;
+    for(const listener of [...previous.listeners]) listener();
+    assert.equal(previous.listeners.size,0);
+    assert.equal(f.queries.at(-1).media,`(resolution: ${scale}dppx)`);
+    assert.equal(f.queries.at(-1).listeners.size,1);
+    assert.equal(f.window.innerWidth,800);assert.equal(f.window.innerHeight,500);
+    if(scale>4) {
+      assert.equal(f.sandbox.gpuiExample,undefined);assert.equal(f.canvas.hidden,true);
+      assert.equal(f.document.documentElement.dataset.runtimeStatus,'failed');
+    } else {
+      assert.equal(f.sandbox.gpuiExample.scale,scale);assert.equal(f.canvas.width,800*scale);
+      assert.equal(f.canvas.hidden,false);assert.equal(f.document.documentElement.dataset.runtimeStatus,'ready');
+    }
+  }
+  const last=f.queries.at(-1),queued=[...last.listeners],count=f.draws.length;
+  f.events.get('pagehide')();assert.equal(last.listeners.size,0);
+  for(const listener of queued) listener();
+  assert.equal(f.draws.length,count);assert(f.queries.every(q=>q.listeners.size===0));
 });

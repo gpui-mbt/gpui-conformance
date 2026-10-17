@@ -10,7 +10,7 @@ import { createTabStopHost } from './tab-stop-host.mjs';
 import { createDragDropHost } from './drag-drop-host.mjs';
 import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
-import { readGridFrame } from './grid-layout-host.mjs';
+import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
 import { readAnchorFrame, createAnchorHost } from './anchor-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
@@ -230,6 +230,7 @@ try {
   if (document.documentElement.dataset.runtimeStatus === 'ready') loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   else loadTiming.fail();
   window.addEventListener('resize', render);
+  if (isGrid) window.addEventListener('pagehide', watchGridDeviceScale(window, render), {once:true});
 } catch (cause) {
   loadTiming.fail();
   canvas.hidden = true; error.hidden = false;

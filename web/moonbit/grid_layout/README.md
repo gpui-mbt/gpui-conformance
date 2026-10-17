@@ -28,7 +28,9 @@ side in **1–16384 pixels** and at most **33554432 pixels** total. Inputs must 
 finite. DPR is limited to the shared Canvas renderer's supported maximum of 4.
 The minimum sizes keep the bounded dashed-border and negative-spread
 shadow adapters valid; the maximums bound browser memory allocation. Invalid
-sizes clear the stale frame and recover after a valid resize.
+sizes clear the stale frame and recover after a valid resize. A self-rearming
+resolution media query also repaints same-size DPR changes (for example moving
+between monitors), and its listener is removed on pagehide.
 
 Outside the comparison profile a visible notice identifies the live rendering
 as unverified. The core still receives the actual logical viewport and DPR;

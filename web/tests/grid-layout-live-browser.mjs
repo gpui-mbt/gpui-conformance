@@ -24,19 +24,21 @@ const server=createServer(async(req,res)=>{
     const bytes=await readFile(file);res.writeHead(200,{'content-type':types[extname(file)]||'application/octet-stream'});res.end(bytes);
   }catch {res.writeHead(404);res.end('Not found');}
 });
-let browser;
+let browser, page, frame, attempted;
+const errors=[];
 const report={status:'failed',conformance:'not_claimed',kind:'live_embedded_candidate_regression',states:[]};
 try {
   await mkdir(out,{recursive:true});
   await new Promise(done=>server.listen(0,'127.0.0.1',done));
   browser=await chromium.launch({headless:true});
   const context=await browser.newContext({viewport:{width:800,height:600},deviceScaleFactor:2});
-  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(`http://127.0.0.1:${server.address().port}/live-embed`);
-  const iframe=await page.waitForSelector('iframe');const frame=await iframe.contentFrame();
+  const iframe=await page.waitForSelector('iframe');frame=await iframe.contentFrame();
   const cdp=await context.newCDPSession(page);
   let restored;
-  for(const [width,height,scale] of [[800,600,2],[320,713,1.25],[500,500,1],[399,500,1],[400,500,1],[800,600,2],[800,600,4],[801,600,5],[8,32,1],[500,500,1]]) {
+  for(const [width,height,scale] of [[800,600,2],[320,713,1.25],[500,500,1],[399,500,1],[400,500,1],[800,600,2],[800,600,4],[800,600,5],[800,600,1],[8,32,1],[500,500,1]]) {
+    attempted={width,height,scale};
     await cdp.send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:scale,mobile:false});
     if(width<16 || scale>4) {
       await frame.waitForFunction(({width,height,scale})=>innerWidth===width&&innerHeight===height&&devicePixelRatio===scale&&document.documentElement.dataset.runtimeStatus==='failed',{width,height,scale});
@@ -59,6 +61,14 @@ try {
   }
   assert.deepEqual(errors,[]);report.status='passed';report.browser=await browser.version();
   await page.screenshot({path:join(out,'restored-original-profile.png')});
+} catch (error) {
+  report.failure={attempted,error:{name:error.name,message:error.message},page_errors:errors};
+  if(frame) {
+    try {
+      report.failure.observed=await frame.evaluate(()=>({width:innerWidth,height:innerHeight,scale:devicePixelRatio,status:document.documentElement.dataset.runtimeStatus,error:document.getElementById('error')?.textContent,errorHidden:document.getElementById('error')?.hidden,canvasHidden:document.querySelector('canvas')?.hidden,example:globalThis.gpuiExample||null}));
+    } catch (captureError) {report.failure.observation_error=captureError.message;}
+  }
+  throw error;
 } finally {
   await writeFile(join(out,'live-regression.json'),JSON.stringify(report,null,2)+'\n');
   await browser?.close();await new Promise(done=>server.close(done));
