@@ -44,9 +44,10 @@ fn node(id : UInt64, main : Double, cross : Double) -> @element.Element {
 }
 
 ///|
-// Pinned GPUI default phi() line-height, rounded to physical pixels at DPR1.
-fn line_height(font_size : Double) -> Double {
-  (font_size * 1.618033988749895 - 0.5).ceil()
+// Pinned text.rs request_layout uses Window.pixel_snap on the phi line height.
+// Positive half ties go toward zero; return logical pixels at the actual DPR.
+fn line_height(font_size : Double, scale : Double) -> Double {
+  (font_size * 1.618033988749895 * scale - 0.5).ceil() / scale
 }
 
 ///|
@@ -92,6 +93,7 @@ fn prepare(
   height : Double,
   widths : Array[Double],
   hovered : Int32,
+  scale : Double,
 ) -> @element.Prepainted {
   let root_style = column()
     .with_align(@layout.AlignItems::center())
@@ -102,7 +104,7 @@ fn prepare(
   let mut root = @element.Element::root(1, root_style)
     .with_background(Some(color(255)))
     .with_pointer_events(false)
-    .with_child(text_node(2, line_height(16), widths[0]))
+    .with_child(text_node(2, line_height(16, scale), widths[0]))
   // Source size_128 is 512px. The vertical flex item may shrink to the source
   // grid intrinsic minimum; the fixed cross width deliberately overflows 480.
   let mut grid = @element.Element::new(
@@ -144,7 +146,11 @@ fn prepare(
       )
     if index != 4 {
       button = button.with_child(
-        text_node(100 + index.to_uint64(), line_height(16), widths[index + 1]),
+        text_node(
+          100 + index.to_uint64(),
+          line_height(16, scale),
+          widths[index + 1],
+        ),
       )
     }
     wrapper = wrapper.with_child(button)
@@ -154,7 +160,7 @@ fn prepare(
       let popup = node(
           200,
           (widths[index + 10] + 2 * 8).max(100),
-          line_height(14) + 2 * 2,
+          line_height(14, scale) + 2 * 2,
         )
         .with_background(Some(@primitives.Color::rgba(0, 0, 0, 191).unwrap()))
         .with_children_style(
@@ -163,7 +169,7 @@ fn prepare(
             @layout.Insets::zero(),
           ),
         )
-        .with_child(text_node(201, line_height(14), widths[index + 10]))
+        .with_child(text_node(201, line_height(14, scale), widths[index + 10]))
       wrapper = wrapper.with_child(
         @element.Element::anchored_after(
           202,
@@ -184,11 +190,32 @@ fn prepare(
   root
   .request_layout_with_device_scale(
     @primitives.Size::new(width, height).unwrap(),
-    1,
+    scale,
   )
   .unwrap()
   .prepaint()
   .unwrap()
+}
+
+///|
+fn valid_viewport(width : Double, height : Double, scale : Double) -> Bool {
+  // Resource domain, not the frozen comparison profile. Four logical pixels
+  // guarantee one backing pixel at minimum DPR. Fixed buttons may be clipped.
+  // The 4096 width cap also keeps sourceShadowPaintCommands' offscreen caster
+  // outside the viewport; wider centered anchors can expose its opaque fill.
+  let pixels_w = (width * scale + 0.5).floor()
+  let pixels_h = (height * scale + 0.5).floor()
+  width >= 4 &&
+  width <= 4096 &&
+  height >= 4 &&
+  height <= 16384 &&
+  scale >= 0.25 &&
+  scale <= 4 &&
+  pixels_w >= 1 &&
+  pixels_w <= 16384 &&
+  pixels_h >= 1 &&
+  pixels_h <= 16384 &&
+  pixels_w * pixels_h <= 33554432
 }
 
 ///|
@@ -229,28 +256,33 @@ pub fn anchor_frame(
   widths : Array[Double],
   scale : Double,
 ) -> String {
-  if (width != 750 && width != 480) || height != 600 || scale != 1 {
-    return "{\"ok\":false,\"error\":\"unsupported_viewport_profile\"}"
+  if !valid_viewport(width, height, scale) {
+    anchor_reset()
+    return "{\"ok\":false,\"error\":\"invalid_live_viewport\"}"
   }
   if widths.length() != 19 || widths.any(value => !(value > 0 && value <= 1000)) {
+    anchor_reset()
     return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
   }
   // Real core hit testing on current live geometry; popup has no pointer hitbox.
-  let idle = prepare(width, height, widths, -1)
+  let idle = prepare(width, height, widths, -1, scale)
   let hovered = match pointer.val {
-    Some(point) =>
+    Some(point) if point.x() >= 0 &&
+      point.x() < width &&
+      point.y() >= 0 &&
+      point.y() < height =>
       match idle.tree().hit_test(point) {
         Some(id) if id >= 10 && id <= 18 && id != 14 => (id - 10).to_int()
         _ => -1
       }
-    None => -1
+    _ => -1
   }
   let frame = if hovered < 0 {
     idle
   } else {
-    prepare(width, height, widths, hovered)
+    prepare(width, height, widths, hovered, scale)
   }
-  let base = frame.paint_snapshot(1).unwrap()
+  let base = frame.paint_snapshot(scale).unwrap()
   let items : Array[@scene.SceneItem] = []
   for item in base.items() {
     match item {
@@ -295,7 +327,7 @@ pub fn anchor_frame(
   }
   let scene = @scene.SceneSnapshot::new(
     base.viewport(),
-    1,
+    scale,
     base.resources(),
     base.clip_chains(),
     items,
@@ -314,5 +346,5 @@ pub fn anchor_frame(
     "[]"
   }
   let fills = if hovered >= 0 { "[{\"id\":200,\"radius\":2}]" } else { "[]" }
-  "{\"ok\":true,\"snapshot\":\{scene.canonical_json()},\"decorations\":[\{decorations.join(",")}],\"rounded_fills\":\{fills},\"shadows\":\{shadows},\"conformance\":\"unverified\",\"anchor\":{\"hovered\":\{hovered},\"layout_passes\":\{if hovered >= 0 { 2 } else { 1 }}},\"host_extensions\":[\"browser_font_metrics\",\"canvas_rounded_border\",\"canvas_shadow_sm_approximation\",\"browser_pointer_viewport_transport\"],\"unverified\":[\"full_image\",\"text_raster\",\"shadow_kernel\",\"native\",\"callback_counts\"]}"
+  "{\"ok\":true,\"snapshot\":\{scene.canonical_json()},\"decorations\":[\{decorations.join(",")}],\"rounded_fills\":\{fills},\"shadows\":\{shadows},\"conformance\":\"unverified\",\"anchor\":{\"hovered\":\{hovered},\"layout_passes\":\{if hovered >= 0 { 2 } else { 1 }},\"comparison_profile_match\":\{(width == 750 || width == 480) && height == 600 && scale == 1}},\"host_extensions\":[\"browser_font_metrics\",\"canvas_rounded_border\",\"canvas_shadow_sm_approximation\",\"browser_pointer_viewport_transport\"],\"unverified\":[\"full_image\",\"text_raster\",\"shadow_kernel\",\"native\",\"callback_counts\"]}"
 }

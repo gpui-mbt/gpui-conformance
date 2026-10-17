@@ -45,7 +45,7 @@ test('compiled anchor uses all eight core local/deferred placements and restores
     assert.deepEqual(read(width),idle);
   }
   r.anchor_reset();assert.deepEqual(read(750),initial);
-  for(const [w,h,d] of [[749,600,1],[480,599,1],[750,600,2]])
-    assert.equal(JSON.parse(r.anchor_frame(w,h,[],d)).error,'unsupported_viewport_profile');
+  for(const [w,h,d] of [[3,600,1],[480,3,1],[750,600,5]])
+    assert.equal(JSON.parse(r.anchor_frame(w,h,[],d)).error,'invalid_live_viewport');
   assert.equal(JSON.parse(r.anchor_frame(750,600,[],1)).error,'invalid_metrics');
 });
