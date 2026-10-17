@@ -30,7 +30,8 @@ The minimum sizes keep the bounded dashed-border and negative-spread
 shadow adapters valid; the maximums bound browser memory allocation. Invalid
 sizes clear the stale frame and recover after a valid resize. A self-rearming
 resolution media query also repaints same-size DPR changes (for example moving
-between monitors), and its listener is removed on pagehide.
+between monitors), its listener is removed on pagehide, and pageshow restores the watcher and
+repaints if the document returns from the back/forward cache.
 
 Outside the comparison profile a visible notice identifies the live rendering
 as unverified. The core still receives the actual logical viewport and DPR;

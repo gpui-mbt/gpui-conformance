@@ -15,6 +15,7 @@ const types={'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript
 const server=createServer(async(req,res)=>{
   try {
     const url=new URL(req.url,'http://localhost');
+    if(url.pathname==='/away') { res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><title>Away</title>Navigation lifecycle probe');return; }
     if(url.pathname==='/live-embed') {
       res.writeHead(200,{'content-type':'text/html'});
       res.end('<!doctype html><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:0;display:block}</style><iframe src="/moonbit/?example=grid_layout"></iframe>');return;
@@ -59,8 +60,21 @@ try {
     }
     report.states.push(state);
   }
-  assert.deepEqual(errors,[]);report.status='passed';report.browser=await browser.version();
   await page.screenshot({path:join(out,'restored-original-profile.png')});
+  // Real history navigation may restore BFCache or reload, depending on Chromium
+  // policy. Record which happened; neither path may lose DPR observation.
+  await frame.evaluate(()=>{globalThis.liveGridHistoryMarker=true;});
+  attempted={operation:'history_back_and_same_size_dpr',width:500,height:500,scale:2};
+  await page.goto(`http://127.0.0.1:${server.address().port}/away`);
+  await page.goBack();
+  frame=await (await page.waitForSelector('iframe')).contentFrame();
+  await frame.waitForFunction(()=>globalThis.gpuiExample?.metadata.width===500&&globalThis.gpuiExample?.scale===1);
+  report.history={bfcache_restored:await frame.evaluate(()=>globalThis.liveGridHistoryMarker===true)};
+  await cdp.send('Emulation.setDeviceMetricsOverride',{width:500,height:500,deviceScaleFactor:2,mobile:false});
+  await frame.waitForFunction(()=>globalThis.gpuiExample?.metadata.width===500&&globalThis.gpuiExample?.scale===2);
+  assert(await frame.evaluate(()=>document.documentElement.dataset.runtimeStatus==='ready'&&document.querySelector('canvas').width===1000&&!document.querySelector('canvas').hidden));
+  report.history.same_size_dpr_after_return='passed';
+  assert.deepEqual(errors,[]);report.status='passed';report.browser=await browser.version();
 } catch (error) {
   report.failure={attempted,error:{name:error.name,message:error.message},page_errors:errors};
   if(frame) {

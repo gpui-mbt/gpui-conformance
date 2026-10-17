@@ -169,4 +169,18 @@ test('DPR-only transitions repaint, rearm, reject and recover without a resize e
   f.events.get('pagehide')();assert.equal(last.listeners.size,0);
   for(const listener of queued) listener();
   assert.equal(f.draws.length,count);assert(f.queries.every(q=>q.listeners.size===0));
+  for(const scale of [1,4]) {
+    // Simulate the browser lifecycle, including a changed monitor while cached.
+    f.sandbox.devicePixelRatio=scale;f.events.get('pageshow')();
+    assert.equal(f.sandbox.gpuiExample.scale,scale);
+    assert.equal(f.canvas.width,800*scale);
+    const restored=f.queries.at(-1);assert.equal(restored.listeners.size,1);
+    const queryCount=f.queries.length;f.events.get('pageshow')();
+    assert.equal(f.queries.length,queryCount,'Duplicate pageshow must not install another watcher');
+    const restoredDraws=f.draws.length;for(const listener of queued)listener();
+    assert.equal(f.draws.length,restoredDraws,'Old stopped callbacks remain inert after restoration');
+    f.sandbox.devicePixelRatio=2;for(const listener of [...restored.listeners])listener();
+    assert.equal(f.sandbox.gpuiExample.scale,2);
+    f.events.get('pagehide')();assert(f.queries.every(q=>q.listeners.size===0));
+  }
 });

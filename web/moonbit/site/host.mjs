@@ -230,7 +230,14 @@ try {
   if (document.documentElement.dataset.runtimeStatus === 'ready') loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   else loadTiming.fail();
   window.addEventListener('resize', render);
-  if (isGrid) window.addEventListener('pagehide', watchGridDeviceScale(window, render), {once:true});
+  if (isGrid) {
+    let stopScaleWatch = watchGridDeviceScale(window, render);
+    window.addEventListener('pagehide', () => { stopScaleWatch?.(); stopScaleWatch = null; });
+    // BFCache restores this document without rerunning module initialization.
+    window.addEventListener('pageshow', () => {
+      if (!stopScaleWatch) { stopScaleWatch = watchGridDeviceScale(window, render); render(); }
+    });
+  }
 } catch (cause) {
   loadTiming.fail();
   canvas.hidden = true; error.hidden = false;
