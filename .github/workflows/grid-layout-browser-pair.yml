@@ -109,15 +109,16 @@ jobs:
           BROWSER_EVIDENCE: _build/grid-layout-pair-evidence
         run: node web/tests/grid-layout-pair-browser.mjs _build/grid-layout-candidate _build/grid-layout-oracle-evidence
       - name: Reopen original runtime, worker, source, input and PNG evidence and compare
+        id: ordinary_pair
         if: ${{ always() && (steps.candidate_capture.outcome == 'success' || steps.candidate_capture.outcome == 'failure') }}
         timeout-minutes: 15
         run: node web/tests/verify-grid-layout-pair.mjs _build/grid-layout-pair-evidence _build/grid-layout-oracle-evidence _sources/core
       - name: Compile and actually execute wrong-gap and wrong-color controls
-        if: ${{ always() && steps.rust_capture.outcome == 'success' }}
+        if: ${{ always() && steps.ordinary_pair.outcome == 'success' }}
         timeout-minutes: 30
         env:
           PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
-        run: python3 web/scripts/run_grid_layout_pair_controls.py --gpui-source _sources/core --upstream-source _sources/zed --rust-evidence _build/grid-layout-oracle-evidence --out _build/grid-layout-executed-controls
+        run: python3 web/scripts/run_grid_layout_pair_controls.py --gpui-source _sources/core --upstream-source _sources/zed --rust-evidence _build/grid-layout-oracle-evidence --out _build/grid-layout-executed-controls --ordinary-evidence _build/grid-layout-pair-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:

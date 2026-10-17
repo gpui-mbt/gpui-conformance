@@ -7,11 +7,12 @@ import {mkdtemp,writeFile,symlink,link,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
-import {fixture} from './fixtures/grid-layout-fixtures.mjs';
-import {GRID_LAYOUT,EMBEDDED_FONTS,sha256} from './grid-layout-comparator.mjs';
-import {PAIR_PROFILE} from './grid-layout-pair-comparator.mjs';
+import {spawnSync} from 'node:child_process';
+import {fixture,pixels,frame} from './fixtures/grid-layout-fixtures.mjs';
+import {GRID_LAYOUT,EMBEDDED_FONTS,sha256,VIEWPORT_SEQUENCE,COLORS} from './grid-layout-comparator.mjs';
+import {PAIR_PROFILE,TOLERANCES,comparePairImages} from './grid-layout-pair-comparator.mjs';
 import {PAIR_SUITE_INPUTS,candidateProvenance,validateCandidateReport,assertCandidateRuntime,
-  mutatedSource,strictLocalReader,captureBinding,evidenceFilename} from './grid-layout-pair-evidence.mjs';
+  mutatedSource,strictLocalReader,captureBinding,evidenceFilename,assertSuccessfulBaselineSummary,recomputeOrdinaryBaseline,loadQualifiedOrdinaryBaseline} from './grid-layout-pair-evidence.mjs';
 const read=path=>readFileSync(new URL('../../'+path,import.meta.url));
 const profile=JSON.parse(read('web/pairs/grid_layout.json'));
 function build(control=null) {
@@ -114,5 +115,65 @@ test('strict reader rejects hash changes, duplicate files, symlinks and hardlink
     await assert.rejects(async()=>{const fresh=await strictLocalReader(directory);await fresh('alias.json',digest);});
     await link(join(directory,'file.json'),join(directory,'hard.json'));
     await assert.rejects(async()=>{const fresh=await strictLocalReader(directory);await fresh('hard.json',digest);});
+  }finally{await rm(directory,{recursive:true,force:true});}
+});
+
+function baselineFixture() {
+  const report=reportFixture(),rustBytes=Buffer.from('synthetic exact Rust report');
+  const checkout={revision:'1'.repeat(40),tree:'2'.repeat(40),trackedDirty:false,catalogBytes:Buffer.from('synthetic catalog')};
+  report.build.lab_revision=checkout.revision;report.build.lab_tree=checkout.tree;
+  report.build.files['inputs/current-catalog.json']=sha256(checkout.catalogBytes);
+  report.rust_input={report_sha256:sha256(rustBytes)};
+  const reportBytes=Buffer.from(JSON.stringify(report));
+  const summary={status:'bounded_color_component_pair_verified',comparison:'bounded_original_color_component_pair',
+    expected_control:null,conformance:'not_claimed',candidate:report.build.candidate,upstream:profile.upstream,
+    inputs:{moonbit:{file:'grid-layout-moonbit-result-dpr1.json',sha256:sha256(reportBytes)},
+      rust:{file:'grid-layout-rust-result-dpr1.json',sha256:sha256(rustBytes)}},
+    current_checkout:{revision:checkout.revision,tree:checkout.tree,tracked_dirty:false,catalog_sha256:sha256(checkout.catalogBytes)},
+    core:{revision:profile.candidate.revision,tree:profile.candidate.tree},tolerances_physical_pixels:TOLERANCES};
+  return {report,reportBytes,rustBytes,checkout,summary};
+}
+test('control baseline must be successful ordinary evidence bound to exact reports, source, core and current suite',()=>{
+  const f=baselineFixture();assertSuccessfulBaselineSummary(f.summary,f.report,f.reportBytes,f.rustBytes,f.checkout);
+  for(const mutate of [x=>x.summary.status='failed',x=>delete x.summary.expected_control,
+    x=>x.summary.expected_control='wrong_gap',x=>x.summary.inputs.rust.sha256='0'.repeat(64),
+    x=>x.summary.inputs.moonbit.sha256='0'.repeat(64),x=>x.summary.current_checkout.revision='0'.repeat(40),
+    x=>x.summary.core.tree='0'.repeat(40),x=>x.summary.upstream={...x.summary.upstream,source_sha256:'0'.repeat(64)},
+    x=>x.report.build.profile={...x.report.build.profile,profile:'different_source_profile'},
+    x=>x.report.build=build('wrong_color'),x=>x.checkout.trackedDirty=true]) {
+    const x=baselineFixture();mutate(x);
+    assert.throws(()=>assertSuccessfulBaselineSummary(x.summary,x.report,x.reportBytes,x.rustBytes,x.checkout));
+  }
+});
+test('forged success cannot qualify the preserved pre-existing ordinary geometry failure',()=>{
+  const rust=pixels(),ordinary={images:Object.fromEntries(VIEWPORT_SEQUENCE.map(({name,width})=>[name,frame(width,3)]))};
+  ordinary.stableImages=ordinary.images;
+  // This exact error matched a27d's broad wrong-gap rejection gate despite the
+  // ordinary candidate already failing. Preserve it as a regression fixture.
+  assert.throws(()=>comparePairImages(rust.images,ordinary.images),/header left: measured 3, source expectation 0/);
+  assert.throws(()=>recomputeOrdinaryBaseline(rust,ordinary,{status:'bounded_color_component_pair_verified'}),/header left: measured 3/);
+  const purple=Object.fromEntries(Object.entries(ordinary.images).map(([name,image])=>[name,{...image,data:image.data.slice()}]));
+  for(const image of Object.values(purple))for(let p=0;p<image.width*image.height;p++)
+    if(COLORS.content.every((v,i)=>image.data[p*4+i]===v))image.data.set([128,0,128,255],p*4);
+  assert.throws(()=>comparePairImages(rust.images,purple),/content: substantial/);
+  // Either named fault still needs the ordinary predicate to pass first.
+  for(const control of ['wrong_gap','wrong_color'])assert.throws(()=>recomputeOrdinaryBaseline(rust,ordinary,{expected_control:control}));
+});
+test('a valid ordinary original-raster pair recomputes both stable sets; changed success summary fails',()=>{
+  const rust=pixels(),ordinary=pixels(),pair=comparePairImages(rust.images,ordinary.images);
+  assert.deepEqual(recomputeOrdinaryBaseline(rust,ordinary,{pair}),pair);
+  const changed=structuredClone(pair);changed.status='invented_success';
+  assert.throws(()=>recomputeOrdinaryBaseline(rust,ordinary,{pair:changed}));
+  assert.throws(()=>recomputeOrdinaryBaseline(rust,{...ordinary,stableImages:{...ordinary.stableImages,narrow399:ordinary.images.initial}},{pair}));
+});
+test('missing ordinary files and direct control CLI without an ordinary directory fail closed',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'grid-pair-missing-baseline-'));
+  try {
+    await assert.rejects(()=>loadQualifiedOrdinaryBaseline(directory,{}));
+    const result=spawnSync('node',['web/tests/verify-grid-layout-pair.mjs',directory,'missing-rust','missing-core','wrong_gap'],
+      {cwd:new URL('../../',import.meta.url),encoding:'utf8'});
+    assert.equal(result.status,1);assert.match(result.stderr,/controls require a successful ordinary baseline/);
+    const report=JSON.parse(readFileSync(join(directory,'grid-layout-pair-verification.json')));
+    assert.equal(report.status,'failed');assert.equal(report.executed_control,undefined);
   }finally{await rm(directory,{recursive:true,force:true});}
 });

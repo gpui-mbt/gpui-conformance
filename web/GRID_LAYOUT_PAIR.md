@@ -97,8 +97,20 @@ Full source/runtime/font/provenance/input verification must pass before the
 expected raster rejection can count. Build failure, startup error, missing
 artifact, invalid transport or provenance failure is a failed control. Both
 original stable sample sets must reject the expected layout/color fault. Controls
-run even if the ordinary pair comparison fails, provided the independent Rust
-baseline succeeds. They never replace or relabel that ordinary failure.
+require a successful exact ordinary Rust/MoonBit pair first. The workflow skips
+them if ordinary comparison fails. Both the control runner and direct control
+verifier CLI require the explicit ordinary-candidate evidence directory.
+
+Before counting either fault, the verifier reopens the successful ordinary
+verification artifact and binds it to the exact candidate/Rust report hashes,
+source profile, production core and current suite commit/tree/catalog. It then
+reopens ordinary source/runtime/font/input/PNG evidence and recomputes the full
+pair predicate for both independent stable sample sets. A success flag alone is
+insufficient. Missing, failed, stale, different-source or control-as-baseline
+evidence is rejected. The fault's source must start at the successful ordinary
+example bytes, and its compiled module must differ. The qualified ordinary
+report/verification/source/runtime hashes are retained in each fault result.
+They never replace or relabel an ordinary failure.
 
 Synthetic raster substitutions and corrupted-report controls have separate
 labels. They test comparator/evidence sensitivity and do not count as executed

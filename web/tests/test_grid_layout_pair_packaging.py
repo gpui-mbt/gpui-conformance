@@ -11,6 +11,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'web/scripts'))
 import build_grid_layout_pair as pair
+import run_grid_layout_pair_controls as controls
 
 
 class GridPairPackaging(unittest.TestCase):
@@ -116,12 +117,12 @@ class GridPairPackaging(unittest.TestCase):
         self.assertIn('original_comparison_failures:failures', verify)
         self.assertIn("flag:'wx'", verify)
 
-    def test_workflow_executes_real_faults_after_pair_failure_and_keeps_outputs(self):
+    def test_workflow_requires_successful_ordinary_pair_and_keeps_outputs(self):
         workflow = (ROOT / '.github/workflows/grid-layout-browser-pair.yml').read_text()
         for text in ['Pillow==12.0.0', 'playwright@1.56.1', 'GPUI_GRID_LAYOUT_RUNTIME=',
                      'grid-layout-oracle-browser.mjs', 'verify-grid-layout-results.mjs',
                      'grid-layout-pair-browser.mjs', 'verify-grid-layout-pair.mjs',
-                     'run_grid_layout_pair_controls.py', "always() && steps.rust_capture.outcome == 'success'",
+                     'run_grid_layout_pair_controls.py', '--ordinary-evidence _build/grid-layout-pair-evidence', "always() && steps.ordinary_pair.outcome == 'success'",
                      '_build/grid-layout-executed-controls', 'if: always()']:
             self.assertIn(text, workflow)
         self.assertNotIn('UNIFORM_LIST_RUNTIME', workflow)
@@ -130,6 +131,35 @@ class GridPairPackaging(unittest.TestCase):
         runner = (ROOT / 'web/scripts/run_grid_layout_pair_controls.py').read_text()
         self.assertIn('this is not an accepted fault rejection', runner)
         self.assertIn("['wrong_gap', 'wrong_color']", (ROOT / 'web/scripts/build_grid_layout_pair.py').read_text())
+
+    def test_control_runner_never_builds_faults_without_successful_ordinary_evidence(self):
+        for baseline in [None, {'status': 'failed', 'expected_control': None},
+                         {'status': 'bounded_color_component_pair_verified'},
+                         {'status': 'bounded_color_component_pair_verified', 'expected_control': 'wrong_gap'}]:
+            with self.subTest(baseline=baseline), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                ordinary = root / 'ordinary'; ordinary.mkdir()
+                if baseline is not None:
+                    (ordinary / 'grid-layout-pair-verification.json').write_text(json.dumps(baseline))
+                with patch.object(controls.subprocess, 'run') as execute:
+                    result = controls.run(root / 'core', root / 'upstream', root / 'rust', root / 'controls', ordinary)
+                    execute.assert_not_called()
+                self.assertEqual(result['status'], 'skipped_unqualified_ordinary_pair')
+                self.assertEqual(result['controls'], [])
+
+    def test_control_runner_failed_ordinary_reverification_is_not_a_kill(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            ordinary = root / 'ordinary'; ordinary.mkdir()
+            (ordinary / 'grid-layout-pair-verification.json').write_text(json.dumps(
+                {'status': 'bounded_color_component_pair_verified', 'expected_control': None}))
+            failed = subprocess.CompletedProcess([], 1)
+            with patch.object(controls.subprocess, 'run', return_value=failed) as execute:
+                result = controls.run(root / 'core', root / 'upstream', root / 'rust', root / 'controls', ordinary)
+                self.assertEqual(execute.call_count, 1)
+                self.assertEqual(execute.call_args.args[0][1], 'web/tests/verify-grid-layout-pair.mjs')
+            self.assertEqual(result['status'], 'skipped_unqualified_ordinary_pair')
+            self.assertEqual(result['controls'], [])
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import {spawnSync} from 'node:child_process';
 import {sha256,decodePng,EMBEDDED_FONTS,GRID_LAYOUT,validateOperations,VIEWPORT_SEQUENCE} from './grid-layout-comparator.mjs';
 import {GRAPHICS_ARGS,runtimeResponsePath,requiresRuntimeRetention,captureBinding,inputEvidence} from './grid-layout-runtime-evidence.mjs';
 import {assertUploadSafeFilename,assertLocalRuntimeURL,evidenceFilename} from './grid-layout-worker-evidence.mjs';
-import {PAIR_PROFILE,TOLERANCES} from './grid-layout-pair-comparator.mjs';
+import {PAIR_PROFILE,TOLERANCES,comparePairImages} from './grid-layout-pair-comparator.mjs';
 export {GRAPHICS_ARGS,runtimeResponsePath,requiresRuntimeRetention,captureBinding,inputEvidence,evidenceFilename};
 export const PAIR_SUITE_INPUTS=Object.freeze([
   'web/pairs/grid_layout.json','web/scripts/build_grid_layout_pair.py','web/tests/grid-layout-pair-browser.mjs',
@@ -216,4 +216,72 @@ export function verifyCoreSource(report,retained,coreDirectory) {
     assert.equal(sha256(p.stdout),report.build.core_source_sha256[path]);assert.deepEqual(retained.support['inputs/core/'+path],p.stdout);
   }
   return {revision:report.build.candidate.revision,tree:report.build.candidate.tree,files:paths.length};
+}
+
+// A fault is meaningful only relative to a successful exact ordinary pair.
+// Summary checks are necessary, never sufficient: original evidence is reopened
+// and its pair predicate is recomputed below before any rejection can qualify.
+export function assertSuccessfulBaselineSummary(summary,report,reportBytes,rustBytes,checkout) {
+  assert.equal(summary.status,'bounded_color_component_pair_verified','Successful ordinary pair baseline required');
+  assert.equal(summary.comparison,'bounded_original_color_component_pair');
+  assert.equal(summary.expected_control,null,'A control cannot qualify another control');
+  assert.equal(summary.failure,undefined);assert.equal(summary.conformance,'not_claimed');
+  candidateProvenance(report.build);assert.equal(report.build.executed_control,null);
+  assert.equal(summary.inputs.moonbit.file,'grid-layout-moonbit-result-dpr1.json');
+  assert.equal(summary.inputs.moonbit.sha256,sha256(reportBytes),'Exact successful ordinary candidate report');
+  assert.equal(summary.inputs.rust.file,'grid-layout-rust-result-dpr1.json');
+  assert.equal(summary.inputs.rust.sha256,sha256(rustBytes),'Same independently verified Rust report');
+  assert.equal(report.rust_input.report_sha256,sha256(rustBytes));
+  assert.equal(report.build.lab_revision,checkout.revision);assert.equal(report.build.lab_tree,checkout.tree);
+  assert.equal(checkout.trackedDirty,false);
+  assert.equal(report.build.files['inputs/current-catalog.json'],sha256(checkout.catalogBytes));
+  assert.deepEqual(summary.current_checkout,{revision:checkout.revision,tree:checkout.tree,tracked_dirty:false,
+    catalog_sha256:sha256(checkout.catalogBytes)});
+  assert.deepEqual(summary.candidate,report.build.candidate);
+  assert.deepEqual(summary.upstream,report.build.profile.upstream);
+  assert.equal(summary.core.revision,report.build.candidate.revision);assert.equal(summary.core.tree,report.build.candidate.tree);
+  assert.deepEqual(summary.tolerances_physical_pixels,TOLERANCES);
+  return true;
+}
+export function recomputeOrdinaryBaseline(rustFiles,ordinaryFiles,summary) {
+  const pair=comparePairImages(rustFiles.images,ordinaryFiles.images);
+  assert.deepEqual(comparePairImages(rustFiles.stableImages,ordinaryFiles.stableImages),pair,
+    'Successful ordinary pair must hold for both original independent sample sets');
+  assert.deepEqual(summary.pair,pair,'Retained successful summary must match fresh original-byte comparison');
+  return pair;
+}
+export async function loadQualifiedOrdinaryBaseline(directory,{rust,rustBytes,rustFiles,coreDirectory,checkout,controlReport}) {
+  assert(typeof directory==='string'&&directory.length>0,'Ordinary candidate evidence directory is mandatory for controls');
+  const local=await strictLocalReader(directory);
+  const reportFile='grid-layout-moonbit-result-dpr1.json',summaryFile='grid-layout-pair-verification.json';
+  for(const file of [reportFile,summaryFile]) {
+    const info=await lstat(join(directory,file));assert(info.isFile()&&!info.isSymbolicLink()&&info.nlink===1&&info.size>0&&info.size<=64*1024*1024);
+  }
+  const reportBytes=await readFile(join(directory,reportFile)),summaryBytes=await readFile(join(directory,summaryFile));
+  await local(reportFile,sha256(reportBytes));await local(summaryFile,sha256(summaryBytes));
+  const ordinary=JSON.parse(reportBytes),summary=JSON.parse(summaryBytes);
+  assertSuccessfulBaselineSummary(summary,ordinary,reportBytes,rustBytes,checkout);
+  assert.equal(ordinary.rust_input.capture_session,rust.capture_session);
+  assert.equal(ordinary.rust_input.initial_png_sha256,rust.captures.initial.png_sha256);
+  assert.notEqual(ordinary.capture_session,rust.capture_session);
+  assert.notEqual(ordinary.document_id,rust.document_id);
+  assert.notEqual(ordinary.capture_session,controlReport.capture_session,'Independent ordinary/control sessions');
+  assert.notEqual(ordinary.document_id,controlReport.document_id,'Independent ordinary/control documents');
+  assert.equal(ordinary.environment.browser,rust.environment.browser);
+  assert.equal(ordinary.environment.browser,controlReport.environment.browser);
+  assert.deepEqual(ordinary.build.profile,controlReport.build.profile,'Same exact ordinary/control source profile');
+  assert.deepEqual(ordinary.build.candidate,controlReport.build.candidate,'Same exact ordinary/control production core');
+  const files=await loadCandidateEvidence(directory,ordinary);
+  const core=verifyCoreSource(ordinary,files,coreDirectory);
+  assert.deepEqual(summary.core,core);
+  const pair=recomputeOrdinaryBaseline(rustFiles,files,summary);
+  assert.equal(sha256(files.support['inputs/grid_layout.mbt']),controlReport.build.control_source.original_sha256,
+    'Control source mutation starts at the successful ordinary example bytes');
+  assert.notEqual(sha256(files.assets['moonbit/grid_layout.mjs']),controlReport.build.files['moonbit/grid_layout.mjs'],
+    'Executed control must load a different compiled module from the successful ordinary runtime');
+  return {status:pair.status,report:{file:reportFile,sha256:sha256(reportBytes)},
+    verification:{file:summaryFile,sha256:sha256(summaryBytes)},capture_session:ordinary.capture_session,
+    source_sha256:sha256(files.support['inputs/grid_layout.mbt']),runtime_sha256:sha256(files.assets['moonbit/grid_layout.mjs']),
+    rust_report_sha256:sha256(rustBytes),core,profile:ordinary.build.profile.profile,current_checkout:summary.current_checkout,
+    qualification:'Reopened original ordinary source/runtime/font/input/PNG evidence and recomputed both stable sample sets'};
 }

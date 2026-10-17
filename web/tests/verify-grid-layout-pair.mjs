@@ -6,17 +6,19 @@ import {resolve,join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {sha256,discoverGeometry,VIEWPORT_SEQUENCE,profileNegativeControls} from './grid-layout-comparator.mjs';
 import {SUITE_INPUTS,validateReport,loadEvidence,verifyBehavior,assertCurrentBuild} from './grid-layout-runtime-evidence.mjs';
-import {PAIR_SUITE_INPUTS,candidateProvenance,loadCandidateEvidence,verifyCoreSource} from './grid-layout-pair-evidence.mjs';
+import {PAIR_SUITE_INPUTS,candidateProvenance,loadCandidateEvidence,verifyCoreSource,loadQualifiedOrdinaryBaseline} from './grid-layout-pair-evidence.mjs';
 import {comparePairImages,pairNegativeControls,TOLERANCES,NOT_CLAIMED} from './grid-layout-pair-comparator.mjs';
 const directory=resolve(process.argv[2]||'_build/grid-layout-pair-evidence');
 const rustDirectory=resolve(process.argv[3]||'_build/grid-layout-oracle-evidence');
 const coreDirectory=resolve(process.argv[4]||'_sources/core');
 const expectedControl=process.argv[5]||null;
+const ordinaryDirectory=process.argv[6]?resolve(process.argv[6]):null;
 await mkdir(directory,{recursive:true});
 const verification={status:'failed',conformance:'not_claimed',comparison:'not_run',expected_control:expectedControl,
   tolerances_physical_pixels:TOLERANCES,not_claimed:NOT_CLAIMED};
 try {
-  assert(process.argv.length===5||process.argv.length===6,'Usage: candidate-evidence rust-evidence exact-core-source [wrong_gap|wrong_color]');
+  assert(expectedControl?process.argv.length===7:process.argv.length===5,
+    'Usage: candidate-evidence rust-evidence exact-core-source [wrong_gap|wrong_color ordinary-candidate-evidence]; controls require a successful ordinary baseline');
   assert(expectedControl===null||['wrong_gap','wrong_color'].includes(expectedControl));
   const git=args=>{const p=spawnSync('git',args,{encoding:'utf8',timeout:10000,maxBuffer:8*1024*1024});assert.equal(p.status,0,p.stderr);return p.stdout.trim();};
   const checkout={revision:git(['rev-parse','HEAD']),tree:git(['rev-parse','HEAD^{tree}']),
@@ -55,6 +57,7 @@ try {
   verification.current_checkout={revision:checkout.revision,tree:checkout.tree,tracked_dirty:false,catalog_sha256:sha256(checkout.catalogBytes)};
   verification.candidate=moon.build.candidate;verification.upstream=moon.build.profile.upstream;
   if(expectedControl) {
+    verification.ordinary_baseline=await loadQualifiedOrdinaryBaseline(ordinaryDirectory,{rust,rustBytes,rustFiles,coreDirectory,checkout,controlReport:moon});
     const failures=[];
     for(const [a,b] of [[rustFiles.images,moonFiles.images],[rustFiles.stableImages,moonFiles.stableImages]]) {
       let failure;try{comparePairImages(a,b);}catch(error){failure=error;}
