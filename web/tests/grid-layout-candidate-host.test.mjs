@@ -134,7 +134,7 @@ test('ordinary live dimensions and DPR survive repeated resizing with honest pro
 
 test('live resource validation matches rounded Canvas allocation and rejects invalid inputs before runtime calls',()=>{
   const f=fixture();
-  for(const [width,height,scale] of [[15.99,32,1],[16,31.99,1],[800,600,0],[800,600,NaN],[800,600,Infinity],[800,600,.249],[800,600,8.01],[16385,32,1],[8192.25,32,2],[8192,4096.5,1]]) {
+  for(const [width,height,scale] of [[15.99,32,1],[16,31.99,1],[800,600,0],[800,600,NaN],[800,600,Infinity],[800,600,.249],[800,600,4.01],[16385,32,1],[8192.25,32,2],[8192,4096.5,1]]) {
     assert.throws(()=>readGridFrame(f.runtime,f.context,{innerWidth:width,innerHeight:height},scale),/invalid_live_viewport/);
   }
   assert.equal(f.calls.length,0);

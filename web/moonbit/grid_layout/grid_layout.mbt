@@ -179,7 +179,7 @@ fn valid_viewport(width : Double, height : Double, scale : Double) -> Bool {
   height >= 32 &&
   height <= 16384 &&
   scale >= 0.25 &&
-  scale <= 8 &&
+  scale <= 4 &&
   pixels_w >= 1 &&
   pixels_w <= 16384 &&
   pixels_h >= 1 &&

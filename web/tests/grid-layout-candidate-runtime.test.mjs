@@ -7,6 +7,17 @@ import {validateFrame,drawFrame} from '../moonbit/site/render.mjs';
 // Optional actual compiled ESM check. Generic source-only runs explicitly skip
 // it; a separately built runtime is required. No mock can substitute for it.
 const runtimePath=process.env.GPUI_GRID_LAYOUT_RUNTIME;
+
+// Exercise the actual host painter, including its DPR admission contract.
+// Canvas calls do not establish browser pixel or Rust parity.
+function assertPaints(frame,width,height,scale) {
+  let draws=0;
+  const context=new Proxy({}, {get:(_object,key)=>key==='measureText'
+    ? ()=>({fontBoundingBoxAscent:16,fontBoundingBoxDescent:4})
+    : ()=>{draws++;}});
+  drawFrame(context,frame,{width,height,font_family:'IBM Plex Sans'},scale);
+  assert(draws>0);
+}
 test('actual compiled candidate exports retain query bounds thresholds spans and resize restoration',
   {skip:!runtimePath},async()=>{
     const runtime=await import(pathToFileURL(runtimePath));
@@ -48,15 +59,15 @@ test('actual compiled candidate exports retain query bounds thresholds spans and
       results.push(frame);
     }
     assert.deepEqual(results[0],results.at(-1),'Same-size fresh requests restore deterministic candidate output');
-    for(const [width,height,scale] of [[16,32,.25],[16.01,32.01,.25],[16384,32,1],[8192,4096.49,1],[800,600,2],[320,240,1.25],[16,32,1],[399.5,713,1.25],[500,501,1],[500,500,2],[1920,1080,2],[4096,8192,1],[500,500,.25],[500,500,8]]) {
+    for(const [width,height,scale] of [[16,32,.25],[16.01,32.01,.25],[16384,32,1],[8192,4096.49,1],[800,600,2],[320,240,1.25],[16,32,1],[399.5,713,1.25],[500,501,1],[500,500,2],[1920,1080,2],[4096,8192,1],[500,500,.25],[500,500,4]]) {
       const result=readGridFrame(runtime,context,{innerWidth:width,innerHeight:height},scale);
-      validateFrame(result.frame);
+      validateFrame(result.frame);assertPaints(result.frame,width,height,scale);
       assert.equal(result.frame.grid_layout.comparison_profile_match,false);
       assert.equal(result.frame.conformance,'unverified');
       assert.equal(result.frame.grid_layout.mode,result.frame.grid_layout.query_size.width<400?'stack':'grid');
       assert.equal(result.width,width);assert.equal(result.height,height);
     }
-    for(const [width,height,scale] of [[1,1,.5],[.1,.1,8],[15.99,500,1],[500,31.99,1],[0,500,1],[-1,500,1],[NaN,500,1],[Infinity,500,1],[500,0,1],[500,NaN,1],[500,Infinity,1],[500,500,0],[500,500,NaN],[500,500,Infinity],[1,1,.25],[500,500,.249],[500,500,8.01],[16385,500,1],[8192.25,100,2],[8193,100,2],[8192,8192,1],[8192,4096.5,1]]) {
+    for(const [width,height,scale] of [[1,1,.5],[.1,.1,8],[15.99,500,1],[500,31.99,1],[0,500,1],[-1,500,1],[NaN,500,1],[Infinity,500,1],[500,0,1],[500,NaN,1],[500,Infinity,1],[500,500,0],[500,500,NaN],[500,500,Infinity],[1,1,.25],[500,500,.249],[800,600,4.01],[800,600,5],[500,500,8],[500,500,4.01],[16385,500,1],[8192.25,100,2],[8193,100,2],[8192,8192,1],[8192,4096.5,1]]) {
       assert.equal(JSON.parse(runtime.grid_layout_content(width,height,scale)).error,'invalid_live_viewport');
       assert.equal(JSON.parse(runtime.grid_layout_frame(width,height,[],scale)).error,'invalid_live_viewport');
     }
@@ -71,13 +82,13 @@ test('compiled live viewport matrix preserves valid paint and rejects backing-st
     let accepted=0,rejected=0;
     for(const width of [16,17,32,320,398,399,399.5,400,401,800,1920])
       for(const height of [32,33,40,48,100,240,500,713])
-        for(const scale of [.25,.3,.5,1,1.25,1.5,2,3,8]) {
+        for(const scale of [.25,.3,.5,1,1.25,1.5,2,3,4]) {
           if(Math.round(width*scale)*Math.round(height*scale)>33554432) {
             assert.equal(JSON.parse(runtime.grid_layout_content(width,height,scale)).error,'invalid_live_viewport');
             rejected++;continue;
           }
           const {frame}=readGridFrame(runtime,context,{innerWidth:width,innerHeight:height},scale);
-          validateFrame(frame);assert.equal(frame.conformance,'unverified');accepted++;
+          validateFrame(frame);assertPaints(frame,width,height,scale);assert.equal(frame.conformance,'unverified');accepted++;
         }
-    assert.equal(accepted,789);assert.equal(rejected,3);
+    assert.equal(accepted,792);assert.equal(rejected,0);
   });

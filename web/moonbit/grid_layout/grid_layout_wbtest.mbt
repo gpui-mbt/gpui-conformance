@@ -126,6 +126,7 @@ test "comparison profile remains bounded while live viewport accepts ordinary si
   for
     (width, height, scale) in [
       (800.0, 600.0, 2.0),
+      (800.0, 600.0, 4.0),
       (320.0, 240.0, 1.25),
       (399.5, 713.0, 1.25),
     ] {
@@ -153,7 +154,7 @@ test "comparison profile remains bounded while live viewport accepts ordinary si
       (16385.0, 500.0, 1.0),
       (8193.0, 100.0, 2.0),
       (8192.0, 8192.0, 1.0),
-      (500.0, 500.0, 8.01),
+      (500.0, 500.0, 4.01),
     ] {
     assert_true(
       grid_layout_content(width, height, scale).contains(

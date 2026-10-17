@@ -119,7 +119,7 @@ try {
         canvas.hidden = true; error.hidden = false;
         document.documentElement.dataset.runtimeStatus = 'failed';
         gridNotice.hidden = true;
-        error.textContent = `Grid candidate failed: ${cause.message}. Live viewport requires width 16–16384px and height 32–16384px, DPR 0.25–8, and a rounded Canvas of 1–16384px per side and at most 33554432 pixels.`;
+        error.textContent = `Grid candidate failed: ${cause.message}. Live viewport requires width 16–16384px and height 32–16384px, DPR 0.25–4, and a rounded Canvas of 1–16384px per side and at most 33554432 pixels.`;
       }
       return;
     }

@@ -36,10 +36,10 @@ try {
   const iframe=await page.waitForSelector('iframe');const frame=await iframe.contentFrame();
   const cdp=await context.newCDPSession(page);
   let restored;
-  for(const [width,height,scale] of [[800,600,2],[320,713,1.25],[500,500,1],[399,500,1],[400,500,1],[800,600,2],[8,32,1],[500,500,1]]) {
+  for(const [width,height,scale] of [[800,600,2],[320,713,1.25],[500,500,1],[399,500,1],[400,500,1],[800,600,2],[800,600,4],[801,600,5],[8,32,1],[500,500,1]]) {
     await cdp.send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:scale,mobile:false});
-    if(width<16) {
-      await frame.waitForFunction(()=>document.documentElement.dataset.runtimeStatus==='failed');
+    if(width<16 || scale>4) {
+      await frame.waitForFunction(({width,height,scale})=>innerWidth===width&&innerHeight===height&&devicePixelRatio===scale&&document.documentElement.dataset.runtimeStatus==='failed',{width,height,scale});
       assert(await frame.evaluate(()=>document.querySelector('canvas').hidden && !document.getElementById('error').hidden && !globalThis.gpuiExample));
       report.states.push({width,height,scale,status:'deliberately_rejected'});continue;
     }

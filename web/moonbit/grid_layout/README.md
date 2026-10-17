@@ -23,9 +23,10 @@ is `c82663a8c48340464f70f96dfa60135f4cd3b48670882b7bc23a9ca787fb261e`.
 The unchanged comparison profile is widths **399, 400, 401, and 500px**,
 height **500px**, and **DPR 1**. Matching those dimensions does not establish
 parity. Live rendering accepts width **16–16384px**, height **32–16384px**,
-and **DPR 0.25–8**, provided the actual rounded Canvas backing store has each
+and **DPR 0.25–4**, provided the actual rounded Canvas backing store has each
 side in **1–16384 pixels** and at most **33554432 pixels** total. Inputs must be
-finite. The minimum sizes keep the bounded dashed-border and negative-spread
+finite. DPR is limited to the shared Canvas renderer's supported maximum of 4.
+The minimum sizes keep the bounded dashed-border and negative-spread
 shadow adapters valid; the maximums bound browser memory allocation. Invalid
 sizes clear the stale frame and recover after a valid resize.
 
