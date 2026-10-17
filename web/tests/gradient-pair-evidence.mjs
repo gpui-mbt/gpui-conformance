@@ -4,18 +4,19 @@ import {readFileSync,readdirSync} from 'node:fs';
 import {resolve,join,basename,sep} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {sha256,decodePng,buttonTarget,ORACLE,SOURCES,assertViewport,validateOperations,VIEWPORT_SEQUENCE} from './gradient-comparator.mjs';
-import {runtimeResponsePath,requiresRuntimeRetention,verifyBehavior} from './gradient-runtime-evidence.mjs';
+import {runtimeResponsePath,requiresRuntimeRetention} from './gradient-runtime-evidence.mjs';
 import {GRAPHICS_ARGS} from './gradient-comparator.mjs';
 import {assertUploadSafeFilename,assertLocalRuntimeURL,evidenceFilename} from './gradient-worker-evidence.mjs';
 import {PAIR_PROFILE,TOLERANCES,COLOR_BUDGET,NOT_CLAIMED,comparePairImages} from './gradient-pair-comparator.mjs';
 export {runtimeResponsePath,requiresRuntimeRetention,evidenceFilename};
 export {GRAPHICS_ARGS} from './gradient-comparator.mjs';
+import {verifyCandidateSourceBehavior} from './gradient-candidate-behavior.mjs';
 import {POLICY_PROFILE,POLICY_SEQUENCE,verifyPolicyImage} from './gradient-policy-contract.mjs';
 export const sequenceFor=r=>r.profile_revision===POLICY_PROFILE?POLICY_SEQUENCE:VIEWPORT_SEQUENCE;
 export function captureBinding(report,state){return {runtime:'moonbit',session:report.capture_session,state:state.name,after_operation:state.after_operation,route:report.profile_revision===POLICY_PROFILE?'/moonbit/?example=gradient&policy=1':'/moonbit/?example=gradient',document_id:report.document_id,viewport:{width:state.width,height:state.height,dpr:1}};}
 export function inputEvidence(r){return {capture_session:r.capture_session,document_id:r.document_id,navigation_count:r.navigation_count,operations:r.operations,events:r.events,backend:r.backend,initial_viewport:r.initial_viewport};}
 export const PAIR_SUITE_INPUTS=Object.freeze([
-  'web/tests/gradient-policy-contract.mjs','web/pairs/gradient-mutation-revisions.json','web/pairs/gradient.json','web/scripts/build_gradient_pair.py','web/tests/gradient-pair-browser.mjs',
+  'web/tests/gradient-candidate-behavior.mjs','web/tests/gradient-policy-contract.mjs','web/pairs/gradient-mutation-revisions.json','web/pairs/gradient.json','web/scripts/build_gradient_pair.py','web/tests/gradient-pair-browser.mjs',
   'web/tests/gradient-pair-evidence.mjs','web/tests/gradient-pair-comparator.mjs',
   'web/tests/verify-gradient-pair.mjs','web/scripts/decode_gradient_png.py',
   'web/load-timing.mjs','.github/workflows/gradient-browser-pair.yml',
@@ -25,6 +26,10 @@ export const PAIR_SUITE_INPUTS=Object.freeze([
   ...readdirSync(new URL('../moonbit/site/',import.meta.url)).filter(name=>name.endsWith('.mjs')||name==='index.html').sort().map(name=>'web/moonbit/site/'+name),
   ...readdirSync(new URL('../moonbit/gradient/',import.meta.url)).sort().map(name=>'web/moonbit/gradient/'+name),
 ]);
+export function assertCandidateSuiteInputInventory(entries) {
+  assert.deepEqual(entries.map(x=>x.path),PAIR_SUITE_INPUTS,'Complete mandatory candidate suite input inventory');
+  for(const entry of entries){assert.equal(entry.file,evidenceFilename('moonbit','suite',entry.path));assert.equal(entry.sha256,sha256(readFileSync(new URL('../../'+entry.path,import.meta.url))),`Current candidate suite bytes ${entry.path}`);}
+}
 const SHA=/^[0-9a-f]{64}$/;
 export function candidateProvenance(build,profile=JSON.parse(readFileSync(new URL('../pairs/gradient.json',import.meta.url))),expectedControl=null) {
   assert(build&&typeof build==='object'&&!Array.isArray(build));
@@ -112,8 +117,7 @@ export function validateCandidateReport(report,expectedControl=null) {
   assert.match(report.environment.browser,/^\d+\.\d+\.\d+\.\d+$/);assert.deepEqual(report.environment.graphics_requested,GRAPHICS_ARGS);
   assert.match(report.graphics_actual?.gpu?.auxAttributes?.glRenderer||'',/swiftshader/i);
   assert.match(report.capture_session,/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/);
-  assert.deepEqual(report.suite_inputs.map(x=>x.path),PAIR_SUITE_INPUTS);
-  for(const entry of report.suite_inputs)assert.equal(entry.file,evidenceFilename('moonbit','suite',entry.path));
+  assertCandidateSuiteInputInventory(report.suite_inputs);
   assert.equal(report.build_evidence.file,'gradient-moonbit-build-manifest.json');
   assert.equal(report.graphics_evidence.file,'gradient-moonbit-graphics.json');
   assert.equal(report.input_evidence.file,'gradient-moonbit-trusted-input.json');
@@ -263,7 +267,7 @@ export function assertSuccessfulBaselineSummary(summary,report,reportBytes,rustB
 }
 export function recomputeOrdinaryBaseline(rustFiles,ordinaryFiles,summary) {
   const pair=comparePairImages(rustFiles.images,ordinaryFiles.images);
-  candidateSourceBehavior({runtime:'moonbit',operations:[]},{images:ordinaryFiles.images});candidateSourceBehavior({runtime:'moonbit',operations:[]},{images:ordinaryFiles.stableImages});
+  candidateSourceBehavior({runtime:'moonbit',operations:[]},{images:ordinaryFiles.images,stableImages:ordinaryFiles.stableImages});
   assert.deepEqual(comparePairImages(rustFiles.stableImages,ordinaryFiles.stableImages),pair,
     'Successful ordinary pair must hold for both original independent sample sets');
   assert.deepEqual(summary.pair,pair,'Retained successful summary must match fresh original-byte comparison');
@@ -318,5 +322,5 @@ export async function loadPolicyEvidence(directory,mainReport,expectedControl=nu
   return {report,files,binding:{sha256:sha256(bytes),capture_session:report.capture_session,document_id:report.document_id}};
 }
 
-export function candidateSourceBehavior(report,files){assert.equal(report.runtime,'moonbit','Typed candidate-only source predicate adapter');return verifyBehavior({...report,backend:{observed:'candidate_canvas2d_core_rgba_transport'}},files);}
+export function candidateSourceBehavior(report,files){return verifyCandidateSourceBehavior(report,files);}
 export function assertCandidateBackend(backend){assert.equal(backend.kind,'candidate_canvas2d_core_rgba_transport');assert.equal(backend.visible_canvases.length,1);const id=backend.visible_canvases[0].canvas_id;const events=backend.events.filter(e=>e.canvas_id===id);assert(events.some(e=>e.kind==='getContext'&&e.requested==='2d'&&e.returned));assert(!events.some(e=>e.kind==='webgpu.configure'||(e.kind==='getContext'&&e.returned&&['webgl','webgl2','experimental-webgl'].includes(e.requested))));return backend;}

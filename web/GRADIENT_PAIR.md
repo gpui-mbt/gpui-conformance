@@ -99,8 +99,8 @@ WebGPU, arbitrary backend/DPR/viewport or universal gradient conformance claim.
 ## Candidate evidence type and live usability
 
 The retained candidate report records the actual visible Canvas2D context and raw
-backend observations. A typed candidate-only source-behavior adapter calls the
-unchanged source predicates with candidate_canvas2d_core_rgba_transport metadata;
+backend observations. A typed candidate-only source-behavior adapter uses unchanged source interaction
+and restoration predicates with candidate_canvas2d_core_rgba_transport metadata;
 it never fabricates WebGL2/WebGPU or feeds candidate evidence to the Rust gate.
 A negative test requires candidate evidence to fail that unchanged Rust backend
 gate. Actual Rust remains visible WebGL2 via ANGLE Vulkan SwiftShader only.
@@ -124,3 +124,25 @@ most2048 per side and1,048,576 pixels, and at most4,194,304 cumulative tile pixe
 membership, byte arrays and alias checks complete before any ImageData/offscreen
 allocation or destination canvas mutation. Core additionally limits each raster
 call to64 million item-pixel evaluations; transport does not widen that limit.
+
+## Candidate geometry adapter revision2
+
+The first actual public5c976 run39014283459 remains FAILED. Its original PNGs
+show correct authored canonical geometry but binary-covered polygon bounds one
+pixel inward on each side versus Rust antialias coverage. Reusing the Rust-only
+absolute X/width raster predicates rejected this candidate despite passing both
+frozen2px-edge/2-code pair comparisons and the exact policy probe. This is an
+explicit candidate-adapter correction, not a reclassification of that old run.
+
+Rust source predicates remain byte-frozen. Candidate polygon bounds now derive
+independently from authored coordinates and pixel-center binary inclusion:
+canvas width W−32, left0.1canvasWidth with omitted canvas-origin-X, right0.9width,
+canvas top H−112, polygon top+30/bottom+80, horizontal slant80 across height50.
+The last pixel row lies0.5 above the bottom, so its slant inset is0.8. Integer
+rational units derive exact first/last pixel centers without fitted epsilon or
+observed-coordinate normalization. Both independent stable sample sets must meet
+this absolute source predicate, trusted target/toggle/unchanged-solid/restoration
+checks and the unchanged paired numerical budgets. Rerasterized wrong-origin and
+wrong-width fixtures test checker rejection across additional sizes; they are
+separate synthetic checker controls, not executed compiled-engine mutants. All10
+compiled controls still require a fresh ordinary+policy successful CI baseline.

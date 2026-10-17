@@ -69,7 +69,7 @@ try {
     verification.ordinary_baseline=await loadQualifiedOrdinaryBaseline(ordinaryDirectory,{rust,rustBytes,rustFiles,coreDirectory,checkout,controlReport:moon});
     const failures=[];
     for(const [a,b] of [[rustFiles.images,moonFiles.images],[rustFiles.stableImages,moonFiles.stableImages]]) {
-      let failure;try{comparePairImages(a,b);candidateSourceBehavior(moon,{images:b});verifyPolicyImage(a===rustFiles.images?policy.files.images.policy:policy.files.stableImages.policy);}catch(error){failure=error;}
+      let failure;try{comparePairImages(a,b);candidateSourceBehavior(moon,{images:b,stableImages:b});verifyPolicyImage(a===rustFiles.images?policy.files.images.policy:policy.files.stableImages.policy);}catch(error){failure=error;}
       assert(failure,'The executed fault must be rejected by the actual raster comparison');
       assert.match(failure.message,/policy |RGB code delta|component .* delta|Exact authored candidate solid|Source|source|colored|gradient|restoration|Gradient|polygon|opaque alpha/,
         'Rejection must concern the executed fault, not provenance/startup/missing files');
