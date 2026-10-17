@@ -1,0 +1,71 @@
+{
+  "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "sources": [
+    {
+      "path": "crates/gpui/examples/gradient.rs",
+      "blob": "df1398fff58b637abf0c0b31934f6ad523d84a21",
+      "sha256": "620dbeccd4daa80f71cb1c67f1628508cb397e9aeb4b5a5d0abe0a2a45aad193"
+    },
+    {
+      "path": "crates/gpui/examples/example_support/fonts.rs",
+      "blob": "39c3be19182cde85033f4f98af4998f0a5d0893c",
+      "sha256": "150804a20e31ecf9d82c9ae7d47fdc9cb5b7bc4ea306ff1ab4199dd597a23051"
+    },
+    {
+      "path": "crates/gpui/src/color.rs",
+      "blob": "3bd893f99357051e1936f52e22c4c40d6dd24887",
+      "sha256": "4292aa1a2bbc56b653aaef0702726325f8efb93f16226320519e257c3ba8a839"
+    },
+    {
+      "path": "crates/gpui/src/geometry.rs",
+      "blob": "1c87031c7aad8df10827152debe6f74672d7c07f",
+      "sha256": "900fc506a964cda44ed0cf1f97c01ff28d7268c87c9eeadbf7a4f1bb50e33edd"
+    },
+    {
+      "path": "crates/gpui/src/path_builder.rs",
+      "blob": "40a6e71e0a1738adf1ed261183d2340682826992",
+      "sha256": "07fa0b21e5493cf46ce54976d77ffea3a430ddbbc369c4d4e247a3bc68854e35"
+    },
+    {
+      "path": "crates/gpui/src/scene.rs",
+      "blob": "be378132478d2a90d32e859614cf68c665535170",
+      "sha256": "3addca59aab12ca0e00acb1e39d652863a8904146db2e28192275660aa5b8880"
+    },
+    {
+      "path": "crates/gpui/src/window.rs",
+      "blob": "33fa14bfea6ebad50743d6d4014955d1055ef772",
+      "sha256": "d85123a09e45761a3a60e196157caa5ceee0e61a9b4adfde484052a31eb4b64a"
+    },
+    {
+      "path": "crates/gpui/src/style.rs",
+      "blob": "9150fdded91b817305454f18beb0a0b7d6c5966a",
+      "sha256": "b4a0e838fc7050cef25f71aae623cf86010c2ec361600479d24ce1aaff91bdc1"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/shaders.wgsl",
+      "blob": "718cb7595d86f73cd91a65bcbf42682004dbba4d",
+      "sha256": "1d91f2c8a1958a241f1b659a4137c160592c8076b9be09049db4c9fb9a344529"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/wgpu_renderer.rs",
+      "blob": "ff4af7d26e1e6706bdd02e0079fea46ace274086",
+      "sha256": "3d1f48b13e27ef2b9fff7c77d0046894f9904426900d44a1460aef021a7f6cc2"
+    },
+    {
+      "path": "crates/gpui_apple/src/shaders.metal",
+      "blob": "2b52bb9ecc04762b605c1b9a04ca8c7307f6b0ca",
+      "sha256": "436647169d914d26092fcf3bfd4020a6638a97d1ea3b39466fd2d4641d1c219e"
+    }
+  ],
+  "fonts": {
+    "assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf": "975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5",
+    "assets/fonts/ibm-plex-sans/IBMPlexSans-Italic.ttf": "a9c6ef9942c49e49d11e11a6dacc0b3a087978757e9b22a06b8ac22a6400fb15",
+    "assets/fonts/ibm-plex-sans/IBMPlexSans-SemiBold.ttf": "a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1",
+    "assets/fonts/ibm-plex-sans/IBMPlexSans-SemiBoldItalic.ttf": "147106b619423a82b40f6d64bace074ad5b786e59f48023bda69d63b1755fb82",
+    "assets/fonts/lilex/Lilex-Regular.ttf": "8a467ad5a1941dc7c9cebaee34e3ed9364a73b48393034e363e4b528bd711d04",
+    "assets/fonts/lilex/Lilex-Bold.ttf": "3369214e2ecddb45ae5024b11d45dd637e99e9d2127ab729817d41d72b8a9c68",
+    "assets/fonts/lilex/Lilex-Italic.ttf": "a6e52046b91ed12a6af50bb74e70e27dea4a54eab2bed8947db4c1128ba83d45",
+    "assets/fonts/lilex/Lilex-BoldItalic.ttf": "9629bd65ee7376879414560e37281653ca82dcf33e143d7473341b2f88206985"
+  }
+}

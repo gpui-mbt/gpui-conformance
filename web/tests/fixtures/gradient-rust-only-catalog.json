@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "hello_world_blob": "d18cb048726d6953edef9ea482d92bac05993d33"
+  },
+  "moonbit": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
+    "tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe"
+  },
+  "examples": []
+}

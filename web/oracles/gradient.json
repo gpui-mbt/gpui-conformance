@@ -1,0 +1,33 @@
+{
+  "id": "gradient",
+  "source": "crates/gpui/examples/gradient.rs",
+  "source_blob": "df1398fff58b637abf0c0b31934f6ad523d84a21",
+  "source_sha256": "620dbeccd4daa80f71cb1c67f1628508cb397e9aeb4b5a5d0abe0a2a45aad193",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "width": 960,
+  "height": 600,
+  "viewports": [
+    [
+      960,
+      600
+    ],
+    [
+      600,
+      960
+    ]
+  ],
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Pending real CI execution. Unchanged source, real clicks, original PNGs; no candidate comparison.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "Exact text shaping/glyphs, rounded antialias edges",
+    "Equal-stop exact boundary semantics until actual GPU diagnostic",
+    "Native/Metal parity",
+    "Other browsers/GPUs/viewports/DPRs",
+    "Backend or surface format unless observed",
+    "Exact color equivalence: source-math residuals are observations, not tolerance-fitted passes"
+  ]
+}
