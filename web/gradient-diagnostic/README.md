@@ -1,0 +1,11 @@
+# Synthetic Rust GPU gradient diagnostic
+
+This is a separate diagnostic, not the unchanged upstream gradient example and not a MoonBit candidate. It paints fixed GPUI canvas quads and filled polygons through the pinned, unchanged renderer at revision 5a5fbe79917971a4d52a96b6ddb04da198a5012e.
+
+The 1000×900 DPR1 profile probes both sRGB and Oklab settings, exact GPUI half-green, a floating-point alpha of 0.5 over white, angles 0/45/90/135/180/225/315/360, wide/tall aspect ratios, equal stops, outside stops and reversed stops. Unequal-alpha green0.25→blue0.75 is composited over explicit white; transparent-colored red0→blue0.75 is composited over explicit black. Stops are submitted unchanged. Equal-stop quads have odd width 161: center pixel x=origin+80 samples the mathematical center at x+0.5. No expected equal-stop rule is declared before actual selected-backend evidence.
+
+Polygon allocation height is 80, vertex bounds are y=30..80, and the clipped version masks to y=45..80. These polygons use a synthetic absolute canvas origin; they do not reproduce the unchanged example’s omitted X origin. Samples along the center column distinguish nominal allocation, tight polygon and clipped polygon normalization. Source math is not replaced with a CSS gradient or a generic color transform.
+
+Build and capture only in CI. Build: python3 web/scripts/build_gradient_diagnostic.py --upstream-source PATH --site /tmp/gradient-diagnostic-site --target-dir /tmp/gradient-diagnostic-target. Capture: node web/tests/gradient-diagnostic-browser.mjs /tmp/gradient-diagnostic-site EVIDENCE_DIRECTORY. Independent review must inspect original screenshots, decoded RGBA, source/profile, executed response bytes, actual canvas/backend/adapter observations and build provenance before deriving rules. Requested browser flags alone are not backend evidence. This diagnostic makes no Metal or cross-backend parity claim and fits no tolerance.
+
+The verifier establishes retained-byte/provenance consistency and raw sample extraction only. Even hash-consistent arbitrary colors cannot establish semantic conformance. PNGs cannot reveal shader-internal NaN/Inf; only final output bytes are observed. Missing backend/format evidence remains unknown, with no shader qualification.
