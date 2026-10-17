@@ -112,10 +112,10 @@ class GridLayoutPackagingTests(unittest.TestCase):
                     prepare_grid_layout_site.prepare(root / "corrupt-site")
                 self.assertFalse((root / "corrupt-site").exists())
 
-    def test_host_only_registers_unchanged_rust_route_and_ci_is_isolated(self):
+    def test_frozen_oracle_remains_candidate_free_and_ci_is_isolated(self):
         host = (build_rust.WEB / "rust/host.mjs").read_text()
         self.assertIn("grid_layout: './grid_layout.js'", host)
-        self.assertNotIn("grid_layout", [entry["id"] for entry in json.loads((build_rust.WEB / "examples.json").read_text())["examples"]])
+        self.assertNotIn("grid_layout", [entry["id"] for entry in json.loads(build_rust.grid_layout_oracle_catalog_bytes(build_rust.WEB))["examples"]])
         workflow = (build_rust.WEB.parent / ".github/workflows/grid-layout-oracle.yml").read_text()
         self.assertIn("--oracle-only --extra-example grid_layout", workflow)
         self.assertNotIn("build_moonbit.py", workflow)

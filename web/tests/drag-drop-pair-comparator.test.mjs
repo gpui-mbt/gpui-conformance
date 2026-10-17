@@ -76,8 +76,8 @@ let synthetic,measured;
 const fixtures=()=>synthetic??=syntheticPixels();
 const measurement=()=>measured??=validatePixels(fixtures().report,fixtures().retained);
 test('current pair binds the exact published reviewed additive drag-session core',()=>{
-  assert.equal(DRAG_CANDIDATE.revision,'b9916950350b7d433ecca0d6fa88e39c957b8b6b');
-  assert.equal(DRAG_CANDIDATE.tree,'be95df375c707bd6cf961ef7959e93772b34a966');
+  assert.equal(DRAG_CANDIDATE.revision,'aafa754affa049c1eaf69c75c1d04c5d895d3677');
+  assert.equal(DRAG_CANDIDATE.tree,'a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9');
 });
 test('paired exact current pins reject historical source-only claims',async()=>{
   const {report}=metadata();assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
