@@ -5,8 +5,8 @@ and synthetic packaging tests do not establish browser parity. The original
 Rust-only v2 oracle, predicates, and historical failed v1 remain unchanged.
 
 The separate `web/pairs/anchor.json` pins production core
-0153b1963bb6b2e434189ecf8591fb2c4c5a7929 (tree
-c29dd688e359c6f306d807d081fbaa28d21fdbbe), unchanged upstream Zed
+89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a (tree
+dd5612a412d251b468c358a25baa0b0dd592c807), unchanged upstream Zed
 5a5fbe79917971a4d52a96b6ddb04da198a5012e and anchor.rs blob
 b4b280b714a61cea2cd3f3a8ffd82a8f0000eb6b. Both runtime builds must identify the
 same committed suite HEAD/tree. The production checkout must be clean and match

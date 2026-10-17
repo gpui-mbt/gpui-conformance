@@ -11,9 +11,12 @@ was used to produce the source and compiled-export checks below.
   `b4b280b714a61cea2cd3f3a8ffd82a8f0000eb6b`.
 - Source SHA-256:
   `5be423ce91b36db94857a8f7758f7f5967d0103b77941fa7bc7c5a64e3c4fe72`.
-- Candidate public core: `0153b1963bb6b2e434189ecf8591fb2c4c5a7929`,
-  tree `c29dd688e359c6f306d807d081fbaa28d21fdbbe`.
-- Local source checks use identical core tree at local `13ba1f611d2b22feeb9b789b4451bab5db6c02a1`.
+- Candidate public core: `89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a`,
+  tree `dd5612a412d251b468c358a25baa0b0dd592c807`.
+- Historical local source checks below used `13ba1f611d2b22feeb9b789b4451bab5db6c02a1`,
+  tree `c29dd688e359c6f306d807d081fbaa28d21fdbbe`, identical to then-public
+  `0153b1963bb6b2e434189ecf8591fb2c4c5a7929`. Those results are not
+  reassigned to the current additive core pin; current runtime checks require CI.
 
 `moonbit/anchor/anchor.mbt` creates genuine Element grid/flex nodes and calls
 `anchored_after(..., Local, ...)`, `deferred`, layout, prepaint, core hit testing
@@ -53,8 +56,8 @@ viewports accept width4–4096, height4–16384, DPR0.25–4, with rounded backi
 sides at most16384 and area at most33554432 pixels. Every output remains
 `conformance: unverified`; `anchor.comparison_profile_match` only identifies
 membership, never establishes parity. An anchor-only notice labels live output
-outside the reference profile. The frozen oracle, comparator, profile and core
-pin are unchanged.
+outside the reference profile. That historical live-viewport change preserved the frozen oracle, comparator,
+profile and then-current core pin. The current additive core pin is listed above.
 
 The minimum4 allows a backing pixel at minimum DPR. Fixed120×65 decorated
 buttons remain valid while the viewport clips overflowing source content;

@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {compareChannels,compareBounds,verifyMatched161Probe} from './gradient-pair-comparator.mjs';
+test('predeclared RGB boundary accepts2 and rejects3 independently per channel',()=>{for(let channel=0;channel<3;channel++)for(const sign of [-1,1]){const a=[100,100,100,255],b=[...a];b[channel]+=2*sign;assert.doesNotThrow(()=>compareChannels(a,b,'edge'));b[channel]+=sign;assert.throws(()=>compareChannels(a,b,'outside'));}assert.throws(()=>compareChannels([0,0,0,255],[0,0,0,254],'alpha'));});
+test('predeclared geometry edge accepts2 and rejects3',()=>{const a={x:10,y:10,width:100,height:50};for(const key of ['x','y','width','height'])for(const sign of [-1,1]){const b={...a,[key]:a[key]+2*sign};assert.doesNotThrow(()=>compareBounds(a,b,'edge'));b[key]+=sign;assert.throws(()=>compareBounds(a,b,'outside'));}});
+test('matched161 center-start is explicit and exact',()=>{const image={width:161,height:1,data:new Uint8Array(161*4)};for(let x=0;x<161;x++)image.data.set(x<=80?[255,0,0,255]:[0,0,255,255],x*4);assert.equal(verifyMatched161Probe(image).status,'exact_explicit_core_policy');image.data.set([0,0,255,255],80*4);assert.throws(()=>verifyMatched161Probe(image));});

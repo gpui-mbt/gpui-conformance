@@ -50,7 +50,7 @@ RETAINED_BROWSER_EXAMPLES = {
 AX_STATUS_PATH = "native_observer_status.json"
 BROWSER_LAB_BASE_URL_ENV = "CATALOG_BROWSER_LAB_BASE_URL"
 BROWSER_LAB_WORKER_NAME = "gpui-conformance-browser-lab"
-BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor"})
+BROWSER_LAB_EXAMPLES = frozenset({"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"})
 # This legacy result contains one raster comparison, for hello_world only.
 # build.implemented describes build capability, never per-example evidence.
 BROWSER_RESULT_EXAMPLE_ID = "hello_world"
@@ -59,6 +59,11 @@ BROWSER_THUMBNAIL_ASSET = "catalog/assets/hello_world-moonbit-20261016.png"
 TEXT_CAPTURE_MANIFEST = "web/evidence/20261016-text-examples/captures.json"
 PRIME_CAPTURE_MANIFEST = "web/evidence/20261016-prime-sieve/captures.json"
 BROWSER_FEATURES = {
+    "gradient": {
+        "title": "グラデーションの色空間",
+        "tags": ["gradient", "sRGB", "Oklab", "polygon", "core raster"],
+        "description": "12 個のグラデーション、2 個の単色とクリップされた多角形を持つ上流例。比較対象は 960×600 / 600×960、DPR 1。高 DPR のライブ表示は解像度を明示的に制限します。ブラウザー比較・文字・画像全体・Metal の一致は未検証です。",
+    },
     "anchor": {
         "title": "8 方向のアンカーポップアップ",
         "tags": ["anchor", "Local", "deferred", "hover", "viewport resize"],

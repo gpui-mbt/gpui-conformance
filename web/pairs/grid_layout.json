@@ -2,8 +2,8 @@
   "schema": 1,
   "candidate": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
-    "tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe"
+    "revision": "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a",
+    "tree": "dd5612a412d251b468c358a25baa0b0dd592c807"
   },
   "id": "grid_layout",
   "profile": "grid_layout_actual_browser_pair_v1",
