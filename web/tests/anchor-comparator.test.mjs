@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
-import {ANCHOR,ANCHORS,assertProvenance,provenanceNegativeControls,discoverButtons,discoverPopup,inspectIdle,validateProfile,validateOperations,profileNegativeControls,assertCurrentBuild,sha256} from './anchor-comparator.mjs';
+import {ANCHOR,ANCHORS,POPUP_COMPOSITING,assertProvenance,provenanceNegativeControls,discoverButtons,discoverPopup,inspectIdle,validateProfile,validateOperations,profileNegativeControls,assertCurrentBuild,sha256} from './anchor-comparator.mjs';
 import {validateReport,verifyBehavior,validateCaptureBindings,validateRuntimeResponses,assertExecutedBytes,evidenceNegativeControls,inputEvidence,validateInputEvidence,assertRetainedSupport} from './anchor-runtime-evidence.mjs';
 import {deriveRustWorkerBytes,evidenceFilename} from './anchor-worker-evidence.mjs';
 import {frame,pixels,provenance,fixture} from './fixtures/anchor-fixtures.mjs';
@@ -41,4 +41,21 @@ test('worker derivation and historical provenance cannot borrow other routes or 
 test('source/font input corruption and missing embedding fail independently',()=>{
   const bytes=Buffer.from('synthetic font'),path='rust/embedded-font-inputs/test.ttf',entry={path,bytes:bytes.length,sha256:sha256(bytes)},build={rust:{files:{[path.slice(5)]:sha256(bytes)}}};
   assertRetainedSupport(entry,bytes,build,bytes);assert.throws(()=>assertRetainedSupport(entry,Buffer.from('changed'),build,bytes));assert.throws(()=>assertRetainedSupport(entry,bytes,build,Buffer.from('no font')));
+});
+
+test('source-permitted popup compositing envelope covers two shadow layers without fitting geometry or claiming exact opacity',()=>{
+  const profile=POPUP_COMPOSITING,q=Math.exp(-2*Math.PI*Math.PI/(1.5*1.5));
+  assert(1+2*q/(1-q)<profile.shadow_coverage_upper);
+  let lower=255;for(const alpha of profile.shadow_alphas)lower=Math.floor(lower*(1-alpha*profile.shadow_coverage_upper));
+  assert.equal(Math.floor(lower*(1-profile.popup_alpha)),profile.minimum_gray);assert.equal(Math.ceil(255*(1-profile.popup_alpha)),profile.maximum_gray);
+  const recolor=(colorAt)=>{const image=frame(750,'TopLeft'),bounds=discoverPopup(image);for(let y=bounds.top;y<bounds.bottom;y++)for(let x=bounds.left;x<bounds.right;x++)image.data.set(colorAt(x-bounds.left,y-bounds.top),4*(y*image.width+x));return image;};
+  for(const value of [51,64])assert.equal(discoverPopup(recolor(()=>[value,value,value,255])).width,100);
+  // Forward compositing fixtures: coverage varies independently through[0,1],
+  // then the authored fill paints over both source shadows on white.
+  const gradient=recolor((x,y)=>{const c1=(x%11)/10,c2=(y%11)/10,value=Math.round(255*(1-.1*c1)*(1-.1*c2)*.25);return [value,value,value,255];});
+  assert.equal(discoverPopup(gradient).width,100);assert.equal(discoverPopup(gradient).height,24);
+  for(const [label,color] of [['below_source_envelope',[50,50,50,255]],['above_source_envelope',[65,65,65,255]],['shadow_only',[207,207,207,255]],['non_achromatic_fill',[52,53,52,255]],['selected_wrong_opacity_half',[103,103,103,255]],['selected_wrong_opacity_nine_tenths',[21,21,21,255]]])assert.throws(()=>discoverPopup(recolor(()=>color)),label);
+  // Another opacity can land inside the interval. Accepting its pixels is an
+  // explicit claim boundary, not evidence that the original alpha was measured.
+  assert.equal(discoverPopup(recolor(()=>[56,56,56,255])).width,100);
 });

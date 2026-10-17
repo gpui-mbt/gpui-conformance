@@ -22,13 +22,32 @@ export const ANCHOR=Object.freeze({width:750,height:600,widths:[750,480],dpr:1,
 // Frozen metadata is independent of future candidate registrations.
 export const ENGINE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
   revision:'aafa754affa049c1eaf69c75c1d04c5d895d3677',tree:'a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9'});
-export const PROFILE_REVISION='unchanged_anchor_hover_local_snap_v1';
+export const PROFILE_REVISION='unchanged_anchor_hover_local_snap_shadow_composite_v2';
+// Source-permitted fill envelope, not an empirical color tolerance or an
+// exact-opacity/shadow-kernel assertion. Black drop shadows paint before fill.
+// Four Gaussian midpoint samples have spacing <=1.5 sigma; their positive sum
+// is bounded by the infinite Gaussian lattice:1+2q/(1-q)<1.00031,
+// q=exp(-2*pi*pi/1.5^2).1.001 also accommodates f32 arithmetic. Each x integral
+// lies in[0,1]. Apply the two alpha0.1 shadows, then alpha0.75 fill, allowing
+// downward8-bit rounding at each layer:floor(floor(floor(255*.8999)*.8999)*.25)=51.
+export const POPUP_COMPOSITING=Object.freeze({
+  shadow_alphas:Object.freeze([0.1,0.1]),popup_alpha:0.75,shadow_coverage_upper:1.001,
+  minimum_gray:51,maximum_gray:64,qualification:'source_permitted_interval_not_exact_decorative_compositing_parity',
+  source_inputs:Object.freeze([
+    Object.freeze({path:'crates/gpui_macros/src/styles.rs',lines:'428-438',blob:'4a1bb5c98a3efbb8da8ab3274b8d8ef1e34a08d4',sha256:'5fbd5dac9b7cdc954860a018f6b6925e49c82b4dcfe29424ecea828d47a3ff40'}),
+    Object.freeze({path:'crates/gpui/src/style.rs',lines:'691-740',blob:'9150fdded91b817305454f18beb0a0b7d6c5966a',sha256:'b4a0e838fc7050cef25f71aae623cf86010c2ec361600479d24ce1aaff91bdc1'}),
+    Object.freeze({path:'crates/gpui/src/window.rs',lines:'4572-4605',blob:'33fa14bfea6ebad50743d6d4014955d1055ef772',sha256:'d85123a09e45761a3a60e196157caa5ceee0e61a9b4adfde484052a31eb4b64a'}),
+    Object.freeze({path:'crates/gpui_wgpu/src/shaders.wgsl',lines:'320-341,391-395,1000-1045',blob:'718cb7595d86f73cd91a65bcbf42682004dbba4d',sha256:'1d91f2c8a1958a241f1b659a4137c160592c8076b9be09049db4c9fb9a344529'}),
+    Object.freeze({path:'crates/gpui_wgpu/src/wgpu_renderer.rs',lines:'383-392,708-718',blob:'ff4af7d26e1e6706bdd02e0079fea46ace274086',sha256:'3d1f48b13e27ef2b9fff7c77d0046894f9904426900d44a1460aef021a7f6cc2'}),
+  ]),
+});
 export const SOURCE_CONSTRAINTS=Object.freeze([
   'anchor.rs:22-43:120x65 button resolved positions; eight anchor corners and inert unlabeled center',
   'anchor.rs:102-179:fixed512 grid,3 columns,gap24,relative wrappers,hover black/white,deferred Local anchored popup,snap_to_window',
   'anchored.rs:121-221:child-union size,Local origin plus authored position,window clamp,right then left,bottom then top,logical-pixel rounded translation',
   'deferred.rs:50-79:child layout preserved; original element offset deferred after ordinary ancestor paint',
   'Source static block origin after65px preceding child is an explicit hypothesis checked against all eight measured alignments, not runtime-instrumented state',
+  'shadow_sm:two black alpha0.1 drop shadows before75%-black fill; achromatic51..64 source-permitted compositing envelope, not exact opacity/shadow parity',
   'Two original complete PNGs per state; measured components supply pointer targets and visible bounds; source expectations are separate',
 ]);
 const HISTORICAL_CATALOG=readFileSync(new URL('./fixtures/anchor-rust-only-catalog-a20e5888.json',import.meta.url));
@@ -157,7 +176,7 @@ function components(image,predicate,diagonals=false) {
 }
 const dark=(d,p)=>d[p]<=220&&d[p]===d[p+1]&&d[p]===d[p+2];
 const black=(d,p)=>d[p]===0&&d[p+1]===0&&d[p+2]===0;
-const gray=(d,p)=>(d[p]===63||d[p]===64)&&d[p]===d[p+1]&&d[p]===d[p+2];
+const gray=(d,p)=>d[p]>=POPUP_COMPOSITING.minimum_gray&&d[p]<=POPUP_COMPOSITING.maximum_gray&&d[p]===d[p+1]&&d[p]===d[p+2];
 export function discoverButtons(image) {
   const outlines=components(image,dark,true).filter(b=>b.width>=80&&b.width<=122&&b.height>=63&&b.height<=67&&b.pixels>=180&&b.pixels<=650&&b.coverage<0.12);
   assert.equal(outlines.length,8,'Exactly eight independently discovered complete/clipped outline components');
@@ -174,8 +193,8 @@ export function discoverButtons(image) {
 }
 export function discoverPopup(image) {
   const candidates=components(image,gray).filter(b=>b.width>=95&&b.width<=180&&b.height>=15&&b.height<=40&&b.pixels>=1000&&b.coverage>=0.70);
-  assert.equal(candidates.length,1,'One independently measured substantial63/64-gray popup fill, text holes permitted; no thin/surrogate component');
-  return {...candidates[0],visible_fill_bounds_only:true,rgba_predicate:'Opaque achromatic63 or64, source black opacity0.75 over white'};
+  assert.equal(candidates.length,1,'One independently measured substantial source-permitted51..64-gray popup fill, text holes permitted; no thin/surrogate component');
+  return {...candidates[0],visible_fill_bounds_only:true,rgba_predicate:'Opaque achromatic51..64;75%-black over two preceding alpha0.1 shadow_sm layers on white; not exact-opacity/shadow parity'};
 }
 export function discoverGeometry(image){return {black_fills:components(image,black).filter(b=>b.pixels>=1000&&b.coverage>=0.70),popup_fills:components(image,gray).filter(b=>b.pixels>=1000&&b.coverage>=0.70)};}
 export function inspectIdle(image) {

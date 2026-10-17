@@ -19,6 +19,7 @@
     "MoonBit counterpart/comparison",
     "Text content, shaping or exact glyph pixels",
     "Rounded corner, border antialias and shadow raster fidelity",
+    "Exact popup opacity, shadow field or decorative compositing parity; source-permitted gray interval is not uniquely identifying",
     "Exact full-image or native parity",
     "Internal deferred dispatch ordering, callbacks or hidden offscreen work",
     "Other browsers/GPUs/viewports/DPRs"

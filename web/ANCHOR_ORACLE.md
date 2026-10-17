@@ -1,9 +1,14 @@
 # Unchanged `anchor.rs` Rust-only browser baseline
 
-Status (2026-10-17 UTC): implementation and source-only synthetic tests. No
-local Rust/WASM build or browser capture was run. Actual unchanged-source PNGs,
-trusted input and independent evidence verification remain pending isolated CI.
-No measured Rust result or MoonBit conformance is claimed here.
+Status (2026-10-17 UTC): first isolated CI compiled unchanged Rust/WASM and
+captured idle plus one trusted TopLeft hover, then failed the original popup
+color-discovery premise. The original failure and all 90 hover attempts are
+preserved. Profile v2 corrects that premise from pinned shadow/compositing source;
+its bounded replay covers only those already captured states. Fresh CI must
+still capture and verify the full 41-state profile. No completed Rust baseline or
+MoonBit conformance is claimed. No local Rust/WASM build or browser run occurred.
+See `ANCHOR_ORACLE_COMPOSITING_CORRECTION_20261017.md` for exact evidence and
+source derivation.
 
 ## Immutable input and isolation
 
@@ -36,6 +41,8 @@ this frozen Rust-only baseline.
 
 ## Predicates fixed before observing CI
 
+Profile revision: `unchanged_anchor_hover_local_snap_shadow_composite_v2`.
+
 The exact profile is one Linux Chromium/SwiftShader document at DPR1, full
 600px height, with real viewport sequence `750 -> 480 -> 750`.
 
@@ -67,10 +74,14 @@ The safe and center points must have independently observed 7x7 white patches.
 
 At hover, one independently discovered exact-black substantial component must
 occupy the selected button's visible outline bounds. An independent full-image
-63/64-gray 4-connected component identifies the source 75%-opaque black popup
-on white; it must have substantial area, at least 70% fill density, width 95..180
-and height 15..40. Text holes are allowed. Neither report geometry nor candidate
-coordinates participate in discovery. Exact text/glyph output is unverified.
+source-permitted 51..64-gray 4-connected component identifies the popup fill
+under the pinned two-shadow compositing model; it must have substantial area, at least 70% fill density, width 95..180
+and height 15..40. Text holes are allowed. `shadow_sm` paints two black alpha0.1 drop shadows
+before the 75%-black fill, so 64 is only the unshadowed upper bound. This interval
+is derived from pinned layer alphas/order and 8-bit blending, not fitted to the
+observed 52. Neither report geometry nor candidate coordinates participate in
+discovery. It does not uniquely identify popup alpha or the shadow field. Exact
+text/glyph and decorative compositing output are unverified.
 
 Source geometry is checked separately, with 2 physical pixels maximum edge
 uncertainty from antialiasing, fractional origins and rounded translation. Popup
@@ -149,7 +160,8 @@ ordering. Any separately authored semantic diagnostic must retain its own
 identity and cannot be called unchanged `anchor.rs`.
 
 Other explicit limits: MoonBit counterpart/comparison, exact glyph shaping,
-rounded-corner/border antialias/shadow raster fidelity, native or full-image
+exact popup alpha/shadow field/decorative compositing, rounded-corner/border
+antialias/shadow raster fidelity, native or full-image
 cross-runtime parity, callbacks/hidden work, other browsers/GPUs/viewports/DPRs.
 
 ## CI and local checks
