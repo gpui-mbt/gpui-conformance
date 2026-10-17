@@ -933,7 +933,129 @@
                           "const": "operation_start"
                         },
                         "input": {
-                          "type": "object"
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "open_window"
+                                }
+                              },
+                              "required": [
+                                "action"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "set_scale_factor"
+                                },
+                                "scale_factor": {
+                                  "type": "number",
+                                  "enum": [
+                                    1,
+                                    1.25
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "scale_factor"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "set_priorities"
+                                },
+                                "priorities": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer"
+                                  },
+                                  "minItems": 4,
+                                  "maxItems": 4,
+                                  "enum": [
+                                    [
+                                      2,
+                                      0,
+                                      3,
+                                      1
+                                    ],
+                                    [
+                                      1,
+                                      1,
+                                      1,
+                                      1
+                                    ]
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "priorities"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "restore_priorities_and_move_ancestor"
+                                },
+                                "delta": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2,
+                                  "const": [
+                                    16,
+                                    12
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "delta"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "restore_ancestor_and_set_nested_reference_height"
+                                },
+                                "height": {
+                                  "type": "number",
+                                  "const": 12
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "height"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "const": "restore_original_state"
+                                }
+                              },
+                              "required": [
+                                "action"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
                         }
                       },
                       "required": [

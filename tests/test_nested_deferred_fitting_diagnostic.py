@@ -277,6 +277,68 @@ class NestedFittingContracts(unittest.TestCase):
             if change=='nonfinite':case['layers'][0]['position'][0]=float('nan')
             with self.subTest(change=change),self.assertRaises(ValueError):v.validate_scenarios(inputs)
 
+    def test_operation_inputs_require_complete_json_shapes_and_numeric_domains(self):
+        raw, inputs = single()
+        starts = [(index, entry["event"]["input"]) for index, entry in enumerate(raw["cases"][0]["events"]) if entry["event"]["type"] == "operation_start"]
+        numeric_leaves = 0
+        for index, action in starts:
+            mutations = [{**action, "unexpected": 1}, [], {"action": "unsupported"}]
+            mutations += [{key: value for key, value in action.items() if key != missing} for missing in action]
+            for field, value in action.items():
+                leaves = list(enumerate(value)) if isinstance(value, list) else [(None, value)]
+                for position, leaf in leaves:
+                    if type(leaf) not in (int, float): continue
+                    numeric_leaves += 1
+                    for boolean in (False, True):
+                        changed = copy.deepcopy(action)
+                        if position is None: changed[field] = boolean
+                        else: changed[field][position] = boolean
+                        mutations.append(changed)
+            for changed in mutations:
+                corrupted = copy.deepcopy(raw)
+                corrupted["cases"][0]["events"][index]["event"]["input"] = changed
+                # All invalid shapes/types must fail before expected-value comparison.
+                with self.subTest(operation=raw["cases"][0]["events"][index]["operation"], input=changed), patch.object(v, "operation_plan", side_effect=AssertionError("shape escaped schema")), self.assertRaises(ValueError):
+                    v.verify_observations(corrupted, inputs)
+        self.assertEqual(numeric_leaves, 13)
+        # JSON numbers include integral float spellings emitted for f32 inputs.
+        for index, action in starts:
+            for field, value in action.items():
+                if type(value) in (int, float): action[field] = float(value)
+                if isinstance(value, list): action[field] = [float(item) for item in value]
+        self.assertEqual(v.verify_observations(raw, inputs)["observed_frame_count"], 8)
+        self.assertTrue(v.json_equal({"numbers": [1.0, 0.0, 12.0]}, {"numbers": [1, 0, 12]}))
+        for actual, expected in [(True, 1), (False, 0), (1, True), (0, False), ([True], [1]), ({"x": [False]}, {"x": [0]}), ("1", 1), (None, 0), (float("nan"), 1), (float("inf"), 1)]:
+            self.assertFalse(v.json_equal(actual, expected), (actual, expected))
+
+    def test_boolean_operation_failures_preserve_complete_json_result_equality(self):
+        controls = [("scale1", "scale_factor", None, True), ("child-lower", "priorities", 1, False), ("all-equal", "priorities", 0, True)]
+        for stage, field, index, value in controls:
+            with self.subTest(stage=stage), tempfile.TemporaryDirectory() as temp:
+                out = Path(temp) / "_build/evidence"; out.mkdir(parents=True)
+                manifest = synthetic_bundle(out); raw = v.load_json(out / "raw.json")
+                action = next(entry["event"]["input"] for entry in raw["cases"][0]["events"] if entry["operation"] == stage and entry["event"]["type"] == "operation_start")
+                if index is None: action[field] = value
+                else: action[field][index] = value
+                encoded = json.dumps(raw, allow_nan=False).encode()
+                for relative in ("raw.json", "raw.stdout"):
+                    (out / relative).write_bytes(encoded)
+                    manifest["files"][relative] = {"sha256": v.digest(out / relative), "size": len(encoded)}
+                (out / "manifest.json").write_text(json.dumps(manifest, allow_nan=False))
+                self.assertEqual(raw, v.load_json(out / "raw.json"))
+                def failure_result():
+                    try: v.verify_bundle(out)
+                    except ValueError as caught: return {"type": type(caught).__name__, "error": str(caught)}
+                    self.fail("Boolean operation input was accepted")
+                original = failure_result()
+                self.assertEqual(original["type"], "ValueError")
+                path = out / "verification-failure.json"
+                path.write_text(json.dumps(original, indent=2, allow_nan=False) + "\n")
+                loaded = v.load_json(path)
+                self.assertEqual(original, loaded)
+                self.assertEqual(original, failure_result())
+                self.assertEqual(loaded, failure_result())
+
     def test_observer_keeps_fitting_and_rounding_in_upstream_only(self):
         source=(ROOT/'adapters/nested_deferred_fitting_rust/src/main.rs').read_text()
         for forbidden in('sort_by','.sort(','.round(','.ceil(','.floor(','pixel_snap(','derived_','simulate_click','on_mouse','.cached('):self.assertNotIn(forbidden,source)

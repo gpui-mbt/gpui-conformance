@@ -39,6 +39,22 @@ def require(condition, message):
     if not condition: raise ValueError(message)
 
 
+def json_equal(actual, expected):
+    """Exact JSON-domain equality; booleans are never numeric zero or one.
+
+    JSON has one number domain, so integral f32 encodings such as 12.0 may
+    equal authored 12. No coercion is allowed across any other JSON types.
+    """
+    if type(expected) in (int, float):
+        return type(actual) in (int, float) and math.isfinite(actual) and actual == expected
+    if type(actual) is not type(expected): return False
+    if isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(json_equal(actual[key], value) for key, value in expected.items())
+    if isinstance(expected, list):
+        return len(actual) == len(expected) and all(json_equal(a, e) for a, e in zip(actual, expected))
+    return actual == expected
+
+
 def load_json(path):
     def pairs(entries):
         result = {}
@@ -280,8 +296,8 @@ def verify_observations(raw, corpus, schema=None):
         for name, action, stage, scale in operation_plan(case):
             require(cursor < len(entries), "missing operation")
             start = entries[cursor]; cursor += 1
-            require(start == {"sequence": cursor - 1, "operation": name, "frame": frame_id,
-                "event": {"type": "operation_start", "input": action}}, "operation start/input/frame")
+            require(json_equal(start, {"sequence": cursor - 1, "operation": name, "frame": frame_id,
+                "event": {"type": "operation_start", "input": action}}), "operation start/input/frame")
             pending, frames = [], []
             while cursor < len(entries) and entries[cursor]["event"]["type"] != "operation_end":
                 entry = entries[cursor]; cursor += 1
@@ -297,8 +313,8 @@ def verify_observations(raw, corpus, schema=None):
             require(frames, "missing required redraw")
             require(cursor < len(entries), "missing operation end")
             end = entries[cursor]; cursor += 1
-            require(end == {"sequence": cursor - 1, "operation": name, "frame": frame_id,
-                "event": {"type": "operation_end", "scale_factor": scale}}, "operation end/scale/frame")
+            require(json_equal(end, {"sequence": cursor - 1, "operation": name, "frame": frame_id,
+                "event": {"type": "operation_end", "scale_factor": scale}}), "operation end/scale/frame")
             operations.append({"id": name, "frames": frames})
         require(cursor == len(entries), "trailing operations/events")
         results.append({"id": case["id"], "operations": operations})
