@@ -21,7 +21,7 @@ ambiguous combined placement spellings. A query has exactly one child built in
 its callback. Inputs are bounded quarter-pixel numbers exactly representable in
 f32; observations may have other fractional values after device-edge snapping.
 
-Twelve curated cases cover:
+The original twelve curated cases cover:
 
 - Equal tracks, row-major sparse holes, explicit overlapping cells and hit order
 - Fixed-height overflow beyond tracks and the grid rectangle
@@ -30,6 +30,14 @@ Twelve curated cases cover:
 - Nested assigned query size and world origin
 - Identical query assignments with tiny versus oversized child content
 - Fractional dimensions/origins at scales 1, 1.25 and 2
+
+A thirteenth supplemental regression adds an explicitly authored flex-row,
+cross-axis-end host: its 10×12 query receives y=-2 in a 100×10 viewport and
+returns a filling one-column/eight-row grid. Scale-specific witnesses check the
+leaf's height (1.5 at bootstrap 2×, 1 at configured 1×), without injecting bounds.
+The original successful twelve-case CI artifact remains separate and unchanged
+(run 38982997354, artifact 12082311036); it does not establish this extension's
+runtime result.
 
 Each case opens at the test platform's actual bootstrap scale 2, explicitly sets
 its requested scale and notifies the view, then sends each paired mouse click.
@@ -46,8 +54,9 @@ queries metadata for expected bounds, or implements hit testing. Font-free boxes
 use `.occlude()` and stop event propagation so overlap has one topmost recipient.
 
 `verify.py` validates trace completeness, event sequence, real lifecycle nesting,
-one callback per query per frame during its own prepaint, child construction after
-that callback, assignment-size agreement and nested origin. It cross-checks actual
+one callback per query per frame during its own prepaint, the direct child
+request-layout call after that callback, assignment-size agreement and nested
+origin. Object construction timing is not instrumented. It cross-checks actual
 clicks against the observed painted opaque leaves and masks. `witnesses.json`
 contains small hand-authored integer-layout assertions independent of the Rust
 observer. Fractional cases preserve actual geometry and check physical-edge
@@ -84,3 +93,11 @@ is explicitly labeled integrity/semantic inspection with source authenticity
 unqualified. These hashes and source bindings are an audit trail, not a
 cryptographic attestation that arbitrary untrusted artifact authors executed an
 ELF.
+
+Copied evidence may be checked with `--recorded-execution-root` set to the original
+canonical absolute output directory. This preserves the original bytes while
+checking exact executable/input/token argv and relocated Cargo manifest path.
+Path consistency is a provenance check, not execution attestation. The default
+without this option still requires execution paths to match the inspected folder.
+The separate `diagnostics/grid_layout_pair` layer performs candidate comparison;
+its result does not broaden this Rust diagnostic into unchanged-example evidence.

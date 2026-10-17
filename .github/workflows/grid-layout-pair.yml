@@ -1,0 +1,114 @@
+name: Supplemental compiled grid container-query semantic pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/grid_layout_rust/**'
+      - 'diagnostics/grid_layout/**'
+      - 'adapters/grid_layout_moonbit/**'
+      - 'diagnostics/grid_layout_pair/**'
+      - 'tests/test_grid_layout*.py'
+      - '.github/workflows/grid-layout-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grid-layout-pair-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supplemental-semantic-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read exact candidate source profile
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          profile = json.load(open('diagnostics/grid_layout_pair/profile.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('core=' + profile['candidate_commit'], file=output)
+          PY
+      - name: Check baseline and pair contracts without engine builds
+        run: python3 -m unittest discover -s tests -p 'test_grid_layout*.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.core }}
+          path: _build/candidate-core
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install pinned Rust compiler and Linux link dependencies
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+      - name: Install official MoonBit toolchain and retain setup inputs
+        run: |
+          set -o pipefail
+          mkdir -p _build/grid-pair-toolchain-setup
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/grid-pair-toolchain-setup/install-moon.sh
+          bash _build/grid-pair-toolchain-setup/install-moon.sh 2>&1 | tee _build/grid-pair-toolchain-setup/install.log
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Build and execute actual Rust baseline
+        run: |
+          python3 diagnostics/grid_layout/run.py --online \
+            --upstream-source _build/upstream-source --output _build/grid-pair-rust-evidence
+      - name: Independently verify exact Rust sources and all frames
+        run: |
+          python3 diagnostics/grid_layout/verify.py _build/grid-pair-rust-evidence \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/grid-pair-rust-independent-verification.json
+      - name: Compile and execute production MoonBit against fresh Rust
+        run: |
+          python3 diagnostics/grid_layout_pair/run.py \
+            --core-source _build/candidate-core --core-commit '${{ steps.pins.outputs.core }}' \
+            --baseline _build/grid-pair-rust-evidence --baseline-suite-source . \
+            --baseline-suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --output _build/grid-pair-evidence
+      - name: Independently verify retained sources, both scales and semantic operations
+        if: always()
+        run: |
+          if test -f _build/grid-pair-evidence/manifest.json; then
+            python3 diagnostics/grid_layout_pair/verify.py _build/grid-pair-evidence \
+              --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+              --core-source _build/candidate-core --core-commit '${{ steps.pins.outputs.core }}' \
+              --upstream-source _build/upstream-source > _build/grid-pair-independent-verification.json
+          fi
+      - name: Execute production engine mutants
+        run: |
+          python3 diagnostics/grid_layout_pair/run_mutants.py --evidence _build/grid-pair-evidence \
+            --core-source _build/candidate-core --core-commit '${{ steps.pins.outputs.core }}' \
+            --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --output _build/grid-pair-engine-mutants
+      - name: Separately corrupt retained JSON to test checker sensitivity
+        run: |
+          python3 diagnostics/grid_layout_pair/run_controls.py --evidence _build/grid-pair-evidence \
+            --output _build/grid-pair-checker-controls
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-grid-pair-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/grid-pair-rust-evidence
+            _build/grid-pair-rust-independent-verification.json
+            _build/grid-pair-evidence
+            _build/grid-pair-independent-verification.json
+            _build/grid-pair-engine-mutants
+            _build/grid-pair-checker-controls
+            _build/grid-pair-toolchain-setup
+          if-no-files-found: warn
+          retention-days: 30

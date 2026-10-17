@@ -652,6 +652,44 @@
         ]
       },
       "hits": []
+    },
+    {
+      "id": "query-negative-origin-midpoint",
+      "window": [
+        100,
+        10
+      ],
+      "origin": [
+        0,
+        0
+      ],
+      "scale_factor": 1,
+      "host": {
+        "layout": "flex-row",
+        "align_items": "end"
+      },
+      "root": {
+        "id": "query",
+        "kind": "query",
+        "width": 10,
+        "height": 12,
+        "children": [
+          {
+            "id": "returned-grid",
+            "kind": "grid",
+            "cols": 1,
+            "rows": 8,
+            "gap": 0,
+            "children": [
+              {
+                "id": "leaf",
+                "kind": "box"
+              }
+            ]
+          }
+        ]
+      },
+      "hits": []
     }
   ]
 }

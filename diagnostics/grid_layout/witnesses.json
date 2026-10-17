@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Hand-authored integer-layout assertions; fractional cases preserve raw observations and enforce device-edge alignment, not a substitute layout solver.",
+  "scope": "Hand-authored integer-layout assertions; fractional cases preserve raw observations and enforce device-edge alignment, not a substitute layout solver. The negative-origin query regression has explicit per-scale witnesses for independent local midpoint rounding.",
   "cases": {
     "equal-tracks": {
       "bounds": {
@@ -287,6 +287,46 @@
         "query-content": [
           "content"
         ]
+      }
+    },
+    "query-negative-origin-midpoint": {
+      "bounds": {
+        "$host": [
+          0,
+          0,
+          100,
+          10
+        ],
+        "query": [
+          0,
+          -2,
+          10,
+          12
+        ],
+        "returned-grid": [
+          0,
+          -2,
+          10,
+          12
+        ]
+      },
+      "bounds_by_scale": {
+        "1": {
+          "leaf": [
+            0,
+            -2,
+            10,
+            1
+          ]
+        },
+        "2": {
+          "leaf": [
+            0,
+            -2,
+            10,
+            1.5
+          ]
+        }
       }
     }
   }

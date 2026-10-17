@@ -35,6 +35,13 @@ struct Hit {
     position: [f32; 2],
 }
 
+#[derive(Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct Host {
+    layout: String,
+    align_items: String,
+}
+
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Scenario {
@@ -43,6 +50,7 @@ struct Scenario {
     origin: [f32; 2],
     scale_factor: f32,
     root: Node,
+    host: Option<Host>,
     hits: Vec<Hit>,
 }
 
@@ -179,14 +187,18 @@ fn build_node(node: &Node, log: &SharedLog) -> AnyElement {
         _ => panic!("unsupported node kind"),
     }
 }
-struct Probe { root: Node, origin: [f32; 2], log: SharedLog }
+struct Probe { root: Node, origin: [f32; 2], host: Option<Host>, log: SharedLog }
 impl Render for Probe {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
-        // Position the already-sized root through an ordinary GPUI absolute host.
-        let host = div().relative().size_full().child(div().absolute()
+        // Ordinary authored positioning, or a real flex-end host for the negative-origin regression.
+        let host = if let Some(host) = &self.host {
+            assert_eq!(host.layout, "flex-row");
+            assert_eq!(host.align_items, "end");
+            div().flex().flex_row().items_end().size_full().child(build_node(&self.root, &self.log))
+        } else { div().relative().size_full().child(div().absolute()
             .left(px(self.origin[0])).top(px(self.origin[1]))
             .w(px(self.root.width.unwrap())).h(px(self.root.height.unwrap()))
-            .child(build_node(&self.root, &self.log)));
+            .child(build_node(&self.root, &self.log))) };
         observed(host, "$host", &self.log)
     }
 }
@@ -203,7 +215,7 @@ fn observe(scenario: &Scenario) -> Result<Value, Box<dyn Error>> {
     let log = Rc::new(RefCell::new(Log { events: vec![], operation: "initial".into(), frame: 0 }));
     operation_start(&log, "initial", json!({"action": "open_window"}));
     let handle = app.open_window(size(px(scenario.window[0]), px(scenario.window[1])), |_, _| Probe {
-        root: scenario.root.clone(), origin: scenario.origin, log: log.clone(),
+        root: scenario.root.clone(), origin: scenario.origin, host: scenario.host.clone(), log: log.clone(),
     });
     let mut cx = VisualTestContext::from_window(*handle, &app);
     cx.run_until_parked();

@@ -69,7 +69,7 @@ class GridDiagnosticContracts(unittest.TestCase):
     def test_curated_input_contract(self):
         corpus = json.loads((ROOT / "diagnostics/grid_layout/scenarios.json").read_text())
         verify.validate_scenarios(corpus)
-        self.assertEqual(len(corpus["cases"]), 12)
+        self.assertEqual(len(corpus["cases"]), 13)
         self.assertEqual({case["scale_factor"] for case in corpus["cases"]}, {1, 1.25, 2})
         ids = {case["id"] for case in corpus["cases"]}
         self.assertTrue({"sparse-hole", "explicit-collision", "full-column-lines", "nested-query",
@@ -81,6 +81,23 @@ class GridDiagnosticContracts(unittest.TestCase):
             case.pop("id")
             case["root"]["children"][0]["children"][0].update(width=1, height=1)
         self.assertEqual(small, large)
+
+    def test_negative_origin_uses_real_host_and_scale_specific_witnesses(self):
+        corpus = json.loads((ROOT / "diagnostics/grid_layout/scenarios.json").read_text())
+        case = corpus["cases"][-1]
+        self.assertEqual(case["id"], "query-negative-origin-midpoint")
+        self.assertEqual(case["host"], {"layout": "flex-row", "align_items": "end"})
+        self.assertEqual(case["origin"], [0, 0])
+        self.assertEqual(case["window"], [100, 10])
+        self.assertEqual(case["root"]["children"][0]["rows"], 8)
+        known = json.loads((ROOT / "diagnostics/grid_layout/witnesses.json").read_text())["cases"][case["id"]]
+        self.assertEqual(known["bounds_by_scale"]["1"]["leaf"], [0, -2, 10, 1])
+        self.assertEqual(known["bounds_by_scale"]["2"]["leaf"], [0, -2, 10, 1.5])
+        source = (ROOT / "adapters/grid_layout_rust/src/main.rs").read_text()
+        self.assertIn("div().flex().flex_row().items_end().size_full()", source)
+        raw, corpus, witnesses = synthetic_checker_input()
+        witnesses["cases"][corpus["cases"][0]["id"]]["bounds_by_scale"] = {"2": {"leaf": [20, 30, 10, 8]}}
+        with self.assertRaises(ValueError): verify.verify_observations(raw, corpus, witnesses)
 
     def test_synthetic_fixture_is_checker_input_only(self):
         raw, corpus, witnesses = synthetic_checker_input()
@@ -248,6 +265,26 @@ class GridDiagnosticContracts(unittest.TestCase):
             manifest_path = directory / "manifest.json"
             manifest_path.write_text(json.dumps(manifest))
             self.assertFalse(verify.verify_bundle(directory)["source_bound"])
+            # A copied bundle may retain its original canonical execution paths.
+            # This checks path consistency only, not execution attestation.
+            recorded_root = directory / "_build/original-run"
+            relocated = copy.deepcopy(manifest)
+            relocated["execution"]["command"] = [str(recorded_root / "probe"), str(recorded_root / "scenarios.json"), raw["run_token"]]
+            relocated["build"]["command"] = ["cargo", "+1.98.1", "build", "--locked", "--manifest-path",
+                str(directory / "_build" / ("grid-layout-build-" + raw["run_token"]) / "adapter/Cargo.toml")]
+            manifest_path.write_text(json.dumps(relocated))
+            self.assertFalse(verify.verify_bundle(directory, recorded_execution_root=recorded_root)["source_bound"])
+            with self.assertRaises(ValueError): verify.verify_bundle(directory, recorded_execution_root=directory / "_build/wrong-root")
+            with self.assertRaises(ValueError): verify.verify_bundle(directory, recorded_execution_root="relative/root")
+            for mutate in (lambda m: m["execution"]["command"].__setitem__(0, str(recorded_root / "different-probe")),
+                           lambda m: m["execution"]["command"].__setitem__(1, str(recorded_root / "different-input.json")),
+                           lambda m: m["execution"]["command"].__setitem__(2, "different-token"),
+                           lambda m: m["build"]["command"].__setitem__(-1, "/unrelated/Cargo.toml")):
+                changed = copy.deepcopy(relocated)
+                mutate(changed)
+                manifest_path.write_text(json.dumps(changed))
+                with self.assertRaises(ValueError): verify.verify_bundle(directory, recorded_execution_root=recorded_root)
+            manifest_path.write_text(json.dumps(manifest))
             for mutate in (lambda m: m.update(run_token="cross-run-token-0000"),
                            lambda m: m["upstream"].update(commit="e" * 40),
                            lambda m: m["suite"].update(clean=False),

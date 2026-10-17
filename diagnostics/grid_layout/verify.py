@@ -52,7 +52,9 @@ def validate_scenarios(corpus):
     identifiers = set()
     common = {"id", "kind", "width", "height", "col_span", "row_span", "col_start", "col_end", "row_start", "row_end", "full_columns"}
     for case in corpus["cases"]:
-        require(set(case) == {"id", "window", "origin", "scale_factor", "root", "hits"}, "case shape")
+        require(set(case) in ({"id", "window", "origin", "scale_factor", "root", "hits"}, {"id", "window", "origin", "scale_factor", "root", "hits", "host"}), "case shape")
+        if "host" in case:
+            require(case["host"] == {"layout": "flex-row", "align_items": "end"} and case["origin"] == [0, 0], "explicit flex-end host")
         require(isinstance(case["id"], str) and case["id"] not in identifiers, "case id")
         identifiers.add(case["id"])
         for field in ("window", "origin"):
@@ -72,7 +74,7 @@ def validate_scenarios(corpus):
             require(kind in ("grid", "query", "box") and set(node) <= allowed, "node kind/fields")
             if kind == "grid":
                 require({"cols", "rows", "gap", "children"} <= set(node), "grid fields")
-                for axis in ("cols", "rows"): require(type(node[axis]) is int and 1 <= node[axis] <= 6, "track count")
+                for axis in ("cols", "rows"): require(type(node[axis]) is int and 1 <= node[axis] <= (8 if axis == "rows" else 6), "track count")
                 number(node["gap"], "gap")
                 require(0 <= node["gap"] <= 32 and node["gap"] * 4 == int(node["gap"] * 4), "bounded quarter-pixel gap")
             if kind == "query": require(len(node.get("children", [])) == 1, "query needs one child")
@@ -151,10 +153,12 @@ def verify_frame(entries, case, scale, witnesses):
         vector(prepaint[child]["bounds"][:2], prepaint[key]["bounds"][:2], label + " query child assigned origin")
         callback_index = next(i for i, e in enumerate(entries) if e["event"]["type"] == "callback" and e["event"]["node"] == key)
         child_index = next(i for i, e in enumerate(entries) if e["event"]["type"] == "request_layout" and e["event"]["node"] == child)
-        require(callback_index < child_index, label + ": query child created before callback")
+        require(callback_index < child_index, label + ": query child request-layout before callback")
     # Hand-authored integer cases use exact witnesses at 1x and 2x; fractional
     # inputs retain every actual coordinate without an unearned solver claim.
-    for node, rect in witnesses.get(case["id"], {}).get("bounds", {}).items():
+    known = witnesses.get(case["id"], {})
+    expected_bounds = dict(known.get("bounds", {}), **known.get("bounds_by_scale", {}).get(format(scale, "g"), {}))
+    for node, rect in expected_bounds.items():
         vector(prepaint[node]["bounds"], rect, label + " curated witness " + node)
     leaves = [prepaint[key] for key in painted if by_id[key]["kind"] == "box"]
     return {"frame": entries[0]["frame"], "scale_factor": scale,
@@ -227,7 +231,7 @@ def verify_observations(raw, corpus, witness_document=None):
 def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def verify_bundle(directory, suite_commit=None, suite_tree=None, suite_source=None, upstream_source=None):
+def verify_bundle(directory, suite_commit=None, suite_tree=None, suite_source=None, upstream_source=None, recorded_execution_root=None):
     directory = Path(directory)
     manifest = json.loads((directory / "manifest.json").read_text())
     require(manifest["schema_version"] == 1 and manifest["layer"] == LAYER, "manifest schema/layer")
@@ -269,8 +273,16 @@ def verify_bundle(directory, suite_commit=None, suite_tree=None, suite_source=No
     require(manifest["execution"]["timed_out"] is False and manifest["build"]["timed_out"] is False, "timed out")
     require(manifest["build"]["command"][:4] == ["cargo", "+1.98.1", "build", "--locked"]
             and "--release" not in manifest["build"]["command"], "build compiler/mode/lock")
-    require(manifest["execution"].get("command") == [str(directory.resolve() / "probe"),
-            str(directory.resolve() / "scenarios.json"), manifest["run_token"]], "execution executable/input/token")
+    execution_root = directory.resolve() if recorded_execution_root is None else Path(recorded_execution_root)
+    require(execution_root.is_absolute() and str(execution_root) == str(execution_root.resolve()) and ".." not in execution_root.parts, "canonical recorded execution root")
+    require(manifest["execution"].get("command") == [str(execution_root / "probe"),
+            str(execution_root / "scenarios.json"), manifest["run_token"]], "execution executable/input/token")
+    if recorded_execution_root is not None:
+        build_roots = [p for p in execution_root.parents if p.name == "_build"]
+        require(len(build_roots) == 1, "recorded execution root must identify one ignored build root")
+        expected_build = ["cargo", "+1.98.1", "build", "--locked", "--manifest-path",
+            str(build_roots[0] / ("grid-layout-build-" + manifest["run_token"]) / "adapter/Cargo.toml")]
+        require(manifest["build"]["command"] in (expected_build, expected_build + ["--offline"]), "exact relocated build manifest command")
     result = verify_observations(raw, json.loads((directory / "scenarios.json").read_text()),
         json.loads((directory / "retained/diagnostics/grid_layout/witnesses.json").read_text()))
     result["source_bound"] = all(value is not None for value in (suite_commit, suite_tree, suite_source, upstream_source))
@@ -286,8 +298,9 @@ def main():
     parser.add_argument("--suite-tree", help="Require this independently obtained exact CI checkout tree")
     parser.add_argument("--suite-source", type=Path, help="Independently compare retained suite files to exact committed Git blobs")
     parser.add_argument("--upstream-source", type=Path, help="Independently compare retained source5a files to exact committed Git blobs")
+    parser.add_argument("--recorded-execution-root", type=Path, help="Original canonical absolute run directory for unchanged copied evidence; path consistency is not execution attestation")
     arguments = parser.parse_args()
-    result = verify_bundle(arguments.evidence, arguments.suite_commit, arguments.suite_tree, arguments.suite_source, arguments.upstream_source)
+    result = verify_bundle(arguments.evidence, arguments.suite_commit, arguments.suite_tree, arguments.suite_source, arguments.upstream_source, arguments.recorded_execution_root)
     print(json.dumps(result, indent=2))
 
 

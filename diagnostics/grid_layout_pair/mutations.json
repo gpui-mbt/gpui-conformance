@@ -1,0 +1,51 @@
+[
+  {
+    "name": "dense-placement",
+    "path": "layout/grid.mbt",
+    "old": "    cursor_column += span",
+    "new": "    cursor_row = 0\n    cursor_column = 0",
+    "predicate": "sparse-hole must not backfill earlier holes"
+  },
+  {
+    "name": "ignore-column-span",
+    "path": "layout/grid.mbt",
+    "old": "      AutoColumns(span) => span",
+    "new": "      AutoColumns(_) => 1",
+    "predicate": "auto-span and full-column fixture geometry"
+  },
+  {
+    "name": "ignore-gap",
+    "path": "layout/grid.mbt",
+    "old": "  let track_width = non_negative(width - gap_width) / style.columns.to_double()",
+    "new": "  let track_width = width / style.columns.to_double()",
+    "predicate": "equal-track and gap geometry"
+  },
+  {
+    "name": "query-viewport-size",
+    "path": "element/container_query.mbt",
+    "old": "        let generated = match callback(bounds.size()) {",
+    "new": "        let generated = match callback(request.viewport) {",
+    "predicate": "callback input must equal allocated query size"
+  },
+  {
+    "name": "query-origin-lost",
+    "path": "element/container_query.mbt",
+    "old": "            child_origin,\n            Some(placement.element.id),",
+    "new": "            @primitives.Point::new(0.0, 0.0).unwrap(),\n            Some(placement.element.id),",
+    "predicate": "nested and nonzero-origin generated roots"
+  },
+  {
+    "name": "query-root-size-ignored",
+    "path": "element/container_query.mbt",
+    "old": "        let child_size = generated.query_root_size.unwrap_or(bounds.size())",
+    "new": "        let generated = { ..generated, query_root_size: None, }\n        let child_size = bounds.size()",
+    "predicate": "tiny and huge independent generated roots retain authored size"
+  },
+  {
+    "name": "query-absolute-rounding",
+    "path": "element/container_query.mbt",
+    "old": "        let child_request = match\n          mixed_layout_at(generated, child_bounds, request.scale_factor) {",
+    "new": "        let child_bounds = child_bounds.translated(child_origin).unwrap()\n        let child_origin = @primitives.Point::new(0.0, 0.0).unwrap()\n        let child_request = match\n          mixed_layout_at(generated, child_bounds, request.scale_factor) {",
+    "predicate": "negative-origin generated-root midpoint must round locally before translation"
+  }
+]

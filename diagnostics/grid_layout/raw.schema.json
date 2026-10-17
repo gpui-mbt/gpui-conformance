@@ -139,7 +139,7 @@
         "rows": {
           "type": "integer",
           "minimum": 1,
-          "maximum": 6
+          "maximum": 8
         },
         "gap": {
           "type": "number",
@@ -449,6 +449,22 @@
                 },
                 "minItems": 0,
                 "maxItems": 16
+              },
+              "host": {
+                "type": "object",
+                "properties": {
+                  "layout": {
+                    "const": "flex-row"
+                  },
+                  "align_items": {
+                    "const": "end"
+                  }
+                },
+                "required": [
+                  "layout",
+                  "align_items"
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
