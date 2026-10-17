@@ -64,7 +64,7 @@ def verify_mutants(directory, evidence, ordinary):
             command = [moon, 'build', '--target', 'native', '--deny-warn'] + flags + ['--verbose', 'probe']
             require(record[phase]['command'] == command and record[phase]['cwd'] == str(work), 'exact mutant native build command')
         require((folder / 'candidate-probe').read_bytes().startswith(b'\x7fELF'), 'executed native ELF required')
-        plan = native_build_plan((folder / 'build-plan.stdout').read_text(), record['tool_binaries'])
+        plan = native_build_plan((folder / 'build-plan.stdout').read_text(), record['tool_binaries'], evidence / 'build-source')
         require(plan == record['native_build_plan'] == parent['native_build_plan'], 'same qualified actual native pipeline')
         require(native_generated_inventory(folder / 'generated', plan) == record['generated_build_inputs'], 'actual generated native inputs changed or missing')
         require((folder / 'generated/probe/probe.exe').read_bytes() == (folder / 'candidate-probe').read_bytes(), 'generated/actually executed ELF mismatch')

@@ -36,8 +36,48 @@ def require_native_environment(environment, tools):
     require(isinstance(environment.get('MOON_HOME'), str) and Path(environment['MOON_HOME']).is_absolute(), 'native toolchain home')
 
 
-def native_build_plan(text, tools):
+def staged_package_inputs(source):
+    """Read the exact bounded projection, including supported package metadata."""
+    require(source.is_dir() and (source / 'moon.mod').read_text() == MODULE, 'native staged module identity')
+    result = {}
+    for package in (*PACKAGES, 'probe'):
+        directory = source / package
+        require(directory.is_dir() and not directory.is_symlink(), 'native staged package directory')
+        files = sorted(directory.iterdir())
+        require(all(p.is_file() and not p.is_symlink() and (p.name == 'moon.pkg' or
+                    p.suffix == '.mbt' and not p.name.endswith(('_test.mbt', '_wbtest.mbt'))) for p in files), 'unexpected staged package input')
+        sources = ['./' + str(p.relative_to(source)) for p in files if p.suffix == '.mbt']
+        require(sources and (package != 'probe' or sources == ['./probe/main.mbt']), 'complete staged package sources')
+        metadata = (directory / 'moon.pkg').read_text()
+        imports = ['moonbitlang/core/prelude']
+        pattern = r'import\s*\{([^}]*)\}(?:\s*for\s*"([^"]+)")?'
+        for block in re.finditer(pattern, metadata):
+            names = re.findall(r'"([^"]+)"', block[1])
+            require(not re.sub(r'"[^"]+"|[\s,]', '', block[1]), 'unsupported package import syntax')
+            if block[2] is None: imports.extend(names)
+            else:
+                require(block[2] == 'test', 'unsupported package import mode')
+                require(all(name in ('moonbitlang/core/double','moonbitlang/core/quickcheck') or name in {'f4ah6o/gpui/' + p for p in PACKAGES} for name in names), 'unsupported test-only package import')
+        remainder = re.sub(pattern, '', metadata).strip()
+        require(remainder == ('options("is-main": true)' if package == 'probe' else ''), 'unsupported native package metadata')
+        aliases = {}
+        for name in imports:
+            alias = name.rsplit('/', 1)[-1]
+            require(alias not in aliases, 'duplicate package import alias')
+            if name.startswith('f4ah6o/gpui/'):
+                require(alias in PACKAGES and name == 'f4ah6o/gpui/' + alias, 'unretained production package import')
+                path = BUILD_PREFIX + alias + '/' + alias + '.mi'
+            else:
+                require(name in ('moonbitlang/core/prelude','moonbitlang/core/json','moonbitlang/core/env'), 'unsupported runtime package import')
+                path = '$MOON_HOME/lib/core/_build/native/release/bundle/' + alias + '/' + alias + '.mi'
+            aliases[alias] = path + ':' + alias
+        result[package] = {'sources': sources, 'imports': [aliases[a] for a in sorted(aliases)]}
+    return result
+
+
+def native_build_plan(text, tools, source):
     """Bind the actual direct-native pipeline; unknown modes fail closed."""
+    staged = staged_package_inputs(source)
     commands = [shlex.split(line) for line in text.splitlines() if line.strip()]
     required, external, packages, links, runtime, archives, final = set(), set(), [], [], [], [], []
     def value(command, flag):
@@ -58,16 +98,35 @@ def native_build_plan(text, tools):
             if command[1] == 'build-package':
                 package = value(command, '-pkg').removeprefix('f4ah6o/gpui/')
                 require(package in (*PACKAGES, 'probe') and output == package + '/' + package + '.core' and value(command, '-target') == 'native', 'native production package output')
+                expected = [program, 'build-package'] + staged[package]['sources'] + ['-w', '@a', '-o', BUILD_PREFIX + output,
+                    '-pkg', 'f4ah6o/gpui/' + package, '-pkg-type', 'executable' if package == 'probe' else 'library',
+                    '-std-path', '$MOON_HOME/lib/core/_build/native/release/bundle']
+                for imported in staged[package]['imports']: expected.extend(['-i', imported])
+                expected.extend(['-pkg-sources', 'f4ah6o/gpui/' + package + ':./' + package, '-target', 'native', '-g', '-O0',
+                                 '-workspace-path', '.', '-all-pkgs', BUILD_PREFIX + 'all_pkgs.json'])
+                require(command == expected, 'exact staged production source/compiler argv: ' + package)
                 required.add(package + '/' + package + '.mi'); packages.append(package)
             else:
                 require(value(command, '-target') in ('x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu') and
                         output == 'probe/__moonbit_link_core__/probe.o' and value(command, '-main') == 'f4ah6o/gpui/probe', 'direct-native linked object/backend')
+                order = ('primitives','layout','scene','element','probe')
+                expected = [program, 'link-core', '$MOON_HOME/lib/core/_build/native/release/bundle/abort/abort.core',
+                    '$MOON_HOME/lib/core/_build/native/release/bundle/core.core']
+                expected.extend(BUILD_PREFIX + name + '/' + name + '.core' for name in order)
+                expected.extend(['-main','f4ah6o/gpui/probe','-o',BUILD_PREFIX + output,'-pkg-config-path','./probe/moon.pkg'])
+                for name in order: expected.extend(['-pkg-sources','f4ah6o/gpui/' + name + ':./' + name])
+                expected.extend(['-pkg-sources','moonbitlang/core:$MOON_HOME/lib/core','-target','x86_64-unknown-linux-gnu','-g','-O0'])
+                require(command == expected, 'exact supported direct-native linker argv')
                 links.append(command)
         elif program in (tools['cc']['path'], tools['cc'].get('command_path')):
             output = generated(value(command, '-o'))
             if '-c' in command:
                 require(output.startswith('runtime-') and output.endswith('.o'), 'native runtime compile output')
                 require([arg for arg in command if arg.endswith('.c')] == ['$MOON_HOME/lib/runtime/' + output[len('runtime-'):-2] + '.c'], 'native runtime source/output binding')
+                expected = [program,'-o',BUILD_PREFIX + output,'-I$MOON_HOME/include','-g','-c','-fwrapv','-fno-strict-aliasing','-O2',
+                    '-DMOONBIT_ALLOW_STACKTRACE','-DMOONBIT_ALLOCATOR=MOONBIT_ALLOCATOR_MIMALLOC',
+                    '$MOON_HOME/lib/runtime/' + output[len('runtime-'):-2] + '.c']
+                require(command == expected, 'exact supported native runtime compile argv')
                 runtime.append(output)
             else:
                 require(output == 'probe/probe.exe', 'native final ELF output')
@@ -87,7 +146,12 @@ def native_build_plan(text, tools):
                 external.add(relative)
     require(sorted(packages) == sorted((*PACKAGES, 'probe')) and len(links) == len(final) == len(archives) == 1, 'complete native package/link pipeline')
     require(set(runtime) == {'runtime-' + name + '.o' for name in ('utf','sync_io','runtime','env','backtrace')}, 'complete native runtime compilation')
+    require(len(runtime) == 5, 'exact runtime compile count')
     archive, archive_command = archives[0]
+    require(re.fullmatch(r'libruntime-[0-9a-f]{16}\.a', archive), 'native archive identity')
+    require(archive_command == [archive_command[0],'-r','-c','-s',BUILD_PREFIX + archive] + [BUILD_PREFIX + name for name in sorted(runtime)], 'exact supported archive argv')
+    require(final[0] == [final[0][0],'-o',BUILD_PREFIX + 'probe/probe.exe','$MOON_HOME/lib/libmoonbitrun.o',
+            BUILD_PREFIX + 'probe/__moonbit_link_core__/probe.o',BUILD_PREFIX + archive,'-lm','$MOON_HOME/lib/libbacktrace.a'], 'exact supported native final linker argv')
     require({arg[len(BUILD_PREFIX):] for arg in archive_command if arg.startswith(BUILD_PREFIX) and arg.endswith('.o')} == set(runtime), 'runtime archive inputs')
     require(BUILD_PREFIX + 'probe/__moonbit_link_core__/probe.o' in final[0] and BUILD_PREFIX + archive in final[0] and
             '$MOON_HOME/lib/libmoonbitrun.o' in final[0] and '$MOON_HOME/lib/libbacktrace.a' in final[0], 'final native link inputs')
@@ -254,7 +318,7 @@ def main():
         'tool_binaries': tools, 'platform': {'system': platform.system(), 'machine': platform.machine()},
         'started_at': now(), 'omitted_non_input_build_caches': list(OMITTED_BUILD_CACHES), 'files': {}}
     manifest['build_plan'] = execute([moon, 'build', '--target', 'native', '--deny-warn', '--dry-run', '--verbose', 'probe'], stage, out, 'build-plan', environment)
-    manifest['native_build_plan'] = native_build_plan((out / 'build-plan.stdout').read_text(), tools)
+    manifest['native_build_plan'] = native_build_plan((out / 'build-plan.stdout').read_text(), tools, stage)
     require(set(manifest['native_build_plan']['required_toolchain']) <= set(toolchain_inputs), 'unretained planned native toolchain input')
     manifest['build'] = execute([moon, 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], stage, out, 'build', environment)
     if manifest['build']['returncode'] == 0:

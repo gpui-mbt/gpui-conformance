@@ -74,7 +74,7 @@ def verify(directory, suite_source, upstream_source, core_source, suite_commit, 
             manifest['input_environment']['MOON_CC'] is None and manifest['input_environment']['MOONBIT_NEW_NATIVE'] in (None, '1') and
             manifest['input_environment']['MOON_HOME'] == manifest['toolchain_home'] and Path(manifest['toolchain_home']).is_absolute(), 'compiler/runtime environment binding')
     require_native_environment(manifest['input_environment'], manifest['tool_binaries'])
-    plan = native_build_plan((directory / 'build-plan.stdout').read_text(), manifest['tool_binaries'])
+    plan = native_build_plan((directory / 'build-plan.stdout').read_text(), manifest['tool_binaries'], directory / 'build-source')
     require(plan == manifest['native_build_plan'] and set(plan['required_toolchain']) <= set(native_inputs), 'qualified direct-native pipeline/toolchain inputs')
     require(native_generated_inventory(directory / 'build-source/_build/native/debug/build', plan) == manifest['generated_build_inputs'], 'complete actual generated native build inputs')
     require(manifest['build']['command'] == [moon, 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], 'exact build command')

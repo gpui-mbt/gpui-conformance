@@ -211,18 +211,41 @@ class FractionalViewportTests(unittest.TestCase):
 
 
 class NativeRetentionTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from run import MODULE
+        self.temporary=tempfile.TemporaryDirectory();self.addCleanup(self.temporary.cleanup)
+        self.stage=Path(self.temporary.name)/'source';self.stage.mkdir();(self.stage/'moon.mod').write_text(MODULE)
+        self.dependencies={'primitives':[], 'scene':['primitives'], 'layout':['primitives'],
+            'element':['layout','primitives','scene'], 'probe':['element','env','json','layout','primitives','scene']}
+        self.filenames={p:('main' if p=='probe' else 'anchored' if p=='element' else p)+'.mbt' for p in self.dependencies}
+        for package,deps in self.dependencies.items():
+            directory=self.stage/package;directory.mkdir();(directory/self.filenames[package]).write_text('// synthetic checker input only')
+            imports=['"'+('moonbitlang/core/' if d in ('env','json') else 'f4ah6o/gpui/')+d+'",' for d in deps]
+            (directory/'moon.pkg').write_text(('import { '+ ' '.join(imports)+' }' if imports else '')+('\noptions("is-main": true)' if package=='probe' else ''))
     def tools(self): return {'moonc':{'path':'/tools/moonc'},'cc':{'path':'/usr/bin/cc'},'ar':{'path':'/usr/bin/ar'}}
     def plans(self):
-        prefix='./_build/native/debug/build/'
-        packages=('element','layout','primitives','scene','probe')
-        commands=['moonc build-package source.mbt -pkg f4ah6o/gpui/'+p+' -o '+prefix+p+'/'+p+'.core -target native -g -O0' for p in packages]
-        cores=' '.join(prefix+p+'/'+p+'.core' for p in packages)
-        commands.append('moonc link-core '+cores+' $MOON_HOME/lib/core/_build/native/release/bundle/abort/abort.core $MOON_HOME/lib/core/_build/native/release/bundle/core.core -main f4ah6o/gpui/probe -o '+prefix+'probe/__moonbit_link_core__/probe.o -target x86_64-unknown-linux-gnu -g -O0')
-        runtime=('utf','sync_io','runtime','env','backtrace')
-        commands.extend('/usr/bin/cc -c $MOON_HOME/lib/runtime/'+r+'.c -o '+prefix+'runtime-'+r+'.o' for r in runtime)
-        commands.append('/usr/bin/ar -r -c -s '+prefix+'runtime.a '+' '.join(prefix+'runtime-'+r+'.o' for r in runtime))
-        commands.append('/usr/bin/cc -o '+prefix+'probe/probe.exe $MOON_HOME/lib/libmoonbitrun.o '+prefix+'probe/__moonbit_link_core__/probe.o '+prefix+'runtime.a -lm $MOON_HOME/lib/libbacktrace.a')
-        return '\n'.join(commands)
+        prefix='./_build/native/debug/build/';std='$MOON_HOME/lib/core/_build/native/release/bundle/'
+        order=('primitives','layout','scene','element','probe');commands=[]
+        for p in order:
+            imports=[]
+            for name in sorted(self.dependencies[p]+['prelude']):
+                path=(std+name+'/'+name+'.mi' if name in ('prelude','env','json') else prefix+name+'/'+name+'.mi')
+                imports+=['-i',path+':'+name]
+            command=['moonc','build-package','./'+p+'/'+self.filenames[p],'-w','@a','-o',prefix+p+'/'+p+'.core',
+                '-pkg','f4ah6o/gpui/'+p,'-pkg-type','executable' if p=='probe' else 'library','-std-path',std[:-1]]+imports+[
+                '-pkg-sources','f4ah6o/gpui/'+p+':./'+p,'-target','native','-g','-O0','-workspace-path','.','-all-pkgs',prefix+'all_pkgs.json']
+            commands.append(command)
+        command=['moonc','link-core',std+'abort/abort.core',std+'core.core']+[prefix+p+'/'+p+'.core' for p in order]+[
+            '-main','f4ah6o/gpui/probe','-o',prefix+'probe/__moonbit_link_core__/probe.o','-pkg-config-path','./probe/moon.pkg']
+        for p in order:command+=['-pkg-sources','f4ah6o/gpui/'+p+':./'+p]
+        commands.append(command+['-pkg-sources','moonbitlang/core:$MOON_HOME/lib/core','-target','x86_64-unknown-linux-gnu','-g','-O0'])
+        runtime=('utf','sync_io','runtime','env','backtrace');archive=prefix+'libruntime-04d24968c494e3bb.a'
+        for r in runtime:commands.append(['/usr/bin/cc','-o',prefix+'runtime-'+r+'.o','-I$MOON_HOME/include','-g','-c','-fwrapv','-fno-strict-aliasing','-O2','-DMOONBIT_ALLOW_STACKTRACE','-DMOONBIT_ALLOCATOR=MOONBIT_ALLOCATOR_MIMALLOC','$MOON_HOME/lib/runtime/'+r+'.c'])
+        commands.append(['/usr/bin/ar','-r','-c','-s',archive]+[prefix+'runtime-'+r+'.o' for r in sorted(runtime)])
+        commands.append(['/usr/bin/cc','-o',prefix+'probe/probe.exe','$MOON_HOME/lib/libmoonbitrun.o',prefix+'probe/__moonbit_link_core__/probe.o',archive,'-lm','$MOON_HOME/lib/libbacktrace.a'])
+        import shlex
+        return '\n'.join(shlex.join(c) for c in commands)
     def test_direct_native_environment_is_bound(self):
         from run import require_native_environment
         env=dict(CC='/usr/bin/cc',MOON_CC=None,MOON_HOME='/tools',MOONBIT_NEW_NATIVE=None)
@@ -231,32 +254,52 @@ class NativeRetentionTests(unittest.TestCase):
             with self.assertRaises(ValueError):require_native_environment(dict(env,**change),self.tools())
     def test_actual_object_pipeline_is_bound(self):
         from run import native_build_plan
-        result=native_build_plan(self.plans(),self.tools())
+        result=native_build_plan(self.plans(),self.tools(),self.stage)
         self.assertEqual(result['backend'],'direct-native-object')
         self.assertIn('probe/__moonbit_link_core__/probe.o',result['required_generated'])
-        self.assertIn('lib/runtime/runtime.c',result['required_toolchain'])
-        for old,new in [('probe/__moonbit_link_core__/probe.o','probe/probe.c'),
-                ('x86_64-unknown-linux-gnu','native'),('/usr/bin/cc','/wrong/cc'),
-                (' -g -O0',' -g'),('runtime-runtime.o','wrong-runtime.o'),('runtime/runtime.c','runtime/utf.c')]:
-            with self.subTest(old=old),self.assertRaises(ValueError):native_build_plan(self.plans().replace(old,new),self.tools())
+        for old,new in [('probe/__moonbit_link_core__/probe.o','probe/probe.c'),('x86_64-unknown-linux-gnu','native'),
+                ('/usr/bin/cc','/wrong/cc'),(' -g -O0',' -g'),('runtime-runtime.o','wrong-runtime.o'),('runtime/runtime.c','runtime/utf.c')]:
+            with self.subTest(old=old),self.assertRaises(ValueError):native_build_plan(self.plans().replace(old,new),self.tools(),self.stage)
+    def test_unretained_source_conflicting_mode_and_header_rejected(self):
+        from run import native_build_plan
+        changes=[('./element/anchored.mbt','/tmp/unretained-source.mbt'),
+            ('-target native -g -O0','-target native -g -O0 -O2'),
+            ("'-I$MOON_HOME/include' -g -c", "'-I$MOON_HOME/include' -include /tmp/unretained-header.h -g -c"),
+            ('-workspace-path .','-workspace-path /tmp'),('f4ah6o/gpui/element:./element','f4ah6o/gpui/element:/tmp'),
+            ('-std-path', '-unknown-option'),(' -lm ', ' -lm -lunknown ')]
+        for old,new in changes:
+            self.assertIn(old,self.plans())
+            with self.subTest(old=old),self.assertRaises(ValueError):native_build_plan(self.plans().replace(old,new),self.tools(),self.stage)
+    def test_missing_staged_source_and_changed_imports_rejected(self):
+        from run import native_build_plan
+        file=self.stage/'element/anchored.mbt';file.rename(file.with_name('replaced.mbt'))
+        with self.assertRaises(ValueError):native_build_plan(self.plans(),self.tools(),self.stage)
+        file.with_name('replaced.mbt').rename(file)
+        (self.stage/'element/moon.pkg').write_text('import { "moonbitlang/core/unknown", }')
+        with self.assertRaises(ValueError):native_build_plan(self.plans(),self.tools(),self.stage)
+    def test_unsupported_package_metadata_rejected(self):
+        from run import native_build_plan
+        file=self.stage/'primitives/moon.pkg';original=file.read_text()
+        for extra in ['options("compile-flags": ["-O2"])','import { "external/unknown", }',
+                      'import { "external/unknown", } for "test"','import {} for "unknown"']:
+            file.write_text(original+'\n'+extra)
+            with self.subTest(extra=extra),self.assertRaises(ValueError):native_build_plan(self.plans(),self.tools(),self.stage)
+        file.write_text(original)
     def test_missing_and_swapped_generated_objects_rejected(self):
         from run import retain_native_generated,native_generated_inventory,native_build_plan
-        import tempfile
-        with tempfile.TemporaryDirectory() as temp:
-            source=Path(temp)/'build';out=Path(temp)/'retained';source.mkdir()
-            plan=native_build_plan(self.plans(),self.tools())
-            with self.assertRaises(ValueError):retain_native_generated(source,out,plan)
-            for name in plan['required_generated']:
-                file=source/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text('synthetic non-executable checker fixture '+name)
-            retained=retain_native_generated(source,out,plan)
-            self.assertEqual(native_generated_inventory(out,plan),retained)
-            for name in ['probe/__moonbit_link_core__/probe.o','runtime-runtime.o','runtime.a']:
-                file=out/name;original=file.read_bytes();file.write_bytes(b'swapped synthetic input')
-                with self.assertRaises(ValueError):compare.require(native_generated_inventory(out,plan)==retained,'swapped generated input')
-                file.write_bytes(original)
-                file.unlink()
-                with self.assertRaises(ValueError):native_generated_inventory(out,plan)
-                file.write_bytes(original)
+        source=Path(self.temporary.name)/'build';out=Path(self.temporary.name)/'retained';source.mkdir()
+        plan=native_build_plan(self.plans(),self.tools(),self.stage)
+        with self.assertRaises(ValueError):retain_native_generated(source,out,plan)
+        for name in plan['required_generated']:
+            file=source/name;file.parent.mkdir(parents=True,exist_ok=True);file.write_text('synthetic non-executable checker fixture '+name)
+        retained=retain_native_generated(source,out,plan)
+        self.assertEqual(native_generated_inventory(out,plan),retained)
+        for name in ['probe/__moonbit_link_core__/probe.o','runtime-runtime.o','libruntime-04d24968c494e3bb.a']:
+            file=out/name;original=file.read_bytes();file.write_bytes(b'swapped synthetic input')
+            with self.assertRaises(ValueError):compare.require(native_generated_inventory(out,plan)==retained,'swapped generated input')
+            file.write_bytes(original);file.unlink()
+            with self.assertRaises(ValueError):native_generated_inventory(out,plan)
+            file.write_bytes(original)
     def test_baseline_changes_trigger_pair_workflow(self):
         workflow=(ROOT/'.github/workflows/anchor-pair.yml').read_text()
         for path in ['adapters/anchor_rust/**','diagnostics/anchor/**','tests/test_anchor_diagnostic.py','.github/workflows/anchor-diagnostic.yml']:

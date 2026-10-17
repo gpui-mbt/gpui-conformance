@@ -104,7 +104,7 @@ def main():
             'mutated_sha256': baseline.digest(directory / 'mutated-source.mbt'),
             'scenarios_sha256': baseline.digest(evidence / 'scenarios.json')}
         record['build_plan'] = execute([tools['moon']['path'], 'build', '--target', 'native', '--deny-warn', '--dry-run', '--verbose', 'probe'], work, directory, 'build-plan', environment)
-        record['native_build_plan'] = native_build_plan((directory / 'build-plan.stdout').read_text(), tools)
+        record['native_build_plan'] = native_build_plan((directory / 'build-plan.stdout').read_text(), tools, work)
         require(record['native_build_plan'] == original['native_build_plan'], 'mutant native pipeline differs from ordinary pair')
         record['build'] = execute([tools['moon']['path'], 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], work, directory, 'build', environment)
         comparison, error, transport_error, candidate_only_error = None, None, None, None
