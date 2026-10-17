@@ -10,11 +10,12 @@ import { createTabStopHost } from './tab-stop-host.mjs';
 import { createDragDropHost } from './drag-drop-host.mjs';
 import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
+import { readGridFrame } from './grid-layout-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
@@ -22,10 +23,12 @@ try {
   const isTree = example === 'tree';
   const isFocusVisible = example === 'focus_visible';
   const isTabStop = example === 'tab_stop';
+  const isGrid = example === 'grid_layout';
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
   const labels = {uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  labels.grid_layout = 'Upstream responsive grid: header, table of contents, content, advertisement and footer';
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
   if (!isTree) {
@@ -63,6 +66,29 @@ try {
     prime = createPrimeHost({ runtime, canvas, render: () => render(), onFailure: cause => console.error(cause) });
   }
   function render() {
+    if (isGrid) {
+      // Pass the actual browser viewport to MoonBit. Only its measured query
+      // chooses the stack/grid branch and allocates all tracks and spans.
+      const scale = devicePixelRatio || 1;
+      try {
+        const {frame,content,prefixes,width,height} = readGridFrame(runtime,context,window,scale);
+        metadata.width = width; metadata.height = height;
+        canvas.style.width = `${width}px`; canvas.style.height = `${height}px`;
+        canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale);
+        drawFrame(context,frame,metadata,scale);
+        globalThis.gpuiExample = {metadata,frame,content,textWidth:prefixes,scale};
+        canvas.hidden = false; error.hidden = true;
+        document.documentElement.dataset.runtimeStatus = 'ready';
+      } catch (cause) {
+        // A rejected resize must not leave a stale successful frame visible.
+        // The same document can recover on returning to a supported viewport.
+        delete globalThis.gpuiExample;
+        canvas.hidden = true; error.hidden = false;
+        document.documentElement.dataset.runtimeStatus = 'failed';
+        error.textContent = `Grid candidate failed: ${cause.message}. Supported profile: widths 399, 400, 401 or 500px; height 500px; DPR 1.`;
+      }
+      return;
+    }
     const scale = Math.min(devicePixelRatio || 1, 4);
     canvas.width = Math.round(metadata.width * scale); canvas.height = Math.round(metadata.height * scale);
     if (isText) metadata.font_family = families[fontIndex];
@@ -163,7 +189,8 @@ try {
   const payloads = isTree ? [modules[example]] : [modules[example], isText ? './Lilex-Regular.ttf' : './IBMPlexSans-Regular.ttf'];
   if (example === 'text_layout') payloads.push('./IBMPlexSans-Italic.ttf', './IBMPlexSans-SemiBold.ttf');
   if (isFocusVisible) payloads.push('./IBMPlexSans-SemiBold.ttf');
-  loadTiming.complete(payloads, 'Canvas2D draw calls returned');
+  if (document.documentElement.dataset.runtimeStatus === 'ready') loadTiming.complete(payloads, 'Canvas2D draw calls returned');
+  else loadTiming.fail();
   window.addEventListener('resize', render);
 } catch (cause) {
   loadTiming.fail();

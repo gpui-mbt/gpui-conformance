@@ -54,7 +54,7 @@ test('shadow lengths follow device scale independently from transformed caster p
   assert.deepEqual(r.states.filter(s=>s.kind==='fill').slice(0,2).map(s=>[s.shadowBlur,s.shadowOffsetX,s.shadowOffsetY]),[[6,8192,2],[4,8192,2]]);
 });
 test('new preset rejects unsupported shape and values before any draw call',()=>{
-  for(const mutation of [f=>f.shadows=null,f=>f.shadows={},f=>f.shadows=[null],f=>f.shadows[0].kind='shadow_lg',
+  for(const mutation of [f=>f.shadows=null,f=>f.shadows={},f=>f.shadows=[null],f=>f.shadows[0].kind='shadow_xl',
     f=>f.shadows[0].id=60,f=>f.shadows[0].blur=3,f=>f.shadows.push({...f.shadows[0]}),f=>f.snapshot.items[0].bounds.height=2,
     f=>f.decorations[0].border_width=2.5,f=>f.decorations[0].border_style='dashed',f=>f.snapshot.items[0].bounds.height=5,f=>f.decorations[0].shadow=true]) {
     const f=frame();mutation(f);let calls=0;

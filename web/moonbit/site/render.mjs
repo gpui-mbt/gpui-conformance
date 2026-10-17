@@ -4,6 +4,10 @@ const sourceShadowLayers = {
     {offset_x:0,offset_y:1,blur:3,spread:0},
     {offset_x:0,offset_y:1,blur:2,spread:-1},
   ],
+  shadow_lg: [
+    {offset_x:0,offset_y:10,blur:15,spread:-3},
+    {offset_x:0,offset_y:4,blur:6,spread:-4},
+  ],
   shadow_md: [
     {offset_x:0,offset_y:4,blur:6,spread:-1},
     {offset_x:0,offset_y:2,blur:4,spread:-2},
@@ -64,7 +68,7 @@ export function validateFrame(frame) {
   for (const shadow of frame.shadows || []) {
     const b = quads.get(shadow?.id)?.bounds;
     const keys = shadow?.kind === 'shadow_md' ? ['id','kind','element_opacity'] : ['id','kind'];
-    if (!b || !['shadow_sm','shadow_md'].includes(shadow.kind) ||
+    if (!b || !['shadow_sm','shadow_md','shadow_lg'].includes(shadow.kind) ||
         Object.keys(shadow).length !== keys.length || keys.some(key => !Object.hasOwn(shadow,key)) ||
         (shadow.kind === 'shadow_md' && (!Number.isFinite(shadow.element_opacity) || shadow.element_opacity < 0 || shadow.element_opacity > 1)) ||
         shadowIds.has(shadow.id) || sourceShadowLayers[shadow.kind].some(({spread}) =>
@@ -134,7 +138,7 @@ export function roundedDashSegments(b, radius, width) {
   return {perimeter, count, period, dash_length: 2 * width, dashes};
 }
 
-// Bound the explicit shadow_sm/shadow_md extensions by pinned GPUI scene ordering.
+// Bound the explicit shadow_sm/shadow_md/shadow_lg extensions by pinned GPUI scene ordering.
 // window.rs inserts offset/spread shadow bounds WITHOUT the blur tail;
 // bounds_tree.rs assigns 1 + the maximum strictly intersecting order;
 // scene.rs batches equal-order Shadow before Quad, retaining insertion ties.

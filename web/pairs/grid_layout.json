@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "candidate": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "aafa754affa049c1eaf69c75c1d04c5d895d3677",
+    "tree": "a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9"
+  },
+  "id": "grid_layout",
+  "profile": "grid_layout_actual_browser_pair_v1",
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+    "source": "crates/gpui/examples/grid_layout.rs",
+    "source_blob": "51f9b13e41fb7913c653d716da3e8ce05a96109d",
+    "source_sha256": "c82663a8c48340464f70f96dfa60135f4cd3b48670882b7bc23a9ca787fb261e"
+  },
+  "viewport": {
+    "widths": [
+      399,
+      400,
+      401,
+      500
+    ],
+    "height": 500,
+    "dpr": 1
+  },
+  "sequence": [
+    500,
+    399,
+    400,
+    401,
+    500,
+    399,
+    400,
+    500
+  ],
+  "status": "implemented_pending_exact_current_pair_ci",
+  "tolerances_physical_pixels": {
+    "fill_edge": 2,
+    "exposed_gray_gap": 1,
+    "fill_separation": 4
+  },
+  "claims": [
+    "Measured dominant exact-color component bounds and source grid/span/gap/threshold constraints",
+    "Eight independent original stable captures per runtime and same-document resize restoration"
+  ],
+  "not_claimed": [
+    "Full-image or antialiasing equality",
+    "Text content, shaping, glyph pixels or typography parity",
+    "Dashed border, radius or shadow fidelity",
+    "Native parity",
+    "Rust callback counts, layout internals or offscreen work",
+    "Other viewports, DPRs, browsers or GPUs"
+  ],
+  "executed_controls": {
+    "wrong_gap": {
+      "find": ".with_gap(4)",
+      "replace": ".with_gap(12)",
+      "occurrences": 2,
+      "kind": "compiled_layout_fault"
+    },
+    "wrong_color": {
+      "find": "color(0, 128, 0)",
+      "replace": "color(128, 0, 128)",
+      "occurrences": 1,
+      "kind": "compiled_paint_fault"
+    }
+  }
+}

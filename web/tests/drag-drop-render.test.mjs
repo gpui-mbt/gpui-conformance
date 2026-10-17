@@ -105,7 +105,7 @@ test('shadow_md rejects missing/extra fields, non-quads, duplicate IDs and nonpo
   const mutations=[
     f=>f.shadows=null,f=>f.shadows={},f=>f.shadows=[null],f=>f.shadows=[[]],f=>f.shadows=[1],
     f=>delete f.shadows[0].id,f=>delete f.shadows[0].kind,f=>delete f.shadows[0].element_opacity,
-    f=>f.shadows[0].kind='shadow_lg',f=>f.shadows[0].id=101,f=>f.shadows[0].id=999,
+    f=>f.shadows[0].kind='shadow_xl',f=>f.shadows[0].id=101,f=>f.shadows[0].id=999,
     ...['blur','spread','offset_x','offset_y','opacity','color','extra'].map(key=>f=>f.shadows[0][key]=1),
     ...[undefined,null,NaN,Infinity,-Infinity,-.01,1.01,'1',true].map(value=>f=>f.shadows[0].element_opacity=value),
     f=>f.shadows.push({...f.shadows[0]}),f=>f.shadows.push({id:100,kind:'shadow_sm'}),

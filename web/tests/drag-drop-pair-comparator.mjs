@@ -9,7 +9,7 @@ export {assertCurrentBuild};
 
 // Exact published identity for the independently reviewed additive drag-session core.
 export const DRAG_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'b9916950350b7d433ecca0d6fa88e39c957b8b6b',tree:'be95df375c707bd6cf961ef7959e93772b34a966'});
+  revision:'aafa754affa049c1eaf69c75c1d04c5d895d3677',tree:'a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9'});
 export const PAIR_REVISION='drag_drop_paired_pointer_v4_uniform_list_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/drag-drop-host.mjs','moonbit/focus-visible-host.mjs','moonbit/tab-stop-host.mjs','load-timing.mjs'];
 export const HTML_ENTRYPOINTS=Object.freeze({

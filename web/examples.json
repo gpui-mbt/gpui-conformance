@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "b9916950350b7d433ecca0d6fa88e39c957b8b6b",
-    "tree": "be95df375c707bd6cf961ef7959e93772b34a966"
+    "revision": "aafa754affa049c1eaf69c75c1d04c5d895d3677",
+    "tree": "a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9"
   },
   "examples": [
     {
@@ -255,6 +255,25 @@
       ],
       "candidate_source": "web/moonbit/uniform_list/uniform_list.mbt",
       "implementation_note": "Source-derived candidate using genuine core UniformList prototype measurement, lazy range construction, Element layout/prepaint/SceneSnapshot and clipped wheel/row routing. Browser font metrics, unhinted prefix measurements and hinted Canvas glyph rasterization are explicit host boundaries. Strict text-envelope comparison exposes known per-row right-edge raster differences (including Item 3); it is not a passed full-text comparison. Separately scoped placement/scroll/clip results require exact paired evidence. Factory/callback observations use a separate font-free GPUI diagnostic. Native, fractional translation, text and full-image parity remain unverified."
+    },
+    {
+      "id": "grid_layout",
+      "title": "Responsive grid layout",
+      "rust_route": "grid-layout",
+      "source": "crates/gpui/examples/grid_layout.rs",
+      "source_blob": "51f9b13e41fb7913c653d716da3e8ce05a96109d",
+      "moonbit": "implemented",
+      "width": 500,
+      "height": 500,
+      "interactive": true,
+      "features": [
+        "Measured container query breakpoint",
+        "Five equal-fraction rows and columns",
+        "Sparse spans and fixed-height overflow",
+        "Actual browser viewport resize"
+      ],
+      "candidate_source": "web/moonbit/grid_layout/grid_layout.mbt",
+      "implementation_note": "Source-derived candidate using genuine core container_query_root, deferred prepaint and grid/flex layout with five equal-fraction tracks, spans and a 224px overflowing table of contents. The first supported browser profile is widths 399/400/401/500px, height 500px, DPR 1; other viewports are visibly rejected. Source Block text starts at its 1px border inset, with browser font metrics and bounded MoonBit word wrapping. Canvas rounded dashed borders and both shadow_lg layers remain explicit approximations. Content preflight and frame each request a fresh core layout, for two host layout passes; this is not Rust callback-count parity. Paired browser, text, full-image, shadow-kernel and native parity remain unverified."
     }
   ]
 }
