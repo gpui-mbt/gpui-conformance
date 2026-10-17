@@ -10,13 +10,21 @@ on:
   workflow_call:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 concurrency:
   group: browser-examples-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  matched-examples:
+  pins:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 5
+    outputs:
+      lab: ${{ steps.pins.outputs.lab }}
+      gpui: ${{ steps.pins.outputs.gpui }}
+      zed: ${{ steps.pins.outputs.zed }}
+      inputs_sha256: ${{ steps.pins.outputs.inputs_sha256 }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,29 +32,55 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify build artifact provenance contracts
+        run: python3 -m unittest discover -s web/tests -p 'test_browser_build_artifacts.py' -v
+      - name: Pin one clean lab checkout and dependency revisions
+        id: pins
+        run: python3 web/scripts/browser_build_artifacts.py pin --out _build/browser-build-inputs.json
+      - name: Upload common build inputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-build-inputs
+          path: _build/browser-build-inputs.json
+          if-no-files-found: error
+          overwrite: true
+
+  build-moonbit:
+    needs: pins
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BUILD_INPUTS_SHA256: ${{ needs.pins.outputs.inputs_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.pins.outputs.lab }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Pin source revisions
-        id: pins
+      - name: Download common build inputs
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-build-inputs
+          path: _build
+      - name: Verify the pinned checkout before compiling MoonBit
         run: |
-          python3 - <<'PY'
-          import json, os
-          p = json.load(open('web/examples.json'))
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
-              print('gpui=' + p['moonbit']['revision'], file=out)
-              print('zed=' + p['upstream']['revision'], file=out)
-          PY
+          python3 web/scripts/browser_build_artifacts.py verify-inputs \
+            --inputs _build/browser-build-inputs.json --sha256 "$BUILD_INPUTS_SHA256"
       - uses: actions/checkout@v4
         with:
           repository: gpui-mbt/gpui.mbt
-          ref: ${{ steps.pins.outputs.gpui }}
+          ref: ${{ needs.pins.outputs.gpui }}
           path: _sources/gpui
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: zed-industries/zed
-          ref: ${{ steps.pins.outputs.zed }}
+          ref: ${{ needs.pins.outputs.zed }}
           path: _sources/zed
           persist-credentials: false
       - name: Install MoonBit and record the actual compiler
@@ -64,6 +98,50 @@ jobs:
           python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
+      - name: Package MoonBit output with its provenance
+        run: |
+          python3 web/scripts/browser_build_artifacts.py attest \
+            --inputs _build/browser-build-inputs.json --sha256 "$BUILD_INPUTS_SHA256" \
+            --kind moonbit --site _build/browser-lab --out _build/browser-build-moonbit
+      - name: Upload compiled MoonBit and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-build-moonbit
+          path: _build/browser-build-moonbit
+          if-no-files-found: error
+          compression-level: 1
+          overwrite: true
+
+  build-rust:
+    needs: pins
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BUILD_INPUTS_SHA256: ${{ needs.pins.outputs.inputs_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.pins.outputs.lab }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download common build inputs
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-build-inputs
+          path: _build
+      - name: Prepare an independent Rust build from the same inputs
+        run: |
+          python3 web/scripts/browser_build_artifacts.py seed-rust \
+            --inputs _build/browser-build-inputs.json --sha256 "$BUILD_INPUTS_SHA256" \
+            --site _build/browser-rust-site
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ needs.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
       - name: Install fixed Rust toolchain and matching bindings generator
         run: |
           rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
@@ -83,7 +161,65 @@ jobs:
           CARGO_BUILD_JOBS: '2'
         run: |
           mkdir -p _build/browser-example-evidence
-          python3 web/scripts/build_rust.py --upstream-source _sources/zed 2>&1 | tee _build/browser-example-evidence/rust-build.log
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed --site _build/browser-rust-site 2>&1 | tee _build/browser-example-evidence/rust-build.log
+      - name: Package Rust output with its provenance
+        run: |
+          python3 web/scripts/browser_build_artifacts.py attest \
+            --inputs _build/browser-build-inputs.json --sha256 "$BUILD_INPUTS_SHA256" \
+            --kind rust --site _build/browser-rust-site --out _build/browser-build-rust
+      - name: Upload compiled Rust, provenance and build log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-build-rust
+          path: |
+            _build/browser-build-rust
+            _build/browser-example-evidence/rust-build.log
+          if-no-files-found: warn
+          compression-level: 1
+          overwrite: true
+
+  matched-examples:
+    needs: [pins, build-moonbit, build-rust]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BUILD_INPUTS_SHA256: ${{ needs.pins.outputs.inputs_sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.pins.outputs.lab }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Download common build inputs
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-build-inputs
+          path: _build
+      - name: Download compiled MoonBit and provenance
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-build-moonbit
+          path: _artifacts/moonbit
+      - name: Download compiled Rust, provenance and build log
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-build-rust
+          path: _artifacts/rust
+      - name: Verify provenance and assemble both runtimes on one origin
+        run: |
+          python3 web/scripts/browser_build_artifacts.py merge \
+            --inputs _build/browser-build-inputs.json --sha256 "$BUILD_INPUTS_SHA256" \
+            --moonbit _artifacts/moonbit --rust _artifacts/rust/browser-build-rust \
+            --out _build/browser-lab --evidence _build/browser-example-evidence
+          cp _artifacts/rust/browser-example-evidence/rust-build.log _build/browser-example-evidence/rust-build.log
+      - name: Install pinned PNG decoder for browser evidence
+        run: python3 -m pip install Pillow==12.0.0
       - name: Install browser test runner
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
