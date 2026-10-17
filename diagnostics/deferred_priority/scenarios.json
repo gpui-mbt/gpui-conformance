@@ -1,0 +1,950 @@
+{
+  "schema_version": 1,
+  "coordinate_system": "logical px; integral physical extents at scales 1, 1.25 and bootstrap 2",
+  "cases": [
+    {
+      "id": "ascending-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "ascending-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "descending-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 0
+    },
+    {
+      "id": "descending-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 0
+    },
+    {
+      "id": "equal-one-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "equal-one-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "equal-one-reverse-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "c",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "a",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "c",
+      "update_priority": 2
+    },
+    {
+      "id": "equal-one-reverse-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "c",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "a",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "c",
+      "update_priority": 2
+    },
+    {
+      "id": "equal-zero-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "equal-zero-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "transparent-top-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": true,
+          "interaction": {
+            "listener": "none",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "transparent-top-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": true,
+          "interaction": {
+            "listener": "none",
+            "propagation": "continue",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "occluding-top-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": true
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "occluding-top-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": true
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "stopping-top-scale1",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "stop",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    },
+    {
+      "id": "stopping-top-scale1.25",
+      "window": [
+        320,
+        240
+      ],
+      "scale_factor": 1.25,
+      "position": [
+        48,
+        48
+      ],
+      "size": [
+        128,
+        96
+      ],
+      "probe_position": [
+        88,
+        80
+      ],
+      "ordinary_interaction": {
+        "listener": "bubble-left-mouse-down",
+        "propagation": "continue",
+        "occlude": false
+      },
+      "layers": [
+        {
+          "id": "a",
+          "priority": 0,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "b",
+          "priority": 1,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "continue",
+            "occlude": false
+          }
+        },
+        {
+          "id": "c",
+          "priority": 2,
+          "transparent": false,
+          "interaction": {
+            "listener": "bubble-left-mouse-down",
+            "propagation": "stop",
+            "occlude": false
+          }
+        }
+      ],
+      "update_layer": "a",
+      "update_priority": 2
+    }
+  ]
+}
