@@ -1,0 +1,84 @@
+name: Synthetic Rust GPU gradient diagnostic
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'web/gradient-diagnostic/**'
+      - 'web/scripts/build_gradient_diagnostic.py'
+      - 'web/scripts/decode_gradient_diagnostic_png.py'
+      - 'web/tests/gradient-diagnostic*'
+      - 'web/tests/verify-gradient-diagnostic.mjs'
+      - 'web/tests/gradient-backend-observer.mjs'
+      - '.github/workflows/gradient-diagnostic.yml'
+permissions:
+  contents: read
+concurrency:
+  group: gradient-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  synthetic-rust-gpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _sources/zed
+          persist-credentials: false
+      - name: Source-only diagnostic contracts
+        run: |
+          node --test web/tests/gradient-diagnostic-contract.test.mjs web/tests/gradient-diagnostic-provenance.test.mjs
+          python3 -m unittest discover -s web/tests -p 'test_gradient_diagnostic.py' -v
+      - name: Install pinned PNG decoder and compiler
+        run: |
+          python3 -m pip install Pillow==12.0.0
+          rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+          curl -fL --retry 3 https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz -o "$RUNNER_TEMP/bindgen.tar.gz"
+          echo "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  $RUNNER_TEMP/bindgen.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/bindgen.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            /tmp/gradient-diagnostic-target
+          key: gradient-diagnostic-${{ runner.os }}-20261014-5a5fbe7-${{ hashFiles('web/rust/Cargo.lock') }}
+      - name: Build only synthetic probes against unchanged pinned renderer
+        env:
+          CARGO_BUILD_JOBS: '2'
+        run: |
+          mkdir -p _build/gradient-diagnostic-evidence
+          python3 web/scripts/build_gradient_diagnostic.py --upstream-source _sources/zed --site /tmp/gradient-diagnostic-site --target-dir /tmp/gradient-diagnostic-target 2>&1 | tee _build/gradient-diagnostic-evidence/rust-build.log
+      - name: Install pinned browser transport
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Capture original actual GPU screenshots and backend observations
+        id: capture
+        timeout-minutes: 10
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: node web/tests/gradient-diagnostic-browser.mjs /tmp/gradient-diagnostic-site _build/gradient-diagnostic-evidence
+      - name: Independently reread retained original bytes
+        if: ${{ always() && (steps.capture.outcome == 'success' || steps.capture.outcome == 'failure') }}
+        run: node web/tests/verify-gradient-diagnostic.mjs _build/gradient-diagnostic-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gradient-synthetic-rust-gpu-diagnostic-evidence
+          path: |
+            /tmp/gradient-diagnostic-site
+            _build/gradient-diagnostic-evidence
+          if-no-files-found: warn
