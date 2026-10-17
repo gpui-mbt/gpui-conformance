@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "aafa754affa049c1eaf69c75c1d04c5d895d3677",
-    "tree": "a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9"
+    "revision": "0153b1963bb6b2e434189ecf8591fb2c4c5a7929",
+    "tree": "c29dd688e359c6f306d807d081fbaa28d21fdbbe"
   },
   "examples": [
     {
@@ -274,6 +274,25 @@
       ],
       "candidate_source": "web/moonbit/grid_layout/grid_layout.mbt",
       "implementation_note": "Source-derived candidate using genuine core container_query_root, deferred prepaint and grid/flex layout with five equal-fraction tracks, spans and a 224px overflowing table of contents. The first supported browser profile is widths 399/400/401/500px, height 500px, DPR 1; other viewports are visibly rejected. Source Block text starts at its 1px border inset, with browser font metrics and bounded MoonBit word wrapping. Canvas rounded dashed borders and both shadow_lg layers remain explicit approximations. Content preflight and frame each request a fresh core layout, for two host layout passes; this is not Rust callback-count parity. Paired browser, text, full-image, shadow-kernel and native parity remain unverified."
+    },
+    {
+      "id": "anchor",
+      "title": "Anchored hover popovers",
+      "rust_route": "anchor",
+      "source": "crates/gpui/examples/anchor.rs",
+      "source_blob": "b4b280b714a61cea2cd3f3a8ffd82a8f0000eb6b",
+      "moonbit": "implemented",
+      "width": 750,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Eight local anchors",
+        "Deferred popup paint",
+        "Core viewport clipping and hit testing",
+        "Source-sized grid and inert center"
+      ],
+      "candidate_source": "web/moonbit/anchor/anchor.mbt",
+      "implementation_note": "Source-derived bounded candidate using genuine core grid/flex layout, anchored_after Local placement, snap-to-window, deferred prepaint and hit routing. Browser text measurements, Canvas rounded border/shadow_sm and pointer/viewport transport are explicit host boundaries. Supported profile: widths 750 and 480, height 600, DPR1. Popup dimensions derive from measured label widths, source min_w100, px2/py0p5 and rounded phi line height at text_sm14. Paired browser, text raster, exact shadow/opacity, full-image, native and callback-count parity remain unverified."
     }
   ]
 }

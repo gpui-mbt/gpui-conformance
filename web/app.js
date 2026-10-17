@@ -49,7 +49,7 @@ try {
       const next = new URL(location.href); next.search = '';
       next.searchParams.set('example', example.id);
       history.replaceState(null, '', next);
-      $('notice').textContent = `${example.title} · fixed ${example.width} × ${example.height} logical pixels · ${rust ? 'Both compiled runtimes requested from this origin; rendering results are recorded by browser E2E.' : 'MoonBit port requested; Rust artifact missing.'} ${example.interactive ? 'Use the preset and Count Primes controls independently in each pane. CPU work timings are not render-startup benchmarks.' : 'The upstream example has no interactive controls.'}${rust && !crossOriginIsolated ? ' This host lacks the COOP/COEP headers required by Rust WASM.' : ''}`;
+      $('notice').textContent = `${example.title} · fixed ${example.width} × ${example.height} logical pixels · ${rust ? 'Both compiled runtimes requested from this origin; rendering results are recorded by browser E2E.' : 'MoonBit port requested; Rust artifact missing.'} ${example.id === 'anchor' ? 'Hover the eight buttons independently in each pane. Supported viewport profile: 750 or 480 × 600 at DPR 1; paired conformance remains unverified.' : example.interactive ? 'Use the preset and Count Primes controls independently in each pane. CPU work timings are not render-startup benchmarks.' : 'The upstream example has no interactive controls.'}${rust && !crossOriginIsolated ? ' This host lacks the COOP/COEP headers required by Rust WASM.' : ''}`;
     } catch (error) { $('notice').textContent = error.message; }
   }
   $('settings').addEventListener('submit', event => { event.preventDefault(); load(); });

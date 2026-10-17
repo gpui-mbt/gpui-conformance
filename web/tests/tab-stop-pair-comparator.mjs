@@ -6,7 +6,7 @@ import {TAB_STOP,EMBEDDED_FONTS,STOPS,sha256,decodePng,frameGeometry,sourceGeome
   validateOperations,traversalNegativeControls,makeProfile,assertCurrentTabStopBuild} from './tab-stop-comparator.mjs';
 
 export const TAB_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'aafa754affa049c1eaf69c75c1d04c5d895d3677',tree:'a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9'});
+  revision:'0153b1963bb6b2e434189ecf8591fb2c4c5a7929',tree:'c29dd688e359c6f306d807d081fbaa28d21fdbbe'});
 export const PAIR_REVISION='tab_stop_paired_state_specific_v3_uniform_list_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/tab-stop-host.mjs','moonbit/focus-visible-host.mjs','load-timing.mjs'];
 const HASH=/^[0-9a-f]{64}$/;
