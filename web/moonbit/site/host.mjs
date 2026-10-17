@@ -10,7 +10,7 @@ import { createTabStopHost } from './tab-stop-host.mjs';
 import { createDragDropHost } from './drag-drop-host.mjs';
 import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
-import { readGridFrame } from './grid-layout-host.mjs';
+import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
 import { readAnchorFrame, createAnchorHost } from './anchor-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
@@ -25,6 +25,15 @@ try {
   const isFocusVisible = example === 'focus_visible';
   const isTabStop = example === 'tab_stop';
   const isGrid = example === 'grid_layout';
+  let gridNotice;
+  if (isGrid) {
+    gridNotice = document.createElement('p');
+    gridNotice.id = 'grid-live-notice';
+    gridNotice.setAttribute('role', 'status');
+    gridNotice.hidden = true;
+    Object.assign(gridNotice.style, {position:'fixed',bottom:'0',right:'0',maxWidth:'30rem',margin:'0',padding:'.4rem .6rem',background:'#fff4d6',color:'#49340b',font:'12px system-ui',pointerEvents:'none'});
+    document.body.append(gridNotice);
+  }
   const isAnchor = example === 'anchor';
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
@@ -91,7 +100,7 @@ try {
     if (isGrid) {
       // Pass the actual browser viewport to MoonBit. Only its measured query
       // chooses the stack/grid branch and allocates all tracks and spans.
-      const scale = devicePixelRatio || 1;
+      const scale = devicePixelRatio;
       try {
         const {frame,content,prefixes,width,height} = readGridFrame(runtime,context,window,scale);
         metadata.width = width; metadata.height = height;
@@ -99,6 +108,8 @@ try {
         canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale);
         drawFrame(context,frame,metadata,scale);
         globalThis.gpuiExample = {metadata,frame,content,textWidth:prefixes,scale};
+        gridNotice.hidden = frame.grid_layout.comparison_profile_match;
+        gridNotice.textContent = 'Live viewport outside the comparison profile. Rendering and text wrapping here are unverified.';
         canvas.hidden = false; error.hidden = true;
         document.documentElement.dataset.runtimeStatus = 'ready';
       } catch (cause) {
@@ -107,7 +118,8 @@ try {
         delete globalThis.gpuiExample;
         canvas.hidden = true; error.hidden = false;
         document.documentElement.dataset.runtimeStatus = 'failed';
-        error.textContent = `Grid candidate failed: ${cause.message}. Supported profile: widths 399, 400, 401 or 500px; height 500px; DPR 1.`;
+        gridNotice.hidden = true;
+        error.textContent = `Grid candidate failed: ${cause.message}. Live viewport requires width 16–16384px and height 32–16384px, DPR 0.25–4, and a rounded Canvas of 1–16384px per side and at most 33554432 pixels.`;
       }
       return;
     }
@@ -218,6 +230,14 @@ try {
   if (document.documentElement.dataset.runtimeStatus === 'ready') loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   else loadTiming.fail();
   window.addEventListener('resize', render);
+  if (isGrid) {
+    let stopScaleWatch = watchGridDeviceScale(window, render);
+    window.addEventListener('pagehide', () => { stopScaleWatch?.(); stopScaleWatch = null; });
+    // BFCache restores this document without rerunning module initialization.
+    window.addEventListener('pageshow', () => {
+      if (!stopScaleWatch) { stopScaleWatch = watchGridDeviceScale(window, render); render(); }
+    });
+  }
 } catch (cause) {
   loadTiming.fail();
   canvas.hidden = true; error.hidden = false;

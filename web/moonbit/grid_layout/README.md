@@ -20,11 +20,25 @@ is `c82663a8c48340464f70f96dfa60135f4cd3b48670882b7bc23a9ca787fb261e`.
   children. Text begins at the one-pixel border inset. The header includes the
   upstream `Pixels` display suffix: `Header — 500px`.
 
-The first admitted profile is exactly widths **399, 400, 401, and 500px**, height
-**500px**, and **DPR 1**. Other viewports show an explicit error and clear the old
-frame. Resizing back to a supported viewport restores rendering in the same
-page. Smaller widths need intrinsic multi-line Content sizing; other heights,
-widths, and DPRs are not advertised as supported.
+The unchanged comparison profile is widths **399, 400, 401, and 500px**,
+height **500px**, and **DPR 1**. Matching those dimensions does not establish
+parity. Live rendering accepts width **16–16384px**, height **32–16384px**,
+and **DPR 0.25–4**, provided the actual rounded Canvas backing store has each
+side in **1–16384 pixels** and at most **33554432 pixels** total. Inputs must be
+finite. DPR is limited to the shared Canvas renderer's supported maximum of 4.
+The minimum sizes keep the bounded dashed-border and negative-spread
+shadow adapters valid; the maximums bound browser memory allocation. Invalid
+sizes clear the stale frame and recover after a valid resize. A self-rearming
+resolution media query also repaints same-size DPR changes (for example moving
+between monitors), its listener is removed on pagehide, and pageshow restores the watcher and
+repaints if the document returns from the back/forward cache.
+
+Outside the comparison profile a visible notice identifies the live rendering
+as unverified. The core still receives the actual logical viewport and DPR;
+there is no fixed-size wrapper, host breakpoint, or fabricated geometry. The
+frame exposes `comparison_profile_match`, separate from its always-unverified
+`conformance`. Narrow text uses bounded wrapping with a fixed line-height
+minimum, not general intrinsic multi-line sizing; text may overflow.
 
 ## Explicit boundaries
 
@@ -47,7 +61,7 @@ Rust-only evidence and frozen catalog are a separate, unchanged baseline.
 ## Checks
 
 The package's `grid_layout_wbtest.mbt` exercises actual candidate core bounds,
-thresholds, overflow, resize restoration, labels, wrapping, profile admission,
+thresholds, overflow, resize restoration, labels, wrapping, live resource limits, comparison profile classification,
 and metrics rejection. The catalog-driven `web/scripts/build_moonbit.py` copies
 this package into the pinned core, tests it for JS, and builds the ESM export.
 

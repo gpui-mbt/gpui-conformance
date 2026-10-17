@@ -23,6 +23,11 @@ export function measureGridInputs(runtime, context, width, height, scale) {
 
 export function readGridFrame(runtime, context, windowObject, scale) {
   const {width,height} = readGridViewport(windowObject);
+  // Validate before measurement/allocation; mirror the candidate resource guard.
+  const pixelsW = Math.round(width * scale), pixelsH = Math.round(height * scale);
+  if (!Number.isFinite(scale) || width < 16 || height < 32 || width > 16384 || height > 16384 || scale < 0.25 || scale > 4 ||
+      pixelsW < 1 || pixelsW > 16384 || pixelsH < 1 || pixelsH > 16384 || pixelsW * pixelsH > 33554432)
+    throw new Error('invalid_live_viewport');
   const {content,prefixes} = measureGridInputs(runtime, context, width, height, scale);
   const frame = JSON.parse(runtime.grid_layout_frame(width,height,prefixes,scale));
   if (!frame.ok) throw new Error(frame.error || 'Invalid grid frame');
@@ -31,4 +36,25 @@ export function readGridFrame(runtime, context, windowObject, scale) {
   // Both numbers describe actual calls above, not Rust callback observations.
   frame.grid_layout.host_layout_passes = content.layout_passes + frame.grid_layout.frame_layout_passes;
   return {frame,content,prefixes,width,height};
+}
+
+// A monitor/zoom DPR change need not resize the logical viewport. Listen to the
+// current resolution and rearm after each change so later transitions also fire.
+export function watchGridDeviceScale(windowObject, onChange) {
+  let query, stopped=false;
+  function changed() {
+    if (stopped) return;
+    query.removeEventListener('change', changed);
+    arm();
+    onChange();
+  }
+  function arm() {
+    query=windowObject.matchMedia(`(resolution: ${windowObject.devicePixelRatio}dppx)`);
+    query.addEventListener('change', changed);
+  }
+  arm();
+  return () => {
+    stopped=true;
+    query.removeEventListener('change', changed);
+  };
 }
