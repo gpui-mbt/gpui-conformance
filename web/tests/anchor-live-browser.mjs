@@ -6,6 +6,7 @@ import {createServer} from 'node:http';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join,sep,extname} from 'node:path';
 import {validateFrame} from '../moonbit/site/render.mjs';
+import {captureIdentity,exportLiveCanvas,verifyCanvasCapture} from './anchor-live-capture.mjs';
 
 assert.equal(process.argv.length,3,'Usage: anchor-live-browser.mjs candidate-site');
 assert(process.env.PLAYWRIGHT_ROOT,'PLAYWRIGHT_ROOT is required');
@@ -35,7 +36,8 @@ const server=createServer(async(req,res)=>{
   }catch {res.writeHead(404);res.end('Not found');}
 });
 const report={status:'failed',conformance:'not_claimed',kind:'live_embedded_candidate_regression',
-  comparison_profile:'unchanged: 750/480x600 DPR1; no parity claim from this test',states:[],inputs:[]};
+  comparison_profile:'unchanged: 750/480x600 DPR1; no parity claim from this test',states:[],inputs:[],captures:[],
+  image_kind:'canvas_export',composited_page_screenshots:false};
 const errors=[];
 let browser,page,frame,context,cdp,attempted;
 const q=(state,id)=>state.frame.snapshot.items.find(item=>item.id===id);
@@ -89,6 +91,24 @@ function assertReady(state,expected) {
   if(!profileMatch(state))assert.match(state.notice,/unverified/i);
   assert.equal(state.frame.conformance,'unverified');
   assert.equal(state.frame.decorations.length,8);assert.equal(q(state,104),undefined,'Center has no label or hover behavior');
+}
+
+
+async function captureCanvas(name,expected,samples=[]) {
+  attempted={operation:'capture live Canvas export',name,width:expected.width,height:expected.height,scale:expected.scale,hovered:expected.frame.anchor.hovered};
+  const before=await waitReady(metrics(expected.width,expected.height,expected.scale));
+  assert.deepEqual(captureIdentity(before),captureIdentity(expected),'Requested frame changed before Canvas export');
+  const result=await frame.evaluate(exportLiveCanvas);
+  assert.match(result.png,/^data:image\/png;base64,/);
+  const png=Buffer.from(result.png.slice('data:image/png;base64,'.length),'base64');
+  const rgba=Buffer.from(result.rgba,'base64');
+  const after=await waitReady(metrics(expected.width,expected.height,expected.scale));
+  assert.deepEqual(captureIdentity(result.before),captureIdentity(before),'Observed state changed before atomic capture');
+  assert.deepEqual(captureIdentity(result.after),captureIdentity(after),'Observed state changed after atomic capture');
+  const binding=verifyCanvasCapture({before:result.before,after:result.after,expected,png,rgba,samples});
+  const file=`${name}.canvas.png`,raw=`${name}.canvas.rgba`;
+  await writeFile(join(out,file),png);await writeFile(join(out,raw),rgba);
+  report.captures.push({file,raw,...binding,before:result.before,after:result.after});
 }
 
 async function setMetrics(expected,label) {
@@ -214,7 +234,7 @@ try {
   const initial=await waitReady(metrics(800,600,2));
   report.states.push({operation:'ordinary iframe startup',...initial});
   await exerciseVisibleButtons(initial,'ordinary iframe DPR2');
-  await page.screenshot({path:join(out,'ordinary-iframe-dpr2.png')});
+  await captureCanvas('ordinary-iframe-dpr2',await waitReady(metrics(800,600,2)));
 
   // Preserve the actual candidate's original-profile frames before departures.
   // Their independent Rust comparison still belongs exclusively to the pair gate.
@@ -225,7 +245,7 @@ try {
   }
   let state=await setMetrics(metrics(322,713,1.25),'fractional DPR and rounded backing store');
   await exerciseVisibleButtons(state,'fractional DPR clipped buttons',{requireClipped:true});
-  await page.screenshot({path:join(out,'fractional-dpr-clipped.png')});
+  await captureCanvas('fractional-dpr-clipped',await waitReady(metrics(322,713,1.25)));
   state=await setMetrics(metrics(128,128,1.25),'short clipped viewport');
   await exerciseVisibleButtons(state,'short viewport clipping',{requireClipped:true});
   await setMetrics(metrics(4,4,.25),'minimum live viewport and backing store');
@@ -247,7 +267,7 @@ try {
   const popupPixel=samples.find(sample=>sample.kind==='popup').rgba;
   assert.equal(popupPixel[3],255);assert(popupPixel.slice(0,3).every(value=>value<=90),'Actual popup paint must darken its interior');
   report.shadow_probe={width:4096,height:600,scale:1,samples};
-  await page.screenshot({path:join(out,'maximum-width-popup.png')});
+  await captureCanvas('maximum-width-popup',wideHover,samples);
   await clearPointer();
 
   // Change DPR repeatedly without changing logical dimensions. Browser CDP
@@ -269,7 +289,7 @@ try {
     const idle=await clearPointer();
     assert.deepEqual(idle.frame,originals.get(width),'Live viewport/DPR departures must restore original candidate output');
     await exerciseVisibleButtons(idle,`restored ${width}px hover`);
-    await page.screenshot({path:join(out,`restored-${width}-dpr1.png`)});
+    await captureCanvas(`restored-${width}-dpr1-${report.captures.length}`,await waitReady(metrics(width,600,1)));
   }
 
   // History may reload or restore BFCache, and Chromium may reset CDP metrics
@@ -300,7 +320,7 @@ try {
 }catch(error) {
   report.failure={attempted,error:{name:error.name,message:error.message,stack:error.stack},page_errors:errors};
   if(frame)try{report.failure.observed=await observe();}catch(captureError){report.failure.observation_error=captureError.message;}
-  if(page)try{await page.screenshot({path:join(out,'failure.png')});}catch(captureError){report.failure.screenshot_error=captureError.message;}
+  // Failed/unbound states deliberately produce no misleading image artifact.
   throw error;
 }finally {
   await writeFile(join(out,'live-regression.json'),JSON.stringify(report,null,2)+'\n');

@@ -110,7 +110,16 @@ lifecycle cleanup. Grid host regressions remain separate.
 
 `anchor-live-browser.mjs` runs only in the isolated Chromium CI gate against
 the actual compiled candidate. It retains live resize/DPR/hover/history states,
-screenshots and direct Canvas pixel probes, including the width4096 shadow
-boundary. History records observed device metrics first because CDP emulation
+explicitly labeled Canvas PNG exports and direct Canvas pixel probes, including
+the width4096 shadow boundary. History records observed device metrics first because CDP emulation
 can reset on navigation; only observed `pageshow.persisted` reports a BFCache
 return. Live-only checks do not expand the strict Rust comparison profile.
+
+Live images are Canvas exports, not composited-page screenshots. They exclude
+DOM notices and other page overlays. Each capture binds exact viewport, DPR,
+frame/hover and document identity before and after a synchronous export. A
+separate live `getImageData` buffer is retained beside the PNG; the pinned Pillow
+decoder must reproduce its complete RGBA bytes and backing dimensions, including
+maximum-width hover pixel probes. This rejects same-sized stale images as well
+as wrong dimensions and changed capture state. Notice state remains a DOM
+observation, not an image claim. Original strict pair screenshots are unchanged.

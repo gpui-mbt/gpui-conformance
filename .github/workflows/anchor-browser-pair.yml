@@ -97,7 +97,9 @@ jobs:
         env:
           PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
           BROWSER_EVIDENCE: _build/anchor-live-evidence
-        run: node web/tests/anchor-live-browser.mjs _build/anchor-candidate
+        run: |
+          node web/tests/anchor-live-browser.mjs _build/anchor-candidate
+          node web/tests/verify-anchor-live-captures.mjs _build/anchor-live-evidence
       - name: Independently capture and verify actual unchanged Rust
         id: rust_capture
         timeout-minutes: 20
