@@ -1,0 +1,62 @@
+[
+  {
+    "name": "wrong-priority-order",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-deferred-priority-box-projection",
+    "predicate": "ascending actual box paint order is reversed by descending production priority ordering",
+    "required_witnesses": [
+      {
+        "case": "ascending-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "descending-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      }
+    ],
+    "old": "deferred[position - 1].0 > priority",
+    "new": "deferred[position - 1].0 < priority"
+  },
+  {
+    "name": "unstable-priority-ties",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-deferred-priority-box-projection",
+    "predicate": "equal-priority actual box paint order no longer preserves structural attachment order",
+    "required_witnesses": [
+      {
+        "case": "equal-one-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "equal-one-reverse-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      }
+    ],
+    "old": "deferred[position - 1].0 > priority",
+    "new": "deferred[position - 1].0 >= priority"
+  },
+  {
+    "name": "interleaved-deferred-subtrees",
+    "path": "element/deferred.mbt",
+    "scope": "rust-paired-deferred-priority-box-projection",
+    "predicate": "actual box paint order interleaves independently sorted flat subtrees",
+    "required_witnesses": [
+      {
+        "case": "ascending-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      },
+      {
+        "case": "equal-one-scale1",
+        "operation": "base",
+        "field": "paint_order"
+      }
+    ],
+    "old": "  for (_, start, end) in deferred {\n    for index = start; index < end; index = index + 1 {\n      order.push(index)\n    }\n  }",
+    "new": "  let mut offset = 0\n  let mut pending = true\n  while pending {\n    pending = false\n    for (_, start, end) in deferred {\n      if start + offset < end {\n        order.push(start + offset)\n        pending = true\n      }\n    }\n    offset += 1\n  }"
+  }
+]
