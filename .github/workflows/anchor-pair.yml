@@ -3,6 +3,10 @@ name: Supplemental native anchor semantic pair
 on:
   pull_request:
     paths:
+      - 'adapters/anchor_rust/**'
+      - 'diagnostics/anchor/**'
+      - 'tests/test_anchor_diagnostic.py'
+      - '.github/workflows/anchor-diagnostic.yml'
       - 'adapters/anchor_moonbit/**'
       - 'diagnostics/anchor_pair/**'
       - 'tests/test_anchor_pair.py'

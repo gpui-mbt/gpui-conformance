@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from compare import baseline, load_json, require, require_semantic_match, compare_observations, validate_mutation_outcomes, CandidateOnlyContractError
 from fractional_viewport import corpus as extension_corpus, compare_extension
-from run import inventory
+from run import inventory, native_build_plan, native_generated_inventory
 from run_mutants import classify, decode_transport
 from verify import verify
 
@@ -55,7 +55,7 @@ def verify_mutants(directory, evidence, ordinary):
         require(load_json((folder / 'source-input-hashes.json').read_text()) == record['source_inputs_after'] == expected_inputs, 'isolated complete source inputs')
         require(record['scenarios_sha256'] == baseline.digest(evidence / 'scenarios.json'), 'unchanged ordinary corpus')
         require(record['tool_binaries'] == parent['tool_binaries'] and record['toolchain_home'] == parent['toolchain_home'], 'same native compiler/runtime')
-        require(record['tool_binaries_after'] == parent['tool_binaries_after'] and record['toolchain_inputs_after'] == parent['toolchain_inputs_after'], 'mutant compiler/runtime stability')
+        require(record['tool_binaries_after'] == record['tool_commands_after'] == parent['tool_binaries_after'] and record['toolchain_inputs_after'] == parent['toolchain_inputs_after'], 'mutant compiler/runtime stability')
         root = Path(summary['recorded_execution_root'])
         require(root.is_absolute() and '..' not in root.parts and record['recorded_execution_root'] == str(root), 'recorded mutant execution root')
         work = root / 'reused-build-source'
@@ -64,7 +64,11 @@ def verify_mutants(directory, evidence, ordinary):
             command = [moon, 'build', '--target', 'native', '--deny-warn'] + flags + ['--verbose', 'probe']
             require(record[phase]['command'] == command and record[phase]['cwd'] == str(work), 'exact mutant native build command')
         require((folder / 'candidate-probe').read_bytes().startswith(b'\x7fELF'), 'executed native ELF required')
-        require(any(p.suffix == '.c' for p in (folder / 'generated').rglob('*')), 'retained generated native source')
+        plan = native_build_plan((folder / 'build-plan.stdout').read_text(), record['tool_binaries'])
+        require(plan == record['native_build_plan'] == parent['native_build_plan'], 'same qualified actual native pipeline')
+        require(native_generated_inventory(folder / 'generated', plan) == record['generated_build_inputs'], 'actual generated native inputs changed or missing')
+        require((folder / 'generated/probe/probe.exe').read_bytes() == (folder / 'candidate-probe').read_bytes(), 'generated/actually executed ELF mismatch')
+        require(record['native_environment'] == {key: parent['input_environment'][key] for key in ('CC','MOON_CC','MOON_HOME','MOONBIT_NEW_NATIVE')}, 'mutant native environment differs from ordinary pair')
         def inspect(stem, phase, token, corpus, comparison_fn, rust_raw, saved_name):
             execution = record[phase]
             require(execution['command'] == [str(root / name / 'candidate-probe')] and execution['cwd'] == str(work), 'exact mutated ELF invocation')

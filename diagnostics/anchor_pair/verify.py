@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import subprocess
 from compare import load_json, ROOT, LAYER, baseline, compare_observations, require, require_semantic_match
-from run import MODULE, SUITE_FILES, OMITTED_BUILD_CACHES, TOOLCHAIN_ROOTS, inventory, production_file, validate_baseline, retained_path
+from run import MODULE, SUITE_FILES, OMITTED_BUILD_CACHES, TOOLCHAIN_ROOTS, inventory, production_file, validate_baseline, retained_path, native_build_plan, native_generated_inventory, require_native_environment
 
 
 def git_blob(source, commit, relative):
@@ -35,7 +35,7 @@ def verify(directory, suite_source, upstream_source, core_source, suite_commit, 
     required |= {'build-source/' + p for p in manifest['core_inputs']}
     require(manifest['toolchain_inputs'], 'missing native toolchain inventory')
     required |= {'toolchain-inputs/' + p for p in manifest['toolchain_inputs']}
-    required |= {'tool-binaries/' + name for name in ('moon', 'moonc', 'cc')}
+    required |= {'tool-binaries/' + name for name in ('moon', 'moonc', 'cc', 'ar')}
     require(required <= set(manifest['files']), 'missing retained pair evidence')
     for relative, metadata in manifest['files'].items():
         path = directory / relative
@@ -57,11 +57,11 @@ def verify(directory, suite_source, upstream_source, core_source, suite_commit, 
     recorded_root = Path(manifest['recorded_execution_root'])
     require(recorded_root.is_absolute() and str(recorded_root) == str(recorded_root.resolve()) and '..' not in recorded_root.parts, 'canonical pair execution root')
     moon = manifest['tool_binaries']['moon']['path']
-    require(set(manifest['tool_binaries']) == set(manifest['tool_binaries_after']) == {'moon', 'moonc', 'cc'}, 'compiler inventory')
+    require(set(manifest['tool_binaries']) == set(manifest['tool_binaries_after']) == {'moon', 'moonc', 'cc', 'ar'}, 'compiler inventory')
     for name, tool in manifest['tool_binaries'].items():
         require(Path(tool['path']).is_absolute() and tool['retained'] == 'tool-binaries/' + name, 'compiler path binding')
         require(re.fullmatch('[0-9a-f]{64}', tool['sha256']) and
-                baseline.digest(directory / tool['retained']) == tool['sha256'] == manifest['tool_binaries_after'][name], 'retained compiler identity')
+                Path(tool['command_path']).is_absolute() and baseline.digest(directory / tool['retained']) == tool['sha256'] == manifest['tool_binaries_after'][name] == manifest['tool_commands_after'][name], 'retained compiler identity')
     native_inputs = manifest['toolchain_inputs']
     require(native_inputs == sorted(set(native_inputs)) and set(native_inputs) == set(manifest['toolchain_inputs_after']), 'runtime inventory shape')
     require(all(any(p == root or p.startswith(root + '/') for root in TOOLCHAIN_ROOTS) for p in native_inputs), 'unexpected runtime input root')
@@ -71,7 +71,12 @@ def verify(directory, suite_source, upstream_source, core_source, suite_commit, 
     for name in native_inputs:
         require(baseline.digest(directory / 'toolchain-inputs' / name) == manifest['toolchain_inputs_after'][name], 'runtime input changed during run')
     require(manifest['input_environment']['CC'] == manifest['tool_binaries']['cc']['path'] and
+            manifest['input_environment']['MOON_CC'] is None and manifest['input_environment']['MOONBIT_NEW_NATIVE'] in (None, '1') and
             manifest['input_environment']['MOON_HOME'] == manifest['toolchain_home'] and Path(manifest['toolchain_home']).is_absolute(), 'compiler/runtime environment binding')
+    require_native_environment(manifest['input_environment'], manifest['tool_binaries'])
+    plan = native_build_plan((directory / 'build-plan.stdout').read_text(), manifest['tool_binaries'])
+    require(plan == manifest['native_build_plan'] and set(plan['required_toolchain']) <= set(native_inputs), 'qualified direct-native pipeline/toolchain inputs')
+    require(native_generated_inventory(directory / 'build-source/_build/native/debug/build', plan) == manifest['generated_build_inputs'], 'complete actual generated native build inputs')
     require(manifest['build']['command'] == [moon, 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], 'exact build command')
     require(manifest['build_plan']['command'] == [moon, 'build', '--target', 'native', '--deny-warn', '--dry-run', '--verbose', 'probe'], 'exact build plan command')
     require(all(manifest[phase]['cwd'] == str(recorded_root / 'build-source') for phase in ('build_plan', 'build')), 'exact build source directory')

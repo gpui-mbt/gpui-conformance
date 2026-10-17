@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 import uuid
 from compare import load_json, ROOT, CANDIDATE_LAYER, CandidateOnlyContractError, baseline, compare_observations, validate_schema, require, require_semantic_match, validate_mutation_outcomes
-from run import execute, inventory
+from run import execute, inventory, native_build_plan, retain_native_generated
 from verify import verify
 
 
@@ -92,27 +92,25 @@ def main():
         token = str(uuid.uuid4())
         environment.update(GPUI_SCENARIOS=(evidence / 'scenarios.json').read_text(), GPUI_RUN_TOKEN=token,
                            CC=tools['cc']['path'], MOON_HOME=str(moon_home))
+        environment.pop('MOON_CC', None)
+        if original['input_environment']['MOONBIT_NEW_NATIVE'] is None: environment.pop('MOONBIT_NEW_NATIVE', None)
+        else: environment['MOONBIT_NEW_NATIVE'] = original['input_environment']['MOONBIT_NEW_NATIVE']
         record = {'mutation': name, 'path': relative, 'run_token': token, 'core_commit': args.core_commit,
             'scope': mutation['scope'],
             'evidence_kind': 'executed-production-engine-mutation', 'intended_predicate': mutation['predicate'],
-            'recorded_execution_root': str(out), 'tool_binaries': tools, 'toolchain_home': str(moon_home),
+            'recorded_execution_root': str(out), 'native_environment': {key: environment.get(key) for key in ('CC','MOON_CC','MOON_HOME','MOONBIT_NEW_NATIVE')}, 'tool_binaries': tools, 'toolchain_home': str(moon_home),
             'baseline_manifest_sha256': baseline.digest(evidence / 'manifest.json'),
             'original_sha256': baseline.digest(evidence / 'build-source' / relative),
             'mutated_sha256': baseline.digest(directory / 'mutated-source.mbt'),
             'scenarios_sha256': baseline.digest(evidence / 'scenarios.json')}
         record['build_plan'] = execute([tools['moon']['path'], 'build', '--target', 'native', '--deny-warn', '--dry-run', '--verbose', 'probe'], work, directory, 'build-plan', environment)
+        record['native_build_plan'] = native_build_plan((directory / 'build-plan.stdout').read_text(), tools)
+        require(record['native_build_plan'] == original['native_build_plan'], 'mutant native pipeline differs from ordinary pair')
         record['build'] = execute([tools['moon']['path'], 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], work, directory, 'build', environment)
         comparison, error, transport_error, candidate_only_error = None, None, None, None
         if record['build']['returncode'] == 0 and not record['build']['timed_out']:
             shutil.copy2(work / '_build/native/debug/build/probe/probe.exe', directory / 'candidate-probe')
-            # Retain this mutation's generated source/binary inputs before the
-            # isolated build cache is reused for the next mutation.
-            generated = work / '_build/native/debug/build'
-            for file in sorted(generated.rglob('*')):
-                if file.is_file() and file.suffix in ('.c', '.h'):
-                    destination = directory / 'generated' / file.relative_to(generated)
-                    destination.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copy2(file, destination)
+            record['generated_build_inputs'] = retain_native_generated(work / '_build/native/debug/build', directory / 'generated', record['native_build_plan'])
             record['execution'] = execute([str(directory / 'candidate-probe')], work, directory, 'candidate', environment, timeout=60)
             if record['execution']['returncode'] == 0 and not record['execution']['timed_out']:
                 try:
@@ -156,8 +154,9 @@ def main():
                         record['fractional_semantic_rejection'] = ext_error
             record['fractional_outcome'] = classify(record['build'], record['fractional_execution'], ext_comparison, ext_error, ext_transport)
         record['tool_binaries_after'] = {name: baseline.digest(Path(tool['path'])) for name, tool in tools.items()}
+        record['tool_commands_after'] = {name: baseline.digest(Path(tool['command_path'])) for name, tool in tools.items()}
         record['toolchain_inputs_after'] = {name: baseline.digest(moon_home / name) for name in original['toolchain_inputs']}
-        require(record['tool_binaries_after'] == original['tool_binaries_after'] and
+        require(record['tool_binaries_after'] == record['tool_commands_after'] == original['tool_binaries_after'] and
                 record['toolchain_inputs_after'] == original['toolchain_inputs_after'], 'mutant compiler/runtime changed during execution')
         record['source_inputs_after'] = source_hashes(work)
         require(record['source_inputs_after'] == before, 'mutant source changed during build/run')

@@ -83,7 +83,7 @@ synthetic data and cannot establish engine correctness.
 and the separate fractional pair both pass. Each of ten isolated production
 mutations is compiled and executed with the same compiler/runtime, original
 corpus and a fresh token. Source diffs, original/mutated hashes, complete source
-input hashes, generated C/header files, ELF, logs, raw outputs and manifests are
+input hashes, complete generated direct-native build inputs (.core/.mi, linked probe.o, runtime .o/.a), ELF, logs, raw outputs and manifests are
 retained. Nine controls must fail original paired semantics. The tenth restores
 the rounded-root viewport-mask bug and must pass the original 24 cases before
 failing the separately labeled fractional Rust pair. Compiler rejection,
@@ -91,7 +91,7 @@ invalid transport, crash and timeout are never counted as semantic kills.
 
 `verify_mutants.py` recomputes outcomes from copied evidence, verifies each
 isolated source change against the qualified ordinary source, checks commands
-and binary identities, and checks every outcome against the exact retained
+and binary identities, checks the actual direct-native build plan and all planned generated inputs/outputs before cache reuse, and checks every outcome against the exact retained
 mutation definitions. CI explicitly copies both bundles before this reread.
 
 The workflow builds the unchanged actual Rust baseline, builds and executes the
@@ -102,3 +102,17 @@ independent artifact review remain mandatory publication gates.
 
 No native-window, text/font, screenshot, browser-pixel, OS-input, native click
 callback implementation or full backend parity is claimed.
+
+### Native retention correction
+
+The first native CI run used the compiler's direct-object backend and completed
+both semantic pairs and all controls, but correctly failed copied verification:
+the earlier retention loop assumed generated C and retained no per-mutant build
+inputs. That failed artifact remains unchanged. The corrected runner keeps the
+same direct-native backend, retains the complete generated build subtree for
+each mutation before cache reuse, binds .core/.mi, linked probe.o, runtime
+objects/archive and ELF to the actual build plan, and checks compiler aliases,
+archiver identity, environment, commands and all hashes on copied verification.
+Unknown backends and missing or changed required inputs reject. The previous
+run does not qualify the corrected evidence pipeline; a fresh native run and
+independent artifact review are required.

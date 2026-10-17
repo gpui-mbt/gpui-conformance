@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import shlex
 import subprocess
 import uuid
 from compare import load_json, ROOT, LAYER, baseline, compare_observations, require, require_semantic_match
@@ -23,6 +24,95 @@ SUITE_FILES = ('adapters/anchor_moonbit/main.mbt', 'adapters/anchor_moonbit/moon
     'tests/test_anchor_pair.py', '.github/workflows/anchor-pair.yml')
 OMITTED_BUILD_CACHES = ('build-source/_build/.moon_db', 'build-source/_build/.moon-lock')
 TOOLCHAIN_ROOTS = ('lib/core/_build/native/release/bundle', 'include', 'lib/runtime', 'lib/libmoonbitrun.o', 'lib/libbacktrace.a')
+
+
+NATIVE_BACKEND = 'direct-native-object'
+BUILD_PREFIX = './_build/native/debug/build/'
+
+
+def require_native_environment(environment, tools):
+    require(environment.get('MOONBIT_NEW_NATIVE') in (None, '1'), 'unknown or changed native backend environment')
+    require(environment.get('CC') == tools['cc']['path'] and environment.get('MOON_CC') is None, 'native compiler environment binding')
+    require(isinstance(environment.get('MOON_HOME'), str) and Path(environment['MOON_HOME']).is_absolute(), 'native toolchain home')
+
+
+def native_build_plan(text, tools):
+    """Bind the actual direct-native pipeline; unknown modes fail closed."""
+    commands = [shlex.split(line) for line in text.splitlines() if line.strip()]
+    required, external, packages, links, runtime, archives, final = set(), set(), [], [], [], [], []
+    def value(command, flag):
+        require(command.count(flag) == 1 and command.index(flag) + 1 < len(command), 'native plan flag: ' + flag)
+        return command[command.index(flag) + 1]
+    def generated(path):
+        require(path.startswith(BUILD_PREFIX), 'native generated path root')
+        relative = path[len(BUILD_PREFIX):]
+        require(relative and '..' not in Path(relative).parts, 'unsafe generated input')
+        required.add(relative)
+        return relative
+    for command in commands:
+        program = command[0]
+        if program in ('moonc', tools['moonc']['path'], tools['moonc'].get('command_path')):
+            require(len(command) > 1 and command[1] in ('build-package', 'link-core'), 'unexpected native compiler action')
+            output = generated(value(command, '-o'))
+            require('-g' in command and '-O0' in command, 'native debug unoptimized mode')
+            if command[1] == 'build-package':
+                package = value(command, '-pkg').removeprefix('f4ah6o/gpui/')
+                require(package in (*PACKAGES, 'probe') and output == package + '/' + package + '.core' and value(command, '-target') == 'native', 'native production package output')
+                required.add(package + '/' + package + '.mi'); packages.append(package)
+            else:
+                require(value(command, '-target') in ('x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu') and
+                        output == 'probe/__moonbit_link_core__/probe.o' and value(command, '-main') == 'f4ah6o/gpui/probe', 'direct-native linked object/backend')
+                links.append(command)
+        elif program in (tools['cc']['path'], tools['cc'].get('command_path')):
+            output = generated(value(command, '-o'))
+            if '-c' in command:
+                require(output.startswith('runtime-') and output.endswith('.o'), 'native runtime compile output')
+                require([arg for arg in command if arg.endswith('.c')] == ['$MOON_HOME/lib/runtime/' + output[len('runtime-'):-2] + '.c'], 'native runtime source/output binding')
+                runtime.append(output)
+            else:
+                require(output == 'probe/probe.exe', 'native final ELF output')
+                final.append(command)
+        elif program in (tools['ar']['path'], tools['ar'].get('command_path')):
+            outputs = [arg for arg in command[1:] if arg.startswith(BUILD_PREFIX) and arg.endswith('.a')]
+            require(len(outputs) == 1 and command[1:4] == ['-r', '-c', '-s'], 'native runtime archive command')
+            archives.append((generated(outputs[0]), command))
+        else:
+            require(False, 'unknown native build-plan program: ' + program)
+        for argument in command[1:]:
+            path = argument.split(':', 1)[0] if argument.startswith((BUILD_PREFIX, '$MOON_HOME/')) else argument
+            if path.startswith(BUILD_PREFIX): generated(path)
+            elif path.startswith('$MOON_HOME/') and Path(path).suffix in ('.core', '.mi', '.o', '.a', '.c'):
+                relative = path[len('$MOON_HOME/'):]
+                require('..' not in Path(relative).parts, 'unsafe native toolchain input')
+                external.add(relative)
+    require(sorted(packages) == sorted((*PACKAGES, 'probe')) and len(links) == len(final) == len(archives) == 1, 'complete native package/link pipeline')
+    require(set(runtime) == {'runtime-' + name + '.o' for name in ('utf','sync_io','runtime','env','backtrace')}, 'complete native runtime compilation')
+    archive, archive_command = archives[0]
+    require({arg[len(BUILD_PREFIX):] for arg in archive_command if arg.startswith(BUILD_PREFIX) and arg.endswith('.o')} == set(runtime), 'runtime archive inputs')
+    require(BUILD_PREFIX + 'probe/__moonbit_link_core__/probe.o' in final[0] and BUILD_PREFIX + archive in final[0] and
+            '$MOON_HOME/lib/libmoonbitrun.o' in final[0] and '$MOON_HOME/lib/libbacktrace.a' in final[0], 'final native link inputs')
+    require({arg for arg in final[0] if arg.endswith(('.o', '.a'))} == {BUILD_PREFIX + 'probe/__moonbit_link_core__/probe.o', BUILD_PREFIX + archive, '$MOON_HOME/lib/libmoonbitrun.o', '$MOON_HOME/lib/libbacktrace.a'}, 'unexpected final native object/archive input')
+    expected_cores = {BUILD_PREFIX + package + '/' + package + '.core' for package in (*PACKAGES, 'probe')}
+    expected_cores |= {'$MOON_HOME/lib/core/_build/native/release/bundle/' + name for name in ('abort/abort.core','core.core')}
+    require({arg for arg in links[0] if arg.endswith('.core')} == expected_cores, 'linked production/runtime core inputs')
+    return {'backend': NATIVE_BACKEND, 'commands': commands, 'required_generated': sorted(required), 'required_toolchain': sorted(external)}
+
+
+def native_generated_inventory(source, plan):
+    files = {}
+    for path in sorted(source.rglob('*')):
+        require(not path.is_symlink() and path.resolve().is_relative_to(source.resolve()), 'unsafe generated native artifact')
+        if path.is_file(): files[str(path.relative_to(source))] = {'sha256': baseline.digest(path), 'size': path.stat().st_size}
+    require(set(plan['required_generated']) <= set(files), 'missing planned generated native inputs/outputs')
+    require(all(files[name]['size'] > 0 for name in plan['required_generated']), 'empty planned generated artifact')
+    return files
+
+
+def retain_native_generated(source, destination, plan):
+    files = native_generated_inventory(source, plan)
+    shutil.copytree(source, destination)
+    require(native_generated_inventory(destination, plan) == files, 'generated copy differs from actual build')
+    return files
 
 
 def retained_path(relative):
@@ -131,17 +221,18 @@ def main():
     moon = shutil.which('moon')
     require(moon is not None, 'MoonBit toolchain missing')
     moon = str(Path(moon).resolve())
-    (out / 'toolchain.txt').write_text(command([moon, 'version', '--all']) + '\n' + command(['cc', '--version']) + '\n')
+    (out / 'toolchain.txt').write_text(command([moon, 'version', '--all']) + '\n' + command(['cc', '--version']) + '\n' + command(['ar', '--version']) + '\n')
     tools = {}
-    for name in ('moon', 'moonc', 'cc'):
+    for name in ('moon', 'moonc', 'cc', 'ar'):
         require(shutil.which(name) is not None, 'missing compiler: ' + name)
         path = Path(shutil.which(name)).resolve()
         destination = out / 'tool-binaries' / name
         destination.parent.mkdir(exist_ok=True)
         shutil.copy2(path, destination)
-        tools[name] = {'path': str(path), 'sha256': baseline.digest(path), 'retained': 'tool-binaries/' + name}
+        tools[name] = {'path': str(path), 'command_path': shutil.which(name), 'sha256': baseline.digest(path), 'retained': 'tool-binaries/' + name}
     moon_home = Path(environment['MOON_HOME']).resolve()
     environment['CC'] = tools['cc']['path']
+    require_native_environment(environment, tools)
     environment['MOON_HOME'] = str(moon_home)
     toolchain_inputs = []
     for relative in TOOLCHAIN_ROOTS:
@@ -159,17 +250,21 @@ def main():
         'core': core_before, 'suite': suite_before, 'baseline': approved, 'core_inputs': inputs,
         'toolchain_inputs': sorted(toolchain_inputs), 'toolchain_home': str(moon_home),
         'input_environment': {'GPUI_RUN_TOKEN': token, 'GPUI_SCENARIOS_sha256': baseline.digest(out / 'scenarios.json'),
-                              'CC': environment['CC'], 'MOON_HOME': environment['MOON_HOME']},
+                              'CC': environment['CC'], 'MOON_CC': environment.get('MOON_CC'), 'MOONBIT_NEW_NATIVE': environment.get('MOONBIT_NEW_NATIVE'), 'MOON_HOME': environment['MOON_HOME']},
         'tool_binaries': tools, 'platform': {'system': platform.system(), 'machine': platform.machine()},
         'started_at': now(), 'omitted_non_input_build_caches': list(OMITTED_BUILD_CACHES), 'files': {}}
     manifest['build_plan'] = execute([moon, 'build', '--target', 'native', '--deny-warn', '--dry-run', '--verbose', 'probe'], stage, out, 'build-plan', environment)
+    manifest['native_build_plan'] = native_build_plan((out / 'build-plan.stdout').read_text(), tools)
+    require(set(manifest['native_build_plan']['required_toolchain']) <= set(toolchain_inputs), 'unretained planned native toolchain input')
     manifest['build'] = execute([moon, 'build', '--target', 'native', '--deny-warn', '--verbose', 'probe'], stage, out, 'build', environment)
     if manifest['build']['returncode'] == 0:
+        manifest['generated_build_inputs'] = native_generated_inventory(stage / '_build/native/debug/build', manifest['native_build_plan'])
         shutil.copy2(stage / '_build/native/debug/build/probe/probe.exe', out / 'candidate-probe')
         manifest['execution'] = execute([str(out / 'candidate-probe')], stage, out, 'candidate', environment)
         (out / 'candidate.stdout').rename(out / 'candidate-raw.json')
     manifest['core_after'], manifest['suite_after'] = identity(core), identity(ROOT)
     manifest['tool_binaries_after'] = {name: baseline.digest(Path(item['path'])) for name, item in tools.items()}
+    manifest['tool_commands_after'] = {name: baseline.digest(Path(item['command_path'])) for name, item in tools.items()}
     manifest['toolchain_inputs_after'] = {name: baseline.digest(moon_home / name) for name in toolchain_inputs}
     if manifest.get('execution', {}).get('returncode') == 0:
         try:
@@ -188,12 +283,13 @@ def main():
     # again after both binaries have finished, not merely after the first corpus.
     manifest['core_after'], manifest['suite_after'] = identity(core), identity(ROOT)
     manifest['tool_binaries_after'] = {name: baseline.digest(Path(item['path'])) for name, item in tools.items()}
+    manifest['tool_commands_after'] = {name: baseline.digest(Path(item['command_path'])) for name, item in tools.items()}
     manifest['toolchain_inputs_after'] = {name: baseline.digest(moon_home / name) for name in toolchain_inputs}
     manifest['finished_at'] = now()
     manifest['files'] = inventory(out)
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     require(manifest['core_after'] == core_before and manifest['suite_after'] == suite_before, 'source identity changed; evidence retained')
-    require(all(manifest['tool_binaries_after'][name] == item['sha256'] for name, item in tools.items()), 'compiler changed during run')
+    require(all(manifest['tool_binaries_after'][name] == manifest['tool_commands_after'][name] == item['sha256'] for name, item in tools.items()), 'compiler changed during run')
     require(all(manifest['toolchain_inputs_after'][name] == baseline.digest(out / 'toolchain-inputs' / name) for name in toolchain_inputs), 'runtime inputs changed during run')
     require(manifest['build']['returncode'] == 0, 'candidate build failed; evidence retained')
     require(manifest.get('execution', {}).get('returncode') == 0, 'candidate execution failed; evidence retained')
