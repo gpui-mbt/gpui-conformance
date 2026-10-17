@@ -14,7 +14,9 @@ concurrency:
   group: browser-examples-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  matched-examples:
+  # Both jobs consume the same workflow checkout, but neither consumes the
+  # other's compiled output. The browser verification job is their sole join.
+  moonbit-js:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -24,10 +26,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Pin source revisions
+      - name: Pin immutable source revisions
         id: pins
         run: |
           python3 - <<'PY'
@@ -54,16 +53,46 @@ jobs:
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
           bash "$RUNNER_TEMP/install-moon.sh"
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-      - name: Install pinned PNG decoder for host tests and browser evidence
-        run: python3 -m pip install Pillow==12.0.0
-      - name: Host and catalog contracts
-        run: node --test web/tests/*.test.mjs
-      - name: Verify immutable upstream packaging
-        run: |
-          python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
-          python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
+      - name: Verify immutable candidate source and host packaging
+        run: python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
+      - name: Upload pinned MoonBit site
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-example-moonbit-site
+          path: _build/browser-lab
+          if-no-files-found: error
+          retention-days: 3
+
+  rust-wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin immutable source revisions
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          p = json.load(open('web/examples.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('gpui=' + p['moonbit']['revision'], file=out)
+              print('zed=' + p['upstream']['revision'], file=out)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+      - name: Verify unchanged Rust upstream packaging
+        run: python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
       - name: Install fixed Rust toolchain and matching bindings generator
         run: |
           rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
@@ -78,12 +107,55 @@ jobs:
             ~/.cargo/git
             _build/rust-target
           key: browser-wasm-${{ runner.os }}-20261014-${{ hashFiles('web/rust/Cargo.lock', 'web/examples.json') }}
+      - name: Prepare isolated, unverified Rust site
+        run: python3 web/scripts/assemble_browser_lab.py prepare-rust --rust-site _build/rust-browser-lab
       - name: Compile unchanged implemented upstream GPUI examples to WASM
         env:
           CARGO_BUILD_JOBS: '2'
         run: |
-          mkdir -p _build/browser-example-evidence
-          python3 web/scripts/build_rust.py --upstream-source _sources/zed 2>&1 | tee _build/browser-example-evidence/rust-build.log
+          set -o pipefail
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed --site _build/rust-browser-lab 2>&1 | tee _build/rust-browser-lab/rust-build.log
+      - name: Upload pinned Rust bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-example-rust-site
+          path: _build/rust-browser-lab
+          if-no-files-found: error
+          retention-days: 3
+
+  matched-examples:
+    needs: [moonbit-js, rust-wasm]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Host and catalog contracts
+        run: node --test web/tests/*.test.mjs
+      - name: Verify artifact assembly rejection controls
+        run: python3 -m unittest discover -s web/tests -p 'test_browser_lab_assembly.py' -v
+      - name: Download compiled MoonBit site
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-example-moonbit-site
+          path: _build/browser-lab
+      - name: Download compiled Rust bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: browser-example-rust-site
+          path: _build/rust-browser-lab
+      - name: Authenticate source pins, compiled bytes and merge both sites
+        run: |
+          python3 web/scripts/assemble_browser_lab.py merge --moonbit-site _build/browser-lab --rust-site _build/rust-browser-lab
+      - name: Install pinned PNG decoder for host tests and browser evidence
+        run: python3 -m pip install Pillow==12.0.0
       - name: Install browser test runner
         run: |
           npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
