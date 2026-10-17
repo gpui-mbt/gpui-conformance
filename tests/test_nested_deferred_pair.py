@@ -1,9 +1,13 @@
 """Synthetic checker tests only. No actual engine execution or parity claim."""
 import copy
+import ast
+import inspect
 import importlib.util
 import json
 import os
 import subprocess
+import shutil
+import re
 from pathlib import Path
 import shlex
 import sys
@@ -578,12 +582,175 @@ class ExactOraclePairLineageTests(unittest.TestCase):
         start=text.index('      - name: Compile and execute four unchanged actual Rust observers')
         end=text.index('      - name: Compile deferred pair',start)
         observer=text[start:end]
-        self.assertIn('working-directory: _build/oracle-suite',observer)
+        self.assertIn('working-directory: oracle-suite',observer)
         for name in ('nested_deferred','anchor_margin','anchor','deferred_priority'):
             self.assertIn('python3 diagnostics/'+name+'/run.py',observer)
             self.assertIn('python3 diagnostics/'+name+'/verify.py',observer)
-        self.assertIn('--baseline-suite-source _build/oracle-suite',text[end:])
+        self.assertIn('--baseline-suite-source ../oracle-suite',text[end:])
         self.assertIn("--baseline-suite-commit '${{ steps.pins.outputs.oracle }}'",text[end:])
+
+
+
+
+class WorkflowLayoutIntegrationTests(unittest.TestCase):
+    """Run unchanged source/path/inventory gates on synthetic, never executed bundles."""
+    def test_all_four_frozen_preflights_at_actual_sibling_checkout_paths(self):
+        upstream_origin=Path(os.environ.get('GPUI_LAYOUT_TEST_UPSTREAM_SOURCE', ROOT/'_build/upstream-source'))
+        if not upstream_origin.is_dir():
+            self.assertNotIn('GPUI_LAYOUT_TEST_UPSTREAM_SOURCE',os.environ,'Required CI layout source is missing')
+            self.skipTest('Pinned upstream checkout required for source/path integration; dedicated CI supplies it')
+        profile=compare.load_json((PAIR/'profile.json').read_text())
+        self.assertEqual(runner.command(['git','rev-parse',profile['upstream_commit']+'^{tree}'],upstream_origin),profile['upstream_tree'])
+        self.assertGreater(shutil.disk_usage(tempfile.gettempdir()).free,runner.DISK_FLOOR+64*1024**2)
+        with tempfile.TemporaryDirectory(prefix='nested-pair-layout-') as temporary:
+            workspace=Path(temporary).resolve();pair=workspace/'pair-suite';oracle=workspace/'oracle-suite'
+            upstream=pair/'_build/upstream-source';core=pair/'_build/core-source'
+            def sparse_checkout(origin,commit,destination,paths):
+                destination.mkdir(parents=True,exist_ok=True)
+                subprocess.check_call(['git','init','-q',str(destination)])
+                common=Path(runner.command(['git','rev-parse','--git-common-dir'],origin))
+                common=common if common.is_absolute() else origin/common
+                (destination/'.git/objects/info/alternates').write_text(str(common.resolve()/'objects')+'\n')
+                subprocess.check_call(['git','config','core.sparseCheckout','true'],cwd=destination)
+                (destination/'.git/info/sparse-checkout').write_text(''.join('/'+p+'\n' for p in sorted(paths)))
+                subprocess.check_call(['git','checkout','--detach','-q',commit],cwd=destination)
+                self.assertTrue(runner.identity(destination)['clean'])
+            head=runner.command(['git','rev-parse','HEAD'],ROOT)
+            suite_paths=set(profile['approved_fixture_sha256'])|set(runner.NEW_SUITE_FILES)|{'.gitignore'}
+            sparse_checkout(ROOT,head,pair,suite_paths)
+            sparse_checkout(ROOT,profile['suite_base_public_commit'],oracle,suite_paths-set(runner.NEW_SUITE_FILES))
+            helpers={name:load_module('layout_fixture_'+name,ROOT/('tests/test_'+name+'_diagnostic.py'))
+                     for name in ('anchor','anchor_margin','deferred_priority','nested_deferred')}
+            validators={name:getattr(h,'v',getattr(h,'verify',None)) for name,h in helpers.items()}
+            upstream_paths=set().union(*(set(v.UPSTREAM_RETAIN) for v in validators.values()))
+            sparse_checkout(upstream_origin,profile['upstream_commit'],upstream,upstream_paths)
+            core.mkdir();(core/'source-path-placeholder').write_text('Layout only; no core build/source qualification.\n')
+            lineage=runner.validate_source_lineage(pair,head,oracle,profile['suite_base_public_commit'])
+            self.assertEqual(len(lineage['baseline_entries']),674)
+            self.assertNotEqual(runner.identity(pair)['commit'],runner.identity(oracle)['commit'])
+            class ObservationBoundaryReached(Exception):pass
+            outcomes=[];peak_fixture_bytes=0
+            labels={'anchor':'anchor-original-baseline','anchor_margin':'anchor-margin-baseline',
+                    'deferred_priority':'flat-priority-baseline','nested_deferred':'nested-deferred-baseline'}
+            for name,helper_module in helpers.items():
+                validator=validators[name]
+                body=ast.parse(inspect.getsource(validator.verify_bundle)).body[0].body
+                boundary_index=next(i for i,node in enumerate(body) if isinstance(node,ast.Assign) and
+                    isinstance(node.value,ast.Call) and isinstance(node.value.func,ast.Name) and node.value.func.id=='verify_observations')
+                self.assertFalse(any(isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id=='require'
+                    for statement in body[boundary_index+1:] for node in ast.walk(statement)), 'No provenance gate may follow observation sentinel')
+                for old_layout in (False,True):
+                    directory=(pair/'_build/oracle-suite/_build' if old_layout else oracle/'_build')/labels[name]
+                    helper_module.synthetic_bundle(directory)
+                    manifest=json.loads((directory/'manifest.json').read_text())
+                    manifest['suite']=manifest['suite_after']=runner.identity(oracle)
+                    manifest['upstream']=manifest['upstream_after']=runner.identity(upstream)
+                    manifest['upstream_source_path']=str(upstream)
+                    # Bind all real source/inventory gates. Anchor's synthetic
+                    # fixture has a tiny corpus; the observation sentinel is
+                    # after source/path gates, so retain the exact frozen corpus.
+                    relative='diagnostics/'+name+'/scenarios.json'
+                    for target in ('scenarios.json',validator.retained_path(relative)):
+                        (directory/target).write_bytes((oracle/relative).read_bytes())
+                    for relative in validator.UPSTREAM_RETAIN:
+                        (directory/'upstream'/relative).write_bytes((upstream/relative).read_bytes())
+                    cargo=directory/validator.retained_path('adapters/'+name+'_rust/Cargo.toml')
+                    (directory/'build-Cargo.toml').write_text(cargo.read_text().replace('"../../../zed-source/crates/gpui"',json.dumps(str(upstream/'crates/gpui'))))
+                    if (directory/'build-plan.json').exists():
+                        plan=json.loads((directory/'build-plan.json').read_text())
+                        plan['build_manifest_sha256']=validator.digest(directory/'build-Cargo.toml')
+                        plan['input_sha256']=validator.digest(directory/'scenarios.json')
+                        (directory/'build-plan.json').write_text(json.dumps(plan))
+                    for relative in manifest['files']:
+                        path=directory/relative;manifest['files'][relative]={'sha256':validator.digest(path),'size':path.stat().st_size}
+                    (directory/'manifest.json').write_text(json.dumps(manifest))
+                    args=(directory,profile['suite_base_public_commit'],profile['suite_base_tree'],oracle,upstream)
+                    # Only final semantic observation is intercepted. The entire
+                    # frozen source/history/inventory/command/path preflight runs.
+                    with patch.object(validator,'verify_observations',side_effect=ObservationBoundaryReached) as boundary:
+                        if old_layout:
+                            with self.assertRaisesRegex(ValueError,'one ignored build root'):validator.verify_bundle(*args)
+                            boundary.assert_not_called()
+                            outcomes.append({'observer':name,'outcome':'old-double-build-rejected','recorded_execution_root':str(directory),'build_ancestors':2})
+                        else:
+                            with self.assertRaises(ObservationBoundaryReached):validator.verify_bundle(*args)
+                            boundary.assert_called_once()
+                            outcomes.append({'observer':name,'outcome':'reached observation boundary','recorded_execution_root':str(directory),'build_ancestors':1})
+                    peak_fixture_bytes=max(peak_fixture_bytes,sum(p.stat().st_size for p in workspace.rglob('*') if p.is_file()))
+                    self.assertLess(peak_fixture_bytes,32*1024**2)
+                    if old_layout:
+                        shutil.rmtree(directory) # only this test's regenerable negative fixture
+            self.assertEqual(len(outcomes),8)
+            self.assertTrue(runner.identity(pair)['clean']);self.assertTrue(runner.identity(oracle)['clean'])
+            self.assertLess(sum(p.stat().st_size for p in workspace.rglob('*') if p.is_file()),32*1024**2)
+            workflow_bindings=self._assert_workflow_paths(workspace,pair,oracle,upstream,core,labels)
+            if os.environ.get('GPUI_LAYOUT_TEST_REPORT'):
+                Path(os.environ['GPUI_LAYOUT_TEST_REPORT']).write_text(json.dumps({
+                    'qualification':'synthetic source/path/inventory preflight only; no engine execution',
+                    'outcomes':outcomes,'workflow_bindings':workflow_bindings,'source_lineage':lineage,'pair_clean':True,'oracle_clean':True,
+                    'workspace':str(workspace),'peak_fixture_bytes':peak_fixture_bytes,'fixture_cleanup':'temporary regenerable fixtures removed after test',
+                    'frozen_validator_sha256':{name:compare.baseline.digest(ROOT/('diagnostics/'+name+'/verify.py')) for name in helpers}},indent=2)+'\n')
+
+    def _assert_workflow_paths(self,workspace,pair,oracle,upstream,core,labels):
+        text=(ROOT/'.github/workflows/nested-deferred-native-pair.yml').read_text()
+        self.assertIn('    defaults:\n      run:\n        working-directory: pair-suite\n',text)
+        self.assertIn('          path: pair-suite\n',text);self.assertIn('          path: oracle-suite\n',text)
+        for match in re.finditer(r'^          path: (.+)$',text,re.M):
+            if match.group(1)=='|':continue
+            target=workspace/match.group(1);self.assertTrue(target.resolve().is_relative_to(workspace));self.assertTrue(target.exists())
+        self.assertNotIn('actions/cache',text) # no unexamined cache path/working-directory convention
+        steps=re.split(r'^      - ',text,flags=re.M)[1:]
+        bindings={};invocations=[];copy_paths=[];upload_paths=[]
+        for step in steps:
+            cwd=oracle if '        working-directory: oracle-suite' in step else pair
+            if 'uses: actions/upload-artifact' in step:
+                uploads=step.split('          path: |\n',1)[1].split('          include-hidden-files:',1)[0]
+                expected={oracle/'_build'/v for v in labels.values()}|{pair/'_build'/v for v in
+                    ('nested-deferred-pair-evidence','nested-deferred-mutants','nested-deferred-forensic-controls','nested-deferred-pair-logs')}
+                actual={workspace/line.strip() for line in uploads.splitlines() if line.strip()}
+                self.assertEqual(actual,expected);upload_paths=sorted(map(str,actual))
+            if '        run: |' not in step:continue
+            script=step.split('        run: |\n',1)[1]
+            script=script.replace('\\\n',' ')
+            script=script.replace('$GITHUB_WORKSPACE',str(workspace))
+            script=re.sub(r'\$\{\{.*?\}\}', 'selected-exact-pin',script)
+            script=script.replace('$(git rev-parse HEAD^{tree})','selected-tree').replace('$(git rev-parse HEAD)','selected-commit')
+            for line in script.splitlines():
+                line=line.strip()
+                if line.startswith('cp -a '):
+                    copied=shlex.split(line);source=(cwd/copied[2]).resolve();destination=(cwd/copied[3]).resolve()
+                    expected_copy={'nested-deferred-pair-evidence':'nested-deferred-pair-copy','nested-deferred-mutants':'nested-deferred-mutants-copy'}
+                    self.assertEqual(destination,source.parent/expected_copy[source.name]);self.assertTrue(source.is_relative_to(pair/'_build'))
+                    self.assertEqual(sum(p.name=='_build' for p in destination.parents),1)
+                    copy_paths.append({'cwd':str(cwd),'source':str(source),'destination':str(destination)})
+                if not line.startswith('python3 diagnostics/'):continue
+                argv=shlex.split(line);self.assertTrue((cwd/argv[1]).is_file(),argv[1])
+                invocations.append({'cwd':str(cwd),'argv':argv})
+                for flag in ('--core-source','--upstream-source','--baseline-suite-source','--suite-source',
+                             '--baseline','--margin-baseline','--flat-baseline','--regression-baseline','--output','--evidence','--mutants'):
+                    if flag not in argv:continue
+                    target=(cwd/argv[argv.index(flag)+1]).resolve();bindings.setdefault(flag,set()).add(target)
+                    if flag in ('--core-source','--upstream-source','--baseline-suite-source','--suite-source'):self.assertTrue(target.exists())
+                    else:self.assertEqual(sum(p.name=='_build' for p in target.parents),1,str(target))
+                if argv[1].endswith('/verify.py') and not argv[2].startswith('--'):
+                    target=(cwd/argv[2]).resolve();self.assertEqual(sum(p.name=='_build' for p in target.parents),1)
+                for token in argv:
+                    if '/nested-deferred-pair-logs/' in token:self.assertTrue((cwd/Path(token)).resolve().is_relative_to(pair/'_build/nested-deferred-pair-logs'))
+        self.assertEqual(bindings['--core-source'],{core});self.assertEqual(bindings['--upstream-source'],{upstream})
+        self.assertEqual(bindings['--baseline-suite-source'],{oracle})
+        self.assertEqual(bindings['--suite-source'],{pair,oracle})
+        for flag,label in (('--baseline','nested-deferred-baseline'),('--margin-baseline','anchor-margin-baseline'),
+                           ('--flat-baseline','flat-priority-baseline'),('--regression-baseline','anchor-original-baseline')):
+            self.assertEqual(bindings[flag],{oracle/'_build'/label})
+        expected_outputs={oracle/'_build'/v for v in labels.values()}|{pair/'_build'/v for v in
+            ('nested-deferred-pair-evidence','nested-deferred-mutants','nested-deferred-forensic-controls')}
+        self.assertEqual(bindings['--output'],expected_outputs)
+        self.assertEqual(bindings['--mutants'],{pair/'_build/nested-deferred-mutants',pair/'_build/nested-deferred-mutants-copy'})
+        self.assertEqual(bindings['--evidence'],{pair/'_build/nested-deferred-pair-evidence',pair/'_build/nested-deferred-pair-copy'})
+        self.assertEqual(len(copy_paths),2)
+        self.assertIn("Path('../oracle-suite')",text)
+        return {'cli_paths':{key:sorted(map(str,values)) for key,values in bindings.items()},
+                'invocations':invocations,'relocation_copies':copy_paths,'artifact_upload_paths':upload_paths,'cache_actions':[]}
 
 
 if __name__ == "__main__": unittest.main()

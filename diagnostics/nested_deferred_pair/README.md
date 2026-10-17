@@ -48,6 +48,12 @@ The four unchanged Rust observers execute from a separate full-history checkout
 of suite commit `efc197a0ef9d64a35df6efe0ee2c97dff98ece04`, tree
 `62ada6494e6f6ec6d463a1425f6e7daa2dadbce2`. They never execute at pair HEAD:
 the frozen nested oracle intentionally rejects the nineteen pair additions.
+The workflow uses sibling `pair-suite/` and `oracle-suite/` checkouts under
+`GITHUB_WORKSPACE`, with pair commands defaulting to the former and unchanged
+Rust commands explicitly running in the latter. Each evidence path has exactly
+one `_build` ancestor, as every frozen Rust verifier requires. Core/upstream
+checkouts remain ignored beneath `pair-suite/_build`; oracle outputs remain
+ignored beneath `oracle-suite/_build`, keeping both source checkouts clean.
 Both source checkouts retain history, including the oracle's `e576fd9e` base.
 A new source-lineage preflight preserves that complete frozen check, requires
 all 674 baseline Git mode/type/blob entries unchanged at the selected descendant
@@ -106,6 +112,17 @@ production controls and verifies relocated copies and rehashed controls.
 For local checker-only tests:
 
     python3 -m unittest discover -s tests -p 'test_nested_deferred_pair.py' -v
+
+The workflow also requires the source/layout integration test using its exact
+pinned upstream checkout (`GPUI_LAYOUT_TEST_UPSTREAM_SOURCE`). It creates bounded
+temporary sibling sparse checkouts sharing existing objects and synthetic checker
+bundles. All four unchanged bundle verifiers must reach their final observation
+boundary after every source/history/inventory/command/path check; the old nested
+`_build` paths must reject before that boundary. No engine is compiled or run and
+these synthetic bundles never qualify as actual evidence. Local source-only test
+runs without an upstream checkout explicitly skip this one integration test; CI
+sets the required path and fails if it is missing. The temporary synthetic
+fixtures are cleaned up, while CI retains the integration report.
 
 Heavy execution needs a separately checked capacity budget, at least 2 GiB of
 execution/evidence headroom above a strict 1 GiB free-space floor. No evidence is
