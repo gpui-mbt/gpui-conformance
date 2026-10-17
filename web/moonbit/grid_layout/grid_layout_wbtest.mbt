@@ -109,7 +109,7 @@ test "source labels retain Pixels suffix and wrapping retains trailing spaces" {
 }
 
 ///|
-test "only first explicit viewport profile is admitted and diagnostics disclose preflight" {
+test "comparison profile remains bounded while live viewport accepts ordinary sizes" {
   for width in [399.0, 400.0, 401.0, 500.0] {
     assert_true(
       grid_layout_content(width, 500, 1).contains("\"layout_passes\":1"),
@@ -123,29 +123,46 @@ test "only first explicit viewport profile is admitted and diagnostics disclose 
     assert_true(frame.contains("\"conformance\":\"unverified\""))
     assert_true(frame.contains("\"kind\":\"shadow_lg\""))
   }
-  for width in [0.0, 16.0, 398.0, 399.5, 402.0, 501.0, 0.0 / 0.0, 1.0 / 0.0] {
+  for
+    (width, height, scale) in [
+      (800.0, 600.0, 2.0),
+      (320.0, 240.0, 1.25),
+      (399.5, 713.0, 1.25),
+    ] {
+    let measured = prepare(width, height, scale).measured.width()
+    let frame = grid_layout_frame(width, height, test_prefixes(measured), scale)
+    assert_true(frame.has_prefix("{\"ok\":true"))
+    assert_true(frame.contains("\"comparison_profile_match\":false"))
     assert_true(
-      grid_layout_content(width, 500, 1).contains(
-        "unsupported_viewport_profile",
-      ),
-    )
-    assert_true(
-      grid_layout_frame(width, 500, [], 1).contains(
-        "unsupported_viewport_profile",
-      ),
-    )
-  }
-  for height in [32.0, 499.0, 501.0, 0.0 / 0.0, 1.0 / 0.0] {
-    assert_true(
-      grid_layout_content(500, height, 1).contains(
-        "unsupported_viewport_profile",
-      ),
+      grid_layout_content(width, height, scale).has_prefix("{\"ok\":true"),
     )
   }
-  for scale in [0.0, 0.5, 1.25, 2.0, 4.0, 0.0 / 0.0, 1.0 / 0.0] {
+  for
+    (width, height, scale) in [
+      (1.0, 1.0, 0.5),
+      (0.1, 0.1, 8.0),
+      (0.0, 500.0, 1.0),
+      (-1.0, 500.0, 1.0),
+      (0.0 / 0.0, 500.0, 1.0),
+      (1.0 / 0.0, 500.0, 1.0),
+      (500.0, 0.0, 1.0),
+      (500.0, 500.0, 0.0),
+      (500.0, 500.0, 0.0 / 0.0),
+      (500.0, 500.0, 1.0 / 0.0),
+      (1.0, 1.0, 0.25),
+      (16385.0, 500.0, 1.0),
+      (8193.0, 100.0, 2.0),
+      (8192.0, 8192.0, 1.0),
+      (500.0, 500.0, 8.01),
+    ] {
     assert_true(
-      grid_layout_frame(500, 500, test_prefixes(500), scale).contains(
-        "unsupported_viewport_profile",
+      grid_layout_content(width, height, scale).contains(
+        "invalid_live_viewport",
+      ),
+    )
+    assert_true(
+      grid_layout_frame(width, height, [], scale).contains(
+        "invalid_live_viewport",
       ),
     )
   }

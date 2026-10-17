@@ -169,8 +169,30 @@ fn prepare(width : Double, height : Double, scale : Double) -> GridFrame {
 
 ///|
 fn valid_viewport(width : Double, height : Double, scale : Double) -> Bool {
-  // First source-derived browser profile only. Smaller widths need intrinsic
-  // multi-line Content sizing; other heights and DPRs need separate evidence.
+  // Live resource limits, independent of the frozen comparison profile.
+  // Minimum dimensions keep the bounded dashed-border/shadow adapters valid.
+  // Match the host's rounded Canvas backing-store allocation exactly.
+  let pixels_w = (width * scale + 0.5).floor()
+  let pixels_h = (height * scale + 0.5).floor()
+  width >= 16 &&
+  width <= 16384 &&
+  height >= 32 &&
+  height <= 16384 &&
+  scale >= 0.25 &&
+  scale <= 8 &&
+  pixels_w >= 1 &&
+  pixels_w <= 16384 &&
+  pixels_h >= 1 &&
+  pixels_h <= 16384 &&
+  pixels_w * pixels_h <= 33554432
+}
+
+///|
+fn comparison_profile_match(
+  width : Double,
+  height : Double,
+  scale : Double,
+) -> Bool {
   (width == 399 || width == 400 || width == 401 || width == 500) &&
   height == 500 &&
   scale == 1
@@ -190,7 +212,7 @@ pub fn grid_layout_content(
   scale : Double,
 ) -> String {
   if !valid_viewport(width, height, scale) {
-    return "{\"ok\":false,\"error\":\"unsupported_viewport_profile\"}"
+    return "{\"ok\":false,\"error\":\"invalid_live_viewport\"}"
   }
   // Use the actual query allocation to format Pixels, including device snapping.
   // The host measures these strings; it does not choose the responsive branch.
@@ -320,7 +342,7 @@ pub fn grid_layout_frame(
   scale : Double,
 ) -> String {
   if !valid_viewport(width, height, scale) {
-    return "{\"ok\":false,\"error\":\"unsupported_viewport_profile\"}"
+    return "{\"ok\":false,\"error\":\"invalid_live_viewport\"}"
   }
   let frame = prepare(width, height, scale)
   let texts = labels(frame.measured.width())
@@ -356,5 +378,5 @@ pub fn grid_layout_frame(
     )
   }
   let mode = if frame.measured.width() < 400 { "stack" } else { "grid" }
-  "{\"ok\":true,\"snapshot\":\{scene.canonical_json()},\"decorations\":[\{decorations.join(",")}],\"shadows\":[{\"id\":2,\"kind\":\"shadow_lg\"}],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"bounded_source_word_wrap\",\"canvas_rounded_dashed_border\",\"canvas_shadow_lg_approximation\",\"browser_viewport_resize\"],\"grid_layout\":{\"mode\":\{quote(mode)},\"query_size\":{\"width\":\{frame.measured.width()},\"height\":\{frame.measured.height()}},\"frame_query_callbacks\":\{frame.callbacks},\"frame_layout_passes\":1,\"blocks\":[\{blocks.join(",")}],\"evidence\":\"Actual candidate core output; not a Rust observation or callback-count parity; content preflight and frame each request a fresh layout\"}}"
+  "{\"ok\":true,\"snapshot\":\{scene.canonical_json()},\"decorations\":[\{decorations.join(",")}],\"shadows\":[{\"id\":2,\"kind\":\"shadow_lg\"}],\"conformance\":\"unverified\",\"host_extensions\":[\"font_metrics\",\"bounded_source_word_wrap\",\"canvas_rounded_dashed_border\",\"canvas_shadow_lg_approximation\",\"browser_viewport_resize\"],\"grid_layout\":{\"comparison_profile_match\":\{comparison_profile_match(width, height, scale)},\"mode\":\{quote(mode)},\"query_size\":{\"width\":\{frame.measured.width()},\"height\":\{frame.measured.height()}},\"frame_query_callbacks\":\{frame.callbacks},\"frame_layout_passes\":1,\"blocks\":[\{blocks.join(",")}],\"evidence\":\"Actual candidate core output; not a Rust observation or callback-count parity; content preflight and frame each request a fresh layout\"}}"
 }
