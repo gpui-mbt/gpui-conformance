@@ -266,15 +266,37 @@ test('focus_visible is a pinned interactive core-backed candidate with unverifie
 });
 
 
-test('pinned PNG decoder is installed before independent comparator unit tests', async () => {
+test('each isolated host or browser job installs the same PNG decoder before comparing images', async () => {
   const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
   const install = 'python3 -m pip install Pillow==12.0.0';
-  assert.equal(workflow.split(install).length - 1, 1, 'One shared exact decoder version');
-  const decoder = workflow.indexOf(install);
-  const unitTests = workflow.indexOf('node --test web/tests/*.test.mjs');
-  assert(decoder >= 0 && unitTests > decoder, 'PNG-decoding unit tests require Pillow before the host gate');
-  assert(workflow.indexOf('node web/tests/compare-focus-visible-results.mjs') > unitTests,
-    'Retained browser evidence uses the same installed decoder later');
+  const jobs = Object.fromEntries([...workflow.matchAll(/^  ([\w-]+):\n([\s\S]*?)(?=^  [\w-]+:\n|$(?![\s\S]))/gm)]
+    .map(match => [match[1], match[2]]));
+  for (const [job, gate] of [
+    ['build-moonbit', 'node --test web/tests/*.test.mjs'],
+    ['matched-examples', 'node web/tests/compare-focus-visible-results.mjs'],
+  ]) {
+    const source = jobs[job];
+    assert(source, `Required job ${job} must exist`);
+    assert.equal(source.split(install).length - 1, 1, `${job} needs its own pinned decoder`);
+    assert(source.indexOf(gate) > source.indexOf(install), `${job} must install Pillow before the image gate`);
+  }
+});
+
+test('parallel build keeps callable browser verification as a Cloudflare publish gate', async () => {
+  const workflow = await readFile(new URL('../../.github/workflows/browser-examples.yml', import.meta.url), 'utf8');
+  const publish = await readFile(new URL('../../.github/workflows/browser-lab-cloudflare.yml', import.meta.url), 'utf8');
+  assert(workflow.includes('  workflow_call:'));
+  assert(workflow.includes('  build-moonbit:\\n    needs: pins'.replace('\\n', '\n')));
+  assert(workflow.includes('  build-rust:\\n    needs: pins'.replace('\\n', '\n')));
+  assert(workflow.includes('  matched-examples:\\n    needs: [pins, build-moonbit, build-rust]'.replace('\\n', '\n')));
+  assert(workflow.includes('name: browser-example-evidence'));
+  assert(publish.includes('  build:\\n    needs: preflight\\n    uses: ./.github/workflows/browser-examples.yml'.replaceAll('\\n', '\n')));
+  assert(publish.includes('  publish:\\n    needs: build'.replace('\\n', '\n')));
+  assert(publish.includes('name: browser-example-evidence'));
+  assert(publish.includes("result['overall'] == 'passed'"));
+  assert(publish.includes("result['candidate'] == result['rust'] == 'passed'"));
+  assert(publish.includes("result['raster_comparison']['width'] == 500"));
+  assert(publish.includes('  workflow_dispatch:'));
 });
 
 test('tab_stop is a source-pinned genuine group candidate without borrowed runtime qualification', async () => {
