@@ -593,6 +593,71 @@ class ExactOraclePairLineageTests(unittest.TestCase):
 
 
 
+class ComparisonPersistenceTests(unittest.TestCase):
+    """Real complete comparator output and the unchanged verifier equality boundary."""
+    def saved_result_guard(self,directory,comparison):
+        # Execute the existing verifier's exact saved-result check, without
+        # normalizing either side. This isolated checker boundary does not
+        # qualify an actual artifact or bypass its other provenance checks.
+        body=ast.parse(inspect.getsource(verifier.verify)).body[0].body
+        checks=[node for node in body if isinstance(node,ast.If) and
+            any(isinstance(child,ast.Constant) and child.value=='saved comparison differs from independently recomputed result'
+                for child in ast.walk(node))]
+        self.assertEqual(len(checks),1)
+        code=compile(ast.fix_missing_locations(ast.Module(body=checks,type_ignores=[])),
+                     str(PAIR/'verify.py')+':saved-result-boundary','exec')
+        exec(code,{'directory':directory,'comparison':comparison,'load_json':compare.load_json,'require':compare.require})
+
+    def test_complete_result_save_load_recompute_is_exact_for_pass_and_mismatch(self):
+        rust,candidate,corpus=synthetic_pair()
+        for changed in (False,True):
+            if changed:
+                quads=[e for e in entries(candidate,'scene','initial') if e['event']['kind']=='quad']
+                quads[2]['event'],quads[5]['event']=quads[5]['event'],quads[2]['event']
+            result=compare.compare_observations(rust,candidate,corpus)
+            self.assertEqual(result['passed'],not changed)
+            self.assertEqual(result['counts'],{'cases':8,'rust_frames':56,'candidate_frames':48,
+                'compared_operations':48,'compared_frame_pairs':56})
+            with tempfile.TemporaryDirectory() as temporary:
+                directory=Path(temporary);path=directory/'comparison.json'
+                path.write_text(json.dumps(result,indent=2)+'\n')
+                saved=compare.load_json(path.read_text())
+                recomputed=compare.compare_observations(rust,candidate,corpus)
+                # No JSON normalization of recomputed output: its native shape
+                # must already equal the persisted full comparator result.
+                self.assertEqual(result,saved);self.assertEqual(recomputed,saved)
+                self.saved_result_guard(directory,recomputed)
+            stack_records=0
+            for case in result['cases']:
+                for operation in case['operations']:
+                    for frames in operation['compared_frame_pairs']:
+                        for observed in frames['candidate_observed_clip_stacks'].values():
+                            for record in observed['observed_clip_stack']:
+                                self.assertIs(type(record),list);self.assertEqual(len(record),2)
+                                self.assertIs(type(record[0]),str);self.assertIs(type(record[1]),list)
+                                stack_records+=1
+            self.assertEqual(stack_records,552)
+
+    def test_unchanged_verifier_strictly_rejects_saved_clip_stack_tampering(self):
+        rust,candidate,corpus=synthetic_pair();result=compare.compare_observations(rust,candidate,corpus)
+        with tempfile.TemporaryDirectory() as temporary:
+            directory=Path(temporary);path=directory/'comparison.json'
+            for change in ('node','bounds','missing','extra'):
+                tampered=copy.deepcopy(result)
+                stack=tampered['cases'][0]['operations'][0]['compared_frame_pairs'][0][
+                    'candidate_observed_clip_stacks']['ordinary.before']['observed_clip_stack']
+                if change=='node':stack[0][0]='wrong-source-node'
+                elif change=='bounds':stack[0][1][0]+=4
+                elif change=='missing':stack.clear()
+                else:stack.append(copy.deepcopy(stack[0]))
+                path.write_text(json.dumps(tampered,indent=2)+'\n')
+                recomputed=compare.compare_observations(rust,candidate,corpus)
+                with self.subTest(change=change),self.assertRaisesRegex(ValueError,
+                        'saved comparison differs from independently recomputed result'):
+                    self.saved_result_guard(directory,recomputed)
+                self.assertTrue(recomputed['passed']);self.assertEqual(recomputed,result)
+
+
 class IntegratedCoreSourceTests(unittest.TestCase):
     """Exact Git source/projection checks only; never invoke a compiler or candidate."""
     def test_selected_integrated_inventory_and_all_regression_projections(self):

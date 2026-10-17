@@ -106,7 +106,7 @@ def inspect_scene(commands, nodes, case, stage, scale):
         require(node in nodes and event['id'] == nodes[node]['id'], 'emitting scene node identity')
         if kind == 'clip_push':
             physical_grid(event['bounds'], scale)
-            stack.append((node, event['bounds']))
+            stack.append([node, event['bounds']])
         elif kind == 'clip_pop':
             require(event['bounds'] is None and stack and stack.pop()[0] == node, 'scene clip balance')
         else:
