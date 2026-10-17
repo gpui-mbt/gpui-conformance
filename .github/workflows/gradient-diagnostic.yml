@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
       - name: Source-only diagnostic contracts
         run: |
-          node --test web/tests/gradient-diagnostic-contract.test.mjs
+          node --test web/tests/gradient-diagnostic-contract.test.mjs web/tests/gradient-diagnostic-provenance.test.mjs
           python3 -m unittest discover -s web/tests -p 'test_gradient_diagnostic.py' -v
       - name: Install pinned PNG decoder and compiler
         run: |
