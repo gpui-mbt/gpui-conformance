@@ -148,6 +148,11 @@ class EvidenceTests(unittest.TestCase):
         row["event"]["state"]=[0,0]
         with self.assertRaisesRegex(ValueError,"state types"):E.validate_raw(raw,T.FIXTURE)
 
+    def test_outside_callbacks_pin_upstream_event_type(self):
+        source=(ROOT/"adapters/popover_outside_rust/src/main.rs").read_text()
+        self.assertEqual(source.count("event: &MouseDownEvent"),2)
+        self.assertNotIn("|this, event, _, cx|",source)
+
     def test_frozen_seven_files(self):
         self.assertEqual(len(E.ADDED),11)
         for path,sha in E.FROZEN.items():self.assertEqual(E.digest(ROOT/path),sha,path)

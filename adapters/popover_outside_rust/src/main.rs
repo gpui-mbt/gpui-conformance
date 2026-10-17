@@ -161,12 +161,18 @@ impl Render for Probe {
                                     .w(px(100.))
                                     .h(px(60.))
                                     .bg(rgb(0xeeeeff))
-                                    .on_mouse_down_out(cx.listener(|this, event, _, cx| {
-                                        let before = [this.open, this.secondary_open];
-                                        this.secondary_open = false;
-                                        this.callback("dismiss_child", before, Some(event.button));
-                                        cx.notify();
-                                    })),
+                                    .on_mouse_down_out(cx.listener(
+                                        |this, event: &MouseDownEvent, _, cx| {
+                                            let before = [this.open, this.secondary_open];
+                                            this.secondary_open = false;
+                                            this.callback(
+                                                "dismiss_child",
+                                                before,
+                                                Some(event.button),
+                                            );
+                                            cx.notify();
+                                        },
+                                    )),
                                 "child",
                                 &self.log,
                             )),
@@ -180,7 +186,7 @@ impl Render for Probe {
             .h(px(110.))
             .bg(rgb(0xeeeeee))
             .when(!self.secondary_open, |parent| {
-                parent.on_mouse_down_out(cx.listener(|this, event, _, cx| {
+                parent.on_mouse_down_out(cx.listener(|this, event: &MouseDownEvent, _, cx| {
                     let before = [this.open, this.secondary_open];
                     this.open = false;
                     this.callback("dismiss_parent", before, Some(event.button));

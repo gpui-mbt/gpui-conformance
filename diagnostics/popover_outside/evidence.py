@@ -21,7 +21,7 @@ UPSTREAM_TREE = "990fb995914d51a546b20e5cf0382dafc105c299"
 FROZEN = {
  "adapters/popover_outside_rust/Cargo.toml":"ed6ece3ea5594ffdd3e9f80cf8e741bd06bc410ad98ba19933f1ca1e60ed5f5d",
  "adapters/popover_outside_rust/Cargo.lock":"25285cd666a15821a6a939d65e464040386b6185982139c8f0857d8e8c7e09d8",
- "adapters/popover_outside_rust/src/main.rs":"ce9326dbe8fde78fb97b7bafdbc4cd0ff02ea3c62ce680edf4f01c4fc62ead64",
+ "adapters/popover_outside_rust/src/main.rs":"334fad86ff7f5bc7c50b3e542e5dee4dc3ce31fa8c9ba7846ab22dd35ece55bc",
  "diagnostics/popover_outside/README.md":"805d211863e4db2d70c92f841ca3796923e61d5cbd6b3d97ac572a45a84a47e7",
  "diagnostics/popover_outside/scenarios.json":"6e8995f1748926208547d68c372678b0d0db12bc661ad7fb2fdbbb45dbb6facb",
  "diagnostics/popover_outside/verify.py":"aa632457173d9ae6321a0a8ea8c8428d472fd300d2b9c3dad329ba0142414f6a",
