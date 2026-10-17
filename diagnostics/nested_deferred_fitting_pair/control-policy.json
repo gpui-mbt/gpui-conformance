@@ -1,0 +1,101 @@
+[
+  {
+    "name": "disabled-fitting",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Make all shared right/left/bottom/top fitting corrections no-ops, at one contiguous production site.",
+    "required_witnesses": [
+      {
+        "case": "outer-only",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "inner-only",
+        "operation": "initial",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Outer-only A outer must be (216,160); inner-only A nested must fit independently. Both witnesses are required."
+  },
+  {
+    "name": "separately-snapped-levels",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Snap inherited and relative levels separately before their sum instead of snapping the composed logical offset.",
+    "required_witnesses": [
+      {
+        "case": "signed-half-composed",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Signed-half A nested is approximately (27.2,32.8); separate snapping gives (26.4,33.6)."
+  },
+  {
+    "name": "logical-half-toward-zero",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Round signed logical half ties toward zero instead of away from zero.",
+    "required_witnesses": [
+      {
+        "case": "signed-half-composed",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "signed-half-composed",
+        "operation": "initial",
+        "field": "bounds/b.root"
+      }
+    ],
+    "witness_explanation": "Both positive and negative logical half witnesses in A and B outer origins must reject."
+  },
+  {
+    "name": "device-half-away-from-zero",
+    "path": "element/scroll_viewport.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Round signed device half ties away from zero instead of toward zero.",
+    "required_witnesses": [
+      {
+        "case": "threshold-device-half",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Threshold A nested is approximately (25.6,34.4); wrong device ties give (26.4,33.6)."
+  },
+  {
+    "name": "window-treated-local",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Interpret authored Window positions relative to the live local static origin.",
+    "required_witnesses": [
+      {
+        "case": "window-local",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Window A nested remains (80,96); the Local counterpart is (272,200)."
+  },
+  {
+    "name": "owner-top-instead-of-live-reference-bottom",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Use owner.top instead of the live first reference bottom when measuring each attachment.",
+    "required_witnesses": [
+      {
+        "case": "exact-inside",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "signed-half-composed",
+        "operation": "reference-height",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Require both static ordinary-reference and nested reference-height 8 to 12 transition witnesses. Reference remains read only to preserve compilability under deny-warn."
+  }
+]

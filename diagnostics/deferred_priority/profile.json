@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-headless-deferred-priority",
+  "suite_base": "550e7f9a62190a31a76bd61a1de44fbf3944acf1",
+  "suite_base_tree": "930d673885e3eb21f2656fd6ef28413ae7a49fba",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "case_count": 16,
+  "families": 8,
+  "requested_scales": [
+    1,
+    1.25
+  ],
+  "bootstrap_scale": 2,
+  "client_inset": null,
+  "geometry_allowance_logical_px": 0.0009765625,
+  "physical_grid_allowance_px": 0.0009765625,
+  "order_and_ids_allowance": 0,
+  "input_sha256": "bfd430a018062bffe2449ffd565bf975583ea6ba66185d9f28e9e5ed0be58243",
+  "stages": [
+    "base",
+    "updated",
+    "removed",
+    "restored"
+  ],
+  "listener_policy": "Each retained input explicitly declares listener, propagation and occlusion. Transparent layer has no listener and no occlusion. Input predictions use pinned GPUI hitbox and listener semantics, never a candidate-core topmost-hit rule.",
+  "scope": "Supplemental font-free flat deferred attachments only. Actual request-layout/prepaint/paint callbacks, geometry/masks and input callback sequences. No unchanged popover, nesting, outside-click, cache reuse, arbitrary content, raster, native-window, browser or core parity claim.",
+  "frozen_original": {
+    "rerun_claim": false,
+    "sha256": {
+      ".github/workflows/anchor-diagnostic.yml": "1fb55e25d3556ac9462a7f312de7f65ca2f6b0b18236cc7abdb1f9d5e82ab988",
+      ".github/workflows/anchor-margin-diagnostic.yml": "8db8c342b3fb166ae824a89346906b4a2c77b2839ddafc67847d759a65628bf0",
+      "adapters/anchor_margin_rust/Cargo.lock": "a31c5858abdc7bbae6e7d267fa28d60eb64327cc492b2117633639f791d30777",
+      "adapters/anchor_margin_rust/Cargo.toml": "2324d4334bccefa104d9a2bed643bfea7dffe8ee5e9bc1fdd8661173690f0f6a",
+      "adapters/anchor_margin_rust/src/main.rs": "8443bf831629713f9d86c4621b743ce6adbc1062cae916b5a1333ae4b0498571",
+      "adapters/anchor_rust/Cargo.lock": "a3e90b5098d0df9f05958ff49b0ce55d0d945f2d7ac923a531cb0c11a4bc0c72",
+      "adapters/anchor_rust/Cargo.toml": "fab4e7fcccf0b5be97dffe4cbd03d85833f7a1fc5679a9e970ee9c86b9f0c302",
+      "adapters/anchor_rust/src/main.rs": "653004af0272b3a71773e47fa224c95080de176748ffadfe07122116922ae157",
+      "diagnostics/anchor/README.md": "a4bd49a12f4b016961ea8d14e56173c6f3bcf17a7fa037c670c09365dd55cb96",
+      "diagnostics/anchor/epsilon-regression.json": "f4360f1e5b0945fc514ef43ddb9f69e4ca4b1763a7f06217a126413b05f7cc97",
+      "diagnostics/anchor/raw.schema.json": "1945f598209b54e710e5031c7d72ed27b78a02bc364dd2f3561e22d932ab3bd1",
+      "diagnostics/anchor/run.py": "142744a3abbbbffcce1de3a11be3b971e73300c58cbb2a318fb36d5d723e3458",
+      "diagnostics/anchor/scenarios.json": "ad4ef97ec09a56d4314f85258eda0d54e1b314f949859580f79d2a0190967c6a",
+      "diagnostics/anchor/verify.py": "e090caa89727350c487a9f72b0d5230f6651eba05580e31977490dbc56215eee",
+      "diagnostics/anchor_margin/README.md": "f4d585527d02adb1d1bbc934fbd04dae87aef308c755083e20130b44357120a7",
+      "diagnostics/anchor_margin/profile.json": "e67faae99acafe193d5e3c612fc98989cc564bb03cec420e37ff35574776143d",
+      "diagnostics/anchor_margin/raw.schema.json": "dfa515d3d91a77ee0ce448c527b3bab62941440a324e773afa0d5da3b4a6d289",
+      "diagnostics/anchor_margin/run.py": "cf12ee544fbc77f833a4a59b1c21ae1ac6811c69212731bf84a0271b56bb8426",
+      "diagnostics/anchor_margin/scenarios.json": "f7c77a70496e51a9da902b726ba74f5331b24fdd9a09de915ebbd6e94a6a52fb",
+      "diagnostics/anchor_margin/verify.py": "9e84dd4022f38963c79f87c2240ca854fe04bdb72179ac91e637a5d01ba0c4d6",
+      "tests/test_anchor_diagnostic.py": "ea523ca587f2bde9438d3b492956ec3c0c29b89854f76af1484177b5b43c6e5c",
+      "tests/test_anchor_margin_diagnostic.py": "bc926b832e18a9f3fea099c2cbc4cfe22ac516788d529a85bfb8ec115d707046"
+    }
+  }
+}

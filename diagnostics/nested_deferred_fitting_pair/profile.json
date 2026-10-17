@@ -1,0 +1,4006 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-two-level-nested-deferred-fitting-native-pair",
+  "candidate_repository": "gpui-mbt/gpui.mbt",
+  "candidate_commit": "e13c99d387738369e13a26302e556732d78a3b88",
+  "candidate_tree": "e269ce546db3e13d8f82b742c0d7b1ae2ca35ca7",
+  "candidate_pin_status": "published-exact-commit-tree",
+  "suite_base_public_commit": "2edaf30bcc9ec0c03045cd1db0f2a0f122dbb344",
+  "suite_base_tree": "abcc30e08b9fdbc8e99b05686cdd3fa68267418d",
+  "upstream_repository": "zed-industries/zed",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "comparison_policy_sha256": "44bbbccc04fe0979988f2b00da33f4bf1ecc2ece4059b8efd4a296cff3caf507",
+  "approved_fixture_sha256": {
+    ".github/workflows/anchor-diagnostic.yml": "1fb55e25d3556ac9462a7f312de7f65ca2f6b0b18236cc7abdb1f9d5e82ab988",
+    ".github/workflows/anchor-margin-diagnostic.yml": "8db8c342b3fb166ae824a89346906b4a2c77b2839ddafc67847d759a65628bf0",
+    ".github/workflows/anchor-margin-pair.yml": "7bdc5d2b540c6fe4375caac10aea0b190c1f7c6a622ec379c20ed11789b42780",
+    ".github/workflows/anchor-pair.yml": "b477eeace02929ea3bd0ef984a40fb62ffa9b97efd52273548abf5d71f0deb12",
+    ".github/workflows/deferred-priority-diagnostic.yml": "ea009ee93b3c88eef927a22f9b9624f5122fe91c5ac2734924396c83f6aef477",
+    ".github/workflows/deferred-priority-native-pair.yml": "a468fb81c0e0577cf27eb07c606fb41ffa3ae62e00c996c0964fcc97f0f82eeb",
+    ".github/workflows/nested-deferred-diagnostic.yml": "73eea3bcd2f37424ad4aee72cf0796c5a5ada7579acb8146d665f181d3a74bfc",
+    ".github/workflows/nested-deferred-fitting-diagnostic.yml": "76963febd725708cb9348d4d0a30927275c457789c37eef9f091286802979ecd",
+    ".github/workflows/nested-deferred-native-pair.yml": "e5ce245d436f58d9fdf254b423dcd9d6c4327169a85c02c077e123c098d03049",
+    "adapters/anchor_margin_moonbit/main.mbt": "908310d504f2d73c24864f5e2b7b87567379566d0a7129ce950d850669bd7aab",
+    "adapters/anchor_margin_moonbit/moon.pkg": "89accd5c11583eba5f72330e9a29dee64e728f74119eef1032b1b7e774130f05",
+    "adapters/anchor_margin_rust/Cargo.lock": "a31c5858abdc7bbae6e7d267fa28d60eb64327cc492b2117633639f791d30777",
+    "adapters/anchor_margin_rust/Cargo.toml": "2324d4334bccefa104d9a2bed643bfea7dffe8ee5e9bc1fdd8661173690f0f6a",
+    "adapters/anchor_margin_rust/src/main.rs": "8443bf831629713f9d86c4621b743ce6adbc1062cae916b5a1333ae4b0498571",
+    "adapters/anchor_moonbit/main.mbt": "6e247312c001a3b7cbdd7734eaf4a2361ac1edaaffe6a91afef44b65587701ee",
+    "adapters/anchor_moonbit/moon.pkg": "89accd5c11583eba5f72330e9a29dee64e728f74119eef1032b1b7e774130f05",
+    "adapters/anchor_rust/Cargo.lock": "a3e90b5098d0df9f05958ff49b0ce55d0d945f2d7ac923a531cb0c11a4bc0c72",
+    "adapters/anchor_rust/Cargo.toml": "fab4e7fcccf0b5be97dffe4cbd03d85833f7a1fc5679a9e970ee9c86b9f0c302",
+    "adapters/anchor_rust/src/main.rs": "653004af0272b3a71773e47fa224c95080de176748ffadfe07122116922ae157",
+    "adapters/deferred_priority_moonbit/main.mbt": "2115956cfd805dc9e86759225f84f6413b9ca54f22489ae4c9bf6a621e95c80d",
+    "adapters/deferred_priority_moonbit/moon.pkg": "89accd5c11583eba5f72330e9a29dee64e728f74119eef1032b1b7e774130f05",
+    "adapters/deferred_priority_rust/Cargo.lock": "8828e3cea0c0f56f9e892968f5a6c8c4acef336536856a7e433508a249d289be",
+    "adapters/deferred_priority_rust/Cargo.toml": "1475a8250c7a25d2d22a9906afbf15e185eb5d25d65c0e751e7be70a1eaf8294",
+    "adapters/deferred_priority_rust/src/main.rs": "044666e5d385b1ed3a01afa51d9ff3af2d53c6ecbac6e3ebb95a7f8dc7e2299d",
+    "adapters/nested_deferred_fitting_rust/Cargo.lock": "cefa9fdc9af3488918a14e73528897860a80cbf5e0c0ed9db0f09d22e007259d",
+    "adapters/nested_deferred_fitting_rust/Cargo.toml": "0040341fed166f007429fa089de46021c9c0770dc04694eee1d04af62bffe0ef",
+    "adapters/nested_deferred_fitting_rust/src/main.rs": "d36085c13d2d951b856795cb55e74bbf49b3025ad03cd5efa5405bff1ca2a123",
+    "adapters/nested_deferred_moonbit/main.mbt": "4e3dde98003eec1559688154478c55f08d80518285162fa367128e1bba4313a3",
+    "adapters/nested_deferred_moonbit/moon.pkg": "89accd5c11583eba5f72330e9a29dee64e728f74119eef1032b1b7e774130f05",
+    "adapters/nested_deferred_rust/Cargo.lock": "4b4bcb7ee235b68786b07a746687a01bc271843f115eb63e8f32dd0d07ca8a36",
+    "adapters/nested_deferred_rust/Cargo.toml": "4a7bb83dc2711d3a362559ca62a9c99dab2dc89b45af736f5884d5c9cd7b3f21",
+    "adapters/nested_deferred_rust/src/main.rs": "748025210dfb3fd24f4e7e7a09f9b29d50cb9c42327943ceeeb452adab3d1e9c",
+    "diagnostics/anchor/README.md": "a4bd49a12f4b016961ea8d14e56173c6f3bcf17a7fa037c670c09365dd55cb96",
+    "diagnostics/anchor/epsilon-regression.json": "f4360f1e5b0945fc514ef43ddb9f69e4ca4b1763a7f06217a126413b05f7cc97",
+    "diagnostics/anchor/raw.schema.json": "1945f598209b54e710e5031c7d72ed27b78a02bc364dd2f3561e22d932ab3bd1",
+    "diagnostics/anchor/run.py": "142744a3abbbbffcce1de3a11be3b971e73300c58cbb2a318fb36d5d723e3458",
+    "diagnostics/anchor/scenarios.json": "ad4ef97ec09a56d4314f85258eda0d54e1b314f949859580f79d2a0190967c6a",
+    "diagnostics/anchor/verify.py": "e090caa89727350c487a9f72b0d5230f6651eba05580e31977490dbc56215eee",
+    "diagnostics/anchor_margin/README.md": "f4d585527d02adb1d1bbc934fbd04dae87aef308c755083e20130b44357120a7",
+    "diagnostics/anchor_margin/profile.json": "e67faae99acafe193d5e3c612fc98989cc564bb03cec420e37ff35574776143d",
+    "diagnostics/anchor_margin/raw.schema.json": "dfa515d3d91a77ee0ce448c527b3bab62941440a324e773afa0d5da3b4a6d289",
+    "diagnostics/anchor_margin/run.py": "cf12ee544fbc77f833a4a59b1c21ae1ac6811c69212731bf84a0271b56bb8426",
+    "diagnostics/anchor_margin/scenarios.json": "f7c77a70496e51a9da902b726ba74f5331b24fdd9a09de915ebbd6e94a6a52fb",
+    "diagnostics/anchor_margin/verify.py": "9e84dd4022f38963c79f87c2240ca854fe04bdb72179ac91e637a5d01ba0c4d6",
+    "diagnostics/anchor_margin_pair/README.md": "febc53fd12d72243feabe92174732925f86469adb2db3b297cf2fc35f1e57959",
+    "diagnostics/anchor_margin_pair/compare.py": "0a193f32eaabbaebd9fd4cb05b703d9154c949237382654b5797dec5b28a14c1",
+    "diagnostics/anchor_margin_pair/mutations.json": "b1c1a1e480ea0d44906b90ca2ab2332f596c4ea57629424ad178cf778731f37f",
+    "diagnostics/anchor_margin_pair/observer_compatibility.json": "136f5d30c31e1792b9c03153bc54b3b40cfe9ea0da4ace674fea7a797d89c2f0",
+    "diagnostics/anchor_margin_pair/profile.json": "18e75b103bf21d2cff75b742867d77fd4cc9e50dd5ed09c72cc1c2d68d960262",
+    "diagnostics/anchor_margin_pair/raw.schema.json": "2d5ad67588bb61cb11dd8bd254e9737039b17c671874098ff1726052d3eaa83d",
+    "diagnostics/anchor_margin_pair/regressions.py": "20fa2b3e5a78497cc9ae0406a7e342905face245e267f4b4d69eb7054e02b0f8",
+    "diagnostics/anchor_margin_pair/run.py": "bfa9fc4b6b00fa3167e5c9caa1de3161c19ccc145807699c18ecd8532e5ea178",
+    "diagnostics/anchor_margin_pair/run_controls.py": "5737327522d9169ce149d0076883126be9ab8c31300ff652ad54f63ad59e8699",
+    "diagnostics/anchor_margin_pair/run_mutants.py": "5a1c48ae96e69e26d810e1eea628c31599d50c6824f25757096cd6ff305e4fb6",
+    "diagnostics/anchor_margin_pair/verify.py": "c5bad0f1d4e95b46f8161c72b722884e197f31769a9ad304843f8563052cea8e",
+    "diagnostics/anchor_margin_pair/verify_mutants.py": "deecc40778947e655f0a3f4cf951ceab47c5f74f798ee27731c20be9de258ac7",
+    "diagnostics/anchor_pair/README.md": "f62a1709cf5eead213fb38f0d8184f9fdf7a89a03f1d4f01f469021f4d91a0b8",
+    "diagnostics/anchor_pair/compare.py": "5b9954c062cd9be8cd72a4bffcabbce4d60d0b621a40664cbabd70622b39bec3",
+    "diagnostics/anchor_pair/fractional_viewport.py": "0d6d3fad89debb3e28e6c39ee7e310bbbe6295bdd8c3026c0c4aa4517a833ba5",
+    "diagnostics/anchor_pair/mutations.json": "b018e4fa408ca60de9493a807ee5cbcecd1d4b82770fd553d54917259ddced18",
+    "diagnostics/anchor_pair/profile.json": "69750e147f079ebec9c6c897cf9fe7ac14bd4bd5754937c3c1052ac0203c9c9a",
+    "diagnostics/anchor_pair/raw.schema.json": "cdb8bd377bc892c83a85f462be9b1c91b6b0383e49607659b4e6ebabf8178d25",
+    "diagnostics/anchor_pair/run.py": "134605ae1c831e0cce4b2576bd38d131f2b660e51277bb02312d6a6b389af86c",
+    "diagnostics/anchor_pair/run_controls.py": "b361ded6f334bc97aaa79595a26d56ad0bcc38923d55cbf50eca0ae1dd66c84a",
+    "diagnostics/anchor_pair/run_mutants.py": "664401733aff48a42bbcc3df6b8ab358cc6740cf19b844323904144f6474dd56",
+    "diagnostics/anchor_pair/verify.py": "4938ba8e2feda8e23bca88eea9b4c041d424365671c142b31e8d69bdd6f04fae",
+    "diagnostics/anchor_pair/verify_mutants.py": "2b767b2f423f94ce0eab510147f1340011e43c36f22259d2f0be2332b2b5286f",
+    "diagnostics/deferred_priority/README.md": "9bb302b5d729a9cec1fd12b336e913307a769f7ea23c8d8550a374961634ad80",
+    "diagnostics/deferred_priority/profile.json": "dc0af03dfb2cf9bd2b265b22457baa2508052032a1740cefdacae67b374caca8",
+    "diagnostics/deferred_priority/raw.schema.json": "6fabca2dfc1bb32b15b850f15121c18bc024240fca7fdb7b951415e12977efc3",
+    "diagnostics/deferred_priority/run.py": "9749f4f4cc56fe7f6edb9c0e6bddd2a80ef68289538d554b18738c9c0a8ef96f",
+    "diagnostics/deferred_priority/scenarios.json": "bfd430a018062bffe2449ffd565bf975583ea6ba66185d9f28e9e5ed0be58243",
+    "diagnostics/deferred_priority/verify.py": "482e6cf95a03846990ac37a7e9db9c67ad8c7a47c590cfddd8a2f38ff43fb740",
+    "diagnostics/deferred_priority_pair/README.md": "22282f2f1788d4905fe2f04619032ac4877fb8226d8657839be17682c886b8c0",
+    "diagnostics/deferred_priority_pair/compare.py": "f9e64e3c6c286cea3fadcbaab91120cb015dbac97bb7225ef9971d963af1aef3",
+    "diagnostics/deferred_priority_pair/comparison-policy.json": "ab397c1604af04c65f25b45ea3b96a03d3d4cb318e7a246cc9ccae1220d601ca",
+    "diagnostics/deferred_priority_pair/control-policy.json": "6a8bde926ce504e1b8a360722de738e5dde9f29efd68293afc7c8f2e6d6bdd26",
+    "diagnostics/deferred_priority_pair/mutations.json": "891903f227d4bdefa2f7e4ffead77be7af0456952bcfe0133e8ba04673e7266b",
+    "diagnostics/deferred_priority_pair/observer_compatibility.json": "136f5d30c31e1792b9c03153bc54b3b40cfe9ea0da4ace674fea7a797d89c2f0",
+    "diagnostics/deferred_priority_pair/profile.json": "1241eec29c5948175eb2a83448d489bdfeb026527896809c4030b2003d491993",
+    "diagnostics/deferred_priority_pair/raw.schema.json": "9733cca1af4218daf5809dd5ef6660277ffae39774cc7ccf3f95eee45c03ab3c",
+    "diagnostics/deferred_priority_pair/regressions.py": "48629bdba1feafe04605c48195b87e39780a88eb7ed5e8b701ce1db5d1a344dd",
+    "diagnostics/deferred_priority_pair/run.py": "77487b6ef7eb395b20ab7c6fa03692664143a1e42d8c0ffd144227ac63581524",
+    "diagnostics/deferred_priority_pair/run_controls.py": "c2c7f2ce31da6b527200a1813daeee9c38bb2064150c4f9ae7e1281d1ed0f6f1",
+    "diagnostics/deferred_priority_pair/run_mutants.py": "47c0d2689de845ca0a3f5f14bde4d995a7259d73ec58d9ea1a51b39f5790ae5c",
+    "diagnostics/deferred_priority_pair/verify.py": "bb5d50405304b1a1e42075cdcfab54c3304154d7e6ed02df991d53db4fe8ac49",
+    "diagnostics/deferred_priority_pair/verify_mutants.py": "b2e728f9b42d8c8ffe4ffcd2987c55b620f2c32f71c35ef9566409bcb5916bbe",
+    "diagnostics/nested_deferred/README.md": "e52135835aa336f8ae233dfd4e7a328315856bed4b3a3ccfbb8061d4105f120d",
+    "diagnostics/nested_deferred/profile.json": "b74f4f6ca31ff701b6d529019f4ae20127a366fce9c205476e477173d5eccfea",
+    "diagnostics/nested_deferred/raw.schema.json": "646b5e281ece2eaec6d2873e79e6a11419aa221f7c33968f666363074252ab89",
+    "diagnostics/nested_deferred/run.py": "f18f4ca467b9b5741292cdb08ff11f72e58d9b4366f0b73d465eca658767df9f",
+    "diagnostics/nested_deferred/scenarios.json": "0a5c06f505975e51e03c789b9b0a6ec41681159f49560801d881cdc3f009d887",
+    "diagnostics/nested_deferred/verify.py": "d3026a535c3050fd6d64c1c2926b5957ab9a4dbfd3adc8f9455b2434e4c46a38",
+    "diagnostics/nested_deferred_fitting/README.md": "a172d8d163a5d38564505cc651260715ef040d8839271e56b5972b4438a1b9ef",
+    "diagnostics/nested_deferred_fitting/profile.json": "8fc1e423b059a70ff505820dc476b03a35489d66be26e3e076dc9d01689b34c5",
+    "diagnostics/nested_deferred_fitting/raw.schema.json": "7f442661ce5d900b8c9bb7a8963d7544dc012af02212b38635ffe64b38fb53a2",
+    "diagnostics/nested_deferred_fitting/run.py": "da527b3c816ac9994de6867375c94e7d49bd43cb6b1e8acb2462bcd5007d091e",
+    "diagnostics/nested_deferred_fitting/scenarios.json": "61664af55224da793295215586b7037fdc088fccbf1c1858ef267cd6e2f5c003",
+    "diagnostics/nested_deferred_fitting/verify.py": "40c7c2d20d49fbfcb7350d0b67f1da5b71a3dc97387a9b928cafcaee6fc0c4da",
+    "diagnostics/nested_deferred_pair/README.md": "ca90e01407e7b818f4d80668e37a653711bd46c4709fb75898927df60f04794d",
+    "diagnostics/nested_deferred_pair/actual-rust-projection.json": "8863b9038a4f9b61a377f929961f97f34d794562ef0e02c610fd0c7ebaa54af3",
+    "diagnostics/nested_deferred_pair/compare.py": "74e040494c35681c7e9e700b6fd3c37367b0a29c8a683b1aff0bedbd55077b4a",
+    "diagnostics/nested_deferred_pair/comparison-policy.json": "4829c034b9284392bfada6b77546ecdbd5498d74600c7ebf7fdbd3163574e916",
+    "diagnostics/nested_deferred_pair/control-policy.json": "3f4a823d8324c0fe721d2311930f910d424dde367ac8579e59b980ddb2d29a4d",
+    "diagnostics/nested_deferred_pair/mutations.json": "2e9d4188f7556231e63f7eda0edebc1353debfad8afbab37084b86599d6dba48",
+    "diagnostics/nested_deferred_pair/observer_compatibility.json": "136f5d30c31e1792b9c03153bc54b3b40cfe9ea0da4ace674fea7a797d89c2f0",
+    "diagnostics/nested_deferred_pair/profile.json": "680cd63b5c8b385320e797ba670e0baf0ac688169388dc49b7e2ffc464311bc3",
+    "diagnostics/nested_deferred_pair/raw.schema.json": "8971f5b31855f5f42c306808686753898c9f34b7971674d611e6560494abc64a",
+    "diagnostics/nested_deferred_pair/regressions.py": "007638d21b46acc515e434cc5e9a47e4169206b2773677d85b580088f989baaf",
+    "diagnostics/nested_deferred_pair/run.py": "aaf493a98ea378a9f0d1882cfd4ab0d36b15527f86edb366f77b16e5be99c415",
+    "diagnostics/nested_deferred_pair/run_controls.py": "4a2c000f697b1c2b71af642fd6ae329c3fbfa3d5783fc8feadb7078c81f36479",
+    "diagnostics/nested_deferred_pair/run_mutants.py": "caeedde1433c687358eaa9b0932d28c94fe55f39607e04ecc41cd7694e519084",
+    "diagnostics/nested_deferred_pair/verify.py": "70aa0c25aa1878930e818805674680e07dad4ac379373d751e4653fa1acf9110",
+    "diagnostics/nested_deferred_pair/verify_mutants.py": "c3b458ec3b0ecd81ce7f7b8305390c12cc67c085268410a56f950bfb567fdb35",
+    "tests/test_anchor_diagnostic.py": "ea523ca587f2bde9438d3b492956ec3c0c29b89854f76af1484177b5b43c6e5c",
+    "tests/test_anchor_margin_diagnostic.py": "bc926b832e18a9f3fea099c2cbc4cfe22ac516788d529a85bfb8ec115d707046",
+    "tests/test_anchor_margin_pair.py": "b8f58aadd50fba8b850b817ae65af6b97e29b8b795ec66e708e800f7ad309b72",
+    "tests/test_anchor_pair.py": "457c39fc4872e60d47cd03bc422d781a681028d779f19d3896a0ac077f7182f7",
+    "tests/test_deferred_priority_diagnostic.py": "74103d3974ee7480ccda867cdfbbc88d4e504a93947dc2c7e8c24d2c19eca73c",
+    "tests/test_deferred_priority_pair.py": "3e9c98ecaddb727534aec96a47f0544fed0dd32dac0efd7249e4200ab7eaf45c",
+    "tests/test_nested_deferred_diagnostic.py": "72b90528be29f357ed72db1c12c3b8019fce8bc7ad1d7aaf6d15b9fb2c634204",
+    "tests/test_nested_deferred_fitting_diagnostic.py": "38382578cb97e93a60e70e29a6dc20476972efb910068177547b8ec882e2ebb5",
+    "tests/test_nested_deferred_pair.py": "f6f420c7b2029431ddc69f7258c4c8c22038c2bd66dcf674d36fa2e7acfb5bf7"
+  },
+  "original_regression": {
+    "cases": 24,
+    "compared_operations": 53,
+    "paired_clicks": 5
+  },
+  "fractional_regression": {
+    "cases": 2,
+    "compared_operations": 8,
+    "paired_clicks": 4
+  },
+  "margin_regression": {
+    "cases": 88,
+    "compared_operations": 176
+  },
+  "approved_rust_gate": {
+    "suite_public_head": "f88c6156",
+    "suite_executed_merge": "a26a6ffd11440be50578fec5e9c9c836727ef723",
+    "suite_tree": "abcc30e08b9fdbc8e99b05686cdd3fa68267418d",
+    "run_id": 39056363472,
+    "artifact_id": 12109468360,
+    "artifact_sha256": "2109521243e5d7d6917f8f0aa2be9128b5d7804c7603d22a9f55a77c8c191bb2",
+    "review_sha256": "2826bc54801ffa82d5ac963d97003ec0d0aa824cfa3ec2216547def8f0859226",
+    "source_review_sha256": "5b5bc89a28ce15d5d02d731775c0e054b549a9e9b769a2e82d9b4e737548cfc2",
+    "approval_scope": "original fitting Rust artifact only; not new candidate execution"
+  },
+  "limits": [
+    "Exactly two anchored deferred levels and eight frozen fitting cases; no arbitrary depth or clipping extension.",
+    "All five same-final-e13 regressions required: original24,fractional2,margin88,flat16,prior-nested8.",
+    "No lifecycle/input/raster/browser/native-window/full-popover parity claim.",
+    "No native execution or artifact allocation authorized by this source; dispatch requires reviewed exact source pins and concrete durable capacity plan."
+  ],
+  "flat_priority_regression": {
+    "cases": 16,
+    "compared_operations": 144
+  },
+  "approved_core_gate": {
+    "selected_current_commit": "e13c99d387738369e13a26302e556732d78a3b88",
+    "selected_current_tree": "e269ce546db3e13d8f82b742c0d7b1ae2ca35ca7",
+    "historical_native_pair_core_commit": "5dbcc1cfdeaede4e3698d63f29a699259c9cc3be",
+    "historical_native_pair_core_tree": "df567d739aa78eaa9a12003e0e433a2b67e998f3",
+    "closure_relation": "34 compiled inputs, module and two published API contexts byte-identical; current e13 execution must retain e13 identity; no historical result relabeling"
+  },
+  "selected_core_inventory": {
+    "compiled_inputs": {
+      "element/anchored.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4d18613a2c1acc12303114e838d0bc952e61bf74",
+        "sha256": "e0809ba04b1e4ad0a2f37e1a5d86726ebb130cc97decd3ef540e88f2304f7fff",
+        "size": 21529
+      },
+      "element/container_query.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "73fc2d074dff83ef9b7557919efff76272af6ae1",
+        "sha256": "3b0d68508e14b58904504899b46a1bb77fb6656abbefa3891ee19cc2b2f02aef",
+        "size": 15365
+      },
+      "element/deferred.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "a07230434e8405530cbaa2148a00b21ed0a65918",
+        "sha256": "71e913a9da923805e009b36f268efbcbbf9f76c459dabae725b291baab403f3c",
+        "size": 3902
+      },
+      "element/drag.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "447799fdb2ea372e8381d73db1f80de62f534ad0",
+        "sha256": "aba619ada8162381af8f887992004944f96c215de7ca5fa7bc4df17e93d033ba",
+        "size": 5642
+      },
+      "element/drag_session.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "8f4d062fc4d5c14a5da0493d19994cb98b67b047",
+        "sha256": "8c188844be38dca1655d9a8ea00c01ece3b91886e711a5e00c6bfc21d147dd8b",
+        "size": 9482
+      },
+      "element/element.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "77b924802cc4b223e5d96c566bfabd5331903f39",
+        "sha256": "c4d6cd8c6a34745c2a08821157fab7d2deeda401998fa5be2b87d05870694bb0",
+        "size": 27822
+      },
+      "element/focus_scope.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "74beeb19db759480981465c74b55c96474c92a0f",
+        "sha256": "7d716d7f24eaa07b139e96424bfa0f7890fb7ce46e1d38519c1e1efe7c71532f",
+        "size": 23133
+      },
+      "element/focus_traversal.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "77064b465c9c9fdcdbac940e656fea5846b856f2",
+        "sha256": "7b1958af66533691e9060aaad9136425578aac9b15d97abf17663b852d673fea",
+        "size": 13168
+      },
+      "element/layout_bounds.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "6d45cc7df11f54189e2eb61f61ffcb53670731de",
+        "sha256": "aa56ea26396950cb53c05d16519e170e34ce95f77b0e0db224fcbfb211832144",
+        "size": 2163
+      },
+      "element/lifecycle.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "e3475ef04594d607b18a4b341dbaf07179679838",
+        "sha256": "c4a32549e212a5fa45c541094b76ec3934011caf698e76139d70d8f7c5c7c0e4",
+        "size": 17781
+      },
+      "element/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "24ddc5e9f55b05e9f1cc7d8d6a77c3528b7975dd",
+        "sha256": "6cfa670404f18a543f08707b519e13e105ba6144304e397171155a66ed8e7649",
+        "size": 247
+      },
+      "element/paint_binding.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "10512312694b43751e2154bda57488e8393bfc3e",
+        "sha256": "a6a659b8a84701ebeebe24ce4ce63aee6648b755122e6d084777761e01f00e75",
+        "size": 1969
+      },
+      "element/scroll.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "85fb5921290fa644d9af0ef18b87b8645c87e049",
+        "sha256": "313a1e6fbe4f5ea750a010e5b39719bcbdf20daf72e43c50d635159d226bc8bf",
+        "size": 5627
+      },
+      "element/scroll_viewport.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "df627aee2b39a3fde0e4348d3a72c6894b86a2ba",
+        "sha256": "83937f0c18b42475b9ad239dacef9e35612e1e5a8ef5e84de6580dcaa1d61164",
+        "size": 12563
+      },
+      "element/uniform_list.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "2ac6c455253fd9a326481034abed9bc2ee3f4919",
+        "sha256": "b9c8712092f31ec4897d02b236b2a02f4fb7b646ce6145eb38a49b25e911d235",
+        "size": 16704
+      },
+      "element/uniform_list_click.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "05d9073926bf56b31884723eb48c8de46a332ec0",
+        "sha256": "2a46a3f684e7a0cfe4820122e13e84030c203af913740db10b29cf0439d6118a",
+        "size": 4252
+      },
+      "layout/flex_resolution.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "d78cfc0257860e2c6e3dc56a7e6cb0e5bec8a703",
+        "sha256": "c63b4a5aecbbcdbd9185c1406f651c559a71fb2602cf7762ae99146e7fc4aeca",
+        "size": 5069
+      },
+      "layout/grid.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "2571b3c86e1006c7cc8e0ea7d51eecb1a0f5f95f",
+        "sha256": "fda462a3434eb943782b4889e197cd8aa42e34c0a784d3d10e8240652fc6cf01",
+        "size": 8479
+      },
+      "layout/layout.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "52f6873ccf30e0b304ecc85abcedff837dd4f7ed",
+        "sha256": "454311212da7c86ff8fef1cf1ffe36305bda336b841dc9febcb8b7aa84cb7a46",
+        "size": 39004
+      },
+      "layout/mixed_tree.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "86f1d345a616f24a5da9e5c7bc55e83851560d7c",
+        "sha256": "e0945894169d95e30db05b5224c62d8ee73a6fa250e01fba5a4c1b5f5307407a",
+        "size": 12842
+      },
+      "layout/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "b2f2933273ee3b785613f02c8332c390367d8d35",
+        "sha256": "5a72e56765b5d95562d31a53718246dc1629ca05189673688397db67a64d6d58",
+        "size": 147
+      },
+      "layout/tree.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "23b1e3124e3fc33cb13135038b16988117dfe101",
+        "sha256": "497c5a21e45cf612bebb94a72d58bb78f47b9a18dca2fc919586d5511ad8a02b",
+        "size": 27372
+      },
+      "primitives/color.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "07d98bc6baab87e88a3d67ca770fc45889e284a2",
+        "sha256": "79af9c911e0afc3ded6b9e5e9d3ec9a0cfd3729a2c6ebb1c7252793de232deb3",
+        "size": 1188
+      },
+      "primitives/float_color.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "4aafa834bcc30fb3cae47d87ff762dc97ecc9759",
+        "sha256": "949759f0cf54f0117d1951f26f2dee711b77a718fd45466b2d1f5ea372c8c4c6",
+        "size": 1914
+      },
+      "primitives/geometry.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "a4f7f449a936953b2128d4bae14363fb126b6742",
+        "sha256": "991796bf5abd69bdf900b97cc1397c14c16fee170c01801583f1b23f1a7920a9",
+        "size": 7189
+      },
+      "primitives/input.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "da3cf84b0174f318ccc3da6a3b53f651278e5081",
+        "sha256": "261b7de4e5cb0e9fd77a7de67fef440e1a87268c8e8e3b4d0765e62282982be3",
+        "size": 2068
+      },
+      "primitives/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "d03e356b2acad907f9c1bab835a9b1a39a343e43",
+        "sha256": "167282a3abba1b414f1d4c6aff015179ad08e85e717944e08f9ca69996f5a247",
+        "size": 112
+      },
+      "scene/builder.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "fc7c6320ec3b25a211a747d0a1773aaaeebfdbda",
+        "sha256": "95fbe9d524df32e0082b9965f99ebd075f0e30afdcf26ef312bcb57dd6f5debd",
+        "size": 9903
+      },
+      "scene/gradient.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "ea2e1e8b0ea0b0073383ef0c7ad0a32ddc8c59cd",
+        "sha256": "ae5a2643c3881a3b87b34e3794cbb6ca9d5b1c7dafc1c837ab23093fe9614c02",
+        "size": 10221
+      },
+      "scene/moon.pkg": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "f7d00eb6071e2f9507b22cbf0a6786cea3251970",
+        "sha256": "a9a6c452751fd60feb0047514d9a53944a6a6e2b4f25571ad36625bbe94ad272",
+        "size": 202
+      },
+      "scene/paint.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "ccc355a659126daf4256bf4cecb8684252011fe6",
+        "sha256": "05c2beb5b458efb99efc7bf511e3de8371f2b43613a382953496b75acc85f736",
+        "size": 9484
+      },
+      "scene/paint_raster.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "9a82b131009867f60faf7fdbb96d84bc149523d7",
+        "sha256": "932fe25eb76a93a88a91ba8089cba5cd59e64dc0f33809e03eb79b845c89f5cf",
+        "size": 15274
+      },
+      "scene/scene.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "467f9b949eb41f0bd320b53209d47344117dd313",
+        "sha256": "9ac7a4a14e7906422ebf6711321cb217096ac2453c44320bbd8d0c02ab0e8a92",
+        "size": 8104
+      },
+      "scene/snapshot.mbt": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "e81ac74304579bb21f2f2e85c8ef54f1bc017906",
+        "sha256": "cb0af9bc57f67c41e28259256d3771cc18cf6ce6b8880cec32f22f7b2f91cbc0",
+        "size": 22001
+      }
+    },
+    "module_context": {
+      "moon.mod": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "99da32ac781e0658c69c39930ae9195e394ac593",
+        "sha256": "2e90647efc31fb1e1b3b6684de02a1439b1afaa1d6c6e2e6b29a20c7af1faddc",
+        "size": 321
+      }
+    },
+    "api_context": {
+      "element/pkg.generated.mbti": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "45527b47e75a7423da7c49683dc94b4e32baac66",
+        "sha256": "de299efe3cfc9a908b35a39062d0dc4f03d5ba86a3f4719714667b5b4e604244",
+        "size": 19028
+      },
+      "scene/pkg.generated.mbti": {
+        "mode": "100644",
+        "type": "blob",
+        "blob": "beefaa2dc11a78651de33bde30963cbd0772d1c0",
+        "sha256": "dd8d5ccce0709a69e94b3d13003a4c275ac9110dc221030a380285926f7af56f",
+        "size": 11166
+      }
+    }
+  },
+  "legacy_suite_commit": "efc197a0ef9d64a35df6efe0ee2c97dff98ece04",
+  "legacy_suite_tree": "62ada6494e6f6ec6d463a1425f6e7daa2dadbce2",
+  "candidate_execution_status": "source-only; no native fitting-pair execution or actual-artifact approval",
+  "baseline_git_entries": {
+    ".github/workflows/anchor-browser-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f7b94bf99db9ecd31545400a3f1c4b7812c51b78"
+    },
+    ".github/workflows/anchor-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "aa691eea235d4372c37cf061fbb2af88813083c1"
+    },
+    ".github/workflows/anchor-margin-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "46cd2ae2d042764fb2397fbd4eab4664cb9c75f5"
+    },
+    ".github/workflows/anchor-margin-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0f52eed4d1a01ab8528df42bffd5d9de328f3f2e"
+    },
+    ".github/workflows/anchor-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "168855119bc3eb2c978f727e891e053307143fbb"
+    },
+    ".github/workflows/anchor-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "874ded0871d0b14cf303d8461fa5989897f123d3"
+    },
+    ".github/workflows/browser-examples.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9af03e00e41389962aedeca90a6a7bdec62d94b3"
+    },
+    ".github/workflows/browser-lab-cloudflare.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c3cd42cf6eec6ff3c3f46c8d7f95da1bb2f69cb8"
+    },
+    ".github/workflows/browser-lab-pages.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f5abc9805de83175257d3c39c9b5e6d6f757c198"
+    },
+    ".github/workflows/catalog-pages.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "460c489d6eba0349049bdf8264ed41b2cd1ffc5e"
+    },
+    ".github/workflows/deferred-priority-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d380eb479479b822f62c61663f4af99943957244"
+    },
+    ".github/workflows/deferred-priority-native-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c254594bbcf00427b804f52abc86ad8649e1b20"
+    },
+    ".github/workflows/drag-drop-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2d933e7d2aa57f4928e8d8990d08e7196dcacb5e"
+    },
+    ".github/workflows/gradient-browser-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9db26bb34d0d64e552182101808c037469c7a61d"
+    },
+    ".github/workflows/gradient-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8b3c3da4f665fb2023686c92cf9e10fef5df0547"
+    },
+    ".github/workflows/gradient-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a8072093bf9d2d278e744388762261adff944bcf"
+    },
+    ".github/workflows/grid-layout-browser-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0fbb802ad08b3667381f357a335b34fed49ff195"
+    },
+    ".github/workflows/grid-layout-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ea96db28c750cd9da39a0a77545678ee80a85f67"
+    },
+    ".github/workflows/grid-layout-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6506cf704b40980869cdd6c1ddce6db4fc8fe517"
+    },
+    ".github/workflows/grid-layout-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "98e807a992f35b953dcc5a3fa803fda0bd97dbb0"
+    },
+    ".github/workflows/harness.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec162de96f91074522c06ad854eb4c29a656d07b"
+    },
+    ".github/workflows/nested-deferred-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4660d8bcb45b91509ffbd1c365efed24c216624e"
+    },
+    ".github/workflows/nested-deferred-fitting-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "409cf7b9f41fb1d1404c9ca31fff09afcc824557"
+    },
+    ".github/workflows/nested-deferred-native-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ae4dbded7d56f3afd5c2afc2167eefaad5b3d066"
+    },
+    ".github/workflows/tab-stop-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "320052c9416f6df2b5aa9a53cdf2ecbbfefea05a"
+    },
+    ".github/workflows/uniform-list-diagnostic.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b92958a1ed9a103dffead7f22ee6b6441b7ed813"
+    },
+    ".github/workflows/uniform-list-oracle.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f7aebf576ba638fa91850492695bf471a0c9d673"
+    },
+    ".github/workflows/uniform-list-pair.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d70cb1ebb3183f07ff6bb21baaf80dace6956523"
+    },
+    ".gitignore": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "840713d56c8e2aef85b9595a90b60d19e1d9f534"
+    },
+    "ALIGN_CONTENT_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b616411afc73c72f78d98ba55000e525f2c00376"
+    },
+    "AX_COMPARISON_INVESTIGATION.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6501e5294141fd0acffeafeab5a3c9e212c7b8fc"
+    },
+    "AX_DIAGNOSTIC_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cf1f50ce1e78d42eed8c0a33d69c12f607156273"
+    },
+    "AX_PROJECTION_INVESTIGATION.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4fd6567563403328200c16ab605a669c8658dc17"
+    },
+    "BOUNDARY_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f8edaff6c8921e2e09c64f837327bba1523923f8"
+    },
+    "CONTENT_DISTRIBUTION_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1c5e73aaa9c01c7b29f8bc3f78a3a215948d3dcc"
+    },
+    "CROSS_AXIS_LIMIT_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9e2b8a8f5f4e2a3f31d9d71482cff1eab97a0b8a"
+    },
+    "DISTRIBUTED_SPACING_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d950a01b079995df72dbb133fb3a13f1666109fe"
+    },
+    "FLEX_LIMIT_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d0bfa642e1e099746ba275031c6881d21cd80a14"
+    },
+    "FLEX_WRAP_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bbf9237818d50389936f37a365495cd1a11a633c"
+    },
+    "FRACTIONAL_GROW_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0cb137582ad98fdeee8f7874850962ebfc0c8d93"
+    },
+    "FRACTIONAL_SHRINK_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a581f53912f0730f346ca87100faca82de6b5479"
+    },
+    "GAP_BUDGET_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c881f510b8e7a3a4ea6374f7924c1ed485672e69"
+    },
+    "JUSTIFY_BETWEEN_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5375d96f03e4848ee68b80dccaff44b25a0cb4f2"
+    },
+    "LINUX_HEADLESS_RESULTS_20261015.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c389e76fb7da68596e271fe25a72214b17068cc4"
+    },
+    "MERGED_NATIVE_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a677be64bc29c18da057caf7aab0b98a39812278"
+    },
+    "NATIVE_OBSERVER_PREREQUISITES.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "778e2dbb1012585a1c8da33f0ce653a73e1351a9"
+    },
+    "NATIVE_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2cc8939b3e487918f6659f04161a9a982585ee06"
+    },
+    "NONACTIVATING_NATIVE_FIXTURES.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "71dd8727408bf6d0d70a40edd8406a0913db80cc"
+    },
+    "NONACTIVATING_NATIVE_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "65687286a1b0a6d92da9810854d34e00e6c8e702"
+    },
+    "OBSERVER_READY_PROTOCOL.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4a3e0d4bd13b0d62ffc4396218e962ab0162dfde"
+    },
+    "OBSERVER_READY_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2751c1ae64f64d117ff6ef301cee60327ba93bc9"
+    },
+    "PROVENANCE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ad9cab2933eefd9f3a6640c1060781294eb1b281"
+    },
+    "PUBLICATION_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "00c14c332788420ec551bdca3157c233bd66f64d"
+    },
+    "README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fd03173690d8fa239b82ed0a41fdecb174e1bc0b"
+    },
+    "RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7da16f970f20f7f23ac0ceb6710fcf7ce216c9ce"
+    },
+    "RETAINED_IMAGE_RESULTS.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "91b2d876d4b49ae0c3cdf8ff1a2a50932b963b3c"
+    },
+    "adapters/anchor_margin_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3c9a0469a9e1fa789e77b8788c6cd4052897f656"
+    },
+    "adapters/anchor_margin_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/anchor_margin_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1c9bf77027672a9bbcbd7c5e777c04391edfb70d"
+    },
+    "adapters/anchor_margin_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4fb5ff2c675d233abe07bbab1834b94169c63d24"
+    },
+    "adapters/anchor_margin_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f07d2849d9c9f497458f59db4de2e7b50a4a4254"
+    },
+    "adapters/anchor_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b03b998df84f26b01d19ca343be9cc3b364774ad"
+    },
+    "adapters/anchor_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/anchor_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bb8ae6d96dd2ee805486674b86d74cf0c5856ee9"
+    },
+    "adapters/anchor_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "40262117ca953bcbcc23e3c03aa40b47ec0203ee"
+    },
+    "adapters/anchor_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f54e367ad90a271aca4d2402ccfd205d61226f88"
+    },
+    "adapters/ax_appkit_control.m": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c758dae86a8aaa5dde64ad41f41b605d04ceeb3a"
+    },
+    "adapters/deferred_priority_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7fd6db0266251cf7c12bbc199cf7f0f276ce7b09"
+    },
+    "adapters/deferred_priority_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/deferred_priority_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4ea72a9e50fe914f24868a5ed0f3f19a0474b855"
+    },
+    "adapters/deferred_priority_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "48c7b88048138e1798aad7598dac971ed1a5d3fe"
+    },
+    "adapters/deferred_priority_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c12e7c127f3e37eb9547b694b6f9b9047a845a2"
+    },
+    "adapters/grid_layout_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "29e64c9c70d1115338dd14a4582429d9c8e3edd3"
+    },
+    "adapters/grid_layout_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/grid_layout_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "53facc7526c299273e49466d0970d12034cef94e"
+    },
+    "adapters/grid_layout_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "91979cac9b360841468535c9d1247540f5ab47da"
+    },
+    "adapters/grid_layout_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6bb18a192d027e967010e2ce06dedb0d8d5c990e"
+    },
+    "adapters/moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1d2f463e57d02606f587c41bdc52d71ba953d574"
+    },
+    "adapters/moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/moonbit/routing.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bfffab625d154db87db831d73bf5e0ee4503b9ed"
+    },
+    "adapters/native_moonbit/foreground.m": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e429a72fde22721759daf1224711696adda5b6a1"
+    },
+    "adapters/native_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "423ca9070491fbc78bf10e5d0355ebfefdc46571"
+    },
+    "adapters/native_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b903beaf35cbd3e934e0fa746f68733813911fe7"
+    },
+    "adapters/native_observer.m": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15a8028fe5250d47e71b8026d475d1fa4444b3da"
+    },
+    "adapters/native_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "28318de431aac31d535dcf1409acfbf2bce36c67"
+    },
+    "adapters/native_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "111d32c6f09a5080de2db86e924424a62a1724fe"
+    },
+    "adapters/native_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6ec4b0c0594712a8bf7d64c321a960ce38b4d7a7"
+    },
+    "adapters/nested_deferred_fitting_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8cd10e4abbeaace3030ba0b1c7ae80340ac434b1"
+    },
+    "adapters/nested_deferred_fitting_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4a3ea5cdccacbdab05a8ca65a917ed0f21e5b5aa"
+    },
+    "adapters/nested_deferred_fitting_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e9c7484a0cf029b021937023d4123267a6e151eb"
+    },
+    "adapters/nested_deferred_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cab038f6b2577fc2b1326911fa1839df87a00191"
+    },
+    "adapters/nested_deferred_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/nested_deferred_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "375595ce0c8414e9e45a8a533da460359fe91507"
+    },
+    "adapters/nested_deferred_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ce53c80399d80c22e22c4d122ceb1dc4772e20a1"
+    },
+    "adapters/nested_deferred_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b5ff7293f477f8921e4d2ce0094ed72671021ad6"
+    },
+    "adapters/rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "948b356db90228ba4c52fd7af5ee692ecd317af6"
+    },
+    "adapters/rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "60ffdba73e9f1c417fc56cd831b8b6ab5ea13d10"
+    },
+    "adapters/rust/src/boundaries.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2abb7da34676983afd71daeee2e32af5f323eb60"
+    },
+    "adapters/rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8e9068350c7476970665498c1104eec89f1dddc1"
+    },
+    "adapters/uniform_list_moonbit/main.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ef8550b5f6482c9ba4ee5a0653876084712af618"
+    },
+    "adapters/uniform_list_moonbit/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a55f92530943b31651a720025a50cf3b8ab52b9"
+    },
+    "adapters/uniform_list_rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7012ccce152889696e1df9d32ba5218f7f3471ef"
+    },
+    "adapters/uniform_list_rust/Cargo.toml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ef90d7a53b0c67cd17ded1087ddaaac67e18f257"
+    },
+    "adapters/uniform_list_rust/src/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b17372fc25f1468c098280436cdb124b8acf0ce2"
+    },
+    "align_content_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e922226bea2617eae3619c17e7ea25086b8c1e30"
+    },
+    "boundary_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55b0e5c4ab6f062bc78c6ef4e181f373d3af0513"
+    },
+    "catalog/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ab16b4b30414f357fc9a05361b51b7430a7e5c1f"
+    },
+    "catalog/app.js": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8bddccb8c1f7a722797a80d3a916d07f9cfbd220"
+    },
+    "catalog/assets/hello_web-moonbit-20261016.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ecd87c00b91b5b3a211090336674296e2e7d90ff"
+    },
+    "catalog/assets/hello_world-moonbit-20261016.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55771365fd50c9e9966156c7107525091e6d7531"
+    },
+    "catalog/assets/text_layout-moonbit-20261016.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "182e49bb881adc3b09eedbb2e2736064a969d384"
+    },
+    "catalog/assets/text_wrapper-moonbit-20261016.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "46aa4bee4a98574183f53ab8b8ad1bf21b05d9ab"
+    },
+    "catalog/index.html": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f45e87344020bf2055bfbb2295161fed5ecbc853"
+    },
+    "catalog/style.css": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f29dfb67dcbc6539b075e7bc4b28899eb84e135b"
+    },
+    "comparator.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5e89b68f74c4096aac10afb915e8c9b586045352"
+    },
+    "content_distribution_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3f11a5a02ba5e5b29862aea9b298bf1a53c00a4b"
+    },
+    "contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1661e5b8cfbecb5dc9bd0122fd042957e86fba9f"
+    },
+    "diagnostics/anchor/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7487ffc4a1c3389a888dc0a419cf8705dc94250b"
+    },
+    "diagnostics/anchor/epsilon-regression.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e3cc6e62b4cce44b1e540feea413fe8c7d504854"
+    },
+    "diagnostics/anchor/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2e5bbb1a83a9d64cf2b4c4b88855266e0ddadbc9"
+    },
+    "diagnostics/anchor/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6aa30248e610a33f05cee28c29728f9853800fcd"
+    },
+    "diagnostics/anchor/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "425589600b6d56246615134165b437faaad685e5"
+    },
+    "diagnostics/anchor/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "918baf9f39ac89a5f64a913fb24aac7ea3eff97a"
+    },
+    "diagnostics/anchor_margin/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b94fbc35205ae16dc2b52366b52cd5bc1eedde40"
+    },
+    "diagnostics/anchor_margin/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "23979c8dca771c88d9073e30425f7b1bf7462990"
+    },
+    "diagnostics/anchor_margin/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6eb567c774747ff307fef902ff81d87800737cf9"
+    },
+    "diagnostics/anchor_margin/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "df6f0f5e6ea2385de4be1bd4c7c2d22c4143ae43"
+    },
+    "diagnostics/anchor_margin/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "588790d4d2e0d8ae534a620d8ed6787fe4b0f3c9"
+    },
+    "diagnostics/anchor_margin/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "97826d26c150d2e4b2541c4a31e4e1b2f4ab9d96"
+    },
+    "diagnostics/anchor_margin_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "493f0d7c002d7081d585269699f30339d21e7b13"
+    },
+    "diagnostics/anchor_margin_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fb41851d11589fdec50c512813c563021b8d3325"
+    },
+    "diagnostics/anchor_margin_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c44c16a53a742892545b2307935e61c2a74f88c0"
+    },
+    "diagnostics/anchor_margin_pair/observer_compatibility.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15159f382a022ffa3ff55e2d4ca760a8f0488364"
+    },
+    "diagnostics/anchor_margin_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "67c1bc06b90e55865ae305133db9efee7c3db58d"
+    },
+    "diagnostics/anchor_margin_pair/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e3bbd15b8888cfa9613951fb702289afd47ee3b5"
+    },
+    "diagnostics/anchor_margin_pair/regressions.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3244d123e741bbab440e2f030d270ba979ba3e81"
+    },
+    "diagnostics/anchor_margin_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8e7c9de91cdf2df480061c1c66141274ca94572b"
+    },
+    "diagnostics/anchor_margin_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d433f83a3a21a768acf3591837351f8537b5e3ea"
+    },
+    "diagnostics/anchor_margin_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f60c4c11d93c3a105621ae260155947d075825d1"
+    },
+    "diagnostics/anchor_margin_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "eb230a46208f6ee48ee28cc99a32f833451c6ba9"
+    },
+    "diagnostics/anchor_margin_pair/verify_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e112f49cb2afe6a1b202e93aad1e525bfc2240f2"
+    },
+    "diagnostics/anchor_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4d0c48a99101bdc134c6d0ece6354ec6be337a21"
+    },
+    "diagnostics/anchor_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8bc2ff2ee87abb51bb0b8ad812017b5e6600006a"
+    },
+    "diagnostics/anchor_pair/fractional_viewport.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ade16837f3fa9fb0e449b73834f1f0121023517a"
+    },
+    "diagnostics/anchor_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5e8c3be4355552bdb889773eb040ef1d1c70df3e"
+    },
+    "diagnostics/anchor_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6feb8745198a7dcea686b5ce0b02dcd268bd2ff2"
+    },
+    "diagnostics/anchor_pair/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f606f60f50ebda2ae4030ee78c90af4ec999a453"
+    },
+    "diagnostics/anchor_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d8fac61553848b081b7955f6e0e926d2b322e4ea"
+    },
+    "diagnostics/anchor_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "777d42ccf529427a140fed4fad67b963bf3dc63a"
+    },
+    "diagnostics/anchor_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c6da9089a190176e33047e6cef9a0811a6ae8257"
+    },
+    "diagnostics/anchor_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bf54d24d277c68278c354a480d985aa24c1db5bc"
+    },
+    "diagnostics/anchor_pair/verify_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d03cab233c571199fea9fbfbde2be1024d857640"
+    },
+    "diagnostics/ax-appkit-isolation-linux-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2c6bbcb9b4c7ec1ea17930ab6f8cca573cb53b85"
+    },
+    "diagnostics/deferred_priority/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bcf4abd96b6532fc2344a0f81dce0e24f9da8007"
+    },
+    "diagnostics/deferred_priority/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "977e8d6ee4ece09a88a4ec2bdb0cdc486c4e363f"
+    },
+    "diagnostics/deferred_priority/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f6e03179b3aa7bcbc583b09712f48efa9b7f9163"
+    },
+    "diagnostics/deferred_priority/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "74206ac67f4387d1b4b90e134fc4b6ae53b60da4"
+    },
+    "diagnostics/deferred_priority/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "74e734b19087f4d0c469eeb6ec93aa1cadea3d12"
+    },
+    "diagnostics/deferred_priority/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1c47ad141912871d74339e01f06c0119ebd5fae9"
+    },
+    "diagnostics/deferred_priority_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ba1d19706460c4af3df7d9eb39d83a460299bacb"
+    },
+    "diagnostics/deferred_priority_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "faf2a7772be184bbeed52283851d517d9ea1d651"
+    },
+    "diagnostics/deferred_priority_pair/comparison-policy.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4ba3a2e5ddd0b33a5b6fba4dc153dc46e286967d"
+    },
+    "diagnostics/deferred_priority_pair/control-policy.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec7e857c0f8df7fd61b27d18bf620e78addb4a30"
+    },
+    "diagnostics/deferred_priority_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fc4edf10574118ccdf17c36ab465107cb3792657"
+    },
+    "diagnostics/deferred_priority_pair/observer_compatibility.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15159f382a022ffa3ff55e2d4ca760a8f0488364"
+    },
+    "diagnostics/deferred_priority_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "da033c28e42cfde01786c81fb0b974c840b8b899"
+    },
+    "diagnostics/deferred_priority_pair/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "08d0b8f0261363a9d215c889e2df426d8e9f9ccd"
+    },
+    "diagnostics/deferred_priority_pair/regressions.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6c502e48d86b8729d8c64f49a99746eeba1c66ee"
+    },
+    "diagnostics/deferred_priority_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "47c685e590c209c83fbac8deef7d17cdc8d50c53"
+    },
+    "diagnostics/deferred_priority_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "73614d2ccf3c900c2b2ae9778df3b4e2f9b34f47"
+    },
+    "diagnostics/deferred_priority_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d954b400142f7a064305ddd89c59e8d84d9bfe00"
+    },
+    "diagnostics/deferred_priority_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b7c144080e639302cb2ae604ec4fc2c405b4665b"
+    },
+    "diagnostics/deferred_priority_pair/verify_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d189331b03d0b9d34ed7e2d1d970eebbbf59101d"
+    },
+    "diagnostics/grid_layout/LOCAL_ALL_DIAGNOSTIC_CHECKS_20261016.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e6b6182616958066f23d2b08875b2e55d722d99f"
+    },
+    "diagnostics/grid_layout/LOCAL_CONTRACT_CHECKS_20261016.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3f4d319b96a09084887efe1405daaebd14f6117f"
+    },
+    "diagnostics/grid_layout/LOCAL_CONTRACT_CHECKS_20261016_RETRY1.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e38cde6edc96ed6011be6918b6e378431176e5f5"
+    },
+    "diagnostics/grid_layout/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4725fd52f24d77ac1698ccf9ad9ec5455eaa66f1"
+    },
+    "diagnostics/grid_layout/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec49e9d8ba2a86b3c4dd105d0825cad3b184cafb"
+    },
+    "diagnostics/grid_layout/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "73b93a416cca5206364d6528c1c2e742ec1cc63d"
+    },
+    "diagnostics/grid_layout/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4897f6c9556e96f424654502d123a0a9437d975e"
+    },
+    "diagnostics/grid_layout/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a42740d7a77fdb5f07370cf033cdb49f6e98060d"
+    },
+    "diagnostics/grid_layout/witnesses.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3f9c8a868ea41f0a2aaeb0c520209d98a94420d8"
+    },
+    "diagnostics/grid_layout_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "053e61ca0a47aa08a4c9ceaae7a1d502e190cdd7"
+    },
+    "diagnostics/grid_layout_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "74dd24ca1c3aa5bf0b03b55364bb1dac4a043cb9"
+    },
+    "diagnostics/grid_layout_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "774a2202e69787cfebc861f708339a6bbe94d391"
+    },
+    "diagnostics/grid_layout_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ddf1955f62b56e60cc79f8c0077e7191bfa889ef"
+    },
+    "diagnostics/grid_layout_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "36e1810502a0f1bf6f41f1a363c9325548638c09"
+    },
+    "diagnostics/grid_layout_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "436530d1bc2878547331c9f2f860e8d60e6d5d53"
+    },
+    "diagnostics/grid_layout_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fccfe190b7d3186beeabad282f1361a11e212572"
+    },
+    "diagnostics/grid_layout_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2579a6bca8400bd9c99d694aa3f23e01d15f8706"
+    },
+    "diagnostics/nested_deferred/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3db339a982d5f7c4553b6e12d46ea70076d6ef94"
+    },
+    "diagnostics/nested_deferred/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7541c4079ad406b1ad5bb755459614bd8e92bb15"
+    },
+    "diagnostics/nested_deferred/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "815336b0548dd496f08fad8d2cbad9fd27406898"
+    },
+    "diagnostics/nested_deferred/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b62e2de81d220d438ef04ea704759491219aebc3"
+    },
+    "diagnostics/nested_deferred/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "057ae62fa6509dfeba20e22fda501b201b87f0a4"
+    },
+    "diagnostics/nested_deferred/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "53b75e3b5310d792e220a1957810cf1ac613e53a"
+    },
+    "diagnostics/nested_deferred_fitting/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c929b9fe4849b08782fff16a46049358af8f785c"
+    },
+    "diagnostics/nested_deferred_fitting/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "751b55e6409b2fb8bbdca7095aeffd72d6c5737f"
+    },
+    "diagnostics/nested_deferred_fitting/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d9a1153cf6d4ab62d255d7a46546a60e3374e1ba"
+    },
+    "diagnostics/nested_deferred_fitting/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d569c4fd64f42fb40b31af45f7aa939ccfa8534"
+    },
+    "diagnostics/nested_deferred_fitting/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "de09448c8a5a5b2eebd89299e4967c52a8796fb3"
+    },
+    "diagnostics/nested_deferred_fitting/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f5e005a642919c3a3f6145c5493e54d51bd37a1d"
+    },
+    "diagnostics/nested_deferred_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ca6b7ea9316a3d8be1bfdd187dd4c7ca0bdbaeec"
+    },
+    "diagnostics/nested_deferred_pair/actual-rust-projection.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15372871297eda021de8d45e20895bea79fbb8f8"
+    },
+    "diagnostics/nested_deferred_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c6b82c244b2e5f61ce3d2f328daa5ff516a86a88"
+    },
+    "diagnostics/nested_deferred_pair/comparison-policy.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "620b9affc4d3f8d9098c8752415dc2374dbb704e"
+    },
+    "diagnostics/nested_deferred_pair/control-policy.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "441fd406235bd3c1cff1331b8ea4d3941a50a88a"
+    },
+    "diagnostics/nested_deferred_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "08595ecd6dce82ff7dc01a8089607976b7770763"
+    },
+    "diagnostics/nested_deferred_pair/observer_compatibility.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15159f382a022ffa3ff55e2d4ca760a8f0488364"
+    },
+    "diagnostics/nested_deferred_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5e8bd1d8287449cfcfb5cb023fded7940a02e844"
+    },
+    "diagnostics/nested_deferred_pair/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "120538c6268b7bb33364037671cf4c85fed63811"
+    },
+    "diagnostics/nested_deferred_pair/regressions.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "30c0382f2b57943de2f8005fc9a05d53020e72a7"
+    },
+    "diagnostics/nested_deferred_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4599ee64643c7aa1b8428f033b5bb822ae3c2af1"
+    },
+    "diagnostics/nested_deferred_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "025ec5c6da6b2ef0aef0b965963ca517cdb61482"
+    },
+    "diagnostics/nested_deferred_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fe4da9de524f2f5f6d3baa5cf192fccbc86e99f5"
+    },
+    "diagnostics/nested_deferred_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3f3d07844689c63db30f9ea8e18e36f72849a76e"
+    },
+    "diagnostics/nested_deferred_pair/verify_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bf1d9a7b0862fb4ecf779fcdd7178a9222b0e89a"
+    },
+    "diagnostics/uniform_list/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "eb760ceef27d6deced43357854d9fff50c8f0d94"
+    },
+    "diagnostics/uniform_list/raw.schema.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a43a2afa928c4762dea9de10f2d51830f81325a9"
+    },
+    "diagnostics/uniform_list/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3531be45a64332fd501298c69454e933f5b06d2b"
+    },
+    "diagnostics/uniform_list/scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e6f480c835eb013c4f2c284754fe072730f1f3dd"
+    },
+    "diagnostics/uniform_list/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e33ba8b221a4d14787f0cd537fefe08d74334d1f"
+    },
+    "diagnostics/uniform_list_pair/PUBLIC_RESULTS_20261016.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9c06ab42a4963cee2512b2be44aa4891c7712790"
+    },
+    "diagnostics/uniform_list_pair/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dc9ded1aaa1f0e121494990d876a6a493630cee1"
+    },
+    "diagnostics/uniform_list_pair/RESULTS_20261016.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "392078977cb88bb2d94d1a21401edc23e52ff335"
+    },
+    "diagnostics/uniform_list_pair/approved_baseline.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c140ed80492d885e603b3751cd07e08e88f9d318"
+    },
+    "diagnostics/uniform_list_pair/compare.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3889cf34e815a3be3ee2705d127e0253db5e14d2"
+    },
+    "diagnostics/uniform_list_pair/mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f8034b7914a4cd6806f6f7b90bd812b6c42eee63"
+    },
+    "diagnostics/uniform_list_pair/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "83adaadb8ff8bcdc2f1ba5b57f33310997cbd55c"
+    },
+    "diagnostics/uniform_list_pair/range_guard_test.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9449690f966f2af9245b7dd265a08314246e557b"
+    },
+    "diagnostics/uniform_list_pair/run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d20aaf81cae5c1aca5e5d3bb7d2f02d32473f784"
+    },
+    "diagnostics/uniform_list_pair/run_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d5fd3d35aa3f24939494d60b3184b23add1086a"
+    },
+    "diagnostics/uniform_list_pair/run_mutants.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "79fde4963ffa2c474adc9537fc8ea72bfb05fcbf"
+    },
+    "diagnostics/uniform_list_pair/run_range_guard.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e5724814814b61d74fb822fcc133d40933c4a3f8"
+    },
+    "diagnostics/uniform_list_pair/verify.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "efd442194fc114f7af96368dfdd39de7fa608b81"
+    },
+    "distributed_spacing_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e997cf4b4c9050279af19d1aaba4d1ecf0932abe"
+    },
+    "evaluate_native_images.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ac3a1089add89d3db0bba49b04b512aff9a24c07"
+    },
+    "fixture_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "638d5e7b8ec8a1138b55269ef610143511b22611"
+    },
+    "flex_wrap_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d68d44b9a8b36267d13a6420e7d2f00097149a3a"
+    },
+    "fractional_grow_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "05e20b21a119ce0d870fbe0b6673a9c5cde670a3"
+    },
+    "fractional_shrink_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d194f700480e3603d29afc9c937cfce3b4706f0d"
+    },
+    "gap_budget_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b55219cfeec92e2626788e8f4f63c7c7f2f75621"
+    },
+    "issues/open/20261015-ecosystem-differential-conformance.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a2d06f82ee10e62f23c4453db612e2f7baf17c27"
+    },
+    "justify_between_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dd452c404046ff78606a329a4dd73b45ff220b0c"
+    },
+    "minmax_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c655af3676871bb006e720297e1bdebb1ab3e44c"
+    },
+    "native_images.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7db56b17013770f01e9507f7bfe0c042d918efbb"
+    },
+    "native_observer.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6bd2e0f7ac3bf104031c5cbcaad815a7b8228777"
+    },
+    "native_observer_status.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "32609d0b4ccd4942f320ea7d65b1dc07ac2e9ea7"
+    },
+    "native_scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "78c53c6959ba37584896492fb44170a74b398397"
+    },
+    "observer_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c9cd704bdfbddc8d5762561aa83338c75db060a7"
+    },
+    "pins.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ad32a261bdb342fa4bed1d5e598245fa362df837"
+    },
+    "prepare_visual.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0f2feb1476307cb33153e37014abb22b3009fc8f"
+    },
+    "results/align-content-linux-x86_64-20261016.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8d1a442561123a1340786ab5b90244277bd98c9a"
+    },
+    "results/boundary-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d38e3ab6dde5112accdd3126d9d707892a4a7a4f"
+    },
+    "results/content-distribution-linux-x86_64-20261016.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6934cafe93ed76dabbbee4724fe69539fa573e77"
+    },
+    "results/cross-axis-limits-linux-x86_64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e8c4ed29dae1b9cc22080c89e6b95ed4df6fb82c"
+    },
+    "results/distributed-spacing-linux-x86_64-20261016.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ef01a045279f6f770b522bf020691a9da11de863"
+    },
+    "results/flex-limits-boundary-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cf980af2b5915522fc27eba6f022ffb94415d913"
+    },
+    "results/flex-limits-gap-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c407e429cd549ccd93613f4f6f07d534d966a0b"
+    },
+    "results/flex-limits-grow-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2bdf5e182d0f3bbaf002adbe7bfacad565d66c7f"
+    },
+    "results/flex-limits-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0031087fcd50b6767e73bdeaf522b7ba9c3e3d19"
+    },
+    "results/flex-limits-original-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7c6eaf488df1ce0131794f1de93c4f527e3cc795"
+    },
+    "results/flex-limits-shrink-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3c3b9e8967f6a44b68484166898b15d2314b7069"
+    },
+    "results/fractional-grow-boundary-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "906bf3e14e5d8c4bb34571f9114bb32c7cd22a08"
+    },
+    "results/fractional-grow-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3a296c544dc5515424beb04e5e1489f3c7571a88"
+    },
+    "results/fractional-grow-original-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fe90a8b0a454a1d53db822cca37956737b11db69"
+    },
+    "results/fractional-shrink-boundary-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ecfd9698938b4008c7c031f7a2606315a4017128"
+    },
+    "results/fractional-shrink-gap-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b82306f9b4986614cea2219a38f48a57895c2d5b"
+    },
+    "results/fractional-shrink-grow-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6cd4148ea97011d90b780abc9562c0bd6ec10bd6"
+    },
+    "results/fractional-shrink-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "64181c437ae47cd80f009d650d1880d4d1def691"
+    },
+    "results/fractional-shrink-original-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "59df5572a4f19a9c33e85f0a3c846ced11707512"
+    },
+    "results/gap-budget-boundary-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "795180cf9e09e72de67154fad16f9b645c56c713"
+    },
+    "results/gap-budget-grow-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7877c67858ed8a2eba590717e39b4d3daf89795f"
+    },
+    "results/gap-budget-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "faafc90325aa43519c3c0fce463970c3f2bdb08d"
+    },
+    "results/gap-budget-original-regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6e74298fdf8ffd525a74ef8328bd0e238f68f186"
+    },
+    "results/macos-arm64-20261014.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5f51b46f650ba3528007b6657395f5772101550a"
+    },
+    "results/native-ax-diagnostic-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b9bbd38a5372c4339f4014de87915136db05f210"
+    },
+    "results/native-build-only-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "59c23678611e25a7247915e073950a609cd4b19e"
+    },
+    "results/native-flex-limits-build-only-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c97e54b3a67f2f26c2b975ad1a5a7bf5f6cb031"
+    },
+    "results/native-fractional-grow-build-only-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d2c3f55e33de7b236926b8bf22e17fb6d3f0061c"
+    },
+    "results/native-fractional-shrink-build-only-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "28f5f7e4f7279e683ab68dc3ce42050f76a9638e"
+    },
+    "results/native-gap-budget-build-only-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8aedc506eaeddd82c2be00366fa2cb6f15a9f571"
+    },
+    "results/native-macos-arm64-20261014.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "28f5b59c1e5e73ccd9e6f50f2fa16587f0af8d68"
+    },
+    "results/native-merged-macos-arm64-20261014.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c559c126cfe5fef19abefd406fa902bc3eba3d7b"
+    },
+    "results/publication-macos-arm64-20261014.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9d0f60310506e03883f12b18b4ddea0e239e70c5"
+    },
+    "results/regression-macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3e5b991f9e1db9e89df181fdb9e7ff4b9c2ea2b2"
+    },
+    "run.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b4a8a4e47a484e82dfd4d94b464f9bffee5515aa"
+    },
+    "run_ax_regression.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "08f3a09d470906586e26a7dd001ca4a7efc6c051"
+    },
+    "run_native.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bfd132b62654c029a88d2cd3ebaa3f68839ced9f"
+    },
+    "scenarios.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ca238740d9830e78ddfce1ae951cce31b089c19b"
+    },
+    "scripts/build_test_catalog.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2103243d11645dbb461f051d07c37c00fbcc5166"
+    },
+    "tests/catalog-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "478dba0814cee5837c08879df75e3e716e9499d1"
+    },
+    "tests/linux-headless-101-summary.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c2677403f522222e35052526debb52dba3f8f2ad"
+    },
+    "tests/native_ax_observer_test.m": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dfc305a051d0aecc79fa1010690f08aad7e3fa2e"
+    },
+    "tests/test_anchor_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "20a330bf82240548765bbb02192f1f9e0c03fd76"
+    },
+    "tests/test_anchor_margin_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "959e08e1cd9100a83eac11578975a035ba841476"
+    },
+    "tests/test_anchor_margin_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fa8d78e1f0b58ef07a74d1a7d81465d571faddae"
+    },
+    "tests/test_anchor_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "49eff822dde35ab808b0b40ac9098857b9bd2548"
+    },
+    "tests/test_ax_regression.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4c0360f8683e83dff02faf47ab8844ab09570bd7"
+    },
+    "tests/test_background_evidence.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2142c677be065bbf3e14261f4974dc941160b0c7"
+    },
+    "tests/test_boundary_evidence.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "04a68bd0a7cb8894dd69f001093dbb3874f43509"
+    },
+    "tests/test_bundle_evidence.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3a230ad4558b40ad6fb18cc2d384c637626f92a1"
+    },
+    "tests/test_catalog_site.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8bb61b862ad30eb966a3c96f3b6f2023aa0b3f21"
+    },
+    "tests/test_comparator.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f70ac0cf9a7d662ef2d1a8ab1e7f156089844fa4"
+    },
+    "tests/test_deferred_priority_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1d0a27176236a0d998c19d872815e5ddf81d7f1b"
+    },
+    "tests/test_deferred_priority_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "37e30c417e3157e0ec1cac74b8df3d396759d3b3"
+    },
+    "tests/test_fixture_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f6cf6793154848d1bc57ecb54cf0eab2928d82ac"
+    },
+    "tests/test_grid_layout_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a1ee8204b1154451d5f8a469eb3bf4e776284ff5"
+    },
+    "tests/test_grid_layout_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3663a8ff01fd246c060142801b3a80d4012f1cc1"
+    },
+    "tests/test_native_evidence.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e04d1e226f1b2287ff6b3fd83d13c8ad2f75c348"
+    },
+    "tests/test_nested_deferred_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5129b5203189505438785ad9a82906931e62cc41"
+    },
+    "tests/test_nested_deferred_fitting_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4c47e2268756f726d1bd8b0b1709314801dd1a74"
+    },
+    "tests/test_nested_deferred_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9adb583cac0cf73bc161dd3b04dd2d61e0fa29fb"
+    },
+    "tests/test_observer_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8ef0df651ee2da861a11df6cc92a19c47aceb5e0"
+    },
+    "tests/test_observer_evidence.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fca378c46c47e241073d78c2e94e03e618df9562"
+    },
+    "tests/test_portable_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d1deadc64874cbfd306a84c7b6f3efe2403128d0"
+    },
+    "tests/test_uniform_list_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a0c0ad7f3bfdd906c8c905c305bb8102515b9861"
+    },
+    "tests/test_uniform_list_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f92445c4a84a5b42b3a7dc4dfed043c6872efa2a"
+    },
+    "tests/test_visual_contracts.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d6cbc2d092f0ca465cf65467d60e5ccf4ea40df"
+    },
+    "verify_native_images.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cf928598463717feeb352eb64e2b640187fae8ed"
+    },
+    "visual_pins.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0f4c2647d62a788c3c1051b42b947d2904a74194"
+    },
+    "visual_results/macos-arm64-20261015.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "074b9a0e31f32d8c7ea69dbc2bddf8f74345c531"
+    },
+    "web/ANCHOR_CANDIDATE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b6123630307458479fe6aa9855794549438dd425"
+    },
+    "web/ANCHOR_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b7cfe3eccff77d0da4cdd1c5617ee928f04f45c0"
+    },
+    "web/ANCHOR_ORACLE_COMPOSITING_CORRECTION_20261017.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a8ffacc1c7c0ead3ac0768a21e6c4502a9e47b6e"
+    },
+    "web/ANCHOR_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4c762395e4f38949e2e5aef54b65223e6cf6cf32"
+    },
+    "web/DRAG_DROP_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ee4c5b9ef8b301507528aef5bf8156af4a0df87a"
+    },
+    "web/DRAG_DROP_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4a62625287cc6b2163ed1f0a427b70548c20578c"
+    },
+    "web/DRAG_DROP_PREVIEW_PAINT.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d952f873feb891188a7a18728da5fb0f7a822750"
+    },
+    "web/FOCUS_VISIBLE_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "36f4d1c5e0c95311d85dfaded28dfb355b2834e7"
+    },
+    "web/GRADIENT_ORACLE_STAGE_A.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3fd46e71fbfa0b22b351ef5f3ccacc9d637aeb83"
+    },
+    "web/GRADIENT_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9da1ce783dd2a3c97e7b9af872311192add9330e"
+    },
+    "web/GRID_LAYOUT_LOCAL_CHECKS_20261016.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7293045f8b9a01d58fcaf60be36f7c844449b436"
+    },
+    "web/GRID_LAYOUT_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "678d1b046e8c4f80b3af11815c0971bf71aaf6b5"
+    },
+    "web/GRID_LAYOUT_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "081bd7e4facb56d5c332b2b6d4f14fdabe969c24"
+    },
+    "web/PIXEL_ANALYSIS_20261016.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "df7a6adb260c6fac34147f60b0f997ff619dec90"
+    },
+    "web/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f921ad87e0cff61f5027e4e3351e75e98936c977"
+    },
+    "web/RESULTS_20261015.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2b69b95385afaddfa2b4742651479c98e8690a50"
+    },
+    "web/TAB_STOP_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "814e41fbca2109b33bc40c645cb3e49fea861eb6"
+    },
+    "web/TAB_STOP_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b28ff455955acc57f7a30dd4e91288ffc14d453a"
+    },
+    "web/TAB_STOP_SHADOW_PAINT_ORDER.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "44ec14b17f797b8f2976a1b3c99aed4607f461df"
+    },
+    "web/TEXT_LAYOUT_PIXEL_ANALYSIS_20261016.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a7fb3bab909d58aa6c9705da1aaeb14e5427ef22"
+    },
+    "web/UNIFORM_LIST_ORACLE.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "71b246072b6c48a19b12157a64f13a63512576a6"
+    },
+    "web/UNIFORM_LIST_PAIR.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d00ec9ceb737fdf54a1f5315c60deb9ee6bb405e"
+    },
+    "web/_headers": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4dc03cf70d5c6ec790c79e5f051c95cfae62ddc3"
+    },
+    "web/app.js": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "618057096179bca3f046e9b3d1af1cde74a5a33d"
+    },
+    "web/evidence/20261015/cloudflare-local-smoke.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "022aaccb9fcdd177190cd61d32ba6c4bfac08d23"
+    },
+    "web/evidence/20261015/difference-x4.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c6e4afaf799c5b5783f470bc78704800f32df516"
+    },
+    "web/evidence/20261015/green-mismatch/moonbit.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3fb8dc502db1c8d3c6623fbcd69a78fd152d844d"
+    },
+    "web/evidence/20261015/green-mismatch/result.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5cc439be411c2c47e0092b3758cc3b4baa595d34"
+    },
+    "web/evidence/20261015/green-mismatch/rust.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6f1bb01f69172b1dc38b999e406fa7279b19c7dc"
+    },
+    "web/evidence/20261015/hello-world-pair.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0c9bd0e823c4e0d1c2199217f0d14585975a39bb"
+    },
+    "web/evidence/20261015/mobile.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a39a22a0e3863a8950159bcd303aed33e79dd152"
+    },
+    "web/evidence/20261015/moonbit-browser-events.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c5bec5f3b024bce91264acdc14596c482cf0145a"
+    },
+    "web/evidence/20261015/moonbit-scene.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "67bf01fd7cae829af9b58ed4dee04c0527fd7887"
+    },
+    "web/evidence/20261015/moonbit.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4d5a16aa526da546d0462da637eb1e84378af9a4"
+    },
+    "web/evidence/20261015/pixel-regions.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "511a6e429c40c404b1ba417b27f6e18988b62a15"
+    },
+    "web/evidence/20261015/result.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4ebdcb597731a789aa98a96f518da29aa2e62926"
+    },
+    "web/evidence/20261015/rust-browser-events.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d5cc0ffc9dac3894c9ddbf86d5edee8dd860f497"
+    },
+    "web/evidence/20261015/rust.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b2707737a68a99a975f229a2e701c7117a4f8bd1"
+    },
+    "web/evidence/20261016-prime-sieve/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0cd0cffa4aaa1a16e0c124bd310f84660629fc94"
+    },
+    "web/evidence/20261016-prime-sieve/captures.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ed7db1faa31f83ebd832d9980cbc8e4cdf47d467"
+    },
+    "web/evidence/20261016-prime-sieve/prime-sieve-moonbit-result.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ecd87c00b91b5b3a211090336674296e2e7d90ff"
+    },
+    "web/evidence/20261016-prime-sieve/prime-sieve-moonbit-scene.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1297ac648290c64400eba913af264a0337c400c8"
+    },
+    "web/evidence/20261016-prime-sieve/prime-sieve-rust-ocr.txt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f9a43ddd6425300bb3e5cc847332a4e31b98bc47"
+    },
+    "web/evidence/20261016-prime-sieve/prime-sieve-rust-result.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "54c1b43617c6664d3dc4cc16c7fd5806d7e3f9cb"
+    },
+    "web/evidence/20261016-prime-sieve/result.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6fb3ec28465203a2d7343af4f61e456a66b47262"
+    },
+    "web/evidence/20261016-text-examples/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "47d13a87f246b40bcb30b74f93825422dbb04780"
+    },
+    "web/evidence/20261016-text-examples/captures.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6a302dde168876bf4bc65f08be72ca96d15aeb11"
+    },
+    "web/evidence/20261016-text-examples/result.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d4e1b10207b892abeb2ef5442e92dca7997e4e32"
+    },
+    "web/evidence/20261016-text-examples/text-layout-moonbit.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "182e49bb881adc3b09eedbb2e2736064a969d384"
+    },
+    "web/evidence/20261016-text-examples/text-layout-rust.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f5eb8de42c9050e743fd26ad28523e7a31056625"
+    },
+    "web/evidence/20261016-text-examples/text-wrapper-moonbit.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "46aa4bee4a98574183f53ab8b8ad1bf21b05d9ab"
+    },
+    "web/evidence/20261016-text-examples/text-wrapper-rust.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "84fae0c71be450d4631de4ffb882c9db5d358be2"
+    },
+    "web/evidence/20261016/difference-x4.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ab2b27a02acc90c56ca44e86af3c422793f97230"
+    },
+    "web/evidence/20261016/moonbit-browser-events.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "daf633e68ec38cc64d7846082e8227046b5b856c"
+    },
+    "web/evidence/20261016/moonbit-scene.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3a2b105ad6b217fce4986bc8fea9f6c388c3e481"
+    },
+    "web/evidence/20261016/moonbit.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55771365fd50c9e9966156c7107525091e6d7531"
+    },
+    "web/evidence/20261016/pixel-regions.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2f385cc575b7b8e1613b89878c82bf9a4b71791a"
+    },
+    "web/evidence/20261016/result.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d3120c624aa93dc6e3023e2278aa32b4b25dc82b"
+    },
+    "web/evidence/20261016/rust-browser-events.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "be4c92f8d4ba1e00c6cf1fa80d4afaff56d0773f"
+    },
+    "web/evidence/20261016/rust.png": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b2707737a68a99a975f229a2e701c7117a4f8bd1"
+    },
+    "web/examples.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5978fa739763495bc99df706fd2fc68382619250"
+    },
+    "web/gradient-diagnostic/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1688c7d79fec79d9a026a6a4ab552fa96cd3c9b2"
+    },
+    "web/gradient-diagnostic/host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9bde3438999b8ea9ad70c49ba136c06b135a290f"
+    },
+    "web/gradient-diagnostic/index.html": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f380f87bc48daf96b41693a50dca1d303e27658e"
+    },
+    "web/gradient-diagnostic/main.rs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8f4e648bbaf5e7d875ff7417a40fa30f289461a7"
+    },
+    "web/gradient-diagnostic/profile.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bd22e61b99ace9a113e88b87243f4b458bec268a"
+    },
+    "web/gradient-diagnostic/provenance-inputs.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "240b72a050ee7cf737f6994374192339fc2f5f8a"
+    },
+    "web/gradient-diagnostic/upstream-sources.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "158b4f17ac6c25e0475bd9451e87fc49b40250a4"
+    },
+    "web/gradient/host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fcac941b2b6416da4d71f424f3467b29139024d4"
+    },
+    "web/index.html": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "84a88defd8ff3c0719efc370a0a1b8d7d9ce32bf"
+    },
+    "web/load-comparison.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "35cf7499d64634c6c554cf86c1f59feaa57f6bb9"
+    },
+    "web/load-timing.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e13d83df98a912908914d0b2da0fbc601279c889"
+    },
+    "web/moonbit/anchor/anchor.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1f29cbe60a2ccc7e17ca673f4ba58f0bf7fa8ecb"
+    },
+    "web/moonbit/anchor/anchor_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "946e82c9f6dff45c826bf974bffcf6ca23254763"
+    },
+    "web/moonbit/anchor/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/drag_drop/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9380aa7ed0f4d3e810022580106d94f5f12c56ae"
+    },
+    "web/moonbit/drag_drop/drag_drop.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "863cd3e1dcc3660a7d79ffe8102350562328544e"
+    },
+    "web/moonbit/drag_drop/drag_drop_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9901d06f93ac450ca1489b45a99ce6c5f5c636e2"
+    },
+    "web/moonbit/drag_drop/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/dynamic_fonts/dynamic_fonts.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fa185233f4553a87ccd95af7ecaabaefe9537cab"
+    },
+    "web/moonbit/dynamic_fonts/dynamic_fonts_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "11551f9484d4fe1a0ed4dc70e79b5d443b01b7ee"
+    },
+    "web/moonbit/dynamic_fonts/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9655f3b38db781348ff3a17d6a8b24e348160285"
+    },
+    "web/moonbit/focus_visible/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec4c966206bc5944833bcf95b1c898914cbd68d9"
+    },
+    "web/moonbit/focus_visible/focus_visible.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5750f4128239a25c0f2e8329142855afb75bdb32"
+    },
+    "web/moonbit/focus_visible/focus_visible_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "46c41589204f6a65be07ac6d6463e0457f5d01ad"
+    },
+    "web/moonbit/focus_visible/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/gradient/gradient.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec1dca8c6a73fa1392f27f3068bd1149695d07a7"
+    },
+    "web/moonbit/gradient/gradient_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fdf39f436a6e99949e2780eb752fe237792ae71d"
+    },
+    "web/moonbit/gradient/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8cbc0c9c8122a61b486fb0cc7799f5d62440409f"
+    },
+    "web/moonbit/grid_layout/LOCAL_VALIDATION.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9340eae66f0090cabd9e660be842a3dba36404a7"
+    },
+    "web/moonbit/grid_layout/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2a764679f54ee012f8818cc83ba64c0865901441"
+    },
+    "web/moonbit/grid_layout/grid_layout.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "040aa654eb1331fb4ba6283a42e6f0554f2101e3"
+    },
+    "web/moonbit/grid_layout/grid_layout_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "95ccc4ccea7c14640602c5e72ee7729fff7025c3"
+    },
+    "web/moonbit/grid_layout/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/hello_web/hello_web.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "87ae4a57a56eac5d7f204411a4eb9f7285298e05"
+    },
+    "web/moonbit/hello_web/hello_web_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d3e1e92a7530dd888bf4f0b5813833ea310a5177"
+    },
+    "web/moonbit/hello_web/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b5574c8d3b51adb6e1cd81e34bb12be419e76471"
+    },
+    "web/moonbit/hello_world/hello_world.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1902a9a6fdb4a6becf095f6783db1cde6e737b0b"
+    },
+    "web/moonbit/hello_world/hello_world_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "af2487f0afba2b7405639e0cef4f61ed2bd25462"
+    },
+    "web/moonbit/hello_world/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "69de2428a7d004138163bd8b6d15585d5f419380"
+    },
+    "web/moonbit/input/input.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ab5a37f841a34b9add2a6969286a6d18cf1324c1"
+    },
+    "web/moonbit/input/input_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2c28931543790bf00ac3a91f02e919c7db1c2a28"
+    },
+    "web/moonbit/input/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "628accd99acfc8cc46d443034dc19b372077317f"
+    },
+    "web/moonbit/input/pointer_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "572d5195ec2cb104c65025eab7eff0fd7134ae3a"
+    },
+    "web/moonbit/scrollable/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f9d08e19ff50195c9a1c3d7271d625f66068c6be"
+    },
+    "web/moonbit/scrollable/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/scrollable/scrollable.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "12cef725bf7b223feac1f4590cbb6a0f6da355bd"
+    },
+    "web/moonbit/scrollable/scrollable_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "26e43910f43fec6290d53ed4e4662286bb311103"
+    },
+    "web/moonbit/site/anchor-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a5f9c7b63d284c1eb777a8a6dce3e0bbf9e08009"
+    },
+    "web/moonbit/site/drag-drop-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "40ba665e198d2b570c4351023583cc4c6d174212"
+    },
+    "web/moonbit/site/dynamic-font-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1ad1556f7c7db0a42051384fb45abf0904faae8f"
+    },
+    "web/moonbit/site/focus-visible-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e7173a11d384bf6fcdb7fb307d552e7fe78ab94b"
+    },
+    "web/moonbit/site/gradient-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ef4e5347248242e89635e36d5d386d2d8d96b729"
+    },
+    "web/moonbit/site/grid-layout-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "50f9433840ae9c406c77839e5fbe3f2c19b33256"
+    },
+    "web/moonbit/site/host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "697592ef288880ac03f0e2b5e877d86ed0cd0597"
+    },
+    "web/moonbit/site/index.html": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3b64d9553941fa55b81878caf58267b1cd090f0a"
+    },
+    "web/moonbit/site/input-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ef7f6b8f47e191f7474bcd7bb827a2f08a5d737c"
+    },
+    "web/moonbit/site/prime-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7a34896cb9ec11151424855dcb10b21771fe3252"
+    },
+    "web/moonbit/site/prime-worker.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1e355db3ce29cebcc323f45580312ced656dfd04"
+    },
+    "web/moonbit/site/render.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "19b23b539ed3f0af122809c27e70364278151399"
+    },
+    "web/moonbit/site/scrollable-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e4c394d2a7fd98ee02bb5b25afc1dfe20d681543"
+    },
+    "web/moonbit/site/tab-stop-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a4e8a3f30357af6e8e082951762e4fb9a82c4876"
+    },
+    "web/moonbit/site/text-metrics.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6f322fb8419c024adda503b7bcc14603c9d9af0b"
+    },
+    "web/moonbit/site/text-wheel.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f6fd2aa5d4ac36b1f7cad4f0d33f2f6edeafc50f"
+    },
+    "web/moonbit/site/uniform-list-host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3a3b3dc385278e1f3a734d98e2bea68e29b83dbf"
+    },
+    "web/moonbit/site/uniform-list-text.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "44f010a147c5c3c2091aabc806863696ef7613ef"
+    },
+    "web/moonbit/tab_stop/LOCAL_VALIDATION.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c5b7ed59840dea39e6763e60f1fbadb5cab72b8c"
+    },
+    "web/moonbit/tab_stop/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e3c5e146eccd8bb557de8d5eb16633b39819e08f"
+    },
+    "web/moonbit/tab_stop/evidence/activation_ignores_owner_aba.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f7f560271b3745e331146e8bdbc67d3c5919c1fe"
+    },
+    "web/moonbit/tab_stop/evidence/card_outer_instead_of_inner_shrink.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5bf9586eb1287080040731dbc5cc225c3b601e03"
+    },
+    "web/moonbit/tab_stop/evidence/compiled-mutations.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5fa926790a836b8a92a11cd4a6cddf481667d331"
+    },
+    "web/moonbit/tab_stop/evidence/equal_ordinary_button_outer_bases.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8f2428a41554b0f8393d977ab0afa33ecb924ce8"
+    },
+    "web/moonbit/tab_stop/evidence/flattened_group_order.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "baee1e433ae98445e342b2cda454dacb45b24e2d"
+    },
+    "web/moonbit/tab_stop/evidence/fresh_lineage_replaces_live_owner.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "766453f33fa88e897ba14327ff824f79d987d7d4"
+    },
+    "web/moonbit/tab_stop/evidence/frozen_initial_hit_bounds.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a1c6a88d0fb835fbe518c94415d874589f612cdf"
+    },
+    "web/moonbit/tab_stop/evidence/invented_card_click_callback.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3eabbeebdedaa0a76b4926ff1f95746dc2a70736"
+    },
+    "web/moonbit/tab_stop/evidence/keyboard_hover_suppression_removed.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "14a822d427698c9732eb1f52220cd4703a422c4e"
+    },
+    "web/moonbit/tab_stop/evidence/keyboard_only_focus_ring.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "caa6733779a23b2e99ce994331b93f6678c9880d"
+    },
+    "web/moonbit/tab_stop/evidence/non_stop_card_blue_ring.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4ff8a233f9b208622a4d3ed6e62ce187873ab39c"
+    },
+    "web/moonbit/tab_stop/evidence/non_stop_card_in_traversal.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e84da09e11f400a986289f8f437ad7e68badd815"
+    },
+    "web/moonbit/tab_stop/evidence/restored-baseline.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0a4578c8ae7eeaa6c4f8f064d9d6fad1e341e23c"
+    },
+    "web/moonbit/tab_stop/evidence/wrong_group_handle_anchor.log": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b73185f9eb1e88aa7b6de4b08c48acef902188c1"
+    },
+    "web/moonbit/tab_stop/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/tab_stop/tab_stop.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "95430d3eed2fc5eff134e541a9433f4baaed1bd3"
+    },
+    "web/moonbit/tab_stop/tab_stop_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7290ef7773b4d4cd12a4465efbfa7e5bbe9a0459"
+    },
+    "web/moonbit/text/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9655f3b38db781348ff3a17d6a8b24e348160285"
+    },
+    "web/moonbit/text/text.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e0b7e37124579a92afcea7d1b0f2a5b45c34036e"
+    },
+    "web/moonbit/text/text_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "42a37f13bb1e1db9b2a29054b3a28fdb28585918"
+    },
+    "web/moonbit/text_layout/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "69de2428a7d004138163bd8b6d15585d5f419380"
+    },
+    "web/moonbit/text_layout/text_layout.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c2642801538e2fc45c7c0a7052b145915d6289a6"
+    },
+    "web/moonbit/text_layout/text_layout_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8b9c4e800cb4deeb9b890d63d073084752259cba"
+    },
+    "web/moonbit/text_wrapper/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/text_wrapper/text_wrapper.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "548aa5791ff9c8b9e5d0fab43a625a75ff6c5c7f"
+    },
+    "web/moonbit/text_wrapper/text_wrapper_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "43c3520bd77f87e085cd445e1050b2afe032f744"
+    },
+    "web/moonbit/tree/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "057305a496d07d6123f38f9b3c6869e860965aa5"
+    },
+    "web/moonbit/tree/tree.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1e73a09d0db04951a9bf5d4740c77d3c1bdb6133"
+    },
+    "web/moonbit/tree/tree_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e2c9164d85ee41f5fb7d002d6acc0e47ec7211bf"
+    },
+    "web/moonbit/uniform_list/moon.pkg": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "167f3d33281e2eebb446a4458ce99ec29fb31acd"
+    },
+    "web/moonbit/uniform_list/uniform_list.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c2ca6a51ec90698c0f70a0c6f31aa49f7e5f10a4"
+    },
+    "web/moonbit/uniform_list/uniform_list_wbtest.mbt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d017fa7be0d3c5203cf921d9a88fc7d259686d5b"
+    },
+    "web/oracles/anchor.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b314fe697c51e2845ee46058011ca4d7aefc884b"
+    },
+    "web/oracles/drag_drop.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4c548f8758c5f970f5c01262e151a072d80554ba"
+    },
+    "web/oracles/focus_visible.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55f5b4dc2f5b4b9c3156716b602f9d8711c14d84"
+    },
+    "web/oracles/gradient-sources.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b98d2edeef8f96f383d9fd4708506efe137ea7bb"
+    },
+    "web/oracles/gradient.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6fb9529225aa76e3c0ba028eb7a058fa2b761ede"
+    },
+    "web/oracles/grid_layout.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "319f3e6055959ea3b115cba606fd3ee61f664044"
+    },
+    "web/oracles/scrollable.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15aa49ebb33c919464119502a6bf01acdb330d38"
+    },
+    "web/oracles/tab_stop.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dea6d4849ecd3228255dfae4099e80995550e5d0"
+    },
+    "web/oracles/uniform_list.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2d38fa633babc215e3c5a27d53e5d4620f0bc64f"
+    },
+    "web/pairs/anchor.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "23dddb0035b8ec20fd1839c2869fe4dca1397c1a"
+    },
+    "web/pairs/gradient-mutation-revisions.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c50aaac6af551ca5ef4117d2f14a26280b70171b"
+    },
+    "web/pairs/gradient.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d3dfe368a424fe1a2b99fb648e5264f387f6b4a"
+    },
+    "web/pairs/grid_layout.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "883f59539f9c4b26e5efc32ad42bf93ec5b01502"
+    },
+    "web/pairs/uniform_list.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4a644ed6cbef2e0cc6d8ddb0cc7891ad8ae39763"
+    },
+    "web/routing.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "15e7d9b41ec94f611355c2cb5a6d56f2b917e2ab"
+    },
+    "web/rust/Cargo.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9743e0cd5279bf56820fd1525e4749dbca195510"
+    },
+    "web/rust/host.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f6328e6c1ac2d73749fc445da6a4b2624bac8498"
+    },
+    "web/rust/index.html": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fdbb1429b03da1b65b5b211b8b44c4b779ce368d"
+    },
+    "web/scripts/analyze_screenshots.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cde9b44ca86713b3bb0822d6066231ffdcd74435"
+    },
+    "web/scripts/build_anchor_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ab847986816db191965cf011667d221cdc8b4af6"
+    },
+    "web/scripts/build_gradient_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ac0497a54168a07cfcbe651cd822a393f89c3d15"
+    },
+    "web/scripts/build_gradient_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5cc95daa6a44c8272e3e328aca0fb6cbc6d89547"
+    },
+    "web/scripts/build_grid_layout_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ec437cdceb877bba18f9df31058c0f7077000852"
+    },
+    "web/scripts/build_moonbit.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "853106ecb863c6bd4d4f6dcb197b175c70eabd9c"
+    },
+    "web/scripts/build_rust.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bbd93dee5f5e47adecf8fae6dfe1fa9a6258ad26"
+    },
+    "web/scripts/build_uniform_list_pair.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "976796d154bcf387b51650d48ce0839bd8f9a130"
+    },
+    "web/scripts/compare_screenshots.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "038127d8e0e97ba4289f92b23575c76be148bdf5"
+    },
+    "web/scripts/compare_text_layout.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ae7adf789d1a573bf04d1a1887e8e108a2fd5925"
+    },
+    "web/scripts/decode_anchor_live_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cf1dd249be085f1c497b4a89080532f579857526"
+    },
+    "web/scripts/decode_anchor_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "41a06887b8a40088e2770db2755574376a40fd72"
+    },
+    "web/scripts/decode_drag_drop_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5c3f5215d897ce9da192ac75583f4d361e470150"
+    },
+    "web/scripts/decode_gradient_diagnostic_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1498689e6449cbec5631bc4342c0a7e9568c77f7"
+    },
+    "web/scripts/decode_gradient_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dcb3d9116067402022acdd9046fcb785ff71d9b0"
+    },
+    "web/scripts/decode_grid_layout_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "201a7267ab0249f7972048e9a1f98a02e99cf19c"
+    },
+    "web/scripts/decode_oracle_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c1503718fea89ff1b16e3899f1ae5cf4ab248234"
+    },
+    "web/scripts/decode_uniform_list_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3aeda058cda30616c226b7d73986ff5dbcfa0fda"
+    },
+    "web/scripts/prepare_anchor_site.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b15f58e0b0bdcaa7f3311a991eed2d2760ca62c0"
+    },
+    "web/scripts/prepare_gradient_site.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "03a7307183d479d55b93dfcfae61e4351ad4e895"
+    },
+    "web/scripts/prepare_grid_layout_site.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b9028176b67e952783623d32b9ef08f696978328"
+    },
+    "web/scripts/prepare_uniform_list_site.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "08017c07ca89e51b318cd6955734108694ddcd22"
+    },
+    "web/scripts/run_anchor_pair_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "963dbcf2f649b4be854d1ddeb2545b6a85a5c1db"
+    },
+    "web/scripts/run_gradient_pair_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "68cce20b1c3f3fb7f9c3b4640d3b1c6b9455ee3d"
+    },
+    "web/scripts/run_grid_layout_pair_controls.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6663ab602fe6b0220610d36012ce9906b35c2bc9"
+    },
+    "web/scripts/serve.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "37ad9a30c38c9ad238fd7c84f1dd2ad9c3c5ca8a"
+    },
+    "web/scripts/test_drag_drop_candidate.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c9c32aeffa2cc2965337dedfd8a18e715a6e70f1"
+    },
+    "web/style.css": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6b198e48c2dca7fea61233959ed892a0f0d9b669"
+    },
+    "web/tests/anchor-candidate-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a41e47740e736f2214c32885b3951e22f3c80aad"
+    },
+    "web/tests/anchor-candidate-runtime.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "668cef95e8d10ae08e7183117d2fcd06d9525b2c"
+    },
+    "web/tests/anchor-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c73c7b470a23967bc8155ed756e93350d8605e3d"
+    },
+    "web/tests/anchor-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f833af8fb7bc570dc0d76e8eb0fbb54a94f29036"
+    },
+    "web/tests/anchor-live-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "43e44aa90fd56a3979b8a0f1b693300519c3c16c"
+    },
+    "web/tests/anchor-live-capture.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dffa8eb46e2f052831ea538168aa8f3017a6c53b"
+    },
+    "web/tests/anchor-live-capture.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "81728997c59232df7dde30f9168f449b48439136"
+    },
+    "web/tests/anchor-live-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "68c7ca1edbb56d9cd1b5f15531087bbf836bde0d"
+    },
+    "web/tests/anchor-live-runtime.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "de9dea611b5550036ba588c8da1d9d7a6e492527"
+    },
+    "web/tests/anchor-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6d486d47617ee1ce182f82a77b0b70c9e0baa07f"
+    },
+    "web/tests/anchor-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e4b19a12f03db5b8319050eebd19be3ff41337eb"
+    },
+    "web/tests/anchor-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a432b2a60fc4fc11fb81a66a000c5bad6f43364c"
+    },
+    "web/tests/anchor-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b273e90726f578c7d1874d397b4dcbcd0b8ea50d"
+    },
+    "web/tests/anchor-pair-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7cb08079310c8bd76abb4141c89378e9a683707c"
+    },
+    "web/tests/anchor-pair-evidence.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "accec4a420395270a39d09734f9c92046761b9ef"
+    },
+    "web/tests/anchor-retained-files.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c16e73b76fda51fb15ee5aff2c1b841d139c89ff"
+    },
+    "web/tests/anchor-runtime-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3452b962c22b784080dfbd227f22d1bfe5e4b600"
+    },
+    "web/tests/anchor-worker-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9faa778450d8e7491be0fc7bee5a67b3882562ff"
+    },
+    "web/tests/candidate-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b71a6a1879b5ea53f8460ad73288aa4490b76076"
+    },
+    "web/tests/compare-drag-drop-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3eac9604a839dcb7bba731ef56db4a13334e56cf"
+    },
+    "web/tests/compare-focus-visible-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fdb21bd8f175f8ca2854ef12f5131f44ff300bba"
+    },
+    "web/tests/compare-scrollable-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f7b08f8bb61d48c78beead3517d8a73e43e2c97e"
+    },
+    "web/tests/compare-tab-stop-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c56db2403fda31c10751e39175499963d9c83df7"
+    },
+    "web/tests/contracts.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dd1fbeba2baf8e146040bd229e6554a1779b73fb"
+    },
+    "web/tests/drag-drop-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b859629ab1ecfbca3f24a687b65f9d1acd5d83cc"
+    },
+    "web/tests/drag-drop-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "64c2e2417775ad1fe07c8b0a58d8fb1efeed9a44"
+    },
+    "web/tests/drag-drop-compiled.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "92c790811a34faa3d6dada880cf93d5b6a2bb119"
+    },
+    "web/tests/drag-drop-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b42e74e1b894e134906850055748ca456f4eb320"
+    },
+    "web/tests/drag-drop-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6b4474768c7037d9797a2722ff5a109124d340fa"
+    },
+    "web/tests/drag-drop-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6067cc4a8f69fee3768d512c3497a0e799b6461b"
+    },
+    "web/tests/drag-drop-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a179557f08d9c76a897fa2b07cfb0f479a0c617e"
+    },
+    "web/tests/drag-drop-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "92d8d945a1d643e75faaa97df3c06edeff9f981d"
+    },
+    "web/tests/drag-drop-pair-fixtures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7d94f2a944bd78c393fb731a6cebd3ef19de3b0c"
+    },
+    "web/tests/drag-drop-render.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d3dd2948ef57645be452aadbe18a9a605ed725b"
+    },
+    "web/tests/drag-drop-runtime-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "23c2fa5aa0ef8cf7c58a0d839ee87a9bbcb4c4bc"
+    },
+    "web/tests/dynamic-font-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5860c82013a8519dff440a61aa283edebf481629"
+    },
+    "web/tests/fixtures/anchor-fixtures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5d8adb62cc311dc98c810a650025269f73a96789"
+    },
+    "web/tests/fixtures/anchor-rust-only-catalog-a20e5888.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d3c9e92281274a797848a090fefced9dbaec3bae"
+    },
+    "web/tests/fixtures/drag-drop-render-fixture.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "d124382e49d7e968e7ccf2576f9a05495e31b7fd"
+    },
+    "web/tests/fixtures/drag-drop-rust-only-catalog-e278fce4.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3c2bb98cc671b177ca58ef0120049a19319425cb"
+    },
+    "web/tests/fixtures/drag-drop-rust-only-workflow-e278fce4.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f076647b8fcc55c06880ebb8a60692714ca9a37c"
+    },
+    "web/tests/fixtures/drag-drop-wasm-thread-0cf96c7-worker.js.txt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2d81f0b00d27e0d32dd143aa12bb39eaf818fc5c"
+    },
+    "web/tests/fixtures/drag-drop-wasm-thread-LICENSE-MIT.txt": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "31aa79387f27e730e33d871925e152e35e428031"
+    },
+    "web/tests/fixtures/gradient-rust-only-catalog.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "26ff27a3fc83943a96dcc6c0c45375b70b48f863"
+    },
+    "web/tests/fixtures/grid-layout-fixtures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "79f1940cd5ca01a7624d5a24c9b580ff8aa2ffbf"
+    },
+    "web/tests/fixtures/grid-layout-rust-only-catalog-b0781104.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e7e51ff234d9599e2be3b45e60e5c345f2f472f9"
+    },
+    "web/tests/fixtures/tab-stop-rust-only-catalog-d6945a88.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6da5301e28abb9bcca0f3476dd57257f1f66b764"
+    },
+    "web/tests/fixtures/uniform-list-fixtures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0c9131b500d2c3c01d5529c2bae864600afcd4bd"
+    },
+    "web/tests/fixtures/uniform-list-rust-only-catalog-4b4a7047.json": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "202ea085823dd36a0da7565e53b1ab333715d666"
+    },
+    "web/tests/focus-visible-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f717636f25e7405bdf76c412715f73d2783e56f5"
+    },
+    "web/tests/focus-visible-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6dae10bcf744c750a4654ee2cdda37a1760c861c"
+    },
+    "web/tests/focus-visible-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "aae277c95b2e3cd894521994b7a0b77153843599"
+    },
+    "web/tests/focus-visible-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "517f833dbb9bfff85644728314bfb9ff15f0495d"
+    },
+    "web/tests/focus-visible-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7436a8ea4ec5de7192d9c76f16ce4ec5d2c43a74"
+    },
+    "web/tests/focus-visible-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "db5d2f938693432eab14f84dbc050cad4a1705f2"
+    },
+    "web/tests/focus-visible-render.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1793a38c2203027cd42577d2b922b6d08c9f1495"
+    },
+    "web/tests/gradient-backend-observer.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dbee6c4103938d973f5a807b184466f36372d3bf"
+    },
+    "web/tests/gradient-candidate-behavior.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4e1c1f9ac50f1ed5333af341bfee28d2d5ad8314"
+    },
+    "web/tests/gradient-candidate-behavior.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "112014d0a59e1b6fa78d177b473cc4681a542569"
+    },
+    "web/tests/gradient-candidate-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8a19f10d2ab0eac5b5d89d824067fec6035d7718"
+    },
+    "web/tests/gradient-candidate-polygon-fixture.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "310b37f7a790d24fa22a61bb2607eb7fcacf7293"
+    },
+    "web/tests/gradient-candidate-runtime.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "949cd35f2a33814be3e50e72256bc8f7898c0996"
+    },
+    "web/tests/gradient-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "422c08b284ad25fe34c2e27e58ac09e64928f4b0"
+    },
+    "web/tests/gradient-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "532a486b49aebddc284c422b52fe102da267c4ca"
+    },
+    "web/tests/gradient-diagnostic-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9731b430cf47b53e9162622e8b5ad7eaa3a6591b"
+    },
+    "web/tests/gradient-diagnostic-contract.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bd8af439422ba4792f8ed2b3de63b974d27ac2e1"
+    },
+    "web/tests/gradient-diagnostic-contract.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "30ecbfca3669276e98990cf121fefc0d573f2e64"
+    },
+    "web/tests/gradient-diagnostic-provenance.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "73e3120ccacbe351a5219dcee2c4d3a4188c034f"
+    },
+    "web/tests/gradient-diagnostic-provenance.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "aa4874aac99fa9710352c51b9c1d82e4da0059a8"
+    },
+    "web/tests/gradient-evidence.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "62ae818b544bd225850d0a1d2056011edcd74ba3"
+    },
+    "web/tests/gradient-live-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6d9fdb65ebfc9fe96ccdb86a356d340ce41c88ce"
+    },
+    "web/tests/gradient-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "72577d00ade6b12ab823e83546d502e9751a955a"
+    },
+    "web/tests/gradient-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6b069ec0bd6b87a8ec31080045f45eb1e8d6b33d"
+    },
+    "web/tests/gradient-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "062e6f189ea1a346489b6fd2de0cff03b84362cd"
+    },
+    "web/tests/gradient-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7591fe982f14244b45192b0822ef4906b2c5dc05"
+    },
+    "web/tests/gradient-pair-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2e3631be5c20ecb551f41f95ff7e9519565015b9"
+    },
+    "web/tests/gradient-pair-evidence.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6446d46f11ccc5da16a80562a6bfc53f73e313d2"
+    },
+    "web/tests/gradient-policy-contract.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "89495908651440a6ab6f7ddf254c2f222a03eb19"
+    },
+    "web/tests/gradient-policy-contract.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f2a35f1b59b8a02032fc24e7de1c916c5567d31c"
+    },
+    "web/tests/gradient-raster-transport.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2219168929b9235d22ca7662f341ae4817c475fe"
+    },
+    "web/tests/gradient-runtime-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1c9c7bef7b0956b19d3c998f1bb498f80f77e112"
+    },
+    "web/tests/gradient-usage-copy.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "efc8e34ec47629ae19ba94b38eb7fe4fcf4915df"
+    },
+    "web/tests/gradient-worker-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0a0bbb8f05f298c82f01b5accac18d9a0bc7c26d"
+    },
+    "web/tests/grid-layout-candidate-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1edade33e8903f31f022dc37428fb680565cc4d3"
+    },
+    "web/tests/grid-layout-candidate-render.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6a6f3fc75e926c137265ce642c7c470a111c1106"
+    },
+    "web/tests/grid-layout-candidate-runtime.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e7a4ab7b4c09e83bcab02b543da87ee27f269bc8"
+    },
+    "web/tests/grid-layout-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55a7a486be4aee0cc544e668059ff03751d1d5ee"
+    },
+    "web/tests/grid-layout-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6c9b5b026a62e7f25bce978e28a2caaab6a56c19"
+    },
+    "web/tests/grid-layout-live-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "078d53b0d74e13556e1fa15d0b15f70cbf47e083"
+    },
+    "web/tests/grid-layout-live-history.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "179db89de2c03bf25a661be7b9c7535357555fda"
+    },
+    "web/tests/grid-layout-live-history.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "59c854f381bc5a7c35db1a327d6549d5db3449e0"
+    },
+    "web/tests/grid-layout-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "37197a46b1e8cbaddefc0ee642626ae16035d0b3"
+    },
+    "web/tests/grid-layout-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "664cc61eefd12f8116ec58a85f04808b89b329d0"
+    },
+    "web/tests/grid-layout-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1a40f46b55fef3310217f9ec1c84095b6e26fff2"
+    },
+    "web/tests/grid-layout-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6d5f720d0137cd15693f55218ac45231b5b81579"
+    },
+    "web/tests/grid-layout-pair-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "ebf1b6492c1327d1df58367a34c40593c2ac6e6d"
+    },
+    "web/tests/grid-layout-pair-evidence.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0ae7ea66bb1b2d6bd68eaf32b8d3a56fa0604a93"
+    },
+    "web/tests/grid-layout-runtime-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9d3511a7eec3002e923acdb2576ec9fb5d4c069d"
+    },
+    "web/tests/grid-layout-worker-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "cacab4456936f39bf98b52b16bc0037ba796f600"
+    },
+    "web/tests/input-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0a3730e052f005bbcbf33e65eb6a9d0421aa1b02"
+    },
+    "web/tests/input-pointer-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b20a6c4167e716221c22ceeff14ca36a45264e97"
+    },
+    "web/tests/load-timing-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6e966d43755c9ddbd2f45bbae919f87ca360cd55"
+    },
+    "web/tests/load-timing.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "35de71d8ad6ef316ecb9e74f021c9eb89c1c39b6"
+    },
+    "web/tests/prime-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "747ee822f1c298ad58ce22fd1d25043fe2eccab5"
+    },
+    "web/tests/scene-opacity.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "774cdb212eca9831065106e20e8274106b432eb7"
+    },
+    "web/tests/screenshot-rgba-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1bddb43aa3069170c638f92ca45f103700512531"
+    },
+    "web/tests/screenshot-rgba.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c29e763a32f92dbc354d906e61158740aa229a2"
+    },
+    "web/tests/screenshot-rgba.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "092f8b88de95e699e4dcbd0c80008881c43340dd"
+    },
+    "web/tests/scrollable-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "76c8c9cf8833a9a01239d0a96cd0c33fa130c9df"
+    },
+    "web/tests/scrollable-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3d94ebeb97b2a99abe67512a611e4cc5ee41eef8"
+    },
+    "web/tests/scrollable-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "de285dbc33bf6175384c2d93df82c0b951a6ecc3"
+    },
+    "web/tests/scrollable-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "58212e3ed90b48f7110338b21ea7162fcc07025b"
+    },
+    "web/tests/scrollable-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "84f5f33c0d278e25fe0a980323b9af1f5d2111fa"
+    },
+    "web/tests/scrollable-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8b711dfd80b461afed7b7adc4cc125e4779b4313"
+    },
+    "web/tests/tab-stop-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e19592372a80e2b50ad0b3a8921a6a72bcf84181"
+    },
+    "web/tests/tab-stop-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6cd4ee4dd39426a4d15303dc35a744ff97775db2"
+    },
+    "web/tests/tab-stop-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "52adfc664d216a645793d8d6f566001bb52329f0"
+    },
+    "web/tests/tab-stop-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4e5b565504ae1b969ab4f6cacebce4ac2c6e1608"
+    },
+    "web/tests/tab-stop-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6a90a540ebd7c540e711ffd7ea7c5fb60d17b682"
+    },
+    "web/tests/tab-stop-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3e7ac126d92ecc182db690f9f0fc3f3adaa52905"
+    },
+    "web/tests/tab-stop-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a87487e421c1cd30a64a47882abe85b58aca52bc"
+    },
+    "web/tests/tab-stop-pair-fixtures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b67e14867f0675dbc28d282f26c2080c4f2807f7"
+    },
+    "web/tests/tab-stop-render.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "04e1f3f1f4a91158e00246797f9ad66e57ff9cf9"
+    },
+    "web/tests/test_anchor_live_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "01a04ad821c0af0da7636183c1673b8d02f7300d"
+    },
+    "web/tests/test_anchor_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5aa3a03b72ee9b557d1c3f830dcb52554e87d3d4"
+    },
+    "web/tests/test_anchor_pair_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8c647c7e292218081e1be5c3fbb2c254f76f3cc5"
+    },
+    "web/tests/test_anchor_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4fc637f3a7fb64d1ddf87af7fbabf398778a8837"
+    },
+    "web/tests/test_drag_drop_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "14a59cc3b0de8baad077d49bc21288092d759baa"
+    },
+    "web/tests/test_gradient_diagnostic.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "f09cc568f9c118f1a994e05fbde8d2af7c9abb46"
+    },
+    "web/tests/test_gradient_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "3048beb6599e0c69e2df7200cf622bd21bb593e0"
+    },
+    "web/tests/test_gradient_pair_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "06c204da521b0ac122e59f1107ee457f133748ec"
+    },
+    "web/tests/test_gradient_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e1b8f689d40c77844a7ec9daadd58ceb73d78d4b"
+    },
+    "web/tests/test_grid_layout_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "e3f436e454f64651e3c20783da11352cdd1fb518"
+    },
+    "web/tests/test_grid_layout_pair_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c5945bcf668247d925dbed6468259394cf37a16c"
+    },
+    "web/tests/test_grid_layout_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "308d2e83f68ec0eed8fd87067bfcbef6df664ed0"
+    },
+    "web/tests/test_moonbit_provenance.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "dfbcff8843794eaaffe6a53715e5c1d2a8dbb538"
+    },
+    "web/tests/test_pixel_regions.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2790c955799566f38d965585bf5e659d700cd83d"
+    },
+    "web/tests/test_rust_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b3a24027c5daf5d7feaa91a296025ac3418f85f3"
+    },
+    "web/tests/test_rust_subset.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "873539d328be22b6f7b47586c94fc2cd84029e36"
+    },
+    "web/tests/test_text_layout_comparator.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "55200edbe31a48d77aeb3b12b8770d0e7c2d2ad2"
+    },
+    "web/tests/test_uniform_list_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6bed9f38d306d4d0cc18237b3ded1a2e86544d19"
+    },
+    "web/tests/test_uniform_list_pair_packaging.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0b6a39156f674170e757b901a20d17d1111b7401"
+    },
+    "web/tests/test_uniform_list_png.py": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "51c0b38c2534be5f835ac3f5e01e165db24d9d1f"
+    },
+    "web/tests/text-metrics.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b1639368cc116f4e0f4dc338aa83c93ba5f39e97"
+    },
+    "web/tests/text-wheel.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6c7ec373cc5f5e467ac7fced44f97338403d76fa"
+    },
+    "web/tests/tree-browser-standalone.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b925d68ebcf4a82b7c6d498f08887ceca43c1b3d"
+    },
+    "web/tests/tree-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "21565cd619c71b8923b3013779e5c879898e0464"
+    },
+    "web/tests/tree-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "43a36fb842c322598ce2004a3268e66c6067c92c"
+    },
+    "web/tests/tree-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "bc0ea6f4b102c7ba57451485423c35b24d8c03a7"
+    },
+    "web/tests/uniform-list-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b91799e63781b0899919484207c7c242ee0d9aa5"
+    },
+    "web/tests/uniform-list-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "68d5386f8d5932fcce7d53d24763aa47798e8da7"
+    },
+    "web/tests/uniform-list-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "910177e12bd7764e710857fcb39db0287714ae61"
+    },
+    "web/tests/uniform-list-oracle-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "1b7326424a3a905de34be45f87da863b1f675604"
+    },
+    "web/tests/uniform-list-pair-browser.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "63e21e49b8385910399e0a8d9e4e6f309e32d079"
+    },
+    "web/tests/uniform-list-pair-comparator.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0fc7214107fcb60b923ba9bfb9f44b15db7da009"
+    },
+    "web/tests/uniform-list-pair-comparator.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5f06f2918a2018a3aa91061df81e83e674ce83f1"
+    },
+    "web/tests/uniform-list-pair-compiled.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "84fa8990a6b76bdfc87af086475d52794f1be66d"
+    },
+    "web/tests/uniform-list-pair-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "543df5da18a36ed47a01e8ca62c477a4c4613d30"
+    },
+    "web/tests/uniform-list-pair-evidence.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "9bb44ce445ba0ae76b0724d278f5c73393328c5c"
+    },
+    "web/tests/uniform-list-pair-host.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4ab67a8efc67186cc61df96aa39f2dd2ebb076b0"
+    },
+    "web/tests/uniform-list-pair-text.test.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "b240b4ae8ead25738d8693ded4236eb1f97efd3b"
+    },
+    "web/tests/uniform-list-runtime-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "534a2bea8d330545778ce933d1e286652f521e9c"
+    },
+    "web/tests/uniform-list-worker-evidence.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "4fd3a56f866de1861797a7704045ded72286f7e5"
+    },
+    "web/tests/verify-anchor-live-captures.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "a8b2aa1df2acae6fa2d2f3473c47ae4e90d28067"
+    },
+    "web/tests/verify-anchor-pair.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "7078371c70e4c0ab3be05a61c0a283fa0e5de2a6"
+    },
+    "web/tests/verify-anchor-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "61b1ca31f456c483e33e5b14be9ca91b239422c3"
+    },
+    "web/tests/verify-drag-drop-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "0db1805e335e87ec78dc5c2391422cb989b53441"
+    },
+    "web/tests/verify-gradient-diagnostic.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "615eb354a3fbbfb982d8ea70a9f0512d1a2ca70f"
+    },
+    "web/tests/verify-gradient-pair.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "8e34b86d343658a465e26596c2e7f0b406053c00"
+    },
+    "web/tests/verify-gradient-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fe0ed765d3da8c99b2bdf61d7d464f57621ef9f4"
+    },
+    "web/tests/verify-grid-layout-pair.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "fd3ce2a654f641514fc7ca1b45813a52a8f4ade8"
+    },
+    "web/tests/verify-grid-layout-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "5b6c1462c27d0a1d94a0126e78f72c30acfe2444"
+    },
+    "web/tests/verify-tab-stop-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "973948071d57ee26e1c3690f63f58c4b783702ea"
+    },
+    "web/tests/verify-uniform-list-pair.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "2d5ea778d4aaa4fb32077bdb276bcdac0793bead"
+    },
+    "web/tests/verify-uniform-list-results.mjs": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "6098647187e20ab283ebdeb38d4f71af8c727e89"
+    },
+    "wrangler.browser-lab.jsonc": {
+      "mode": "100644",
+      "type": "blob",
+      "oid": "c604d20076aaa8c96e51352ddacc8a4f71380aec"
+    }
+  },
+  "nested_regression": {
+    "cases": 8,
+    "compared_operations": 48
+  },
+  "helper_assumptions": {
+    "native_pipeline": "Copied scoped direct-native-object validator: Linux x86_64, debug -g -O0, five staged packages, five runtime C objects, one archive and ELF. Exact unsupported flags/imports fail closed.",
+    "legacy_observers": "Frozen comparator/schema/corpus and unchanged Rust bundle verifier only; never invoke old pair top-level core pin or source lineage on current e13.",
+    "anchor_compatibility": "Only frozen one-site unsupported Paint abort derivation after retained genuine exhaustiveness rejection.",
+    "source_authentication": "Profile hashes checked before importing reused modules; retained helpers also independently compared with selected suite Git blobs."
+  },
+  "capacity_policy": {
+    "strict_floor_bytes": 1073741824,
+    "process_reserve_bytes": 67108864,
+    "ci_initial_headroom_bytes": 8589934592,
+    "current_artifact_allocation": null,
+    "unmeasured_estimates_only": {
+      "zip_bytes": [
+        220000000,
+        280000000
+      ],
+      "expanded_bytes": [
+        1000000000,
+        1200000000
+      ],
+      "independent_copy_bytes": [
+        400000000,
+        500000000
+      ]
+    },
+    "download_gate": "Inspect actual ZIP central-directory compressed/uncompressed entry totals before any download/expansion; estimates confer no permission."
+  },
+  "prior_pair_suite_commit": "ca784321838a59942cfdbc2a24804f038484974f",
+  "prior_pair_suite_tree": "e61878c51a5c42dfd0d5fd34b485c48a76586007"
+}

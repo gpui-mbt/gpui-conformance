@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "id": "two-level-font-free-outside-dismissal",
+  "steps": [
+    {
+      "id": "open-parent-down",
+      "kind": "down",
+      "point": [
+        30,
+        30
+      ],
+      "button": "left"
+    },
+    {
+      "id": "open-parent-up",
+      "kind": "up",
+      "point": [
+        30,
+        30
+      ],
+      "button": "left"
+    },
+    {
+      "id": "open-child-down",
+      "kind": "down",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "open-child-up",
+      "kind": "up",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "child-inside-down",
+      "kind": "down",
+      "point": [
+        180,
+        150
+      ],
+      "button": "left"
+    },
+    {
+      "id": "child-inside-up",
+      "kind": "up",
+      "point": [
+        180,
+        150
+      ],
+      "button": "left"
+    },
+    {
+      "id": "parent-outside-child-down",
+      "kind": "down",
+      "point": [
+        70,
+        160
+      ],
+      "button": "left"
+    },
+    {
+      "id": "parent-outside-child-up",
+      "kind": "up",
+      "point": [
+        70,
+        160
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-child-down",
+      "kind": "down",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-child-up",
+      "kind": "up",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "outside-both-first-down",
+      "kind": "down",
+      "point": [
+        300,
+        220
+      ],
+      "button": "left"
+    },
+    {
+      "id": "outside-both-first-up",
+      "kind": "up",
+      "point": [
+        300,
+        220
+      ],
+      "button": "left"
+    },
+    {
+      "id": "outside-both-second-down",
+      "kind": "down",
+      "point": [
+        300,
+        220
+      ],
+      "button": "left"
+    },
+    {
+      "id": "outside-both-second-up",
+      "kind": "up",
+      "point": [
+        300,
+        220
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-parent-down",
+      "kind": "down",
+      "point": [
+        30,
+        30
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-parent-up",
+      "kind": "up",
+      "point": [
+        30,
+        30
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-child-again-down",
+      "kind": "down",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "reopen-child-again-up",
+      "kind": "up",
+      "point": [
+        90,
+        96
+      ],
+      "button": "left"
+    },
+    {
+      "id": "release-only-outside",
+      "kind": "up",
+      "point": [
+        300,
+        220
+      ],
+      "button": "right"
+    },
+    {
+      "id": "nonprimary-first-down",
+      "kind": "down",
+      "point": [
+        300,
+        220
+      ],
+      "button": "right"
+    },
+    {
+      "id": "nonprimary-first-up",
+      "kind": "up",
+      "point": [
+        300,
+        220
+      ],
+      "button": "right"
+    },
+    {
+      "id": "nonprimary-second-down",
+      "kind": "down",
+      "point": [
+        300,
+        220
+      ],
+      "button": "right"
+    },
+    {
+      "id": "nonprimary-second-up",
+      "kind": "up",
+      "point": [
+        300,
+        220
+      ],
+      "button": "right"
+    }
+  ],
+  "source_hypotheses": {
+    "open-parent-down": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": []
+    },
+    "open-parent-up": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": [
+        "open_parent"
+      ]
+    },
+    "open-child-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "open-child-up": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": [
+        "open_child"
+      ]
+    },
+    "child-inside-down": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": []
+    },
+    "child-inside-up": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": []
+    },
+    "parent-outside-child-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": [
+        "dismiss_child"
+      ]
+    },
+    "parent-outside-child-up": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "reopen-child-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "reopen-child-up": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": [
+        "open_child"
+      ]
+    },
+    "outside-both-first-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": [
+        "dismiss_child"
+      ]
+    },
+    "outside-both-first-up": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "outside-both-second-down": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": [
+        "dismiss_parent"
+      ]
+    },
+    "outside-both-second-up": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": []
+    },
+    "reopen-parent-down": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": []
+    },
+    "reopen-parent-up": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": [
+        "open_parent"
+      ]
+    },
+    "reopen-child-again-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "reopen-child-again-up": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": [
+        "open_child"
+      ]
+    },
+    "release-only-outside": {
+      "state": [
+        true,
+        true
+      ],
+      "callbacks": []
+    },
+    "nonprimary-first-down": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": [
+        "dismiss_child"
+      ]
+    },
+    "nonprimary-first-up": {
+      "state": [
+        true,
+        false
+      ],
+      "callbacks": []
+    },
+    "nonprimary-second-down": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": [
+        "dismiss_parent"
+      ]
+    },
+    "nonprimary-second-up": {
+      "state": [
+        false,
+        false
+      ],
+      "callbacks": []
+    }
+  }
+}

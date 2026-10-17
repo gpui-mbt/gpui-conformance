@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "kind": "staging-only-frozen-observer-exhaustiveness-compatibility",
+  "source": "adapters/anchor_moonbit/main.mbt",
+  "frozen_source_sha256": "6e247312c001a3b7cbdd7734eaf4a2361ac1edaaffe6a91afef44b65587701ee",
+  "exact_occurrences": 1,
+  "old": "@scene.ClipPop => \"clip_pop\" }",
+  "new": "@scene.ClipPop => \"clip_pop\"; @scene.Paint => abort(\"unexpected non-quad paint\") }",
+  "derived_source_sha256": "471dd5a0d35ee1619dfe3e5f8719b905a2cee0d2bb2dd19d0e0b27366b133479",
+  "allowed_new_variant": "Paint",
+  "unexpected_variant_behavior": "abort before emitting complete observation JSON",
+  "compiler_policy": "--deny-warn retained; no warning suppression",
+  "qualification": "compatibility-derived compiled observer; original source/corpus/checkers stay byte-identical"
+}

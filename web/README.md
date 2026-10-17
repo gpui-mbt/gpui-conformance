@@ -626,6 +626,17 @@ boundaries instead, so grapheme movement equivalence (combining marks and
 ZWJ emoji) is **UNVERIFIED**. `TextField` owns undo/redo; these shortcuts
 are an additive candidate behavior absent from this upstream example.
 
+The IME host suppresses post-`compositionend` duplicate text only after
+reconciling the corresponding browser edit. For cancelable `beforeinput`, a
+successful `preventDefault()` allows the guard to be cleared immediately;
+for non-cancelable `beforeinput`, the guard survives until `input` has
+consumed the browser textarea value. Ordinary non-cancelable `insertText`
+also passes through `input` only, never both delivery callbacks.
+`web/tests/input-ime-host.test.mjs` exercises those paths with a mock
+TextField boundary; the paired `candidate-browser.mjs` also runs them in
+actual Chromium against the **compiled MoonBit TextField**. These are synthetic
+DOM IME event sequences, distinct from actual Japanese IME integration.
+
 Synthetic Chromium composition event tests cannot activate a genuine
 Japanese IME or validate its candidate window, platform-specific selection
 reporting, or keyboard-layout changes. Actual Japanese IME, Rust–MoonBit

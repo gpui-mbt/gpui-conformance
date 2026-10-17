@@ -1,0 +1,186 @@
+name: Supplemental native two-level nested deferred pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/nested_deferred_moonbit/**'
+      - 'diagnostics/nested_deferred_pair/**'
+      - 'tests/test_nested_deferred_pair.py'
+      - '.github/workflows/nested-deferred-native-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nested-deferred-pair-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-source-bound-nested-deferred-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: pair-suite
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: pair-suite
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Require reviewed exact published core pin and frozen fixtures
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, re
+          from pathlib import Path
+          p = json.load(open('diagnostics/nested_deferred_pair/profile.json'))
+          assert p['candidate_pin_status'] == 'published-exact-commit-tree', 'Core review/publication remains a hard gate'
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_commit'] or '')
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_tree'] or '')
+          for name, digest in p['approved_fixture_sha256'].items():
+              assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == digest, name
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('oracle=' + p['suite_base_public_commit'], file=out)
+              print('core=' + p['candidate_commit'], file=out)
+              print('upstream=' + p['upstream_commit'], file=out)
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.core }}
+          path: pair-suite/_build/core-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.upstream }}
+          path: pair-suite/_build/upstream-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.pins.outputs.oracle }}
+          path: oracle-suite
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install compiler and schema checker
+        run: |
+          mkdir -p _build/nested-deferred-pair-logs
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+          python3 -m pip install jsonschema==4.26.0
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/nested-deferred-pair-logs/install-moon.sh
+          bash _build/nested-deferred-pair-logs/install-moon.sh
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Verify distinct exact oracle and pair source lineage before builds
+        run: |
+          mkdir -p _build/nested-deferred-pair-logs
+          python3 - <<'PYLINEAGE' > _build/nested-deferred-pair-logs/source-lineage-preflight.json
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, 'diagnostics/nested_deferred_pair')
+          from run import identity, validate_source_lineage
+          pair = identity(Path('.'))
+          oracle = identity(Path('../oracle-suite'))
+          assert pair['clean'] and oracle['clean']
+          print(json.dumps(validate_source_lineage(Path('.'), pair['commit'], Path('../oracle-suite'), oracle['commit']), indent=2))
+          PYLINEAGE
+      - name: Run unchanged and new checker regressions
+        env:
+          GPUI_SELECTED_CORE_TEST_SOURCE: ${{ github.workspace }}/pair-suite/_build/core-source
+          GPUI_SELECTED_CORE_TEST_REPORT: ${{ github.workspace }}/pair-suite/_build/nested-deferred-pair-logs/selected-core-source-preflight.json
+          GPUI_LAYOUT_TEST_UPSTREAM_SOURCE: ${{ github.workspace }}/pair-suite/_build/upstream-source
+          GPUI_LAYOUT_TEST_REPORT: ${{ github.workspace }}/pair-suite/_build/nested-deferred-pair-logs/layout-source-preflight.json
+        run: |
+          python3 -m unittest discover -s tests -p 'test_anchor_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_pair.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_margin_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_margin_pair.py' -v
+          python3 -m unittest discover -s tests -p 'test_deferred_priority_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_deferred_priority_pair.py' -v
+          python3 -m unittest discover -s tests -p 'test_nested_deferred_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_nested_deferred_pair.py' -v
+      - name: Compile and execute four unchanged actual Rust observers
+        working-directory: oracle-suite
+        run: |
+          set -o pipefail
+          python3 diagnostics/nested_deferred/run.py --online --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            --output _build/nested-deferred-baseline 2>&1 | tee "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-deferred.log"
+          python3 diagnostics/nested_deferred/verify.py _build/nested-deferred-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            > "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-deferred-independent.json"
+          python3 diagnostics/anchor_margin/run.py --online --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            --output _build/anchor-margin-baseline 2>&1 | tee "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-margin.log"
+          python3 diagnostics/anchor_margin/verify.py _build/anchor-margin-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            > "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-margin-independent.json"
+          python3 diagnostics/anchor/run.py --online --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            --output _build/anchor-original-baseline 2>&1 | tee "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-original.log"
+          python3 diagnostics/anchor/verify.py _build/anchor-original-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            > "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-original-independent.json"
+          python3 diagnostics/deferred_priority/run.py --online --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            --output _build/flat-priority-baseline 2>&1 | tee "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-flat.log"
+          python3 diagnostics/deferred_priority/verify.py _build/flat-priority-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source "$GITHUB_WORKSPACE/pair-suite/_build/upstream-source" \
+            > "$GITHUB_WORKSPACE/pair-suite/_build/nested-deferred-pair-logs/rust-flat-independent.json"
+      - name: Compile deferred pair and same-final-core frozen-corpus regressions
+        run: |
+          set -o pipefail
+          python3 diagnostics/nested_deferred_pair/run.py --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' --baseline ../oracle-suite/_build/nested-deferred-baseline \
+            --margin-baseline ../oracle-suite/_build/anchor-margin-baseline --flat-baseline ../oracle-suite/_build/flat-priority-baseline \
+            --regression-baseline ../oracle-suite/_build/anchor-original-baseline --baseline-suite-source ../oracle-suite \
+            --baseline-suite-commit '${{ steps.pins.outputs.oracle }}' --upstream-source _build/upstream-source \
+            --output _build/nested-deferred-pair-evidence 2>&1 | tee _build/nested-deferred-pair-logs/native-pair.log
+          python3 diagnostics/nested_deferred_pair/verify.py _build/nested-deferred-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            > _build/nested-deferred-pair-logs/native-independent.json
+      - name: Reopen all ordinary passes before each compiled production control
+        run: |
+          python3 diagnostics/nested_deferred_pair/run_mutants.py --evidence _build/nested-deferred-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            --output _build/nested-deferred-mutants
+      - name: Independently reopen copied bundles and exercise rehashed forensic controls
+        run: |
+          python3 - <<'PYBUDGET'
+          import shutil
+          from pathlib import Path
+          needed=sum(p.stat().st_size for name in ('nested-deferred-pair-evidence','nested-deferred-mutants') for p in (Path('_build')/name).rglob('*') if p.is_file())
+          assert shutil.disk_usage('_build').free > 1024**3 + 2*needed + 64*1024**2, 'Keep strict floor for relocated copies and forensic copies'
+          PYBUDGET
+          cp -a _build/nested-deferred-pair-evidence _build/nested-deferred-pair-copy
+          cp -a _build/nested-deferred-mutants _build/nested-deferred-mutants-copy
+          python3 diagnostics/nested_deferred_pair/verify_mutants.py --evidence _build/nested-deferred-pair-copy \
+            --mutants _build/nested-deferred-mutants-copy --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' > _build/nested-deferred-pair-logs/copied-independent.json
+          python3 diagnostics/nested_deferred_pair/run_controls.py --evidence _build/nested-deferred-pair-evidence \
+            --mutants _build/nested-deferred-mutants --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' --output _build/nested-deferred-forensic-controls
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-nested-deferred-pair-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            oracle-suite/_build/nested-deferred-baseline
+            oracle-suite/_build/anchor-margin-baseline
+            oracle-suite/_build/anchor-original-baseline
+            oracle-suite/_build/flat-priority-baseline
+            pair-suite/_build/nested-deferred-pair-evidence
+            pair-suite/_build/nested-deferred-mutants
+            pair-suite/_build/nested-deferred-forensic-controls
+            pair-suite/_build/nested-deferred-pair-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
