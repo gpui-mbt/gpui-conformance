@@ -1,6 +1,6 @@
 import { createHostTiming } from '../load-timing.mjs';
 const loadTiming = createHostTiming('moon');
-import { drawFrame } from './render.mjs';
+import { drawFrame, drawCoreRasterFrame, validateCoreRasterFrame } from './render.mjs';
 import { measureWrapperInputs, measureTypographyInputs } from './text-metrics.mjs';
 import { wheelDeltaPixels } from './text-wheel.mjs';
 import { createInputHost } from './input-host.mjs';
@@ -12,11 +12,12 @@ import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
 import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
 import { readAnchorFrame, createAnchorHost } from './anchor-host.mjs';
+import {readGradientFrame,createGradientHost} from './gradient-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {gradient:'./gradient.mjs',anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
@@ -34,6 +35,10 @@ try {
     Object.assign(gridNotice.style, {position:'fixed',bottom:'0',right:'0',maxWidth:'30rem',margin:'0',padding:'.4rem .6rem',background:'#fff4d6',color:'#49340b',font:'12px system-ui',pointerEvents:'none'});
     document.body.append(gridNotice);
   }
+  const isGradient = example === 'gradient';
+  const gradientPolicy = isGradient && new URL(location.href).searchParams.get('policy') === '1';
+  let gradientNotice;
+  if(isGradient&&!gradientPolicy){gradientNotice=document.createElement('p');gradientNotice.id='gradient-live-notice';gradientNotice.setAttribute('role','status');gradientNotice.hidden=true;Object.assign(gradientNotice.style,{position:'fixed',bottom:'0',right:'0',margin:'0',background:'#fff4d6',font:'12px system-ui',pointerEvents:'none'});gradientNotice.textContent='Live gradient preview outside the frozen wide/tall DPR1 profile. This viewport is unverified.';document.body.append(gradientNotice);}
   const isAnchor = example === 'anchor';
   let anchorNotice;
   if (isAnchor) {
@@ -49,6 +54,7 @@ try {
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
   const labels = {uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  labels.gradient = 'Upstream gradient: twelve gradients, two solids, polygon and color-space toggle';
   labels.anchor = 'Upstream anchor: eight hover popovers and inert center';
   labels.grid_layout = 'Upstream responsive grid: header, table of contents, content, advertisement and footer';
   canvas.setAttribute('aria-label', labels[metadata.id]);
@@ -80,6 +86,7 @@ try {
   let dragDrop;
   let uniformList;
   let anchor;
+  let gradient;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
     dynamicFonts = createDynamicFontHost({fetchFont: (...args) => fetch(...args), FontFaceType: FontFace, fonts: document.fonts, onChange: () => render()});
@@ -89,6 +96,26 @@ try {
     prime = createPrimeHost({ runtime, canvas, render: () => render(), onFailure: cause => console.error(cause) });
   }
   function render() {
+    if(isGradient) {
+      try {
+        const {frame,width,height,scale,widths,actualDeviceScale,effectiveRenderScale,backingWidth,backingHeight,renderScaleReduced}=readGradientFrame(runtime,context,window,metadata,gradientPolicy);
+        const nextMetadata={...metadata,width,height};
+        validateCoreRasterFrame(frame,nextMetadata,scale); // before backing reset
+        metadata.width=width;metadata.height=height;
+        canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
+        if(canvas.width!==backingWidth)canvas.width=backingWidth;
+        if(canvas.height!==backingHeight)canvas.height=backingHeight;
+        drawCoreRasterFrame(context,frame,metadata,scale);
+        if(gradientNotice){gradientNotice.hidden=frame.gradient.comparison_profile_match;gradientNotice.textContent=renderScaleReduced?`Live preview at effective render scale ${effectiveRenderScale.toFixed(3)} (device DPR ${actualDeviceScale}); resolution reduced to fit bounded resources. This viewport is unverified.`:'Live gradient preview outside the frozen wide/tall DPR1 profile. This viewport is unverified.';}
+        globalThis.gpuiExample={metadata,frame,textWidth:widths,scale,actualDeviceScale,effectiveRenderScale,backingWidth,backingHeight,renderScaleReduced,gradientEvents:gradient?.events||[]};
+        canvas.hidden=false;error.hidden=true;document.documentElement.dataset.runtimeStatus='ready';
+      } catch(cause) {
+        delete globalThis.gpuiExample;canvas.hidden=true;error.hidden=false;document.documentElement.dataset.runtimeStatus='failed';runtime.gradient_reset();
+        if(gradientNotice)gradientNotice.hidden=true;
+        error.textContent=`Gradient candidate failed: ${cause.message}. Supported live size: width240–2048px, height300–2048px, device DPR0.25–64 (bounded effective scale), backing at most2048 per side and1048576 pixels.`;
+      }
+      return;
+    }
     if (isAnchor) {
       try {
         const {frame,width,height,scale,widths} = readAnchorFrame(runtime,context,window,metadata);
@@ -186,6 +213,12 @@ try {
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
+  if(isGradient&&!gradientPolicy) {
+    gradient=createGradientHost({runtime,canvas,render});
+    let stopScaleWatch=watchGridDeviceScale(window,render);
+    window.addEventListener('pagehide',()=>{gradient?.stop();gradient=null;stopScaleWatch?.();stopScaleWatch=null;});
+    window.addEventListener('pageshow',()=>{if(!gradient){gradient=createGradientHost({runtime,canvas,render});stopScaleWatch=watchGridDeviceScale(window,render);render();}});
+  }
   if (isAnchor) {
     anchor = createAnchorHost({runtime,canvas,render});
     let stopScaleWatch = watchGridDeviceScale(window, render);

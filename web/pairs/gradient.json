@@ -1,0 +1,163 @@
+{
+  "schema": 1,
+  "id": "gradient",
+  "profile": "gradient_actual_browser_pair_v1",
+  "candidate": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a",
+    "tree": "dd5612a412d251b468c358a25baa0b0dd592c807"
+  },
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+    "source": "crates/gpui/examples/gradient.rs",
+    "source_blob": "df1398fff58b637abf0c0b31934f6ad523d84a21",
+    "source_sha256": "620dbeccd4daa80f71cb1c67f1628508cb397e9aeb4b5a5d0abe0a2a45aad193"
+  },
+  "viewport": {
+    "sizes": [
+      [
+        960,
+        600
+      ],
+      [
+        600,
+        960
+      ]
+    ],
+    "dpr": 1
+  },
+  "sequence": [
+    "wideSrgb",
+    "wideOklab",
+    "wideRestored",
+    "tallSrgb",
+    "tallOklab",
+    "tallRestored",
+    "wideAgain"
+  ],
+  "status": "public_core_pinned_browser_pair_unverified",
+  "presentation": {
+    "input": "straight float RGBA with source RGB treated as linear",
+    "interpolation": "core owned sRGB-encoded interpolation or Oklab",
+    "output": "core composited raw shader-linear UNORM8 RGBA",
+    "transport": "ordered tight physical RGBA tiles interleaved with canonical legacy text; separate text-free policy uses one contiguous opaque core-composited run; no host transfer/opacity/clip/transform reapplied",
+    "coverage": "binary interior; antialias edges unclaimed"
+  },
+  "backend_scope": "unchanged Rust visible-canvas WebGL2 via SwiftShader; candidate Canvas2D presents core bytes",
+  "equal_stops": "deterministic core start endpoint at boundary; observed WebGL2 compatibility only, not universal GPU semantics",
+  "tolerances_physical_pixels": {
+    "component_edge": 2
+  },
+  "tolerances_unorm8": {
+    "rgb_code": 2,
+    "opaque_alpha": 0
+  },
+  "executed_controls": {
+    "wrong_geometry": {
+      "path": "scene/paint_raster.mbt",
+      "find": "x: x0.to_int(), y: y0.to_int(), width, height, rgba,",
+      "replace": "x: x0.to_int() + (if x0 > 0.0 && x1 + 8.0 < self.viewport.right() * self.scale { 8 } else { 0 }), y: y0.to_int(), width, height, rgba,",
+      "occurrences": 1,
+      "kind": "compiled_core_physical_origin_fault"
+    },
+    "wrong_color_space": {
+      "path": "scene/gradient.mbt",
+      "find": "let (red, green, blue) = match self.space {",
+      "replace": "let (red, green, blue) = match (if self.space == Oklab { Srgb } else { self.space }) {",
+      "occurrences": 1,
+      "kind": "compiled_core_color_space_fault"
+    },
+    "wrong_green_rounding": {
+      "path": "primitives/float_color.mbt",
+      "find": "let color = FloatColor::{ red, green, blue, alpha, }",
+      "replace": "let color = FloatColor::{ red, green: (green * 255.0 + 0.5).floor() / 255.0, blue, alpha, }",
+      "occurrences": 1,
+      "kind": "compiled_core_premature_green_quantization_fault"
+    },
+    "wrong_alpha": {
+      "path": "scene/paint_raster.mbt",
+      "find": "color.alpha() * opacity,",
+      "replace": "(color.alpha() * opacity * 255.0 + 0.5).floor() / 255.0,",
+      "occurrences": 1,
+      "kind": "compiled_core_premature_alpha_quantization_fault"
+    },
+    "wrong_angle": {
+      "path": "scene/gradient.mbt",
+      "find": "let radians = (self.angle % 360.0 - 90.0) * 3.1415926 / 180.0",
+      "replace": "let radians = (self.angle % 360.0 - 45.0) * 3.1415926 / 180.0",
+      "occurrences": 1,
+      "kind": "compiled_core_angle_fault"
+    },
+    "wrong_stops": {
+      "path": "scene/gradient.mbt",
+      "find": "    self.start_position,\n    self.end_position,\n  )",
+      "replace": "    self.start_position * 0.0,\n    self.end_position * 0.0 + 1.0,\n  )",
+      "occurrences": 1,
+      "kind": "compiled_core_authored_stop_fault"
+    },
+    "wrong_equal_boundary": {
+      "path": "scene/gradient.mbt",
+      "find": "    if t <= start {",
+      "replace": "    if t < start {",
+      "occurrences": 1,
+      "kind": "compiled_core_equal_boundary_fault"
+    },
+    "wrong_gradient_origin": {
+      "path": "scene/gradient.mbt",
+      "find": "let relative_x = point.x() - (bounds.left() + half_width)",
+      "replace": "let relative_x = point.x() - (bounds.left() + half_width + 16.0)",
+      "occurrences": 1,
+      "kind": "compiled_core_gradient_origin_fault"
+    },
+    "wrong_polygon_clip_basis": {
+      "path": "scene/paint.mbt",
+      "find": "          points = paint_clip_edge(points, clip, edge)",
+      "replace": "          if clip.size().width() < 0.0 { points = paint_clip_edge(points, clip, edge) }",
+      "occurrences": 1,
+      "kind": "compiled_core_polygon_clipped_basis_fault"
+    },
+    "wrong_polygon_nominal_bounds": {
+      "path": "scene/paint.mbt",
+      "find": "      paint_points_bounds(points)\n    }\n  }\n}\n\n///|\n/// Binary interior coverage",
+      "replace": "      match paint_points_bounds(points) {\n        None => None\n        Some(bounds) => @primitives.Rect::new(bounds.left(), bounds.top() - 30.0, bounds.size().width(), bounds.size().height() + 30.0).to_option()\n      }\n    }\n  }\n}\n\n///|\n/// Binary interior coverage",
+      "occurrences": 1,
+      "kind": "compiled_core_polygon_nominal_bounds_fault"
+    }
+  },
+  "not_claimed": [
+    "Full-image equality",
+    "Text/shaping/glyph/typography parity",
+    "Rounded or polygon antialias-edge parity",
+    "Universal equal-stop GPU semantics",
+    "Native/Metal or physical GPU parity",
+    "Other browsers, GPU backends, viewport/DPR profiles",
+    "General gradient conformance"
+  ],
+  "comparison_budget_basis": "Predeclared bounded sample budget, not a proved universal f32 bound; exact opaque alpha, authored constants and same-runtime restoration; no fitting after candidate execution",
+  "comparison_budget_declared_utc": "2026-10-17T06:54:20Z",
+  "policy_probe": {
+    "source": "web/tests/gradient-policy-contract.mjs",
+    "route": "/moonbit/?example=gradient&policy=1",
+    "document": "independent from unchanged-example comparison",
+    "snapshot_run": {
+      "start": 0,
+      "count": 5,
+      "ordered_ids": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "opaque_background": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "arithmetic": "core float source-over before final UNORM8; not per-item alpha-byte compositing"
+  }
+}

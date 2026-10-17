@@ -185,6 +185,10 @@ function sourceShadowPaintCommands(frame, metadata, scale) {
 }
 
 export function drawFrame(context, frame, metadata, scale) {
+  return drawFrameInternal(context, frame, metadata, scale, true);
+}
+
+function drawFrameInternal(context, frame, metadata, scale, clear) {
   validateFrame(frame);
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
@@ -195,7 +199,7 @@ export function drawFrame(context, frame, metadata, scale) {
   context.save();
   try {
     context.setTransform(scale, 0, 0, scale, 0, 0);
-    context.clearRect(0, 0, metadata.width, metadata.height);
+    if (clear) context.clearRect(0, 0, metadata.width, metadata.height);
     context.beginPath(); context.rect(0, 0, metadata.width, metadata.height); context.clip();
     for (const {item,shadow,shadowOpacity} of commands) {
       context.save();
@@ -274,4 +278,68 @@ export function drawFrame(context, frame, metadata, scale) {
       } finally { context.restore(); }
     }
   } finally { context.restore(); }
+}
+
+// Ordered presentation only. Core already resolved physical geometry, coverage,
+// clips, transforms, alpha and shader-output channels. No gradient arithmetic.
+export function validateCoreRasterFrame(frame,metadata,scale) {
+  if(!frame?.ok||frame.conformance!=='unverified'||frame.raster_transport!=='ordered_core_webgl2_linear_straight_v1')throw new Error('Invalid core raster transport');
+  if(!Number.isFinite(scale)||scale<.25||scale>4||![metadata.width,metadata.height].every(v=>Number.isFinite(v)&&v>0))throw new Error('Invalid core raster viewport');
+  const width=Math.ceil(metadata.width*scale),height=Math.ceil(metadata.height*scale);
+  if(width<1||height<1||width>2048||height>2048||width*height>1048576)throw new Error('Core raster viewport exceeds resource cap');
+  const snapshot=frame.snapshot;
+  if(snapshot?.schema_version!==1||!Array.isArray(snapshot.items)||snapshot.items.length>128||!Array.isArray(frame.operations)||frame.operations.length>snapshot.items.length||frame.decorations?.length!==0)throw new Error('Invalid ordered core raster scene');
+  const viewport=snapshot.viewport;
+  if(!viewport||viewport.x!==0||viewport.y!==0||viewport.width!==metadata.width||viewport.height!==metadata.height||snapshot.scale!==scale)throw new Error('Core snapshot/viewport mismatch');
+  if(frame.shadows?.length||frame.rounded_fills?.length||frame.text_styles?.length||frame.scroll)throw new Error('Unsupported mixed raster decoration');
+  // Keep the legacy validator intact, applied to the exact legacy scene items.
+  validateFrame({...frame,snapshot:{...snapshot,items:snapshot.items.filter(i=>i.kind!=='paint')}});
+  let total=0,cursor=0;const seen=new Set();
+  for(let index=0;index<frame.operations.length;index++) {
+    const op=frame.operations[index],item=snapshot.items[cursor];
+    if(!op||seen.has(op)||op.index!==cursor||!['legacy','rgba','rgba_run','skip'].includes(op.kind)||!['paint','quad','text','text_run'].includes(item?.kind))throw new Error('Malformed ordered core operation');seen.add(op);
+    const count=op.kind==='rgba_run'?op.count:1;
+    if(!Number.isSafeInteger(count)||count<1||cursor+count>snapshot.items.length)throw new Error('Invalid core run membership');
+    if(op.kind==='rgba_run'&&snapshot.items.slice(cursor,cursor+count).some(i=>!['paint','quad'].includes(i.kind)))throw new Error('Core run crosses legacy text');
+    cursor+=count;
+    if(op.kind==='legacy') {
+      if(!['quad','text','text_run'].includes(item.kind)||Object.keys(op).sort().join(',')!=='index,kind')throw new Error('Invalid legacy operation');
+    } else if(op.kind==='skip') {
+      if(!['quad','paint'].includes(item.kind)||Object.keys(op).sort().join(',')!=='index,kind')throw new Error('Invalid skipped operation');
+    } else {
+      if(!['quad','paint'].includes(item.kind)||Object.keys(op).sort().join(',')!==(op.kind==='rgba_run'?'count,height,index,kind,rgba,width,x,y':'height,index,kind,rgba,width,x,y'))throw new Error('Invalid raster operation');
+      if(![op.x,op.y,op.width,op.height].every(Number.isSafeInteger)||op.x<0||op.y<0||op.width<1||op.height<1||op.width>2048||op.height>2048||op.x+op.width>width||op.y+op.height>height)throw new Error('Invalid physical core tile bounds');
+      const count=op.width*op.height;total+=count;
+      if(count>1048576||total>4194304||!Array.isArray(op.rgba)||seen.has(op.rgba)||op.rgba.length!==4*count||!op.rgba.every(v=>Number.isInteger(v)&&v>=0&&v<=255))throw new Error('Invalid, aliased or oversized core tile bytes');seen.add(op.rgba);
+      if(op.kind==='rgba_run'&&op.rgba.some((v,i)=>i%4===3&&v!==255))throw new Error('Canonical paint run must be opaque after core compositing');
+    }
+  }
+  if(cursor!==snapshot.items.length)throw new Error('Incomplete core operation stream');
+  return {width,height};
+}
+
+export function drawCoreRasterFrame(context,frame,metadata,scale,makeSurface=(w,h)=>new OffscreenCanvas(w,h)) {
+  const {width,height}=validateCoreRasterFrame(frame,metadata,scale);
+  // Allocate/upload every tile before touching the destination, so malformed
+  // later buffers or allocation failures cannot partially present the frame.
+  const surfaces=new Map();
+  for(const op of frame.operations)if(op.kind==='rgba'||op.kind==='rgba_run') {
+    const surface=makeSurface(op.width,op.height),tile=surface.getContext('2d');
+    if(!tile)throw new Error('Core tile Canvas2D unavailable');
+    const image=tile.createImageData(op.width,op.height);image.data.set(op.rgba);tile.putImageData(image,0,0);surfaces.set(op.index,surface);
+  }
+  context.save();
+  try {
+    context.setTransform(1,0,0,1,0,0);context.globalAlpha=1;context.globalCompositeOperation='source-over';
+    context.clearRect(0,0,width,height);
+    for(const op of frame.operations) {
+      if(op.kind==='skip')continue;
+      if(op.kind==='rgba'||op.kind==='rgba_run') {
+        context.save();try{context.setTransform(1,0,0,1,0,0);context.globalAlpha=1;context.globalCompositeOperation='source-over';context.drawImage(surfaces.get(op.index),op.x,op.y);}finally{context.restore();}
+      } else {
+        // One canonical item, in its original position. No backing resize/clear.
+        drawFrameInternal(context,{ok:true,conformance:'unverified',decorations:[],snapshot:{...frame.snapshot,items:[frame.snapshot.items[op.index]]}},metadata,scale,false);
+      }
+    }
+  } finally {context.restore();}
 }
