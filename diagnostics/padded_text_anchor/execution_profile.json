@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "bound",
+  "fixture_commit": "4bf568614f9a5707855a441314eec8080adbc8a7",
+  "fixture_tree": "02f135a1b1dd34add72e200813a1bdcba6f7f5ef",
+  "integration_baseline_commit": "908f39d73b70b0c9d1bf59d8d3fc76e1e3506cf8",
+  "integration_baseline_tree": "de80e7d598470a75cc052c951848391551dba813",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "fixture_files": {
+    "adapters/padded_text_anchor_rust/Cargo.toml": {
+      "sha256": "d78a6318760be05279078bdd390f3a866928fc76f323ec12e2eacc68debdd606",
+      "size": 303
+    },
+    "adapters/padded_text_anchor_rust/Cargo.lock": {
+      "sha256": "c23b509c7e2366f05deb94504f0c2ad483dd1e10a8d944ab3084c6514ea1d7d7",
+      "size": 94278
+    },
+    "adapters/padded_text_anchor_rust/src/main.rs": {
+      "sha256": "3f5bd454017e16979979b91e78b81db46131916864584973b28ea60e18b27bfd",
+      "size": 9557
+    },
+    "diagnostics/padded_text_anchor/README.md": {
+      "sha256": "cef454160a60bea215964e7ab853349188ba302cd252bbb034b1a68c1055cf94",
+      "size": 10705
+    },
+    "diagnostics/padded_text_anchor/scenarios.json": {
+      "sha256": "b855a4927f6c68c2b41e6fb3a0d1349f5e67ed8bdd896f095bb55575eec17fe7",
+      "size": 2161
+    },
+    "diagnostics/padded_text_anchor/verify.py": {
+      "sha256": "9c39214bd8c0771e76b9cb3904380bdb83574dc6d1638873691bf1b5d6108476",
+      "size": 8939
+    },
+    "tests/test_padded_text_anchor.py": {
+      "sha256": "a35650f589891b7e1e6674422550e1a4bce7746e58a71863a98ac552f870a7ae",
+      "size": 10391
+    }
+  },
+  "estimated_artifact_zip_limit": 12582912,
+  "estimated_artifact_extraction_limit": 50331648
+}

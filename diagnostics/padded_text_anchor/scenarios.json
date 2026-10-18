@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "variants": [
+    "example_branch",
+    "asymmetric_fractional"
+  ],
+  "steps": [
+    {
+      "id": "wide-parent",
+      "viewport": [
+        900,
+        700
+      ],
+      "scale": 1,
+      "nested_open": false
+    },
+    {
+      "id": "wide-nested",
+      "viewport": [
+        900,
+        700
+      ],
+      "scale": 1,
+      "nested_open": true
+    },
+    {
+      "id": "resize-parent",
+      "viewport": [
+        520,
+        360
+      ],
+      "scale": 1,
+      "nested_open": false
+    },
+    {
+      "id": "resize-nested",
+      "viewport": [
+        520,
+        360
+      ],
+      "scale": 1,
+      "nested_open": true
+    },
+    {
+      "id": "narrow-parent",
+      "viewport": [
+        320,
+        240
+      ],
+      "scale": 1,
+      "nested_open": false
+    },
+    {
+      "id": "narrow-nested",
+      "viewport": [
+        320,
+        240
+      ],
+      "scale": 1,
+      "nested_open": true
+    },
+    {
+      "id": "restore-parent",
+      "viewport": [
+        900,
+        700
+      ],
+      "scale": 1,
+      "nested_open": false
+    },
+    {
+      "id": "restore-nested",
+      "viewport": [
+        900,
+        700
+      ],
+      "scale": 1,
+      "nested_open": true
+    },
+    {
+      "id": "fractional125-parent",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 1.25,
+      "nested_open": false
+    },
+    {
+      "id": "fractional125-nested",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 1.25,
+      "nested_open": true
+    },
+    {
+      "id": "fractional150-parent",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 1.5,
+      "nested_open": false
+    },
+    {
+      "id": "fractional150-nested",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 1.5,
+      "nested_open": true
+    },
+    {
+      "id": "fractional200-parent",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 2,
+      "nested_open": false
+    },
+    {
+      "id": "fractional200-nested",
+      "viewport": [
+        519.5,
+        359.25
+      ],
+      "scale": 2,
+      "nested_open": true
+    }
+  ]
+}
