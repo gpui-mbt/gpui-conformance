@@ -256,6 +256,10 @@ jobs:
         run: |
           node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
           node web/tests/load-timing-browser.mjs
+      - name: Exercise responsive grid parent with both compiled runtimes
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: node web/tests/grid-parent-live-browser.mjs _build/browser-lab _build/browser-example-evidence/grid-parent-live
       - name: Exercise candidate live pattern viewport and DPR recovery
         env:
           PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
@@ -312,3 +316,4 @@ jobs:
             _build/browser-lab
             _build/browser-example-evidence
           if-no-files-found: warn
+
