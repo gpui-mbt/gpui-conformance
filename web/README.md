@@ -703,3 +703,23 @@ resize evidence at 399/400/401/500×500 DPR1, measuring solid-color grid/span/ga
 and threshold behavior. Local synthetic tests do not establish runtime results;
 its dedicated CI build/capture and independent artifact review remain required.
 No grid MoonBit candidate or full-image/text/native parity is claimed.
+
+## Implemented source candidate: `pattern`
+
+The unchanged pinned `crates/gpui/examples/pattern.rs` (blob
+`7d2e98d16e24dc23dc307296a3b35c18e624d9e3`) is registered beside its MoonBit
+counterpart. Its fixed 600×600 DPR1 candidate retains eight source slash
+rectangles, two labels, four blue bordered groups/controls, the translucent
+green parent, red solid and 45-degree red→blue gradient. Core ElementTree,
+SlashPattern and opaque linear raster composition own the rendering semantics;
+JavaScript only measures/disjointness-checks actual label ink and transports
+canonical pixels. See [scope](moonbit/pattern/SCOPE.md).
+
+The exact current core revision/tree is in `examples.json`; earlier retained
+measurements and paired profiles keep their own immutable provenance.
+`tests/pattern-pair-browser.mjs` executes independent Rust and MoonBit runtimes
+and checks the frozen `pairs/pattern.json` source regions. Separately compiled
+interval/phase/color/missing-row faults and a missing-runtime control must be
+rejected. Compilation and actual qualification are required before a bounded
+pass can be reported; source tests alone are not visual evidence. Text, shadows,
+antialias edges, full-image equality and native parity remain unverified.

@@ -15,14 +15,16 @@ import { measureUniformListInputs } from './uniform-list-text.mjs';
 import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
 import { readAnchorFrame, createAnchorHost } from './anchor-host.mjs';
 import {readGradientFrame,createGradientHost} from './gradient-host.mjs';
+import {readPatternFrame,createPatternLifecycle} from './pattern-host.mjs';
 const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {popover:'./popover.mjs',gradient:'./gradient.mjs',anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {pattern:'./pattern.mjs',popover:'./popover.mjs',gradient:'./gradient.mjs',anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
+  const isPattern = example === 'pattern';
   const isPopover = example === 'popover';
   const isText = example === 'text';
   const isTree = example === 'tree';
@@ -57,6 +59,7 @@ try {
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
   const labels = {popover:'Upstream popover: default, parent and nested child deferred layers',uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  labels.pattern = 'Upstream pattern: eight slash rectangles, two labels, solid and gradient controls';
   labels.gradient = 'Upstream gradient: twelve gradients, two solids, polygon and color-space toggle';
   labels.anchor = 'Upstream anchor: eight hover popovers and inert center';
   labels.grid_layout = 'Upstream responsive grid: header, table of contents, content, advertisement and footer';
@@ -91,6 +94,7 @@ try {
   let uniformList;
   let anchor;
   let gradient;
+  let patternLifecycle;
   let popover;
   let popoverSuspended = false;
   if (example === 'dynamic_fonts') {
@@ -102,6 +106,24 @@ try {
     prime = createPrimeHost({ runtime, canvas, render: () => render(), onFailure: cause => console.error(cause) });
   }
   function render() {
+    if(isPattern) {
+      if(patternLifecycle?.suspended)return;
+      try {
+        const {frame,width,height,scale,widths,glyphInk}=readPatternFrame(runtime,context,window,metadata);
+        validateCoreRasterFrame(frame,{...metadata,width,height},scale);
+        metadata.width=width;metadata.height=height;
+        canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
+        if(canvas.width!==width)canvas.width=width;
+        if(canvas.height!==height)canvas.height=height;
+        drawCoreRasterFrame(context,frame,metadata,scale);
+        globalThis.gpuiExample={metadata,frame,textWidth:widths,scale,glyphInk};
+        canvas.hidden=false;error.hidden=true;document.documentElement.dataset.runtimeStatus='ready';
+      } catch(cause) {
+        delete globalThis.gpuiExample;canvas.hidden=true;error.hidden=false;document.documentElement.dataset.runtimeStatus='failed';
+        error.textContent=`Pattern candidate failed: ${cause.message}. Only the source-sized 600×600 DPR1 profile is supported; text, shadows and full-image parity remain unverified.`;
+      }
+      return;
+    }
     if (isPopover) {
       if (popoverSuspended) return false;
       try {
@@ -326,6 +348,10 @@ try {
   if (document.documentElement.dataset.runtimeStatus === 'ready') loadTiming.complete(payloads, 'Canvas2D draw calls returned');
   else loadTiming.fail();
   window.addEventListener('resize', render);
+  if(isPattern)patternLifecycle=createPatternLifecycle(window,render,()=>{
+    delete globalThis.gpuiExample;canvas.hidden=true;
+    document.documentElement.dataset.runtimeStatus='suspended';
+  });
   if (isGrid) {
     let stopScaleWatch = watchGridDeviceScale(window, render);
     window.addEventListener('pagehide', () => { stopScaleWatch?.(); stopScaleWatch = null; });

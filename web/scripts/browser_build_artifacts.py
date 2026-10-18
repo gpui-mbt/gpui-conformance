@@ -268,10 +268,11 @@ def validate_site(site: Path, kind: str, inputs: dict) -> tuple[dict, dict]:
         for name in inputs["implemented"]:
             require(all(path in rust_files for path in (name + ".js", name + "_bg.wasm")),
                     f"missing Rust compiled output: {name}")
+        retained_pattern = retained_pattern_sources(rust, site, inputs)
         licenses = {"LICENSE-APACHE", "ibm-plex-sans-license.txt", "lilex-license.txt"}
         generated = {name + suffix for name in inputs["implemented"]
                      for suffix in (".js", "_bg.wasm", ".d.ts", "_bg.wasm.d.ts")}
-        require(licenses <= set(rust_files) and set(rust_files) <= set(static_rust) | licenses | generated |
+        require(licenses <= set(rust_files) and set(rust_files) <= set(static_rust) | licenses | generated | retained_pattern |
                 {name for name in rust_files if name.startswith("snippets/")}, "unexpected or missing Rust files")
         require(hashes.get("_headers") == sha256(ROOT / "web/_headers"), "isolation headers differ from pinned source")
         require(set(hashes) == {"examples.json", "build-manifest.json", "_headers"} |
@@ -308,6 +309,24 @@ def validate_bundle(bundle: Path, kind: str, inputs: dict, expected: str) -> tup
     manifest, actual = validate_site(bundle / "site", kind, inputs)
     match_hashes(provenance["files"], actual, "artifact")
     return manifest, provenance
+
+
+def retained_pattern_sources(rust: dict, site: Path, inputs: dict) -> set[str]:
+    retained_pattern = set()
+    if "pattern" in inputs["implemented"]:
+        record = rust.get("pattern_source")
+        require(isinstance(record, dict) and record.get("id") == "pattern" and
+                record.get("source") == inputs["implemented_sources"]["pattern"]["source"] and
+                record.get("source_blob") == inputs["implemented_sources"]["pattern"]["source_blob"] and
+                record.get("retained_file") == "unchanged-source/pattern.rs", "missing or changed Rust pattern source provenance")
+        source = site / "rust/unchanged-source/pattern.rs"
+        no_symlinks(source)
+        raw = source.read_bytes()
+        blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+        require(blob == record["source_blob"] and sha256(source) == record.get("source_sha256"),
+                "retained unchanged pattern source identity mismatch")
+        retained_pattern.add("unchanged-source/pattern.rs")
+    return retained_pattern
 
 
 def merge(inputs_path: Path, expected: str, moonbit: Path, rust: Path, out: Path, evidence: Path) -> None:

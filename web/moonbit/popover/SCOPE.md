@@ -2,9 +2,13 @@
 
 This candidate follows the unchanged `crates/gpui/examples/popover.rs` at Zed
 revision `5a5fbe79917971a4d52a96b6ddb04da198a5012e`, blob
-`7678a6a3ed865d9874b72cb99b473a115591d35c`. It uses gpui.mbt revision
+`7678a6a3ed865d9874b72cb99b473a115591d35c`. Its original implementation used gpui.mbt revision
 `e160f5ec7bf0c6f43738d0bdcf837098299d5569`, tree
 `96d62ea12a6824ee20d04cb913191bc23a424522`.
+The current shared browser catalog uses gpui.mbt revision
+`3bea4fea2dd54768a3859c7c881dda2a60fa5bbd`, tree
+`25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85`. This dependency advance requires fresh
+actual captures; the earlier profile does not qualify current runtime bytes.
 
 The default popup remains present. The parent opens from its source trigger,
 and its child opens from the nested trigger. Deferred priorities and

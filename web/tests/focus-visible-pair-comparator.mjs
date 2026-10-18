@@ -12,10 +12,14 @@ import {FOCUS_VISIBLE,GEOMETRY,inspectState,assertImage,assertDelivery,assertPan
 export const HISTORICAL_PAIR=Object.freeze({revision:null,
   candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
     revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'})});
+// Retired popover profile is provenance only, never an accepted current alternative.
+export const POPOVER_PAIR=Object.freeze({revision:'focus_visible_paired_v1_popover_pin',
+  candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'})});
 // Current source qualification requires fresh independent captures and byte verification.
-export const PAIR_REVISION='focus_visible_paired_v1_popover_pin';
+export const PAIR_REVISION='focus_visible_paired_v2_pattern_pin';
 export const FOCUS_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
+  revision:'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd',tree:'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85'});
 export const FOCUS_PROFILE=Object.freeze({width:800,height:600,dpr:1,input:'Trusted Chromium mouse, keyboard and pixel wheel'});
 const sha=data=>createHash('sha256').update(data).digest('hex');
 const HASH=/^[0-9a-f]{64}$/;
