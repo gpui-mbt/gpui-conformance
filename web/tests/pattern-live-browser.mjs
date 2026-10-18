@@ -19,15 +19,17 @@ const server=createServer(async(req,res)=>{try{
  res.writeHead(200,{'content-type':mime[extname(path)]||'application/octet-stream','cache-control':'no-store','Cross-Origin-Opener-Policy':'same-origin','Cross-Origin-Embedder-Policy':'require-corp'});res.end(await readFile(path));
 }catch{res.writeHead(404);res.end();}});
 await new Promise(done=>server.listen(0,'127.0.0.1',done));
-const report={status:'failed',scope:'candidate_live_rendering_only',parity:'unverified',stages:[],errors:[]};let browser;
+const report={status:'failed',scope:'candidate_live_rendering_only',parity:'unverified',stages:[],errors:[]};let browser,page;
 try{
  const build=await readFile(join(site,'build-manifest.json'));await writeFile(join(out,'build-manifest.json'),build);report.build_sha256=hash(build);
  browser=await chromium.launch({headless:true});report.browser=await browser.version();
- const context=await browser.newContext({viewport:{width:801,height:700},deviceScaleFactor:1.25});const page=await context.newPage();
+ const context=await browser.newContext({viewport:{width:801,height:700},deviceScaleFactor:1.25});page=await context.newPage();
  page.on('pageerror',e=>report.errors.push(e.message));
  await page.goto(`http://127.0.0.1:${server.address().port}/moonbit/?example=pattern`);
  const cdp=await context.newCDPSession(page);
+ async function geometry(){return page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,status:document.documentElement.dataset.runtimeStatus,example:globalThis.gpuiExample?{width:gpuiExample.metadata.width,height:gpuiExample.metadata.height,dpr:gpuiExample.actualDeviceScale}:null,error:document.querySelector('#error').textContent,hidden:document.querySelector('canvas').hidden}));}
  async function capture(name,w,h,dpr){
+  report.currentStage=name;
   await page.waitForFunction(({w,h,dpr})=>document.documentElement.dataset.runtimeStatus==='ready'&&globalThis.gpuiExample?.metadata.width===w&&gpuiExample.metadata.height===h&&gpuiExample.actualDeviceScale===dpr,{w,h,dpr},{timeout:60000});
   const state=await page.evaluate(()=>{
    const e=gpuiExample,c=document.querySelector('canvas'),pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
@@ -40,7 +42,15 @@ try{
   assert.equal(state.qualified,w===600&&h===600&&dpr===1);assert.equal(state.conformance,'unverified');assert.equal(state.noticeHidden,state.qualified);
   assert.equal(state.hidden,false);assert(state.errorHidden);assert(state.colored>50,'actual colored candidate pixels required');
   assert.equal(state.root.width,600);assert.equal(state.root.height,600);
-  const file=`${name}.png`,bytes=await page.screenshot();await writeFile(join(out,file),bytes);report.stages.push({name,state,file,sha256:hash(bytes)});
+  const beforeCapture=await geometry();
+  // Use the same CDP session as the metrics overrides. Playwright's screenshot
+  // helper clips to its remembered viewport, which is stale after direct CDP.
+  const result=await cdp.send('Page.captureScreenshot',{format:'png',fromSurface:true,captureBeyondViewport:true,clip:{x:0,y:0,width:w,height:h,scale:1}});
+  const file=`${name}.png`,bytes=Buffer.from(result.data,'base64');await writeFile(join(out,file),bytes);
+  const afterCapture=await geometry(),pngSize=[bytes.readUInt32BE(16),bytes.readUInt32BE(20)];
+  report.stages.push({name,state,beforeCapture,afterCapture,file,sha256:hash(bytes),pngSize,method:'CDP.Page.captureScreenshot'});
+  assert.deepEqual(afterCapture,beforeCapture,'screenshot must not mutate viewport or live readiness');
+  assert.deepEqual(pngSize,[Math.round(w*dpr),Math.round(h*dpr)],'actual device screenshot dimensions');
  }
  await capture('embedded-fractional',801,700,1.25);
  await page.setViewportSize({width:321,height:479});await capture('narrow-clipped',321,479,1.25);
@@ -56,4 +66,8 @@ try{
  assert(await page.evaluate(()=>!globalThis.gpuiExample&&document.querySelector('canvas').hidden));
  await page.evaluate(()=>dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));await capture('synthetic-pageshow-recovery',600,600,1);
  assert.deepEqual(report.errors,[]);report.status='pass';
+ }catch(error){
+ report.failure={message:error.message,stack:error.stack};
+ if(page)try{report.failure.actual=await page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,status:document.documentElement.dataset.runtimeStatus,example:globalThis.gpuiExample?{width:gpuiExample.metadata.width,height:gpuiExample.metadata.height,dpr:gpuiExample.actualDeviceScale}:null,error:document.querySelector('#error')?.textContent,hidden:document.querySelector('canvas')?.hidden}));}catch{}
+ throw error;
 }finally{await writeFile(join(out,'result.json'),JSON.stringify(report,null,2));await browser?.close();await new Promise(done=>server.close(done));}
