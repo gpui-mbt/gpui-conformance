@@ -1,0 +1,105 @@
+name: Supplemental inherited element opacity pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/element_opacity_rust/**'
+      - 'adapters/element_opacity_moonbit/**'
+      - 'diagnostics/element_opacity_pair/**'
+      - 'tests/test_element_opacity_pair.py'
+      - '.github/workflows/element-opacity-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: element-opacity-pair-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-element-opacity-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Fail closed unless reviewed core is bound
+        id: pin
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          p=json.load(open('diagnostics/element_opacity_pair/profile.json'))
+          assert p['status']=='bound'
+          assert all(isinstance(p[k],str) and re.fullmatch('[0-9a-f]{40}',p[k]) for k in ('core_commit','core_tree'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as stream:
+              print('core='+p['core_commit'],file=stream)
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pin.outputs.core }}
+          path: _build/core-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/zed-source
+          persist-credentials: false
+      - name: Check source contracts
+        run: |
+          set -o pipefail
+          mkdir -p _build/element-opacity-logs
+          python3 -m unittest discover -s tests -p test_element_opacity_pair.py -v 2>&1 | tee _build/element-opacity-logs/source-tests.log
+      - uses: hustcer/setup-moonbit@1522f9aef02a8ca0187dfc00a41f5dd6b16750f7
+        with:
+          version: 0.10.15+943464bfa
+          core-version: 0.10.15+943464bfa
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.11.0
+      - name: Install Rust and Linux link dependencies with process logs
+        run: |
+          python3 - <<'PY'
+          import os, shutil, sys
+          from pathlib import Path
+          sys.path.insert(0,'diagnostics/element_opacity_pair')
+          from support import execute,save,require
+          require(min(shutil.disk_usage('.').free,shutil.disk_usage('/tmp').free)>=9*1024**3,'9GiB headroom')
+          out=Path('_build/element-opacity-logs')
+          for name,cmd in [
+              ('rust-install',['rustup','toolchain','install','1.98.1','--profile','minimal']),
+              ('apt-update',['sudo','apt-get','update']),
+              ('apt-install',['sudo','apt-get','install','-y','clang','lld','cmake','pkg-config','libasound2-dev','libfontconfig-dev','libglib2.0-dev','libssl-dev','libwayland-dev','libx11-xcb-dev','libxkbcommon-x11-dev','libvulkan1'])]:
+              record=execute(cmd,out,name,os.environ.copy(),timeout=900,cwd=Path.cwd())
+              save(out/(name+'.json'),record)
+              require(record['returncode']==0 and not record['timed_out'] and not record['resource_floor_breached'],'setup failed: '+name)
+          PY
+      - name: Execute fresh Rust, core, and four rebuilt controls
+        run: |
+          set -o pipefail
+          python3 diagnostics/element_opacity_pair/run.py \
+            --core-source _build/core-source --upstream-source _build/zed-source \
+            --output _build/element-opacity-pair 2>&1 | tee _build/element-opacity-logs/run.log
+      - name: Reopen retained execution evidence
+        if: always() && steps.pin.outcome == 'success'
+        run: |
+          python3 diagnostics/element_opacity_pair/evidence.py _build/element-opacity-pair \
+            > _build/element-opacity-logs/reopen.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: element-opacity-pair-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            _build/element-opacity-pair
+            _build/element-opacity-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
