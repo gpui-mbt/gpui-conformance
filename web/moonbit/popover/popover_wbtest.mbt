@@ -6,7 +6,7 @@ fn fixture_prefixes() -> Array[Array[Double]] {
     let values = [0.0]
     let mut width = 0.0
     for c in text.to_array() {
-      width = width + if c == ' ' { 3.0 } else if c == 'i' { 2.0 } else { 7.0 }
+      width = width + (if c == ' ' { 3.0 } else if c == 'i' { 2.0 } else { 7.0 })
       values.push(width)
     }
     values

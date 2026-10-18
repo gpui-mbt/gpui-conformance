@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'web/scripts'))
 import build_gradient_pair as builder
@@ -27,7 +28,25 @@ class GradientPairPackaging(unittest.TestCase):
         self.assertEqual(entry['source_blob'],'df1398fff58b637abf0c0b31934f6ad523d84a21')
         self.assertIn("gradient: './gradient.js'",(ROOT/'web/rust/host.mjs').read_text())
         self.assertIn("gradient:'./gradient.mjs'",(ROOT/'web/moonbit/site/host.mjs').read_text())
-        self.assertEqual(catalog['moonbit'],json.loads(builder.PROFILE.read_text())['candidate'])
+        self.assertEqual(catalog['moonbit'],{
+            'repository':'gpui-mbt/gpui.mbt',
+            'revision':'e160f5ec7bf0c6f43738d0bdcf837098299d5569',
+            'tree':'96d62ea12a6824ee20d04cb913191bc23a424522',
+        })
+        retained_candidate=json.loads(builder.PROFILE.read_text())['candidate']
+        self.assertEqual(retained_candidate,{
+            'repository':'gpui-mbt/gpui.mbt',
+            'revision':'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',
+            'tree':'dd5612a412d251b468c358a25baa0b0dd592c807',
+        })
+        # Current live routes cannot inherit the older pair's source qualification.
+        self.assertNotEqual(catalog['moonbit'],retained_candidate)
+        with patch('build_moonbit.run',return_value=catalog['moonbit']['revision']):
+            with self.assertRaisesRegex(ValueError,'revision mismatch'):
+                builder.check_candidate_source(Path('synthetic-current-core'),retained_candidate)
+        for key in ('result_url','result_date','changed_pixels','total_pixels','thumbnail','evidence_scope'):
+            self.assertNotIn(key,entry)
+        self.assertIn('remain unverified',entry['implementation_note'])
     def test_exact_mutation_anchor(self):
         mutation={'find':'alpha = 0.5','replace':'alpha = 1.0','occurrences':1}
         self.assertEqual(builder.mutate_source('alpha = 0.5',mutation),'alpha = 1.0')
