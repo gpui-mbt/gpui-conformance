@@ -58,10 +58,19 @@ export function validateFrame(frame) {
   }
   for (const d of frame.decorations) {
     const b = quads.get(d.id)?.bounds;
+    // Explicit source marker admits only the authored 1px device-snapped
+    // popover border. Generic callers retain the legacy integer-width contract.
+    const sourceScale = snapshot.scale;
+    const sourceBorder = d.border_source === 'device_snapped_1px' &&
+      d.border_style === 'solid' && Number.isFinite(sourceScale) &&
+      sourceScale >= 0.25 && sourceScale <= 4 && Number.isFinite(d.border_width) &&
+      Math.abs(d.border_width - Math.max(1, Math.ceil(sourceScale - 0.5)) / sourceScale) <= 1e-9;
+    const validWidth = d.border_source === undefined
+      ? [1,2,3,4].includes(d.border_width) : sourceBorder;
     // Source drag/focus ports need 2px/3px/4px solid borders. Wider dashed strokes
     // remain unsupported; this is an explicit Canvas host boundary, not a
     // rounded-border addition to the portable SceneSnapshot contract.
-    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || ![1,2,3,4].includes(d.border_width) || !/^#[0-9a-f]{6}$/i.test(d.border) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width > 1 && Math.min(b.width,b.height) < 2*d.border_width)) throw new Error('Invalid host decoration');
+    if (!b || !Number.isFinite(d.radius) || d.radius < 0 || d.radius > Math.min(b.width, b.height) / 2 || !validWidth || !/^#[0-9a-f]{6}$/i.test(d.border) || (d.border_opacity !== undefined && (!Number.isFinite(d.border_opacity) || d.border_opacity < 0 || d.border_opacity > 1)) || !['solid', 'dashed'].includes(d.border_style) || (d.border_style === 'dashed' && (d.border_width !== 1 || d.radius <= d.border_width / 2)) || (d.border_width > 1 && Math.min(b.width,b.height) < 2*d.border_width)) throw new Error('Invalid host decoration');
   }
   if (frame.shadows !== undefined && !Array.isArray(frame.shadows)) throw new Error('Invalid shadow extension');
   const shadowIds = new Set();
@@ -263,6 +272,8 @@ function drawFrameInternal(context, frame, metadata, scale, clear) {
           context.fill(); context.shadowColor = 'transparent'; context.shadowBlur = 0; context.shadowOffsetY = 0;
           if (style) {
             context.lineWidth = style.border_width; context.strokeStyle = style.border;
+            if (style.border_opacity !== undefined)
+              context.globalAlpha = (item.opacity ?? 1) * style.border_opacity;
             context.setLineDash([]); context.lineCap = 'butt';
             const inset = style.border_width / 2;
             if (style.border_style === 'dashed') {
@@ -343,3 +354,4 @@ export function drawCoreRasterFrame(context,frame,metadata,scale,makeSurface=(w,
     }
   } finally {context.restore();}
 }
+

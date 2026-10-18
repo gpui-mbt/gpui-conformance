@@ -5,9 +5,14 @@ import {createHash} from 'node:crypto';
 import {TAB_STOP,EMBEDDED_FONTS,STOPS,sha256,decodePng,frameGeometry,sourceGeometry,validateTraversal,validateClicks,
   validateOperations,traversalNegativeControls,makeProfile,assertCurrentTabStopBuild} from './tab-stop-comparator.mjs';
 
+// Historical identity is retained for provenance, never accepted by the current verifier.
+export const HISTORICAL_PAIR=Object.freeze({revision:'tab_stop_paired_state_specific_v3_uniform_list_pin',
+  candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
+    revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'})});
+// This new source profile requires fresh independent captures and byte verification.
 export const TAB_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'});
-export const PAIR_REVISION='tab_stop_paired_state_specific_v3_uniform_list_pin';
+  revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
+export const PAIR_REVISION='tab_stop_paired_state_specific_v4_popover_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/tab-stop-host.mjs','moonbit/focus-visible-host.mjs','load-timing.mjs'];
 const HASH=/^[0-9a-f]{64}$/;
 const hash=(value,label)=>assert.match(value||'',HASH,label);

@@ -8,8 +8,14 @@ import {FOCUS_VISIBLE,GEOMETRY,inspectState,assertImage,assertDelivery,assertPan
 
 // No private renderer state, claimed check status, or cross-renderer text/image
 // equality is an oracle. The profile below is fixed independently of reports.
+// Retained reports had no profile revision; this descriptor is never an active alternative.
+export const HISTORICAL_PAIR=Object.freeze({revision:null,
+  candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
+    revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'})});
+// Current source qualification requires fresh independent captures and byte verification.
+export const PAIR_REVISION='focus_visible_paired_v1_popover_pin';
 export const FOCUS_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'});
+  revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
 export const FOCUS_PROFILE=Object.freeze({width:800,height:600,dpr:1,input:'Trusted Chromium mouse, keyboard and pixel wheel'});
 const sha=data=>createHash('sha256').update(data).digest('hex');
 const HASH=/^[0-9a-f]{64}$/;
@@ -170,6 +176,7 @@ export function validateFocusVisibleEvents(report,runtime=report.runtime) {
 export function validateFocusVisibleEvidence(report,runtime=report?.runtime) {
   object(report,'Runtime report');assert.equal(report.runtime,runtime,'Correct independent runtime required');
   assert(['rust','moonbit'].includes(runtime),'Both recognized renderers required');
+  assert.equal(report.profile_revision,PAIR_REVISION,'Exact current paired profile revision required');
   assert.equal(report.candidate,'implemented','Historical Rust-only reports cannot be relabeled as paired');
   assert.equal(report.comparison,'not_run','Raw runtime report cannot self-certify pairing');
   assert.equal(report.failure,undefined,'Failed execution cannot pass');assert.deepEqual(report.errors,[],'Runtime errors fail closed');
@@ -321,7 +328,7 @@ export function compareFocusVisibleBehavior(rust,moonbit,retained) {
       text_ink_population:{rust:clone(pixels.rust.measurements[name].text),moonbit:clone(pixels.moonbit.measurements[name].text)},
       button_label_ink_population:{rust:pixels.rust.measurements[name].buttons.map(button=>button.label_ink_pixels),
         moonbit:pixels.moonbit.measurements[name].buttons.map(button=>button.label_ink_pixels)}};});
-  return {status:'passed',comparison:'independently_decoded_bounded_focus_behavior',source:clone(rust.source),profile:clone(FOCUS_PROFILE),
+  return {status:'passed',comparison:'independently_decoded_bounded_focus_behavior',profile_revision:PAIR_REVISION,source:clone(rust.source),profile:clone(FOCUS_PROFILE),
     scope:'Actual unchanged Rust WASM and compiled MoonBit, trusted fixed mouse/keyboard/wheel sequence, 800x600 DPR1 only',
     build:{lab_revision:rust.build.lab_revision,upstream:clone(rust.build.upstream),moonbit:clone(rust.build.moonbit)},
     geometry:clone(GEOMETRY),integrity,decoded_pixel_validation:pixels,

@@ -8,6 +8,8 @@ import { createScrollableHost } from './scrollable-host.mjs';
 import { createFocusVisibleHost } from './focus-visible-host.mjs';
 import { createTabStopHost } from './tab-stop-host.mjs';
 import { createDragDropHost } from './drag-drop-host.mjs';
+import { createPopoverHost, readPopoverFrame } from './popover-host.mjs';
+import { loadPopoverFont } from './popover-text.mjs';
 import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
 import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
@@ -17,10 +19,11 @@ const canvas = document.getElementById('canvas');
 const error = document.getElementById('error');
 try {
   const example = new URL(location.href).searchParams.get('example') || 'hello_world';
-  const modules = {gradient:'./gradient.mjs',anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
+  const modules = {popover:'./popover.mjs',gradient:'./gradient.mjs',anchor: './anchor.mjs', grid_layout: './grid_layout.mjs', uniform_list: './uniform_list.mjs', drag_drop: './drag_drop.mjs', tab_stop: './tab_stop.mjs', focus_visible: './focus_visible.mjs', scrollable: './scrollable.mjs', tree: './tree.mjs', hello_world: './runtime.mjs', text_layout: './text_layout.mjs', text_wrapper: './text_wrapper.mjs', hello_web: './hello_web.mjs', text: './text.mjs', input: './input.mjs', dynamic_fonts: './dynamic_fonts.mjs'};
   if (!modules[example]) throw new Error(`gpui.mbt not implemented: ${example}`);
   const runtime = await import(modules[example]);
   const metadata = JSON.parse(runtime[example + '_metadata']());
+  const isPopover = example === 'popover';
   const isText = example === 'text';
   const isTree = example === 'tree';
   const isFocusVisible = example === 'focus_visible';
@@ -53,13 +56,14 @@ try {
   const families = ['Zed Mono', 'system-ui', 'Menlo', 'Monaco', 'Courier New'];
   let fontIndex=0, scrollY=0, lastFrame=null;
   canvas.style.width = `${metadata.width}px`; canvas.style.height = `${metadata.height}px`;
-  const labels = {uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
+  const labels = {popover:'Upstream popover: default, parent and nested child deferred layers',uniform_list: 'Upstream uniform list: 50 virtualized Item rows', drag_drop: 'Upstream drag and drop: three colored items and a typed drop target', tab_stop: 'Upstream tab stops: source indices, non-stops, group prefixes and global traversal', focus_visible: 'Upstream focus-visible: keyboard and pointer focus, tab traversal and focus rings', scrollable: 'Upstream nested scrollable: horizontal and vertical viewports with clipped hover', tree: 'Upstream tree: 51 nested red, blue, green and yellow blocks', hello_world:'Hello, World! Six colored squares', text_layout:'Upstream text_layout: aligned and decorated text with styled ABCD spans', text_wrapper:'Upstream text_wrapper: mixed-language wrapping, ellipsis, line clamps and nowrap', hello_web:'Upstream Prime sieve: select 10 M, 50 M or 100 M and Count Primes', text:'Upstream typography: font switching, character grid and type scale', input:'Upstream input: editing, selection, Clipboard and IME', dynamic_fonts:'Upstream dynamic fonts: Devanagari font is downloaded once on demand'};
   labels.gradient = 'Upstream gradient: twelve gradients, two solids, polygon and color-space toggle';
   labels.anchor = 'Upstream anchor: eight hover popovers and inert center';
   labels.grid_layout = 'Upstream responsive grid: header, table of contents, content, advertisement and footer';
   canvas.setAttribute('aria-label', labels[metadata.id]);
   document.title = `${example} · gpui.mbt`;
-  if (!isTree) {
+  if (isPopover) await loadPopoverFont({FontFaceType:FontFace,fonts:document.fonts});
+  if (!isTree && !isPopover) {
     const font = new FontFace(isText ? 'Zed Mono' : metadata.font_family, isText ? 'url(./Lilex-Regular.ttf)' : 'url(./IBMPlexSans-Regular.ttf)');
     document.fonts.add(await font.load());
     if (example === 'text_layout') {
@@ -87,6 +91,8 @@ try {
   let uniformList;
   let anchor;
   let gradient;
+  let popover;
+  let popoverSuspended = false;
   if (example === 'dynamic_fonts') {
     const {createDynamicFontHost} = await import('./dynamic-font-host.mjs');
     dynamicFonts = createDynamicFontHost({fetchFont: (...args) => fetch(...args), FontFaceType: FontFace, fonts: document.fonts, onChange: () => render()});
@@ -96,6 +102,26 @@ try {
     prime = createPrimeHost({ runtime, canvas, render: () => render(), onFailure: cause => console.error(cause) });
   }
   function render() {
+    if (isPopover) {
+      if (popoverSuspended) return false;
+      try {
+        const {frame,width,height,scale,prefixes,backingWidth,backingHeight}=readPopoverFrame(runtime,context,window,metadata);
+        metadata.width=width;metadata.height=height;
+        canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
+        if(canvas.width!==backingWidth)canvas.width=backingWidth;
+        if(canvas.height!==backingHeight)canvas.height=backingHeight;
+        context.textRendering='auto';
+        drawFrame(context,frame,metadata,scale);
+        globalThis.gpuiExample={metadata,frame,textWidth:prefixes,scale,popoverEvents:popover?.events||[]};
+        canvas.hidden=false;error.hidden=true;document.documentElement.dataset.runtimeStatus='ready';
+        return true;
+      } catch(cause) {
+        runtime.popover_reset();delete globalThis.gpuiExample;
+        canvas.hidden=true;error.hidden=false;document.documentElement.dataset.runtimeStatus='failed';
+        error.textContent=`Popover candidate failed: ${cause.message}. Live viewport is resource-bounded; browser and pixel parity remain unverified.`;
+        return false;
+      }
+    }
     if(isGradient) {
       try {
         const {frame,width,height,scale,widths,actualDeviceScale,effectiveRenderScale,backingWidth,backingHeight,renderScaleReduced}=readGradientFrame(runtime,context,window,metadata,gradientPolicy);
@@ -213,6 +239,19 @@ try {
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
   render();
+  if(isPopover) {
+    popover=createPopoverHost({runtime,canvas,render});
+    let stopScaleWatch=watchGridDeviceScale(window,render);
+    window.addEventListener('pagehide',()=>{
+      popoverSuspended=true;popover?.stop();popover=null;
+      runtime.popover_reset();delete globalThis.gpuiExample;
+      stopScaleWatch?.();stopScaleWatch=null;
+    });
+    window.addEventListener('pageshow',()=>{
+      if(!popover){popoverSuspended=false;popover=createPopoverHost({runtime,canvas,render});
+        stopScaleWatch=watchGridDeviceScale(window,render);render();}
+    });
+  }
   if(isGradient&&!gradientPolicy) {
     gradient=createGradientHost({runtime,canvas,render});
     let stopScaleWatch=watchGridDeviceScale(window,render);
@@ -301,3 +340,4 @@ try {
   document.documentElement.dataset.runtimeStatus = 'failed';
   error.textContent = `gpui.mbt example failed: ${cause.message}. Build web assets with web/scripts/build_moonbit.py before serving the page.`;
 }
+

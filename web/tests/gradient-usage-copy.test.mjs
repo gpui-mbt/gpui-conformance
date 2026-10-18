@@ -9,6 +9,7 @@ const app = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 const gradientUsage = 'Click the sRGB/Oklab color-space toggle independently in each pane.';
 const primeUsage = 'Use the preset and Count Primes controls independently in each pane. CPU work timings are not render-startup benchmarks.';
 const anchorUsage = 'Hover the eight buttons independently in each pane. Supported viewport profile: 750 or 480 × 600 at DPR 1; paired conformance remains unverified.';
+const popoverUsage = 'Open the parent and Child Popover independently in each pane; click outside to dismiss one level. Source-derived preview; paired browser and pixel conformance remain unverified.';
 const staticUsage = 'The upstream example has no interactive controls.';
 
 // Execute the real app with synthetic DOM/network boundaries. This checks host
@@ -64,14 +65,14 @@ test('gradient notice describes its toggle while preserving runtime and isolatio
 test('all other current routes retain their existing notice text', async () => {
   for (const example of catalog.examples.filter(example => example.id !== 'gradient')) {
     const f = await loadApp(example.id);
-    const usage = example.id === 'anchor' ? anchorUsage : example.interactive ? primeUsage : staticUsage;
+    const usage = example.id === 'popover' ? popoverUsage : example.id === 'anchor' ? anchorUsage : example.interactive ? primeUsage : staticUsage;
     assert.equal(f.get('notice').textContent, expectedNotice(example, usage), example.id);
   }
 });
 
 test('switching and reloading examples never leaves stale gradient instructions', async () => {
   const f = await loadApp('gradient');
-  for (const [id, usage] of [['hello_web', primeUsage], ['gradient', gradientUsage], ['anchor', anchorUsage], ['hello_world', staticUsage], ['gradient', gradientUsage]]) {
+  for (const [id, usage] of [['hello_web', primeUsage], ['gradient', gradientUsage], ['anchor', anchorUsage], ['popover', popoverUsage], ['hello_world', staticUsage], ['gradient', gradientUsage]]) {
     f.select(id);
     assert.equal(f.get('notice').textContent, expectedNotice(selectExample(catalog, id), usage));
     assert.equal(new URL(f.location.href).searchParams.get('example'), id);

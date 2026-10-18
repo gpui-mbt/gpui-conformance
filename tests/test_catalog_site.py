@@ -86,11 +86,11 @@ class TestCatalogData(unittest.TestCase):
 
     def test_example_catalog_does_not_fabricate_interactive_routes(self):
         examples = self.data["browser_examples"]
-        self.assertEqual(len(examples), 16)
+        self.assertEqual(len(examples), 17)
         self.assertEqual(examples[0]["status"], "difference")
         self.assertEqual(sum(example["status"] == "unsupported" for example in examples), 0)
-        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 15)
-        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"])
+        self.assertEqual(sum(example["status"] == "unverified" for example in examples), 16)
+        self.assertEqual([example["id"] for example in examples if example["implemented"] and example["interactive"]], ["text", "input", "hello_web", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"])
         self.assertTrue(all(example["comparison_url"] is None for example in examples))
 
     def test_browser_unverified_count_matches_both_browser_assertions(self):
@@ -139,6 +139,40 @@ class TestCatalogData(unittest.TestCase):
         self.assertIn("960×600 and 600×960, DPR1", entry["implementation"]["note"])
         self.assertIn("remain unverified", entry["implementation"]["note"])
 
+    def test_popover_card_has_own_sources_and_no_borrowed_evidence(self):
+        inventory = load_json("web/examples.json")
+        entry = next(item for item in inventory["examples"] if item["id"] == "popover")
+        self.assertEqual(entry["source_blob"], "7678a6a3ed865d9874b72cb99b473a115591d35c")
+        self.assertEqual(entry["rust_route"], "popover")
+        self.assertEqual(entry["candidate_source"], "web/moonbit/popover/popover.mbt")
+        base = "https://gpui-conformance-browser-lab.account-name.workers.dev"
+        with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base}):
+            port = next(item for item in build_catalog("popover-card-contract")["browser_examples"] if item["id"] == "popover")
+        self.assertTrue(port["implemented"])
+        self.assertEqual(port["implementation"]["status"], "implemented")
+        self.assertEqual((port["width"], port["height"], port["interactive"]), (800, 600, True))
+        self.assertEqual(port["source_path"], "crates/gpui/examples/popover.rs")
+        self.assertEqual(port["source_revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
+        self.assertEqual(port["source_url"], "https://github.com/zed-industries/zed/blob/"
+                         "5a5fbe79917971a4d52a96b6ddb04da198a5012e/crates/gpui/examples/popover.rs")
+        self.assertEqual(port["implementation"]["source_url"], "https://github.com/gpui-mbt/gpui-conformance/blob/"
+                         "popover-card-contract/web/moonbit/popover/popover.mbt")
+        self.assertEqual(port["comparison_url"], f"{base}/?example=popover")
+        self.assertEqual(port["suite_type"], "browser")
+        self.assertIn("popover", port["feature_tags"])
+        self.assertEqual(port["source_features"], entry["features"])
+        self.assertEqual(port["status"], "unverified")
+        self.assertEqual(port["execution"], "unverified")
+        self.assertFalse(port["evidence_available"])
+        for key in ("result_url", "result_date", "changed_pixels", "total_pixels", "thumbnail", "evidence_scope"):
+            self.assertIsNone(port[key], key)
+        for boundary in ("genuine core Element", "deferred priorities", "anchored placement",
+                         "outside-pointer routing", "MoonBit owns wrapping", "explicit approximations",
+                         "Paired browser, native, text, shadow, full-image and callback-count parity remain unverified"):
+            self.assertIn(boundary, port["implementation"]["note"])
+        self.assertIsNone(browser_lab_comparison_url("popover", True, None))
+        self.assertIsNone(browser_lab_comparison_url("popover", False, base))
+
     def test_verified_base_url_links_only_supported_implemented_examples(self):
         base_url = "https://gpui-conformance-browser-lab.account-name.workers.dev"
         with patch.dict(os.environ, {BROWSER_LAB_BASE_URL_ENV: base_url}):
@@ -158,7 +192,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(all(
             example["comparison_url"] is None
             for example in examples
-            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"}
+            if example["id"] not in {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"}
         ))
 
     def test_typography_is_interactive_without_inheriting_hello_world_evidence(self):
@@ -362,15 +396,15 @@ class TestCatalogData(unittest.TestCase):
         self.assertIsNone(browser_lab_comparison_url("grid_layout", False, base))
         self.assertIsNone(browser_lab_comparison_url("grid-layout", True, base))
 
-    def test_current_browser_pin_and_twelve_core_two_web_classifications(self):
+    def test_current_browser_pin_and_fifteen_core_two_web_classifications(self):
         inventory = load_json("web/examples.json")
         self.assertEqual(inventory["upstream"]["revision"], "5a5fbe79917971a4d52a96b6ddb04da198a5012e")
-        self.assertEqual(inventory["moonbit"]["revision"], "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a")
-        self.assertEqual(inventory["moonbit"]["tree"], "dd5612a412d251b468c358a25baa0b0dd592c807")
-        self.assertEqual(len(inventory["examples"]), 16)
-        self.assertEqual(sum(e["source"].startswith("crates/gpui/examples/") for e in inventory["examples"]), 14)
+        self.assertEqual(inventory["moonbit"]["revision"], "e160f5ec7bf0c6f43738d0bdcf837098299d5569")
+        self.assertEqual(inventory["moonbit"]["tree"], "96d62ea12a6824ee20d04cb913191bc23a424522")
+        self.assertEqual(len(inventory["examples"]), 17)
+        self.assertEqual(sum(e["source"].startswith("crates/gpui/examples/") for e in inventory["examples"]), 15)
         self.assertEqual({e["id"] for e in inventory["examples"] if e["source"].startswith("crates/gpui/examples/")},
-                         {"hello_world", "text", "text_layout", "text_wrapper", "input", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"})
+                         {"hello_world", "text", "text_layout", "text_wrapper", "input", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"})
         self.assertEqual(sum(e["source"].startswith("crates/gpui_web/examples/") for e in inventory["examples"]), 2)
         self.assertEqual({e["id"] for e in inventory["examples"] if e["source"].startswith("crates/gpui_web/examples/")},
                          {"dynamic_fonts", "hello_web"})
@@ -381,7 +415,7 @@ class TestCatalogData(unittest.TestCase):
 
     def test_unmeasured_interactive_ports_cannot_relabel_a_retained_capture(self):
         real_load = load_json
-        for example_id in ("focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"):
+        for example_id in ("focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"):
             for path in (TEXT_CAPTURE_MANIFEST, PRIME_CAPTURE_MANIFEST):
                 manifest = deepcopy(load_json(path))
                 if path == TEXT_CAPTURE_MANIFEST:
@@ -397,7 +431,7 @@ class TestCatalogData(unittest.TestCase):
 
     def test_unmeasured_port_inventory_claims_cannot_supply_measurement_provenance(self):
         real_load = load_json
-        for example_id in ("focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"):
+        for example_id in ("focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"):
             inventory = deepcopy(load_json("web/examples.json"))
             entry = next(example for example in inventory["examples"] if example["id"] == example_id)
             entry.update(status="pass", execution="passed", evidence_available=True,
@@ -545,7 +579,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertTrue(data["browser"]["pins_match_current_inventory"])
         self.assertEqual(data["browser"]["current_status"], "unverified")
         self.assertEqual(data["browser"]["pins"], self.data["browser"]["pins"])
-        self.assertEqual(sum(example["status"] == "unverified" for example in data["browser_examples"]), 15)
+        self.assertEqual(sum(example["status"] == "unverified" for example in data["browser_examples"]), 16)
 
     def test_each_retained_report_requires_its_own_measured_port(self):
         inventory = load_json("web/examples.json")
@@ -619,7 +653,7 @@ class TestCatalogData(unittest.TestCase):
         self.assertEqual(hello["changed_pixels"], 1532)
         self.assertIn(BROWSER_RESULT_PATH, hello["result_url"])
         self.assertEqual(self.data["browser"]["example_id"], "hello_world")
-        self.assertEqual(self.data["browser"]["implemented_count"], 16)
+        self.assertEqual(self.data["browser"]["implemented_count"], 17)
         self.assertEqual(self.data["browser"]["evidence_count"], 1)
 
     def test_build_capability_is_not_per_example_measurement(self):
@@ -628,14 +662,14 @@ class TestCatalogData(unittest.TestCase):
         expected_previews = {item["id"]: item["thumbnail"] for item in build_catalog("test")["browser_examples"]}
         for pixel_result in ("equal", "different"):
             browser = deepcopy(load_json(BROWSER_RESULT_PATH))
-            browser["build"]["implemented"].extend(("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"))
+            browser["build"]["implemented"].extend(("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"))
             browser["raster_comparison"]["status"] = pixel_result
             real_load = load_json
             def patched_load(path):
                 return browser if path == BROWSER_RESULT_PATH else real_load(path)
             with self.subTest(pixel_result=pixel_result), patch("scripts.build_test_catalog.load_json", side_effect=patched_load):
                 examples = build_catalog("test")["browser_examples"]
-            for example_id in ("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"):
+            for example_id in ("text_layout", "text_wrapper", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"):
                 new_port = next(item for item in examples if item["id"] == example_id)
                 with self.subTest(example=example_id):
                     self.assertEqual(new_port["status"], "unverified")
@@ -645,11 +679,12 @@ class TestCatalogData(unittest.TestCase):
                         self.assertIsNone(new_port[key], key)
                     self.assertEqual(new_port["thumbnail"], expected_previews[example_id])
 
-    def test_browser_ports_preserve_the_full_152_row_coverage_catalog(self):
-        self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 152)
+    def test_browser_ports_preserve_the_full_153_row_coverage_catalog(self):
+        # 134 retained headless + 2 native + 17 browser rows; popover adds no measurement.
+        self.assertEqual(len(self.data["cases"]) + len(self.data["native_cases"]) + len(self.data["browser_examples"]), 153)
         self.assertEqual(
             {example["id"] for example in self.data["browser_examples"] if example["implemented"]},
-            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"},
+            {"hello_world", "text", "text_layout", "text_wrapper", "input", "dynamic_fonts", "hello_web", "tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"},
         )
 
     def test_unimplemented_examples_have_no_borrowed_results_or_routes(self):

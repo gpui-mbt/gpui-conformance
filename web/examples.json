@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a",
-    "tree": "dd5612a412d251b468c358a25baa0b0dd592c807"
+    "revision": "e160f5ec7bf0c6f43738d0bdcf837098299d5569",
+    "tree": "96d62ea12a6824ee20d04cb913191bc23a424522"
   },
   "examples": [
     {
@@ -312,6 +312,25 @@
       ],
       "candidate_source": "web/moonbit/gradient/gradient.mbt",
       "implementation_note": "Source-derived candidate using genuine core ElementTree layout/prepaint, dispatch, canonical Scene/PaintCommand and float gradient sampling. Frozen comparison profiles are 960×600 and 600×960, DPR1. Live logical sizes width240–2048 and height300–2048 retain actual device layout scale; effective raster resolution is explicitly reduced to fit 2048-side/1048576-pixel core caps. Browser font measurements and Canvas text/pixel presentation are host boundaries. Equal-stop core policy is deterministic and backend-scoped. Paired browser, text, antialias edges, arbitrary translucent/interleaved-text composition, full-image and native/Metal parity remain unverified."
+    },
+    {
+      "id": "popover",
+      "title": "Nested popovers",
+      "rust_route": "popover",
+      "source": "crates/gpui/examples/popover.rs",
+      "source_blob": "7678a6a3ed865d9874b72cb99b473a115591d35c",
+      "moonbit": "implemented",
+      "width": 800,
+      "height": 600,
+      "interactive": true,
+      "features": [
+        "Nested deferred layers",
+        "Priority-ordered outside dismissal",
+        "Measured source text wrapping",
+        "Viewport-snapped anchor placement"
+      ],
+      "candidate_source": "web/moonbit/popover/popover.mbt",
+      "implementation_note": "Source-derived candidate using genuine core Element layout/prepaint/SceneSnapshot, deferred priorities, anchored placement and outside-pointer routing. Bundled IBM Plex Sans loads before actual prefix measurement; MoonBit owns wrapping, geometry, hit testing and open/dismiss state. JavaScript transports trusted primary-mouse events and paints. Live host accepts width/height 1–8192, DPR0.25–4 with rounded Canvas sides at most16384 and area at most33554432 pixels. The runtime has broader numeric bounds, not a browser parity claim. Canvas text, rounded borders and shadow_lg are explicit approximations. Paired browser, native, text, shadow, full-image and callback-count parity remain unverified."
     }
   ]
 }
