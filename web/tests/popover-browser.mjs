@@ -125,9 +125,46 @@ export async function probeScaleGeometry({browser,directory}) {
   return probe;
 }
 
+export const fractionalLaunchOptions = Object.freeze({headless:true,timeout:15000,
+  args:Object.freeze(['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-device-scale-factor=1.25'])});
+
+// A harness-environment correction, supported by the retained context-only
+// failure and blank-page measurements. The same physical-scale browser runs
+// BOTH runtimes; neither their source nor their event coordinates are changed.
+export async function withProfileBrowser(browser,profile,work) {
+  if(profile.dpr===1)return work(browser,{mode:'inherited-DPR1-launch',requested_args:null,browser:await browser.version()});
+  assert.equal(profile.dpr,1.25,'Only the declared fractional profile has a physical launch');
+  const options={...fractionalLaunchOptions,args:[...fractionalLaunchOptions.args]};
+  const owned=await browser.browserType().launch(options);
+  try {return await work(owned,{mode:'coherent-physical-scale-launch',requested_args:options.args,
+    headless:options.headless,timeout_ms:options.timeout,browser:await owned.version()});}
+  finally {await owned.close();}
+}
+
+export function assertProfileGeometry(geometry,profile) {
+  const {width,height,dpr}=profile,backing=[Math.round(width*dpr),Math.round(height*dpr)];
+  assert.equal(geometry.window_dpr,dpr,'Actual window DPR must match the declared profile');
+  assert.deepEqual([geometry.inner_width,geometry.inner_height],[width,height],'Actual CSS viewport must match the profile');
+  const canvas=geometry.canvas;
+  assert(canvas,'Actual canvas geometry must be observed');
+  assert.deepEqual([canvas.backing_width,canvas.backing_height],backing,'Canvas backing must agree with CSS size × DPR');
+  assert.deepEqual(canvas.css_rect,{x:0,y:0,width,height},'Canvas CSS rect must fill the declared viewport');
+  assert.deepEqual([canvas.client_width,canvas.client_height],[width,height],'Canvas client size must match CSS viewport');
+  assert.equal(canvas.style.transform,'none','Qualification forbids transformed canvas coordinates');
+  assert.equal(canvas.style.zoom,'1','Qualification forbids canvas zoom compensation');
+  const observer=geometry.resize_observer;
+  assert.equal(observer?.status,'observed','ResizeObserver device-pixel geometry must actually be observed');
+  assert.deepEqual(observer.content_rect,{x:0,y:0,width,height},'ResizeObserver CSS content rect must agree');
+  assert.deepEqual(observer.content_box,[{inline_size:width,block_size:height}],'ResizeObserver CSS content box must agree');
+  assert.deepEqual(observer.device_pixel_content_box,[{inline_size:backing[0],block_size:backing[1]}],
+    'ResizeObserver device-pixel box must agree with CSS size × DPR; context-only emulation is insufficient');
+  assert.deepEqual(geometry.visual_viewport,{width,height,scale:1,offset_left:0,offset_top:0,page_left:0,page_top:0},
+    'Visual viewport must not introduce zoom or offsets');
+}
+
 export async function checkPopoverPair({browser,page,evidence,paired}) {
   const directory=join(evidence,'popover');await mkdir(directory,{recursive:true});
-  const result={status:'running',source_blob:'7678a6a3ed865d9874b72cb99b473a115591d35c',
+  const result={status:'running',environment_correction:'Fractional profile uses proven coherent physical browser launch for both runtimes; prior context-only emulation failure is retained separately',source_blob:'7678a6a3ed865d9874b72cb99b473a115591d35c',
     comparison:'source-specific observed interactions and same-runtime image restoration only; pixel, shaping, callback-count, native and arbitrary-viewport parity unverified',
     interrupted_press:'not_run: no reliable cross-runtime native focus-loss oracle',profiles:[],captures:0,derived_images:0,ocr_runs:0};
   try {
@@ -136,17 +173,19 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
     await page.selectOption('#fixture','popover');
     const urls={moon:await page.locator('#moon-frame').getAttribute('src')};
     if(paired)urls.rust=await page.locator('#rust-frame').getAttribute('src');
-    for(const profile of profiles)for(const [side,url] of Object.entries(urls)) {
+    for(const profile of profiles)await withProfileBrowser(browser,profile,async(activeBrowser,launch)=>{
+      for(const [side,url] of Object.entries(urls)) {
       assert(url && new URL(url,page.url()).searchParams.get('example')==='popover');
       assert.equal(new URL(url,page.url()).origin,new URL(page.url()).origin);
-      const run={side,...profile,status:'running',stages:[],actions:[],requests:[],errors:[],console:[]};
+      const run={side,...profile,launch,status:'running',stages:[],actions:[],requests:[],errors:[],console:[]};
       result.profiles.push(run);
-      const p=await browser.newPage({viewport:{width:profile.width,height:profile.height},deviceScaleFactor:profile.dpr});
+      const p=await activeBrowser.newPage({viewport:{width:profile.width,height:profile.height},deviceScaleFactor:profile.dpr});
       const deadline=Date.now()+limits.runMs;
       const baselineImages=new Map();
       p.on('pageerror',e=>run.errors.push(e.stack||String(e)));
       p.on('console',m=>run.console.push({type:m.type(),text:m.text()}));
       p.on('response',r=>run.requests.push({url:r.url(),status:r.status()}));
+      try {
       await p.addInitScript(max=>{
         globalThis.popoverQualificationEvents=[];globalThis.popoverQualificationOverflow=false;
         for(const type of ['pointerdown','pointerup','click','contextmenu','blur'])addEventListener(type,e=>{
@@ -155,18 +194,20 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
             pointerType:e.pointerType,time:performance.now()});
         },true);
       },limits.events);
-      try {
         await p.goto(new URL(url,page.url()).href);
         await p.locator(`html[data-runtime-status="${side==='moon'?'ready':'initialized'}"]`).waitFor({timeout:60000});
         assert.equal(await p.evaluate(()=>crossOriginIsolated),true);
         const canvas=p.locator('canvas');
         run.geometry_initial=await canvas.evaluate(measureCanvasGeometry,undefined,{timeout:3000})
           .catch(cause=>({status:'unavailable',reason:String(cause)}));
+        assertProfileGeometry(run.geometry_initial,profile);
         const bounds=await canvas.boundingBox();
         assert.deepEqual([bounds?.x,bounds?.y,bounds?.width,bounds?.height],[0,0,profile.width,profile.height],
           'Full runtime canvas must occupy the declared viewport without clipping');
         async function observe(stage,parent,child) {
           const record={stage,parent,child,attempts:[]};run.stages.push(record);
+          record.geometry=await canvas.evaluate(measureCanvasGeometry,undefined,{timeout:3000});
+          assertProfileGeometry(record.geometry,profile);
           let failure;
           for(let attempt=0;attempt<(stage==='initial'?8:3);attempt++) {
             assert(Date.now()<deadline,'Bounded popover run deadline exceeded');
@@ -297,10 +338,11 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
         throw error;
       }finally{
         run.events=await p.evaluate(()=>globalThis.popoverQualificationEvents||[]).catch(()=>[]);
-        await writeFile(join(directory,`${side}-${profile.width}-dpr${profile.dpr}-events.json`),JSON.stringify(run.events,null,2));
-        await p.close();
+        try {await writeFile(join(directory,`${side}-${profile.width}-dpr${profile.dpr}-events.json`),JSON.stringify(run.events,null,2));}
+        finally {await p.close();}
       }
-    }
+      }
+    });
     result.status=paired?'passed':'candidate_only_rust_not_run';
     result.overlay='Source text and four bar colors observed; five required layer-state screenshots retained. Exact occlusion, shadows and pixel equality remain unverified.';
     return result;

@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import vm from 'node:vm';
-import {profiles,limits,parseTsv,phraseBox,visibleState,ObservationUnavailable,inverseScreenshot,measureCanvasGeometry,probeScaleGeometry} from './popover-browser.mjs';
+import {profiles,limits,parseTsv,phraseBox,visibleState,ObservationUnavailable,inverseScreenshot,measureCanvasGeometry,probeScaleGeometry,withProfileBrowser,fractionalLaunchOptions,assertProfileGeometry} from './popover-browser.mjs';
 const header='level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext';
 const row=(text,i=1,conf=95,line=1)=>`5\t1\t1\t1\t${line}\t${i}\t${10+i*40}\t30\t35\t20\t${conf}\t${text}`;
 const words=text=>parseTsv([header,...text.split(' ').map((w,i)=>row(w,i))].join('\n'));
@@ -165,4 +165,68 @@ test('scale probe has exactly two isolated blank pages and closes owned browser 
     assert.equal(screenshots,failure?0:2);assert.equal(result.captures,screenshots);
     assert(result.runs.every(run=>run.status===(failure?'unavailable':'observed')));
   }
+});
+
+test('fractional profile runs both runtimes in one coherent owned browser and closes on success or failure',async()=>{
+  for(const failure of [false,true]) {
+    let launches=0,closed=0;const runtimes=[];
+    const owned={version:async()=>'Chromium-test',close:async()=>{closed++;}};
+    const browser={browserType:()=>({launch:async options=>{launches++;assert.deepEqual(options,fractionalLaunchOptions);return owned;}})};
+    const work=async(active,launch)=>{
+      assert.equal(active,owned);assert.equal(launch.browser,'Chromium-test');
+      assert.equal(launch.mode,'coherent-physical-scale-launch');
+      assert.deepEqual(launch.requested_args,[...fractionalLaunchOptions.args]);
+      for(const side of ['moon','rust']){runtimes.push(side);if(failure)throw Error('original application failure');}
+      return 'both checked';
+    };
+    if(failure)await assert.rejects(withProfileBrowser(browser,profiles[1],work),/original application failure/);
+    else assert.equal(await withProfileBrowser(browser,profiles[1],work),'both checked');
+    assert.equal(launches,1);assert.equal(closed,1);assert.deepEqual(runtimes,failure?['moon']:['moon','rust']);
+  }
+});
+test('normal profile keeps existing browser, while launch/version failures cannot leak owned browser',async()=>{
+  let closed=0;const existing={version:async()=>'normal',close:async()=>{closed++;},browserType:()=>{throw Error('unexpected launch');}};
+  await withProfileBrowser(existing,profiles[0],async(active,launch)=>{assert.equal(active,existing);assert.equal(launch.mode,'inherited-DPR1-launch');});
+  assert.equal(closed,0);
+  const badVersion={browserType:()=>({launch:async()=>({version:async()=>{throw Error('version failed');},close:async()=>{closed++;}})})};
+  await assert.rejects(withProfileBrowser(badVersion,profiles[1],()=>assert.fail('work must not run')),/version failed/);
+  assert.equal(closed,1);
+  const badLaunch={browserType:()=>({launch:async()=>{throw Error('launch failed');}})};
+  await assert.rejects(withProfileBrowser(badLaunch,profiles[1],()=>assert.fail('work must not run')),/launch failed/);
+  await assert.rejects(withProfileBrowser(existing,{dpr:2},()=>assert.fail('unsupported profile')),/declared fractional/);
+});
+function coherentGeometry({width,height,dpr}) {
+  return {window_dpr:dpr,inner_width:width,inner_height:height,
+    canvas:{backing_width:Math.round(width*dpr),backing_height:Math.round(height*dpr),client_width:width,client_height:height,
+      css_rect:{x:0,y:0,width,height},style:{transform:'none',zoom:'1'}},
+    visual_viewport:{width,height,scale:1,offset_left:0,offset_top:0,page_left:0,page_top:0},
+    resize_observer:{status:'observed',content_rect:{x:0,y:0,width,height},
+      content_box:[{inline_size:width,block_size:height}],device_pixel_content_box:[{inline_size:Math.round(width*dpr),block_size:Math.round(height*dpr)}]}};
+}
+test('strict profile geometry accepts coherent observed surfaces and rejects proven context-only mismatch',()=>{
+  for(const profile of profiles)assertProfileGeometry(coherentGeometry(profile),profile);
+  const incorrect=coherentGeometry(profiles[1]);incorrect.canvas.backing_width=480;incorrect.canvas.backing_height=600;
+  incorrect.resize_observer.device_pixel_content_box=[{inline_size:480,block_size:600}];
+  assert.throws(()=>assertProfileGeometry(incorrect,profiles[1]),/Canvas backing/);
+  for(const mutate of [
+    g=>g.window_dpr=1,g=>g.inner_width=384,g=>g.canvas.css_rect.x=1,g=>g.canvas.client_width=384,
+    g=>g.canvas.style.transform='scale(1.25)',g=>g.canvas.style.zoom='1.25',
+    g=>g.resize_observer.status='timeout',g=>g.resize_observer.content_rect.width=384,
+    g=>g.resize_observer.content_box=[{inline_size:384,block_size:480}],
+    g=>g.resize_observer.device_pixel_content_box=[{inline_size:480,block_size:600}],
+    g=>g.visual_viewport.scale=1.25,g=>g.visual_viewport.offset_left=1,
+  ]) {
+    const geometry=coherentGeometry(profiles[1]);mutate(geometry);
+    assert.throws(()=>assertProfileGeometry(geometry,profiles[1]));
+  }
+});
+test('application paths retain independent source-derived targets and require geometry before initial input and every stage',()=>{
+  const source=readFileSync(new URL('./popover-browser.mjs',import.meta.url),'utf8');
+  assert.match(source,/for\(const profile of profiles\)await withProfileBrowser/);
+  assert.match(source,/activeBrowser.newPage/);
+  assert.match(source,/assertProfileGeometry\(run.geometry_initial,profile\)/);
+  assert.match(source,/assertProfileGeometry\(record.geometry,profile\)/);
+  assert.match(source,/result.scale_probe=await probeScaleGeometry/);
+  assert.match(source,/const target=phraseBox\(words,label,profile.dpr\)/);
+  assert.match(source,/await p.mouse.click\(target.x,target.y\)/);
 });
