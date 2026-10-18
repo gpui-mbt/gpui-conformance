@@ -84,9 +84,10 @@ pixel** in each image to match the shared rectangle fixture and the two images
 to agree with zero different pixels. This axis-aligned, integer-coordinate
 two-color fixture has no allowed antialiasing tolerance. A cursor overlay, even
 outside all sample points or identical in both images, fails this comparison.
-No pixel mask or image rewrite is applied. The pointer is moved into the owned
-Weston output and then outside it so Weston receives an actual enter/leave;
-the full-frame check remains authoritative if cursor parking is ineffective.
+No pixel mask or image rewrite is applied. The owned Weston X11 compositor uses `--no-input`, so it does not create
+input devices or an internal cursor. Pointer motion alone left clipped cursor
+pixels at the viewport edge in a live regression run. Full-frame validation
+remains mandatory; this lab does not qualify keyboard or pointer input.
 A first-frame observation is required from each native executable.
 Build timing, launcher-observed first-frame timing, native events and
 window resize requests/results are separately reported.

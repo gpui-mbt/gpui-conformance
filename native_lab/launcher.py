@@ -332,7 +332,7 @@ def run_visible(args, out, executables, manifest, scenarios, token):
     weston_env = {**env, "XDG_RUNTIME_DIR": str(runtime), "XDG_SESSION_TYPE": "x11"}
     weston_args = ["weston", "--backend=x11-backend.so", "--shell=kiosk-shell.so",
                    f"--width={width}", f"--height={height}", f"--socket={socket}",
-                   "--idle-time=0"]
+                   "--idle-time=0", "--no-input"]
     moon_env = {**weston_env, "WAYLAND_DISPLAY": socket, "XDG_SESSION_TYPE": "wayland"}
     moon_env.pop("WAYLAND_SOCKET", None)
     shared = {"GPUI_SCENARIOS": json.dumps(scenarios, separators=(",", ":")),
@@ -376,17 +376,9 @@ def run_visible(args, out, executables, manifest, scenarios, token):
                    if role == "moonbit" else ewmh_move_resize(windows[role]["id"], x, 40, width, height))
             for role, x in (("upstream", 40), ("moonbit", 80 + width))
         }
-        # A root-only motion never sends Weston a leave if its seat starts at center.
-        enter = subprocess.run(["xdotool", "mousemove", "--sync", "--window",
-                                windows["moonbit"]["id"], str(width - 2), str(height - 2)],
-                               capture_output=True, text=True, check=False, timeout=5)
-        park = subprocess.run(["xdotool", "mousemove", "--sync", "0", "0"],
-                              capture_output=True, text=True, check=False, timeout=5)
-        manifest["pointer_park"] = {"command": ["xdotool", "mousemove", "0", "0"],
-                                    "returncode": park.returncode, "enter_returncode": enter.returncode,
-                                    "stderr": park.stderr.strip()}
-        if park.returncode != 0 or enter.returncode != 0:
-            manifest["reasons"].append("could not park X11 pointer outside both captured viewports")
+        # Pointer motion alone leaves a clipped cursor in Weston's output. This
+        # visual/resize lab uses --no-input instead; it does not qualify input.
+        manifest["cursor_policy"] = "Weston X11 --no-input; full-frame validation remains mandatory"
         first = wait_frames(logs, token, spawned, started_at, width, height, args.start_timeout)
         manifest["time_from_process_spawn_to_frame_poll_ms"] = first
         if len(first) != 2:

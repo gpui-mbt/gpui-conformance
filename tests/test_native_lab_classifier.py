@@ -94,6 +94,15 @@ class EvidenceGateTests(unittest.TestCase):
         self.save()
         self.assertEqual(main([str(self.path)]), 1)
 
+    def test_even_clipped_cursor_at_last_pixel_is_rejected(self):
+        path = self.root / 'moonbit.png'
+        with Image.open(path) as image:
+            image.putpixel((255,191), (128,128,128))
+            image.save(path)
+        measured = inspect_images({r: self.root / f'{r}.png' for r in ('upstream','moonbit')}, self.case, 1)
+        self.assertEqual(measured['different_pixels'], 1)
+        self.assertEqual(measured['status'], 'mismatch')
+
     def test_identical_unexpected_pixels_in_both_images_are_rejected(self):
         for role in ('upstream','moonbit'):
             path = self.root / f'{role}.png'
