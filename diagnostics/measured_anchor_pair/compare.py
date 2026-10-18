@@ -340,6 +340,34 @@ TEXTS = {
 }
 
 
+def _f32(value):
+    return struct.unpack('!f', struct.pack('!f', value))[0]
+
+
+def measurement_handoff(raw, scale):
+    """Pinned Taffy callback boundary; no output geometry or tolerance input."""
+    if not number(scale) or scale not in (1, 1.25, 1.5, 2):
+        raise ValueError('unsupported actual layout scale')
+    if type(raw) is not list or len(raw) != 2:
+        raise ValueError('two raw dimensions required')
+    products, counts, logical = [], [], []
+    for value in raw:
+        if not number(value) or value < 0 or _f32(value) != value:
+            raise ValueError('invalid raw binary32 dimension')
+        product = _f32(max(value, 0) * _f32(scale))
+        count = math.ceil(product)
+        intrinsic = count / scale
+        if (not number(product) or count > 2**53 - 1 or not number(intrinsic)
+                or math.ceil(intrinsic * scale) != count):
+            raise ValueError('exact core-ceil invariant failed')
+        products.append(product)
+        counts.append(count)
+        logical.append(intrinsic)
+    return dict(schema_version=1, quantizer='upstream-f32-physical-ceil-to-core-Double-logical',
+                actual_scale=scale, raw_dimensions=raw, physical_products=products,
+                physical_counts=counts, logical_intrinsic=logical)
+
+
 def _source_inputs(op, variant, step, audit, context):
     source = _obj(op.get('source_inputs'), audit, 'source_inputs_object', **context)
     asymmetric = variant == 'asymmetric_fractional'
@@ -370,17 +398,30 @@ def _source_inputs(op, variant, step, audit, context):
         node = row['node']
         for key, expected in [('text', TEXTS[node]), ('font_family', '.SystemUIFont'),
                               ('font_size', 16 if node == 'primary_text' else 14),
-                              ('metrics_scale', scale), ('available_width', paragraph_width if node == 'parent_text' else 0)]:
+                              ('metrics_scale', scale), ('actual_scale', scale), ('available_width', paragraph_width if node == 'parent_text' else 0)]:
             audit.equal(row.get(key), expected, 'source_text_input', node=node, field=key, **context)
         intrinsic = row.get('intrinsic')
         audit.check(type(intrinsic) is list and len(intrinsic) == 2 and all(number(v) and v >= 0 for v in intrinsic),
                     'source_text_intrinsic', 'finite nonnegative width,height', intrinsic, node=node, **context)
         metadata = _obj(row.get('metrics_metadata'), audit, 'metrics_metadata_object', node=node, **context)
-        for key, expected in [('schema_version', 1), ('qualification', 'source-derived-NoopTextSystem-only'),
-                              ('upstream_revision', UPSTREAM), ('arithmetic', 'adapter-local-binary32')]:
+        for key, expected in [('schema_version', 2), ('qualification', 'source-derived-NoopTextSystem-only'),
+                              ('upstream_revision', UPSTREAM), ('arithmetic', 'adapter-local-binary32'),
+                              ('scale', row.get('metrics_scale'))]:
             audit.equal(metadata.get(key), expected, 'metrics_source_identity', node=node, field=key, **context)
         audit.check(type(metadata.get('schema_version')) is int, 'metrics_schema_integer', 'integer', metadata.get('schema_version'), node=node, **context)
-        audit.equal([metadata.get('width'), metadata.get('height')], intrinsic, 'metrics_intrinsic_consistency', node=node, **context)
+        handoff = _obj(metadata.get('measurement_handoff'), audit, 'metrics_handoff_object', node=node, **context)
+        try:
+            expected_handoff = measurement_handoff([metadata.get('width'), metadata.get('height')], scale)
+        except (ValueError, OverflowError, TypeError):
+            audit.fail('metrics_handoff_source', 'valid source quantization', metadata, node=node, **context)
+        else:
+            audit.equal(handoff, expected_handoff, 'metrics_handoff_chain', node=node, **context)
+            audit.check(type(handoff.get('schema_version')) is int, 'metrics_handoff_schema_integer',
+                        'integer', handoff.get('schema_version'), node=node, **context)
+            counts = handoff.get('physical_counts')
+            audit.check(type(counts) is list and len(counts) == 2 and all(type(x) is int for x in counts),
+                        'metrics_handoff_counts_integer', 'two integers', counts, node=node, **context)
+            audit.equal(intrinsic, expected_handoff['logical_intrinsic'], 'metrics_intrinsic_consistency', node=node, **context)
 
 
 def normalize_core(raw, fixture, audit):
@@ -652,12 +693,12 @@ def control_witness(name, baseline_core, mutant_core, fixture=None):
                                     'Local zero position becomes Window zero position with no crossed edge'))
         elif name == 'stale-scale-metrics' and operation.startswith('fractional125'):
             # Child Popover is a single 14px line. The authored phi line height
-            # is snapped using binary32 at metric scale, then its measured size
-            # is ceiled to the core's actual device scale. No raw trace is an
+            # is snapped using binary32 at metric scale, then the upstream
+            # callback quantizes using binary32 at the actual layout scale. No raw trace is an
             # input to this independently predicted metric value.
             if rectangle(bb.get('secondary_text')) and rectangle(mb.get('secondary_text')):
-                expected_base = math.ceil(_source_line_height(14, scale) * scale) / scale
-                expected_mutant = math.ceil(_source_line_height(14, 1) * scale) / scale
+                expected_base = measurement_handoff([0, _source_line_height(14, scale)], scale)['logical_intrinsic'][1]
+                expected_mutant = measurement_handoff([0, _source_line_height(14, 1)], scale)['logical_intrinsic'][1]
                 actual_base, actual_mutant = bb['secondary_text'][3], mb['secondary_text'][3]
                 row = dict(variant=variant, operation=operation, node='secondary_text', scale=scale,
                            semantic='14px one-line source metric uses stale scale1 before actual-scale measured ceiling',

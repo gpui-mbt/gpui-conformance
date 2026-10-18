@@ -59,10 +59,12 @@ def source_inputs(variant, step):
     source['text'] = [dict(node=node, text=compare.TEXTS[node], font_family='.SystemUIFont',
                           font_size=16 if node == 'primary_text' else 14,
                           available_width=paragraph_width if node == 'parent_text' else 0,
-                          metrics_scale=scale, intrinsic=[10, 10],
-                          metrics_metadata=dict(schema_version=1, qualification='source-derived-NoopTextSystem-only',
+                          metrics_scale=scale, actual_scale=scale,
+                          intrinsic=compare.measurement_handoff([10, 10], scale)['logical_intrinsic'],
+                          metrics_metadata=dict(schema_version=2, qualification='source-derived-NoopTextSystem-only',
                                                 upstream_revision=compare.UPSTREAM,
-                                                arithmetic='adapter-local-binary32', width=10, height=10)) for node in names]
+                                                arithmetic='adapter-local-binary32', scale=scale, width=10, height=10,
+                                                measurement_handoff=compare.measurement_handoff([10, 10], scale))) for node in names]
     return source
 
 
@@ -275,6 +277,26 @@ class ComparatorTests(unittest.TestCase):
         self.assertIn('restoration_exact', self.codes(report))
         self.assertNotIn('edge_residual', self.codes(report))
 
+    def test_handoff_metadata_corruption_is_rejected_exactly(self):
+        mutations = [
+            ('raw_dimensions', [True, 10]), ('physical_products', [0, 0]),
+            ('physical_counts', [10.0, 10.0]), ('physical_counts', [False, 10]),
+            ('logical_intrinsic', [9, 10]), ('actual_scale', True),
+            ('schema_version', True), ('quantizer', 'unreviewed'),
+        ]
+        for field, value in mutations:
+            with self.subTest(field=field, value=value):
+                rust, core, fixture = synthetic_pair()
+                row = core['variants'][0]['operations'][0]['source_inputs']['text'][0]
+                row['metrics_metadata']['measurement_handoff'][field] = value
+                self.assertFalse(compare.compare(rust, core, fixture)['strict_match'])
+        for field, value in [('width', True), ('height', -1), ('width', 10.1)]:
+            rust, core, fixture = synthetic_pair()
+            core['variants'][0]['operations'][0]['source_inputs']['text'][0]['metrics_metadata'][field] = value
+            self.assertFalse(compare.compare(rust, core, fixture)['strict_match'])
+        self.core['variants'][0]['operations'][0]['source_inputs']['text'][0]['intrinsic'][0] += 0.00001
+        self.assertIn('metrics_intrinsic_consistency', self.codes(self.report()))
+
     def test_source_width_preserves_sequential_double_association(self):
         target = next(o for o in self.core['variants'][0]['operations'] if o['scale'] == 1.5)
         authored = lambda value: math.ceil(value * 1.5 - 0.5) / 1.5
@@ -442,14 +464,13 @@ class MutationWitnessTests(unittest.TestCase):
         result = compare.evaluate_control('window-mode', before, after, self.core, mutant, execution=self.executed)
         self.assertFalse(result['killed'])
 
-    def test_stale_metrics_source_derived_secondary_witness_and_primary_collision(self):
+    def test_stale_metrics_source_quantizer_preserves_primary_and_secondary_witness(self):
         scale = 1.25
-        primary_base = math.ceil(compare._source_line_height(16, scale) * scale) / scale
-        primary_mutant = math.ceil(compare._source_line_height(16, 1) * scale) / scale
-        self.assertEqual(primary_base, primary_mutant)
-        self.assertEqual(primary_base, 26.4)
-        secondary_base = math.ceil(compare._source_line_height(14, scale) * scale) / scale
-        secondary_mutant = math.ceil(compare._source_line_height(14, 1) * scale) / scale
+        primary_base = compare.measurement_handoff([0, compare._source_line_height(16, scale)], scale)['logical_intrinsic'][1]
+        primary_mutant = compare.measurement_handoff([0, compare._source_line_height(16, 1)], scale)['logical_intrinsic'][1]
+        self.assertEqual((primary_base, primary_mutant), (25.6, 26.4))
+        secondary_base = compare.measurement_handoff([0, compare._source_line_height(14, scale)], scale)['logical_intrinsic'][1]
+        secondary_mutant = compare.measurement_handoff([0, compare._source_line_height(14, 1)], scale)['logical_intrinsic'][1]
         self.assertEqual((secondary_base, secondary_mutant), (22.4, 23.2))
         base, mutant = copy.deepcopy(self.core), copy.deepcopy(self.core)
         op(base, 'fractional125-parent')['bounds']['secondary_text'][3] = secondary_base

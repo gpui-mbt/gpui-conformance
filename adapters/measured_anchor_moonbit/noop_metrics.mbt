@@ -138,11 +138,38 @@ extern "js" fn noop_metrics_source_json(
   #|     width, height, physical_lines: lines.length, visual_lines: visualLineCount, lines});
   #| }
 
+// Upstream taffy.rs:261-264,412-414 and util.rs:159-161 quantize the
+// callback's binary32 logical dimensions into physical pixel counts.
+// Preserve that boundary before entering the portable Double intrinsic API.
+extern "js" fn noop_handoff_json(metadata : String, actual_scale : Double) -> String =
+  #| (metadata, actualScale) => {
+  #|   if (![1, 1.25, 1.5, 2].includes(actualScale))
+  #|     throw new RangeError("Noop handoff: unsupported actual layout scale");
+  #|   const raw = JSON.parse(metadata), dimensions = [raw.width, raw.height];
+  #|   const products = [], counts = [], logical = [];
+  #|   for (const value of dimensions) {
+  #|     if (!Number.isFinite(value) || value < 0 || Math.fround(value) !== value)
+  #|       throw new RangeError("Noop handoff: invalid raw binary32 dimension");
+  #|     const product = Math.fround(Math.max(value, 0) * Math.fround(actualScale));
+  #|     const count = Math.ceil(product), intrinsic = count / actualScale;
+  #|     if (!Number.isFinite(product) || !Number.isSafeInteger(count) ||
+  #|         !Number.isFinite(intrinsic) || Math.ceil(intrinsic * actualScale) !== count)
+  #|       throw new RangeError("Noop handoff: exact core-ceil invariant failed");
+  #|     products.push(product); counts.push(count); logical.push(intrinsic);
+  #|   }
+  #|   raw.schema_version = 2;
+  #|   raw.measurement_handoff = {schema_version: 1,
+  #|     quantizer: "upstream-f32-physical-ceil-to-core-Double-logical",
+  #|     actual_scale: actualScale, raw_dimensions: dimensions,
+  #|     physical_products: products, physical_counts: counts, logical_intrinsic: logical};
+  #|   return JSON.stringify(raw);
+  #| }
+
 extern "js" fn noop_metrics_width(metadata : String) -> Double =
-  #| metadata => JSON.parse(metadata).width
+  #| metadata => JSON.parse(metadata).measurement_handoff.logical_intrinsic[0]
 
 extern "js" fn noop_metrics_height(metadata : String) -> Double =
-  #| metadata => JSON.parse(metadata).height
+  #| metadata => JSON.parse(metadata).measurement_handoff.logical_intrinsic[1]
 
 // The result supplies only text's intrinsic content size to the portable core.
 // Padding, border, flex sizing, anchoring, snapping, and geometry remain core.
@@ -151,8 +178,9 @@ pub fn measured_text(
   font_size : Double,
   available_width : Double,
   scale : Double,
+  actual_scale : Double,
 ) -> @primitives.Size {
-  let metadata = noop_metrics_source_json(text, font_size, available_width, scale)
+  let metadata = measured_text_metadata(text, font_size, available_width, scale, actual_scale)
   @primitives.Size::new(
     noop_metrics_width(metadata), noop_metrics_height(metadata),
   ).unwrap()
@@ -163,6 +191,9 @@ pub fn measured_text_metadata(
   font_size : Double,
   available_width : Double,
   scale : Double,
+  actual_scale : Double,
 ) -> String {
-  noop_metrics_source_json(text, font_size, available_width, scale)
+  noop_handoff_json(
+    noop_metrics_source_json(text, font_size, available_width, scale), actual_scale,
+  )
 }

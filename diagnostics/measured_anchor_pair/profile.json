@@ -7,8 +7,8 @@
   "integration_baseline_tree": "492373682d7af423e27833d3582ad43109dd5a4a",
   "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
   "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
-  "core_commit": "8c744192ed6c1282a136efe3bcfe3d4ba5b16156",
-  "core_tree": "86c7c4df4d5c82e6ee09b8b63a4e5af3a548dd29",
+  "core_commit": "c2100a29b942798e1ac39584472a0ffa4ff14192",
+  "core_tree": "109eec27a09d89afa8d47865e8d3cdec12317a66",
   "comparison_spec_sha256": "dba66cc5599a99e4f74e58ea7bec0eff089e08bb42da663bf6ef1050cdc551eb",
   "fixture_files": {
     "adapters/padded_text_anchor_rust/Cargo.toml": {

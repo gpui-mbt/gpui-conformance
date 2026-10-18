@@ -144,3 +144,24 @@ compiled control witnesses. Every strict edge failure remains visible; a source
 explanation does not turn it into success. Missing metrics coverage, unexplained
 differences or failing CI stop qualification. Browser integration is subsequent
 work and must preserve these scope qualifications.
+
+## Explicit source measurement handoff
+
+Raw Noop metadata remains binary32, including all line records. Metadata schema2
+adds a separate `measurement_handoff`: upstream `taffy.rs:261–264,412–414`
+and `util.rs:159–161` at the pinned upstream revision quantize callback dimensions
+as `ceil(f32(raw_dimension * f32(actual_scale)))`, yielding physical count q.
+The diagnostic adapter supplies Double `q / actual_scale` to the unchanged core
+measured-leaf API and rejects any case where its Double ceiling would not consume
+exactly q. Supported actual scales are the declared corpus values1,1.25,1.5,2.
+No epsilon or representable-number nudge is used. Raw metadata width/height are
+not overwritten by the normalized intrinsic. The comparator checks the complete
+raw/product/count/Double/intrinsic chain exactly, with scalar type checks.
+
+Metrics generation scale and actual layout scale are explicit separate arguments.
+The stale-scale control changes only metrics generation; actual-scale quantization
+still occurs at the source measurement boundary. Both witness predictions are
+source-derived and require fresh compiled execution. Python source models cover
+196 baseline and196 stale dimensions plus48 newline/wrapping/UTF16 edge dimensions.
+These are validator/source checks, not actual runtime parity. Original strict
+failure artifacts are retained; changes never retroactively alter old results.

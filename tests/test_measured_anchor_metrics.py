@@ -125,7 +125,77 @@ def source_metrics(text: str, font: float, width: float = 0,
             "line_height": line_height, "lines": lines}
 
 
+def source_handoff(raw: dict, actual_scale: float) -> dict:
+    """Independent upstream callback model, util.rs:159-161 / taffy.rs:412-414."""
+    if not finite_number(actual_scale) or actual_scale not in (1, 1.25, 1.5, 2):
+        raise ValueError('unsupported actual layout scale')
+    products, counts, logical = [], [], []
+    for axis in ('width', 'height'):
+        value = raw[axis]
+        if not finite_number(value) or value < 0 or f32(value) != value:
+            raise ValueError('raw source binary32 required')
+        product = f32(value * f32(actual_scale))
+        count = math.ceil(product)
+        intrinsic = count / actual_scale
+        if not math.isfinite(intrinsic) or count > 2**53 - 1 or math.ceil(intrinsic * actual_scale) != count:
+            raise ValueError('core ceil invariant')
+        products.append(product); counts.append(count); logical.append(intrinsic)
+    return dict(products=products, counts=counts, logical=logical)
+
+
 class SourceMathFixtures(unittest.TestCase):
+    def test_handoff_authored_baseline_and_stale_196_dimensions_each(self):
+        import test_measured_anchor_pair as fixture
+        for stale in (False, True):
+            dimensions = 0
+            for variant in fixture.compare.VARIANTS:
+                for step in fixture.compare.canonical_fixture()['steps']:
+                    for row in fixture.source_inputs(variant, step)['text']:
+                        raw = source_metrics(row['text'], row['font_size'], row['available_width'],
+                                             1 if stale else step['scale'])
+                        expected = source_handoff(raw, step['scale'])
+                        actual = fixture.compare.measurement_handoff([raw['width'], raw['height']], step['scale'])
+                        self.assertEqual(actual['physical_products'], expected['products'])
+                        self.assertEqual(actual['physical_counts'], expected['counts'])
+                        self.assertEqual(actual['logical_intrinsic'], expected['logical'])
+                        dimensions += 2
+            self.assertEqual(dimensions, 196)
+
+    def test_handoff_48_additional_edge_dimensions(self):
+        dimensions = 0
+        for scale in (1, 1.25, 1.5, 2):
+            for text, font, width in [('', 16, 0), ('a\n\nb\n', 14, 0),
+                                      ('😀a', 16, 0), ('a bc', 14, 20),
+                                      ('x' * 40, 16, 0), ('ab', 16, 19.2)]:
+                raw = source_metrics(text, font, width, scale)
+                handoff = source_handoff(raw, scale)
+                for logical, count in zip(handoff['logical'], handoff['counts']):
+                    self.assertEqual(math.ceil(logical * scale), count)
+                    dimensions += 1
+        self.assertEqual(dimensions, 48)
+
+    def test_handoff_promotion_boundary_and_real_upward_rounding(self):
+        raw = source_metrics('Open Popover', 16, 0, 1.25)
+        self.assertEqual(math.ceil(raw['height'] * 1.25), 33)
+        handoff = source_handoff(raw, 1.25)
+        self.assertEqual(handoff['products'][1], 32)
+        self.assertEqual(handoff['logical'][1], 25.6)
+        self.assertEqual(source_handoff(dict(width=1, height=0), 1.25)['counts'], [2, 0])
+
+    def test_handoff_rejects_unsupported_scale_and_invariant_failure(self):
+        from unittest.mock import patch
+        for scale in (True, 0, 1.3, float('nan'), 8):
+            with self.assertRaises(ValueError):
+                source_handoff(dict(width=1, height=1), scale)
+        for raw in (dict(width=True, height=1), dict(width=-1, height=1), dict(width=1.1, height=1)):
+            with self.assertRaises(ValueError):
+                source_handoff(raw, 1)
+        # Inject a broken downstream arithmetic result to exercise fail-closed
+        # behavior, never to alter source quantization or real measurements.
+        with patch('math.ceil', side_effect=[1, 2]):
+            with self.assertRaisesRegex(ValueError, 'core ceil invariant'):
+                source_handoff(dict(width=1, height=1), 1)
+
     def test_source_derived_em_advance_and_repeated_accumulation(self):
         self.assertEqual(source_shape("m", 16)[1], 9.600000381469727)
         self.assertEqual(source_shape("m", 14)[1], 8.399999618530273)
@@ -264,9 +334,24 @@ class AdapterStaticContract(unittest.TestCase):
                       "ca821bbbb43a6fd17dd363b15f45165f86289b10",
                       "source-derived-NoopTextSystem-only"]:
             self.assertIn(token, self.source)
-        self.assertIn("let metadata = noop_metrics_source_json(text, font_size, available_width, scale)",
+        self.assertIn("let metadata = measured_text_metadata(text, font_size, available_width, scale, actual_scale)",
                       self.source)
         self.assertIn("noop_metrics_width(metadata), noop_metrics_height(metadata)", self.source)
+
+    def test_physical_handoff_is_explicit_and_fail_closed(self):
+        for token in ['actual_scale : Double', 'raw.schema_version = 2',
+                      'Math.fround(Math.max(value, 0) * Math.fround(actualScale))',
+                      'const count = Math.ceil(product), intrinsic = count / actualScale',
+                      'Math.ceil(intrinsic * actualScale) !== count',
+                      '![1, 1.25, 1.5, 2].includes(actualScale)',
+                      'raw_dimensions: dimensions', 'physical_products: products',
+                      'physical_counts: counts', 'logical_intrinsic: logical']:
+            self.assertIn(token, self.source)
+        main = (SOURCE.parent / 'main.mbt').read_text()
+        self.assertIn('let metrics_scale = scale // MUTATION_SITE_METRICS_SCALE', main)
+        for name in ('PROBE_PRIMARY, 16, 0', 'PROBE_FIRST, 14, paragraph_width',
+                     'PROBE_SECONDARY, 14, 0', 'PROBE_SECOND, 14, 0'):
+            self.assertIn('measured_text(' + name + ', metrics_scale, scale)', main)
 
     def test_binary32_and_wrapping_wiring(self):
         for token in ["const f32 = Math.fround", "f32(f32(font * 600) / 1000)",

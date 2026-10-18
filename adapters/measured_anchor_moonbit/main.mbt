@@ -249,10 +249,10 @@ fn probe_paint_json(scene : @scene.Scene, viewport : @primitives.Rect) -> (Strin
 }
 
 fn probe_text_input(node : String, text : String, font_size : Double,
-  available_width : Double, metrics_scale : Double, intrinsic : @primitives.Size,
+  available_width : Double, metrics_scale : Double, actual_scale : Double, intrinsic : @primitives.Size,
 ) -> String {
-  let metrics_metadata = measured_text_metadata(text, font_size, available_width, metrics_scale)
-  "{\"node\":\{probe_json_string(node)},\"text\":\{probe_json_string(text)},\"font_family\":\".SystemUIFont\",\"font_size\":\{font_size},\"available_width\":\{available_width},\"metrics_scale\":\{metrics_scale},\"intrinsic\":\{probe_size_json(intrinsic)},\"metrics_metadata\":\{metrics_metadata}}"
+  let metrics_metadata = measured_text_metadata(text, font_size, available_width, metrics_scale, actual_scale)
+  "{\"node\":\{probe_json_string(node)},\"text\":\{probe_json_string(text)},\"font_family\":\".SystemUIFont\",\"font_size\":\{font_size},\"available_width\":\{available_width},\"metrics_scale\":\{metrics_scale},\"actual_scale\":\{actual_scale},\"intrinsic\":\{probe_size_json(intrinsic)},\"metrics_metadata\":\{metrics_metadata}}"
 }
 
 fn probe_operation(index : Int, asymmetric : Bool) -> String {
@@ -263,11 +263,11 @@ fn probe_operation(index : Int, asymmetric : Bool) -> String {
   let paragraph_width = probe_parent_text_width(scale)
   // The used value is recorded, and each state always makes a fresh request.
   let metrics_scale = scale // MUTATION_SITE_METRICS_SCALE
-  let primary_metrics = measured_text(PROBE_PRIMARY, 16, 0, metrics_scale)
-  let parent_metrics = measured_text(PROBE_FIRST, 14, paragraph_width, metrics_scale)
-  let secondary_metrics = measured_text(PROBE_SECONDARY, 14, 0, metrics_scale)
+  let primary_metrics = measured_text(PROBE_PRIMARY, 16, 0, metrics_scale, scale)
+  let parent_metrics = measured_text(PROBE_FIRST, 14, paragraph_width, metrics_scale, scale)
+  let secondary_metrics = measured_text(PROBE_SECONDARY, 14, 0, metrics_scale, scale)
   let child_metrics = if nested {
-    measured_text(PROBE_SECOND, 14, 0, metrics_scale)
+    measured_text(PROBE_SECOND, 14, 0, metrics_scale, scale)
   } else {
     probe_size(0, 0)
   }
@@ -319,12 +319,12 @@ fn probe_operation(index : Int, asymmetric : Bool) -> String {
     @element.Window => "Window"
   }
   let text_inputs = [
-    probe_text_input("primary_text", PROBE_PRIMARY, 16, 0, metrics_scale, primary_metrics),
-    probe_text_input("parent_text", PROBE_FIRST, 14, paragraph_width, metrics_scale, parent_metrics),
-    probe_text_input("secondary_text", PROBE_SECONDARY, 14, 0, metrics_scale, secondary_metrics),
+    probe_text_input("primary_text", PROBE_PRIMARY, 16, 0, metrics_scale, scale, primary_metrics),
+    probe_text_input("parent_text", PROBE_FIRST, 14, paragraph_width, metrics_scale, scale, parent_metrics),
+    probe_text_input("secondary_text", PROBE_SECONDARY, 14, 0, metrics_scale, scale, secondary_metrics),
   ]
   if nested {
-    text_inputs.push(probe_text_input("child_text", PROBE_SECOND, 14, 0, metrics_scale, child_metrics))
+    text_inputs.push(probe_text_input("child_text", PROBE_SECOND, 14, 0, metrics_scale, scale, child_metrics))
   }
   let source_inputs = "{\"text\":[\{text_inputs.join(",")}],\"text_backend\":\"source-derived-upstream-NoopTextSystem\",\"unbounded_available_width\":0,\"rem_size\":16,\"line_height_multiplier\":1.618034,\"button_padding\":\{probe_insets_json(button_padding)},\"button_border\":\{probe_insets_json(button_border)},\"inset_order\":\"top,right,bottom,left\",\"parent_width\":384,\"parent_padding\":[12,12,12,12],\"parent_border\":[1,1,1,1],\"parent_gap\":12,\"parent_text_available_width\":\{paragraph_width},\"secondary_margin_top\":8,\"secondary_margin_representation\":\"unpainted-flow-wrapper-top-inset\",\"child_padding\":[12,12,12,12],\"child_border\":[1,1,1,1],\"host_alignment\":\"center,center\",\"anchor\":\"TopLeft\",\"anchor_mode\":\{probe_json_string(mode)},\"anchor_position\":[0,0],\"anchor_margin\":8,\"deferred_priorities\":[1,2]}"
   "{\"id\":\{probe_json_string(probe_step_id(index))},\"viewport\":[\{width},\{height}],\"scale\":\{scale},\"nested_open\":\{nested},\"source_inputs\":\{source_inputs},\"bounds\":{\{bounds.join(",")}},\"attachments\":[\{attachments.join(",")}],\"corresponding_core_input_geometry\":[\{input_geometry.join(",")}],\"paint_traversal\":\{paint_traversal},\"paint_commands\":\{paint_commands},\"logical_viewport_mask\":\{probe_rect_json(viewport)},\"scene_valid\":true}"
