@@ -1,0 +1,98 @@
+name: Supplemental padded text anchor oracle
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/padded_text_anchor_rust/**'
+      - 'diagnostics/padded_text_anchor/**'
+      - 'tests/test_padded_text_anchor.py'
+      - 'tests/test_padded_anchor_evidence.py'
+      - '.github/workflows/padded-text-anchor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: padded-text-anchor-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-padded-text-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 4bf568614f9a5707855a441314eec8080adbc8a7
+          path: _build/fixture-source
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/zed-source
+          persist-credentials: false
+      - name: Check immutable fixture source and evidence contracts
+        run: |
+          set -o pipefail
+          mkdir -p _build/padded-anchor-logs
+          (cd _build/fixture-source && python3 -m unittest discover -s tests -p test_padded_text_anchor.py -v) \
+            2>&1 | tee _build/padded-anchor-logs/fixture-tests.log
+          python3 -m unittest discover -s tests -p test_padded_anchor_evidence.py -v \
+            2>&1 | tee _build/padded-anchor-logs/evidence-tests.log
+      - name: Install pinned compiler and Linux link dependencies
+        run: |
+          set -o pipefail
+          python3 -c 'import shutil; assert min(shutil.disk_usage(".").free,shutil.disk_usage("/tmp").free)>=9*1024**3, "Need9GiB build headroom"'
+          python3 - <<'PYSETUP'
+          import importlib.util, os, shutil
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location('setup_observer',Path('diagnostics/padded_text_anchor/run.py'))
+          runner=importlib.util.module_from_spec(spec);spec.loader.exec_module(runner)
+          out=Path('_build/padded-anchor-logs')
+          commands=[
+              ('rust-install',['rustup','toolchain','install','1.98.1','--profile','minimal']),
+              ('apt-update',['sudo','apt-get','update']),
+              ('apt-install',['sudo','apt-get','install','-y','clang','lld','cmake','pkg-config','libasound2-dev','libfontconfig-dev','libglib2.0-dev','libssl-dev','libwayland-dev','libx11-xcb-dev','libxkbcommon-x11-dev','libvulkan1']),
+          ]
+          for name,command in commands:
+              record=runner.execute(command,out,name,os.environ.copy(),timeout=900,cwd=Path.cwd())
+              runner.save(out/(name+'.json'),record)
+              runner.require(record['returncode']==0 and not record['timed_out'] and not record['resource_floor_breached'],'setup failed: '+name)
+          runner.require(min(shutil.disk_usage('.').free,shutil.disk_usage('/tmp').free)>=9*1024**3,'Need9GiB after setup')
+          PYSETUP
+      - name: Compile and execute source-bound Rust observer
+        run: |
+          set -o pipefail
+          python3 diagnostics/padded_text_anchor/run.py \
+            --fixture-source _build/fixture-source --upstream-source _build/zed-source \
+            --output _build/padded-text-anchor-evidence \
+            2>&1 | tee _build/padded-anchor-logs/run.log
+      - name: Reopen evidence against externally supplied source and Actions identities
+        run: |
+          python3 diagnostics/padded_text_anchor/evidence.py _build/padded-text-anchor-evidence \
+            --runner-source . --fixture-source _build/fixture-source --upstream-source _build/zed-source \
+            --runner-commit "$GITHUB_SHA" --runner-tree "$(git rev-parse HEAD^{tree})" \
+            --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --recorded-execution-root "$GITHUB_WORKSPACE/_build/padded-text-anchor-evidence" \
+            > _build/padded-anchor-logs/reopen.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: padded-text-anchor-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            _build/padded-text-anchor-evidence
+            _build/padded-anchor-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
