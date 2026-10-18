@@ -9,13 +9,13 @@ export const profiles = Object.freeze([
   {width:800,height:600,dpr:1,kind:'declared-source-profile'},
   {width:480,height:600,dpr:1.25,kind:'narrow-fractional-smoke'},
 ]);
-export const limits = Object.freeze({captures:160,events:128,ocrBytes:4*1024*1024,ocrMs:8000,runMs:120000});
+export const limits = Object.freeze({captures:160,derivedImages:44,ocrRuns:204,events:128,ocrBytes:4*1024*1024,ocrMs:8000,runMs:120000});
 export class ObservationUnavailable extends Error {}
 const normalize = text => text.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-export function parseTsv(tsv) {
+export function parseTsv(tsv, pass='original') {
   return tsv.split(/\r?\n/).slice(1).filter(Boolean).map(line=>{
     const c=line.split('\t');
-    return {level:Number(c[0]),line:c.slice(1,5).join('/'),x:Number(c[6]),y:Number(c[7]),
+    return {pass,level:Number(c[0]),line:pass+'/'+c.slice(1,5).join('/'),x:Number(c[6]),y:Number(c[7]),
       width:Number(c[8]),height:Number(c[9]),confidence:Number(c[10]),text:c.slice(11).join('\t')};
   }).filter(w=>w.level===5 && w.confidence>=40 && normalize(w.text) &&
     [w.x,w.y,w.width,w.height].every(Number.isFinite) && w.width>0 && w.height>0);
@@ -28,10 +28,22 @@ export function phraseBox(words, phrase, dpr=1) {
       run.map(w=>normalize(w.text)).join(' ')!==wanted.join(' '))continue;
     const x=Math.min(...run.map(w=>w.x)), y=Math.min(...run.map(w=>w.y));
     const right=Math.max(...run.map(w=>w.x+w.width)),bottom=Math.max(...run.map(w=>w.y+w.height));
-    found.push({x:(x+right)/2/dpr,y:(y+bottom)/2/dpr,width:(right-x)/dpr,height:(bottom-y)/dpr});
+    found.push({pass:run[0].pass,x:(x+right)/2,y:(y+bottom)/2,width:right-x,height:bottom-y});
   }
-  if(found.length!==1)throw new ObservationUnavailable(`Expected one visible OCR phrase ${JSON.stringify(phrase)}; observed ${found.length}`);
-  return found[0];
+  // Only merge two passes' observations of the same spatial phrase. Never
+  // hide two occurrences within one pass or combine words across passes.
+  const unique=[];
+  for(const box of found) {
+    const matches=unique.filter(other=>{
+      const intersection=Math.max(0,Math.min(box.x+box.width/2,other.x+other.width/2)-Math.max(box.x-box.width/2,other.x-other.width/2))*
+        Math.max(0,Math.min(box.y+box.height/2,other.y+other.height/2)-Math.max(box.y-box.height/2,other.y-other.height/2));
+      return !other.passes.has(box.pass) && intersection/(box.width*box.height+other.width*other.height-intersection)>=0.8;
+    });
+    if(matches.length===1)matches[0].passes.add(box.pass);
+    else unique.push({...box,passes:new Set([box.pass])});
+  }
+  if(unique.length!==1)throw new ObservationUnavailable(`Expected one visible OCR phrase ${JSON.stringify(phrase)}; observed ${unique.length}`);
+  const {x,y,width,height}=unique[0];return {x:x/dpr,y:y/dpr,width:width/dpr,height:height/dpr};
 }
 export function visibleState(words, pixels, parent, child) {
   const text=normalize(words.map(w=>w.text).join(' '));
@@ -44,11 +56,23 @@ export function visibleState(words, pixels, parent, child) {
   if(!parent && !text.includes('default opened'))throw new ObservationUnavailable('Always-open default label not observable');
 }
 
+// Called only on a retained screenshot data URL, using an unattached canvas.
+// No application canvas, runtime state, dimensions, or input is changed.
+export async function inverseScreenshot(data) {
+  const image=new Image();image.src=data;await image.decode();
+  const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
+  const context=canvas.getContext('2d');context.drawImage(image,0,0);
+  const pixels=context.getImageData(0,0,canvas.width,canvas.height);
+  for(let i=0;i<pixels.data.length;i+=4)for(let channel=0;channel<3;channel++)
+    pixels.data[i+channel]=255-pixels.data[i+channel];
+  context.putImageData(pixels,0,0);return canvas.toDataURL('image/png');
+}
+
 export async function checkPopoverPair({browser,page,evidence,paired}) {
   const directory=join(evidence,'popover');await mkdir(directory,{recursive:true});
   const result={status:'running',source_blob:'7678a6a3ed865d9874b72cb99b473a115591d35c',
     comparison:'source-specific observed interactions and same-runtime image restoration only; pixel, shaping, callback-count, native and arbitrary-viewport parity unverified',
-    interrupted_press:'not_run: no reliable cross-runtime native focus-loss oracle',profiles:[],captures:0};
+    interrupted_press:'not_run: no reliable cross-runtime native focus-loss oracle',profiles:[],captures:0,derived_images:0,ocr_runs:0};
   try {
     await page.selectOption('#fixture','popover');
     const urls={moon:await page.locator('#moon-frame').getAttribute('src')};
@@ -92,14 +116,36 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
             const png=await p.screenshot({path});
             assert.equal(png.readUInt32BE(16),Math.round(profile.width*profile.dpr));
             assert.equal(png.readUInt32BE(20),Math.round(profile.height*profile.dpr));
+            assert(result.ocr_runs<limits.ocrRuns,'Popover OCR invocation cap exceeded');result.ocr_runs++;
             const ocr=spawnSync('tesseract',[path,'stdout','--psm','11','tsv'],
               {encoding:'utf8',timeout:limits.ocrMs,maxBuffer:limits.ocrBytes});
             await writeFile(join(directory,stem+'.tsv'),ocr.stdout||'');
             await writeFile(join(directory,stem+'-ocr-stderr.txt'),ocr.stderr||'');
-            const attemptRecord={image:stem+'.png',ocr:stem+'.tsv',events:await p.evaluate(()=>popoverQualificationEvents),ocr_status:ocr.status,
+            const attemptRecord={image:stem+'.png',png_sha256:createHash('sha256').update(png).digest('hex'),ocr:stem+'.tsv',events:await p.evaluate(()=>popoverQualificationEvents),ocr_status:ocr.status,
               ocr_signal:ocr.signal,ocr_error:ocr.error?.stack};record.attempts.push(attemptRecord);
             if(ocr.error || ocr.status!==0)throw new ObservationUnavailable(`OCR failed; original stdout/stderr retained: ${stem}: ${ocr.error?.message||ocr.status}`);
             const words=parseTsv(ocr.stdout);
+            let targetWords=words;
+            if(stage==='initial'||stage==='parent') {
+              assert(result.derived_images<limits.derivedImages,'Popover derived-image cap exceeded');result.derived_images++;
+              assert(result.ocr_runs<limits.ocrRuns,'Popover OCR invocation cap exceeded');result.ocr_runs++;
+              assert(Date.now()<deadline,'Bounded popover run deadline exceeded');
+              const inverse=Buffer.from((await p.evaluate(inverseScreenshot,'data:image/png;base64,'+png.toString('base64'))).split(',')[1],'base64');
+              assert.equal(inverse.readUInt32BE(16),png.readUInt32BE(16));
+              assert.equal(inverse.readUInt32BE(20),png.readUInt32BE(20));
+              const inversePath=join(directory,stem+'-inverse.png');await writeFile(inversePath,inverse);
+              const inverseOcr=spawnSync('tesseract',[inversePath,'stdout','--psm','6','-c','tessedit_do_invert=0','tsv'],
+                {encoding:'utf8',timeout:limits.ocrMs,maxBuffer:limits.ocrBytes});
+              await writeFile(join(directory,stem+'-inverse.tsv'),inverseOcr.stdout||'');
+              await writeFile(join(directory,stem+'-inverse-ocr-stderr.txt'),inverseOcr.stderr||'');
+              attemptRecord.inverse={image:stem+'-inverse.png',ocr:stem+'-inverse.tsv',
+                transform:'RGB := 255 - RGB; alpha and dimensions unchanged; screenshot-only',
+                png_sha256:createHash('sha256').update(inverse).digest('hex'),psm:6,tessedit_do_invert:0,
+                status:inverseOcr.status,signal:inverseOcr.signal,error:inverseOcr.error?.stack};
+              if(inverseOcr.error||inverseOcr.status!==0)throw new ObservationUnavailable(
+                `Inverse OCR failed; original outputs retained: ${stem}: ${inverseOcr.error?.message||inverseOcr.status}`);
+              targetWords=[...words,...parseTsv(inverseOcr.stdout,'inverse')];
+            }
             const pixels=await p.evaluate(async data=>{
               const image=new Image();image.src=data;await image.decode();
               const c=document.createElement('canvas');c.width=image.width;c.height=image.height;
@@ -115,7 +161,6 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
               }return counts;
             },'data:image/png;base64,'+png.toString('base64'));
             attemptRecord.pixels=pixels;
-            attemptRecord.png_sha256=createHash('sha256').update(png).digest('hex');
             try {
               visibleState(words,pixels,parent,child);
               // Absence in OCR alone cannot prove dismissal. Require exact
@@ -141,7 +186,7 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
                 record.scene=stem+'-scene.json';
               }
               if(!baselineImages.has(stateKey))baselineImages.set(stateKey,png);
-              record.observed=true;record.image=stem+'.png';return words;
+              record.observed=true;record.image=stem+'.png';return targetWords;
             }catch(error){failure=error;attemptRecord.failure=error.stack;await p.waitForTimeout(200);}
           }
           throw failure;
