@@ -112,11 +112,28 @@ fn canonical_scene(frame : @element.Prepainted, width : Double, height : Double,
 }
 
 ///|
-fn present(scene : @scene.SceneSnapshot) -> String {
+fn live_scene(frame : @element.Prepainted, width : Double, height : Double, scale : Double, device_scale : Double) -> @scene.SceneSnapshot {
+  let raster_width = (width * scale).ceil() / scale
+  let raster_height = (height * scale).ceil() / scale
+  let scene = canonical_scene(frame,raster_width,raster_height,scale,device_scale)
+  if width == 600 && height == 600 && scale == 1 && device_scale == 1 {
+    return scene
+  }
+  // Nonqualified preview: an explicit white canvas backing, matching the page
+  // background. Pixel-aligned coverage keeps clipped fractional edge pixels
+  // opaque without relaxing the ordered transport's opaque-run invariant.
+  // The original fixed-size root and all source geometry remain unchanged.
+  let items : Array[@scene.SceneItem] = [@scene.SceneItem::quad(0,rect(0,0,raster_width,raster_height),@primitives.Color::rgba(255,255,255,255).unwrap(),@scene.AffineTransform::identity(),1,None).unwrap()]
+  for item in scene.items() { items.push(item) }
+  @scene.SceneSnapshot::new(scene.viewport(),scale,scene.resources(),scene.clip_chains(),items).unwrap()
+}
+
+///|
+fn present(scene : @scene.SceneSnapshot, device_scale : Double, width : Double, height : Double) -> String {
   let count = scene.items().length()-2
   let tile = scene.rasterize_paint_run_webgl2_linear(0,count).unwrap().unwrap()
   let bytes = tile.rgba().map(value => value.to_string()).join(",")
-  "{\"ok\":true,\"conformance\":\"unverified\",\"snapshot\":\{scene.canonical_json()},\"decorations\":[],\"raster_transport\":\"ordered_core_webgl2_linear_straight_v1\",\"operations\":[{\"kind\":\"rgba_run\",\"index\":0,\"count\":\{count},\"x\":\{tile.x()},\"y\":\{tile.y()},\"width\":\{tile.width()},\"height\":\{tile.height()},\"rgba\":[\{bytes}]},{\"kind\":\"legacy\",\"index\":\{count}},{\"kind\":\"legacy\",\"index\":\{count+1}}],\"pattern\":{\"comparison_profile_match\":\{scene.viewport().size().width() == 600 && scene.viewport().size().height() == 600 && scene.scale() == 1},\"text_order\":\"disjoint_ink_checked_labels_last\",\"source_label_ids\":[100,101]},\"unverified\":[\"Canvas_vs_Cosmic_text\",\"shadow_kernel\",\"full_image\",\"native\"]}"
+  "{\"ok\":true,\"conformance\":\"unverified\",\"snapshot\":\{scene.canonical_json()},\"decorations\":[],\"raster_transport\":\"ordered_core_webgl2_linear_straight_v1\",\"operations\":[{\"kind\":\"rgba_run\",\"index\":0,\"count\":\{count},\"x\":\{tile.x()},\"y\":\{tile.y()},\"width\":\{tile.width()},\"height\":\{tile.height()},\"rgba\":[\{bytes}]},{\"kind\":\"legacy\",\"index\":\{count}},{\"kind\":\"legacy\",\"index\":\{count+1}}],\"pattern\":{\"comparison_profile_match\":\{width == 600 && height == 600 && scene.scale() == 1 && device_scale == 1},\"text_order\":\"disjoint_ink_checked_labels_last\",\"source_label_ids\":[100,101]},\"unverified\":[\"Canvas_vs_Cosmic_text\",\"shadow_kernel\",\"full_image\",\"native\"]}"
 }
 
 ///|
@@ -128,12 +145,18 @@ pub fn pattern_metadata() -> String {
 ///|
 #export_name("pattern_frame_at_scale")
 pub fn pattern_frame_at_scale(width : Double,height : Double,widths : Array[Double],device_scale : Double,scale : Double) -> String {
-  // Initial comparison is deliberately source-sized and DPR1. No live resize parity.
-  if width != 600 || height != 600 || device_scale != 1 || scale != 1 {
-    return "{\"ok\":false,\"error\":\"unsupported_pattern_profile\"}"
+  // Live rendering is separate from the frozen numerical comparison profile.
+  // Preserve upstream's fixed 600x600 content, clipping to the actual viewport.
+  if !(width >= 1 && width <= 2048 && height >= 1 && height <= 2048 &&
+    device_scale >= 0.25 && device_scale <= 64 && scale >= 0.25 && scale <= 4) ||
+    (width * scale).ceil() > 2048 || (height * scale).ceil() > 2048 ||
+    (width * scale).ceil() * (height * scale).ceil() > 1048576 ||
+    ((width * scale).ceil() / scale * scale).ceil() != (width * scale).ceil() ||
+    ((height * scale).ceil() / scale * scale).ceil() != (height * scale).ceil() {
+    return "{\"ok\":false,\"error\":\"invalid_pattern_viewport\"}"
   }
   if widths.length() != 2 || widths.any(value => !(value > 0 && value < 590)) {
     return "{\"ok\":false,\"error\":\"invalid_metrics\"}"
   }
-  present(canonical_scene(prepare(widths,device_scale),width,height,scale,device_scale))
+  present(live_scene(prepare(widths,device_scale),width,height,scale,device_scale),device_scale,width,height)
 }
