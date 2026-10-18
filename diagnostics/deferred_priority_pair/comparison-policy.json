@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-flat-deferred-priority-native-pair",
+  "comparison_policy": "actual-rust-box-paint-entry-to-actual-core-scene-command-projection-v1",
+  "case_count": 16,
+  "geometry_allowance_logical_px": 0.0009765625,
+  "physical_grid_allowance_px": 0.0009765625,
+  "order_and_ids_allowance": 0,
+  "requested_scales": [
+    1,
+    1.25
+  ],
+  "bootstrap_scale": 2,
+  "operation_policy": "Validate every raw frame, then compare each operation final observed geometry and paint projection; use preceding observed frame for a no-redraw input operation. Never pair redraw counts.",
+  "mapped_boxes": [
+    "ordinary.before",
+    "ordinary.after",
+    "a.root",
+    "a.first",
+    "a.second",
+    "b.root",
+    "b.first",
+    "b.second",
+    "c.root",
+    "c.first",
+    "c.second"
+  ],
+  "source_projection": "Filter actual Rust paint-entry callbacks by authored box labels. Compare with actual candidate Quad commands in emission order, retaining command.id() and genuine tree bounds. Transparent authored boxes retain zero-alpha Quad commands. Projection is source-derived; Rust trace is not a scene-primitive dump.",
+  "unmapped_structure": "Retain all actual Rust request_layout/prepaint/paint entry+return callbacks and candidate helper/attachment nodes. Candidate core has no corresponding per-node lifecycle callback API; no callback parity claim. Extra candidate zero-size positioning/reference wrappers are explicit and never compared as Rust callbacks.",
+  "input_policy": "Retain every Rust mouse_down callback and actual candidate hit_test, dispatch_input, dispatch_input_with callback visits for both down/up. Report per-operation side-by-side callback/route differences with input_parity_established=false, regardless of coincidental target agreement. Do not emulate GPUI listener occlusion or stop_propagation in the candidate.",
+  "input_gaps": [
+    "GPUI reverse-prepaint hitbox occlusion",
+    "GPUI reverse-paint multiple listener callbacks",
+    "GPUI propagation stop",
+    "core keeps existing reverse-paint topmost hit and structural capture/bubble routing"
+  ],
+  "regression_gate": [
+    "same-final-core original 24 anchor cases",
+    "same-final-core separate 2 fractional-viewport anchor cases",
+    "same-final-core 88 margin cases"
+  ],
+  "production_controls": [
+    "wrong-priority-order",
+    "unstable-priority-ties",
+    "interleaved-deferred-subtrees"
+  ],
+  "control_gate": "Reopen source-bound ordinary pair and all same-core regressions before each control. Compile genuine isolated one-site production mutants. Require successful build, execution, exact input/token transport and structurally valid trace, then exact predeclared paint_order mismatch witnesses. Build/runtime/transport/validation failure is not a semantic kill.",
+  "scope_exclusions": [
+    "nested deferred",
+    "arbitrary content or geometry",
+    "unchanged full popover",
+    "outside-click",
+    "cached/reused views",
+    "raster",
+    "native-window",
+    "browser",
+    "lifecycle callback parity",
+    "input callback parity"
+  ],
+  "approved_actual_rust_review_sha256": "55f7683818d82eea95376837121c26b7f964ab0fbfafef250ff1bc237d7c7273"
+}

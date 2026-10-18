@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "revision": 2,
+  "core": "d762fc0624d662289fc4ff2e1d1e032b9bcce844",
+  "previous_profile_sha256": "2f1df52df96e6dfd4e5ff7fad1b3e379a2eba8e1c5fcf0978746884011d90ad1",
+  "profile_sha256": "c187cdb3fa3c9b5a50b18ae2984af0889390708372e16e62eafa560169b799d7",
+  "changes": [
+    {
+      "control": "wrong_color_space",
+      "previous_replace": "let (red, green, blue) = match if self.space == Oklab { Srgb } else { self.space } {",
+      "replace": "let (red, green, blue) = match (if self.space == Oklab { Srgb } else { self.space }) {",
+      "reason": "MoonBit requires parentheses around an if-expression match subject. Compile-only preflight failed; no mutant runtime executed. Same forced sRGB behavior for Oklab.",
+      "semantic_predicates_changed": false
+    }
+  ],
+  "numeric_budgets_changed": false,
+  "scope": "Historical local d762 syntax-only compile preflight; original profile hashes are intentionally retained",
+  "final_public_profile": {
+    "candidate": {
+      "repository": "gpui-mbt/gpui.mbt",
+      "revision": "89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a",
+      "tree": "dd5612a412d251b468c358a25baa0b0dd592c807"
+    },
+    "profile_sha256": "9b025ab629870876c40344fbbc7dc058bb700c63f444ef25a04026c5c2a271f5",
+    "controls_unchanged_since_syntax_revision": true,
+    "numerical_comparators_unchanged": true
+  }
+}

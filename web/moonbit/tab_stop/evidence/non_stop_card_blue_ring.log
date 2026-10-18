@@ -1,0 +1,4 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:379 ("blue three-pixel focus is modality independent while non-stop card remains one-pixel") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:390:3-390:55@f4ah6o/gpui FAILED: `3 != 1`
+diff:
+-3 +1
+Total tests: 18, passed: 17, failed: 1.

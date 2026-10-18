@@ -1,0 +1,21 @@
+{
+  "id": "focus_visible",
+  "source": "crates/gpui/examples/focus_visible.rs",
+  "source_blob": "c5b3d5dfec3a189d088a621baff55eb55a121b6c",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "width": 800,
+  "height": 600,
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "record_scope": "Historical Rust-only baseline introduced at PR47 public head f7974606caa91a4de7bee4283961c1d770970a05; current implemented catalog and paired evidence have separate provenance.",
+  "observation": "actual browser screenshots and trusted pointer/keyboard delivery; no exported Rust focus state",
+  "unverified": [
+    "MoonBit comparison",
+    "text rasterization parity",
+    "native renderer parity",
+    "other DPRs or viewport sizes",
+    "nested tab groups",
+    "touch input"
+  ]
+}

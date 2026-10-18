@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "layer": "supplemental-font-free-grid-semantic-pair",
+  "candidate_repository": "gpui-mbt/gpui.mbt",
+  "candidate_commit": "aafa754affa049c1eaf69c75c1d04c5d895d3677",
+  "candidate_tree": "a6d5e8a048b6b4bc4a9f30912d8edf93581a8bd9",
+  "upstream_repository": "zed-industries/zed",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "approved_fixture_sha256": {
+    "adapters/grid_layout_rust/Cargo.toml": "fe333f7e3b3df9fdc03bfbeeed72d20079ea862888e190714c93f24c5915535c",
+    "adapters/grid_layout_rust/Cargo.lock": "3eb469deaded5c933d31d905ba74bace0648fc32eaf5c147118a02f32b259a96",
+    "adapters/grid_layout_rust/src/main.rs": "27b5fc4a21ab08f638a00589871f1f8499b044a200aff79cf5ebbaa8ad959f6e",
+    "diagnostics/grid_layout/scenarios.json": "c20f1e56d99ce9600c218d0d7ad49de1e8b56c9a0317ee63bf9e1e9936655c89",
+    "diagnostics/grid_layout/witnesses.json": "ef41b645a0ae8c28cbd4d7ad953218a7c08dcab41746fc32ee793335825d9f1c",
+    "diagnostics/grid_layout/raw.schema.json": "054338778f35c3382b6bb44a3494aff3e467701b8d990f4934a639a9dc83d836",
+    "diagnostics/grid_layout/run.py": "7761924343f0110350623a2ae090af288d1e6bf21295c21d56378e1cce9a38d4",
+    "diagnostics/grid_layout/verify.py": "0ddb18a96dd6e5c025f5667938e6a236d39e58fe8a21c6ed089909fc42280b7b",
+    "diagnostics/grid_layout/README.md": "d449f948a542669bb6b2463e8e70ceb56f80d1b76a9ca215f3075b7d8ddb247c",
+    "tests/test_grid_layout_diagnostic.py": "056b7b372f1c2895743ee1a2bef61eb00ef83a278d2579e84fbf280e309ba8a8",
+    ".github/workflows/grid-layout-diagnostic.yml": "f3df569e1e010b9d13c7dd71e148ae0575add8496645f937cb9d3b5a30ed3317"
+  },
+  "supported_cases": 12,
+  "unsupported_cases": {
+    "explicit-collision": "explicit-grid-line-placement"
+  },
+  "limits": [
+    "font-free bounded supplementary fixture only",
+    "initial Rust test-platform scale2 and configured scale1/1.25/2 both observed",
+    "every raw frame validated; final operation states compared without imposing redraw counts",
+    "candidate actual input routes compared to Rust leaf callbacks; no native click-session claim",
+    "no unchanged example, fonts, screenshots, browser pixels, OS events or backend conformance"
+  ],
+  "initial_twelve_case_rust_evidence": {
+    "run_id": 38982997354,
+    "job_id": 117247933266,
+    "artifact_id": 12082311036,
+    "artifact_sha256": "b6c32507f2474db19116ecb238856772201f7f3f7a52d68c25a3f9e955650130",
+    "status": "success; immutable separate first baseline, not extended 13-case evidence",
+    "suite_commit": "407d12b683f2c7d0afa0edc6cb47b6c827c0614f",
+    "suite_tree": "36120e3eb18d2c624c578c14e648922995820cea"
+  }
+}

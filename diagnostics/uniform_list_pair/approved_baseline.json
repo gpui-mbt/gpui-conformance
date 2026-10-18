@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "suite_commit": "0e9b32f2e8d69c18262ba23d86b101c6e92b43b6",
+  "suite_tree": "93cc9ec841a66c0b6cc88597db540ba9cc25d0d3",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "run_id": 38968060005,
+  "artifact_id": 12075667392,
+  "artifact_zip_sha256": "b86bd34f1c4b763c2c5a9908355254ce04f13ff4515c8a9a8a2a7c742ffc4658",
+  "files": {
+    "manifest.json": "de251d7e80e3e53ffb8f258fc6ef826ca44048f6faf54dcd658762e96a917e48",
+    "raw.json": "23c70cdb9f668f31200fcf89babe52a795d83cecc5a123de10880334d2d2b4e7",
+    "scenarios.json": "840c3f22d61fc37e3f52d4a6db73e22e6abd2a2dd6eaa9fb3bd011ec599ca794",
+    "probe": "2df6ede8f710d319602378c6c56996867fc1307690767721a7fa3a95b80dfdce"
+  }
+}

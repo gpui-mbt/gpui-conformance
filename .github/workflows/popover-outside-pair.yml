@@ -1,0 +1,100 @@
+name: Supplemental source-bound popover outside pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/popover_outside_moonbit/**'
+      - 'diagnostics/popover_outside_pair/**'
+      - 'tests/test_outside_pointer_pair.py'
+      - '.github/workflows/popover-outside-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: popover-outside-pair-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  actual-popover-outside-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: d24cf54f770bd8146944a6e13b7aead7a6a7115a
+          path: _build/oracle-source
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: e2f7a23d65702b9b21d7bf654d1168afb4841648
+          path: _build/core-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/zed-source
+          persist-credentials: false
+      - name: Check unchanged tests against exact oracle source
+        working-directory: _build/oracle-source
+        run: python3 -m unittest discover -s tests -p 'test_popover_outside*.py' -v
+      - name: Check new pair contracts against pair source
+        env:
+          POPOVER_CORE_SOURCE: _build/core-source
+          POPOVER_ORACLE_SOURCE: _build/oracle-source
+        run: python3 -m unittest discover -s tests -p 'test_outside_pointer_pair.py' -v
+      - name: Install compilers and Linux link dependencies
+        run: |
+          set -o pipefail
+          mkdir -p _build/popover-pair-logs
+          python3 -c 'import shutil; assert shutil.disk_usage(".").free > 9*1024**3, "Need build headroom above strict disk floor"'
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/popover-pair-logs/install-moon.sh
+          bash _build/popover-pair-logs/install-moon.sh 2>&1 | tee _build/popover-pair-logs/moon-install.log
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Test exact published core element package
+        run: |
+          set -o pipefail
+          (cd _build/core-source && moon test --target js -p f4ah6o/gpui/element) \
+            2>&1 | tee _build/popover-pair-logs/core-element-tests.log
+      - name: Compile and execute fresh immutable Rust oracle and MoonBit pair controls
+        run: |
+          set -o pipefail
+          python3 diagnostics/popover_outside_pair/run.py \
+            --core-source _build/core-source --oracle-source _build/oracle-source \
+            --upstream-source _build/zed-source --output _build/popover-outside-pair \
+            2>&1 | tee _build/popover-pair-logs/run.log
+      - name: Independently reopen complete evidence against external identities
+        run: |
+          python3 diagnostics/popover_outside_pair/evidence.py _build/popover-outside-pair \
+            --pair-source . --oracle-source _build/oracle-source --core-source _build/core-source \
+            --upstream-source _build/zed-source --pair-commit "$GITHUB_SHA" \
+            --pair-tree "$(git rev-parse HEAD^{tree})" --repository "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --recorded-execution-root "$GITHUB_WORKSPACE/_build/popover-outside-pair" \
+            > _build/popover-pair-logs/independent.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: popover-outside-pair-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            _build/popover-outside-pair
+            _build/popover-pair-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6

@@ -1,0 +1,5 @@
+[f4ah6o/gpui] test examples/conformance_tab_stop/tab_stop_wbtest.mbt:359 ("keyboard modality suppresses retained pointer hover and pending pointer click") failed: examples/conformance_tab_stop/tab_stop_wbtest.mbt:365:3-365:49@f4ah6o/gpui FAILED: `"You have clicked Button 1." != "Press `Tab`, `Shift-Tab` to switch focus."`
+diff:
+-"You have clicked Button 1."
++"Press `Tab`, `Shift-Tab` to switch focus."
+Total tests: 18, passed: 17, failed: 1.

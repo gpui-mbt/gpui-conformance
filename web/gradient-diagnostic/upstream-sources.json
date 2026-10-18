@@ -1,0 +1,46 @@
+{
+  "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "sources": [
+    {
+      "path": "crates/gpui/src/color.rs",
+      "sha256": "4292aa1a2bbc56b653aaef0702726325f8efb93f16226320519e257c3ba8a839",
+      "blob": "3bd893f99357051e1936f52e22c4c40d6dd24887"
+    },
+    {
+      "path": "crates/gpui/src/window.rs",
+      "sha256": "d85123a09e45761a3a60e196157caa5ceee0e61a9b4adfde484052a31eb4b64a",
+      "blob": "33fa14bfea6ebad50743d6d4014955d1055ef772"
+    },
+    {
+      "path": "crates/gpui/src/scene.rs",
+      "sha256": "3addca59aab12ca0e00acb1e39d652863a8904146db2e28192275660aa5b8880",
+      "blob": "be378132478d2a90d32e859614cf68c665535170"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/shaders.wgsl",
+      "sha256": "1d91f2c8a1958a241f1b659a4137c160592c8076b9be09049db4c9fb9a344529",
+      "blob": "718cb7595d86f73cd91a65bcbf42682004dbba4d"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/shaders_webgl.wgsl",
+      "sha256": "e037e884b829600c48babc8415f855fb8bda58c858348ad3a555f2db949bb6cf",
+      "blob": "bf5f629cf9d1478a774dfba892f97bd0ca77c7d4"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/wgpu_renderer.rs",
+      "sha256": "3d1f48b13e27ef2b9fff7c77d0046894f9904426900d44a1460aef021a7f6cc2",
+      "blob": "ff4af7d26e1e6706bdd02e0079fea46ace274086"
+    },
+    {
+      "path": "crates/gpui_wgpu/src/wgpu_context.rs",
+      "sha256": "9bffda417f4c9f515809d57b56f71906f68185437b533e2a62b5873c516c1f2d",
+      "blob": "4c55ef18e1ac14b08aa89e8d914beead68194b56"
+    },
+    {
+      "path": "crates/gpui_web/src/platform.rs",
+      "sha256": "a4190d13b740dfbbd8e2024dfa15bc0d8270410d6fb5bed567affda6d70224e3",
+      "blob": "0e15ad2da5958cfc359d41dcf726fc8afd003873"
+    }
+  ]
+}

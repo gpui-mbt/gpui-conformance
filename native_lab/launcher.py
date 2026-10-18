@@ -6,6 +6,7 @@ nor the Rust X11 window is a mock or an offscreen substitute. Failed setup
 and missing observations are unverified, never passing evidence.
 """
 import argparse
+import copy
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -259,11 +260,15 @@ def inspect_images(paths, pixel_case, scale):
             expected = point_color(pixel_case, x, y)
             samples.append({"xy": [x, y], "actual": list(actual) if actual else None,
                             "expected": list(expected), "matches_fixture": actual == expected})
+        unexpected = sum(
+            image.getpixel((x, y)) != point_color(pixel_case, x / scale, y / scale)
+            for y in range(height) for x in range(width)
+        )
         observations[role] = {
             "path": path.name, "sha256": sha256(path), "size": [width, height],
             "expected_size": list(expected_size),
-            "samples": samples, "fixture_match": image.size == expected_size and
-            all(s["matches_fixture"] for s in samples)
+            "samples": samples, "unexpected_pixels": unexpected,
+            "fixture_match": image.size == expected_size and unexpected == 0
         }
     if images["upstream"].size == images["moonbit"].size:
         a, b = images["upstream"], images["moonbit"]
@@ -276,7 +281,7 @@ def inspect_images(paths, pixel_case, scale):
     )
     return {"captures": observations, "different_pixels": diff_count,
             "same_sample_colors": same_samples,
-            "status": "pass" if same_samples and all(
+            "status": "pass" if diff_count == 0 and all(
                 obs["fixture_match"] for obs in observations.values()) else "mismatch"}
 
 
@@ -371,13 +376,16 @@ def run_visible(args, out, executables, manifest, scenarios, token):
                    if role == "moonbit" else ewmh_move_resize(windows[role]["id"], x, 40, width, height))
             for role, x in (("upstream", 40), ("moonbit", 80 + width))
         }
-        # The nested Weston client cursor is composited into the captured pixels, not GPUI's scene.
-        park = subprocess.run(["xdotool", "mousemove", "0", "0"],
+        # A root-only motion never sends Weston a leave if its seat starts at center.
+        enter = subprocess.run(["xdotool", "mousemove", "--sync", "--window",
+                                windows["moonbit"]["id"], str(width - 2), str(height - 2)],
+                               capture_output=True, text=True, check=False, timeout=5)
+        park = subprocess.run(["xdotool", "mousemove", "--sync", "0", "0"],
                               capture_output=True, text=True, check=False, timeout=5)
         manifest["pointer_park"] = {"command": ["xdotool", "mousemove", "0", "0"],
-                                    "returncode": park.returncode,
+                                    "returncode": park.returncode, "enter_returncode": enter.returncode,
                                     "stderr": park.stderr.strip()}
-        if park.returncode != 0:
+        if park.returncode != 0 or enter.returncode != 0:
             manifest["reasons"].append("could not park X11 pointer outside both captured viewports")
         first = wait_frames(logs, token, spawned, started_at, width, height, args.start_timeout)
         manifest["time_from_process_spawn_to_frame_poll_ms"] = first
@@ -453,6 +461,25 @@ def run_visible(args, out, executables, manifest, scenarios, token):
         shutil.rmtree(runtime)
 
 
+def classify_observation(manifest):
+    if manifest["reasons"] or manifest.get("resize", {}).get("status") != "pass":
+        return "unverified"
+    return manifest.get("pixels", {}).get("status", "unverified")
+
+
+def renderer_evidence(out):
+    result = {"physical_gpu_verified": False,
+              "LIBGL_ALWAYS_SOFTWARE": os.environ.get("LIBGL_ALWAYS_SOFTWARE"),
+              "GALLIUM_DRIVER": os.environ.get("GALLIUM_DRIVER")}
+    if shutil.which("glxinfo"):
+        info = subprocess.run(["glxinfo", "-B"], capture_output=True, text=True,
+                              timeout=10, check=False)
+        (out / "renderer.txt").write_text(info.stdout + info.stderr)
+        result["glxinfo_returncode"] = info.returncode
+        result["glxinfo"] = info.stdout
+    return result
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--upstream-source", type=Path, default=ROOT.parent / "zed-source")
@@ -463,6 +490,7 @@ def main(argv=None):
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--interactive", action="store_true")
     parser.add_argument("--negative-control", action="store_true")
+    parser.add_argument("--verify-negative-control", action="store_true")
     parser.add_argument("--build-timeout", type=int, default=1200)
     parser.add_argument("--start-timeout", type=int, default=20)
     parser.add_argument("--resize-settle", type=float, default=2.)
@@ -496,17 +524,31 @@ def main(argv=None):
                 manifest["reasons"].append("X11 execution prerequisites absent: " +
                                            ", ".join(missing or ["Linux DISPLAY"]))
             else:
+                manifest["platform"]["renderer"] = renderer_evidence(out)
                 run_visible(args, out, build, manifest, scenarios, token)
+                if args.verify_negative_control and not args.negative_control:
+                    negative_out = out / "negative-control"
+                    negative_out.mkdir()
+                    negative = copy.deepcopy(manifest)
+                    negative.update(status="unverified", negative_control=True, reasons=[],
+                                    processes={}, run_token=str(uuid.uuid4()))
+                    for key in ("pixels", "resize", "native_events", "windows",
+                                "alive_after_observation"):
+                        negative.pop(key, None)
+                    (negative_out / "scenarios.json").write_text(json.dumps(scenarios, indent=2) + "\n")
+                    negative_args = copy.copy(args)
+                    negative_args.negative_control = True
+                    run_visible(negative_args, negative_out, build, negative, scenarios,
+                                negative["run_token"])
+                    negative["status"] = classify_observation(negative)
+                    (negative_out / "comparison.json").write_text(json.dumps(negative, indent=2) + "\n")
         elif args.build_only:
             manifest["reasons"].append("build-only: visible X11 windows and GPU pixels not executed")
     except (OSError, ValueError, subprocess.SubprocessError, RuntimeError) as exc:
         manifest["reasons"].append(f"{type(exc).__name__}: {exc}")
     pixel = manifest.get("pixels", {}).get("status")
     resize = manifest.get("resize", {}).get("status")
-    if pixel == "mismatch":
-        manifest["status"] = "mismatch"
-    elif pixel == "pass" and resize == "pass" and not manifest["reasons"]:
-        manifest["status"] = "pass"
+    manifest["status"] = classify_observation(manifest)
     (out / "comparison.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(json.dumps({"status": manifest["status"], "reasons": manifest["reasons"],
                       "pixel_status": pixel, "resize_status": resize}))

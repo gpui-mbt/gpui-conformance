@@ -1,0 +1,118 @@
+name: Drag-drop source behavior pair
+on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - '.github/workflows/drag-drop-oracle.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: drag-drop-oracle-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  independent-source-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read unchanged source and reviewed current core pins
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import json, os
+          catalog = json.load(open('web/examples.json'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print('gpui=' + catalog['moonbit']['revision'], file=output)
+              print('zed=' + catalog['upstream']['revision'], file=output)
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.gpui }}
+          path: _sources/gpui
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.zed }}
+          path: _sources/zed
+          persist-credentials: false
+      - name: Install current site-preparation compiler and pinned PNG decoder
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o "$RUNNER_TEMP/install-moon.sh"
+          bash "$RUNNER_TEMP/install-moon.sh"
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          python3 -m pip install Pillow==12.0.0
+      - name: Validate current pair, host contracts and immutable packaging
+        run: |
+          node --test web/tests/*.test.mjs
+          python3 -m unittest discover -s web/tests -p 'test_drag_drop_png.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_rust_subset.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
+      - name: Build and unit-test the current source-pinned candidate site
+        run: |
+          mkdir -p _build/drag-drop-pair-evidence
+          python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed --out _build/drag-drop-browser-lab 2>&1 | tee _build/drag-drop-pair-evidence/moonbit-build.log
+      - name: Install fixed Rust toolchain and bindings generator
+        run: |
+          rustup toolchain install nightly-2026-10-14 --profile minimal --component rust-src --target wasm32-unknown-unknown
+          curl -fL --retry 3 https://github.com/wasm-bindgen/wasm-bindgen/releases/download/0.2.129/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl.tar.gz -o "$RUNNER_TEMP/bindgen.tar.gz"
+          echo "82d12bb940e2d4e72e0d5605387fc1b8ca179044e012b620f0ce4e7440e8320e  $RUNNER_TEMP/bindgen.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/bindgen.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/wasm-bindgen-0.2.129-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            _build/drag-drop-rust-target
+          key: drag-drop-rust-only-${{ runner.os }}-20261014-${{ steps.pins.outputs.zed }}-${{ hashFiles('web/rust/Cargo.lock') }}
+      - name: Build only the implemented drag-drop unchanged Rust subset
+        id: rust_build
+        env:
+          CARGO_BUILD_JOBS: '2'
+        run: |
+          mkdir -p _build/drag-drop-pair-evidence
+          python3 web/scripts/build_rust.py --upstream-source _sources/zed --site _build/drag-drop-browser-lab --target-dir _build/drag-drop-rust-target --implemented-example drag_drop 2>&1 | tee _build/drag-drop-pair-evidence/rust-build.log
+      - name: Install pinned browser test runner
+        id: browser_setup
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pw" --no-save playwright@1.56.1
+          "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Capture unchanged Rust independently with its own trusted 54-operation inputs
+        id: rust_capture
+        timeout-minutes: 15
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/drag-drop-pair-evidence
+        run: node web/tests/drag-drop-pair-browser.mjs _build/drag-drop-browser-lab
+      - name: Capture compiled MoonBit independently with its own trusted 54-operation inputs
+        id: candidate_capture
+        if: always() && steps.rust_build.outcome == 'success' && steps.browser_setup.outcome == 'success'
+        timeout-minutes: 15
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+          BROWSER_EVIDENCE: _build/drag-drop-pair-evidence
+        run: node web/tests/drag-drop-pair-browser.mjs _build/drag-drop-browser-lab --candidate
+      - name: Independently verify both retained PNG and runtime source profiles
+        if: always() && steps.rust_build.outcome == 'success' && steps.browser_setup.outcome == 'success'
+        timeout-minutes: 10
+        run: node web/tests/compare-drag-drop-results.mjs _build/drag-drop-pair-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: drag-drop-source-pair-evidence
+          path: |
+            _build/drag-drop-browser-lab
+            _build/drag-drop-pair-evidence
+          if-no-files-found: warn

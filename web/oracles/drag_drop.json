@@ -1,0 +1,24 @@
+{
+  "id": "drag_drop",
+  "source": "crates/gpui/examples/drag_drop.rs",
+  "source_blob": "8f038ef3308fee9b097e7289665c9fa47cd6945b",
+  "source_sha256": "4011afde7c64fac2559b78918e6fdabdc563fe9f7591c74425d72da906dcc47a",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "compatibility_revision": "d9afb21688e04f89d9e94d96d33eb530aef90886",
+  "compatibility_source_blob": "8f038ef3308fee9b097e7289665c9fa47cd6945b",
+  "width": 800,
+  "height": 600,
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Unchanged source-only WASM baseline, trusted independent browser input and original stable full-viewport PNGs. No candidate route in the matched catalog.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "full-image/text/native parity",
+    "native/global capture, touch and OS drag",
+    "foreign payloads, rejecting predicates, nested/overlapping targets",
+    "actual internal activation grip (visible offsets cancel)",
+    "other browsers/GPUs/viewports/DPRs"
+  ]
+}

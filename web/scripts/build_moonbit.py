@@ -6,6 +6,7 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tarfile
@@ -27,9 +28,28 @@ def check_source(path: Path, revision: str) -> None:
         raise ValueError(f"tracked source is dirty: {path}")
 
 
+def check_candidate_source(path: Path, pin: dict) -> None:
+    check_source(path, pin["revision"])
+    tree = pin.get("tree", "")
+    if not isinstance(tree, str) or not re.fullmatch(r"[0-9a-f]{40}", tree):
+        raise ValueError("candidate pin requires its exact Git tree")
+    if run(["git", "rev-parse", "HEAD^{tree}"], path, True) != tree:
+        raise ValueError("candidate source tree does not match its recorded pin")
+
+
+def moonbit_host_hashes(site: Path, host_sources: Path) -> dict[str, str]:
+    """Hash shipped transport/render modules, separately from compiled runtimes."""
+    paths = [Path("load-timing.mjs"), *[
+        Path("moonbit") / path.relative_to(host_sources)
+        for path in sorted(host_sources.rglob("*.mjs"))
+    ]]
+    return {str(path): hashlib.sha256((site / path).read_bytes()).hexdigest()
+            for path in paths}
+
+
 def build(gpui: Path, upstream: Path, out: Path) -> None:
     catalog = json.loads((WEB / "examples.json").read_text())
-    check_source(gpui, catalog["moonbit"]["revision"])
+    check_candidate_source(gpui, catalog["moonbit"])
     check_source(upstream, catalog["upstream"]["revision"])
     if out.exists():
         raise ValueError(f"output exists: {out}; select a new --out directory")
@@ -38,11 +58,15 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
     if digest != catalog["upstream"]["hello_world_blob"]:
         raise ValueError("upstream hello_world.rs does not match the recorded source blob")
     implemented = [example for example in catalog["examples"] if example.get("moonbit") == "implemented"]
+    implemented_sources = {}
     for example in implemented:
-        if example.get("source_blob"):
-            actual = run(["git", "rev-parse", f"HEAD:{example['source']}"], upstream, True)
-            if actual != example["source_blob"]:
-                raise ValueError(f"upstream source blob mismatch for {example['id']}")
+        actual = run(["git", "rev-parse", f"HEAD:{example['source']}"], upstream, True)
+        expected = example.get("source_blob")
+        if example["id"] == "hello_world":
+            expected = catalog["upstream"]["hello_world_blob"]
+        if actual != expected:
+            raise ValueError(f"upstream source blob mismatch for {example['id']}")
+        implemented_sources[example["id"]] = {"source": example["source"], "source_blob": actual}
     out.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="gpui-web-", dir=out.parent) as work:
         candidate = Path(work) / "candidate"
@@ -84,10 +108,12 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
                     "font_sha256_by_file": {name: hashlib.sha256((font_dir / name).read_bytes()).hexdigest()
                                             for name in ["IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf"]},
                     "implemented": list(runtimes),
+                    "implemented_sources": implemented_sources,
+                    "moonbit_host_files_sha256": moonbit_host_hashes(staging, WEB / "moonbit/site"),
                     "runtime_sha256_by_example": {name: hashlib.sha256(path.read_bytes()).hexdigest() for name, path in runtimes.items()}, "rust_bundled": False,
                     "comparison_status": "unverified", "moonbit_unit_tests": "passed"}
         (staging / "build-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-        check_source(gpui, catalog["moonbit"]["revision"])
+        check_candidate_source(gpui, catalog["moonbit"])
         check_source(upstream, catalog["upstream"]["revision"])
         shutil.copytree(staging, out)
     print(f"Built {out}; Rust comparison remains unverified")

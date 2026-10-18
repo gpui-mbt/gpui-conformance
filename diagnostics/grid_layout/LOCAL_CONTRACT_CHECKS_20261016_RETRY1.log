@@ -1,0 +1,18 @@
+test_bounds_origin_scale_mask_and_paint_corruptions (test_grid_layout_diagnostic.GridDiagnosticContracts.test_bounds_origin_scale_mask_and_paint_corruptions) ... ok
+test_bundle_source_elf_raw_and_corruption_guards (test_grid_layout_diagnostic.GridDiagnosticContracts.test_bundle_source_elf_raw_and_corruption_guards) ... ok
+test_callback_size_timing_and_count_corruptions (test_grid_layout_diagnostic.GridDiagnosticContracts.test_callback_size_timing_and_count_corruptions) ... ok
+test_ci_and_retention_are_separate_and_failure_preserving (test_grid_layout_diagnostic.GridDiagnosticContracts.test_ci_and_retention_are_separate_and_failure_preserving) ... ok
+test_curated_input_contract (test_grid_layout_diagnostic.GridDiagnosticContracts.test_curated_input_contract) ... ok
+test_hits_are_actual_callbacks_not_metadata (test_grid_layout_diagnostic.GridDiagnosticContracts.test_hits_are_actual_callbacks_not_metadata) ... ok
+test_invalid_input_is_bounded_and_unambiguous (test_grid_layout_diagnostic.GridDiagnosticContracts.test_invalid_input_is_bounded_and_unambiguous) ... ok
+test_lifecycle_and_sequence_corruptions (test_grid_layout_diagnostic.GridDiagnosticContracts.test_lifecycle_and_sequence_corruptions) ... ok
+test_machine_schema_covers_contract (test_grid_layout_diagnostic.GridDiagnosticContracts.test_machine_schema_covers_contract) ... ok
+test_multiple_frames_are_retained_without_fake_input_frame_counts (test_grid_layout_diagnostic.GridDiagnosticContracts.test_multiple_frames_are_retained_without_fake_input_frame_counts) ... ok
+test_raw_identity_corruptions (test_grid_layout_diagnostic.GridDiagnosticContracts.test_raw_identity_corruptions) ... ok
+test_rust_delegates_actual_public_apis_without_layout_solver (test_grid_layout_diagnostic.GridDiagnosticContracts.test_rust_delegates_actual_public_apis_without_layout_solver) ... ok
+test_synthetic_fixture_is_checker_input_only (test_grid_layout_diagnostic.GridDiagnosticContracts.test_synthetic_fixture_is_checker_input_only) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.136s
+
+OK

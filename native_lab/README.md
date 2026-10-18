@@ -20,9 +20,15 @@ for new Zed examples. A local X11 WM that implements EWMH is required.
 Windows are identified by *owned child PIDs*, not by matching an arbitrary
 window title. Weston is bound to its own XDG_RUNTIME_DIR/Wayland socket.
 The launcher can only terminate its own child process groups.
+The private Weston kiosk instance has one client, the owned MoonBit fixture;
+its captured X11 output belongs to Weston, not directly to the fixture PID.
+Rust frame_ready is a viewport-size poll, whereas MoonBit uses FrameCompleted;
+these observations are not equivalent renderer completion fences.
 
-A real GPU-backed compositor and window are used, but GL/EGL on CI can be
-software-rendered by Mesa llvmpipe. A screenshot and a FrameCompleted
+Native windows and a compositor are used. CI explicitly selects Mesa
+llvmpipe software rendering; it does not qualify a physical GPU.
+The report records software-selection environment variables and glxinfo output;
+physical_gpu_verified remains false. A screenshot and a FrameCompleted
 callback establish native presentation; they do not prove use of a physical
 GPU, equal GPU implementations, compositor color management, accessibility
 or physical input correctness. macOS and direct-Wayland modes are out of
@@ -73,22 +79,22 @@ successful live capture. This deliberately does not change fixture inputs.
 The report retains pinned source identities, SHA-256 of the fixture input,
 executable digests, independent build commands/logs, each owned PID,
 run-token-bound native event lines, X11 top-level IDs, initial placement,
-captured upstream.png/moonbit.png and their SHA-256 digests. It derives the
-three interior sample colors directly from actual screenshot bytes. Both
-implementations are checked against the shared fixture AND against each
-other, with full-frame RGB difference counts for diagnosis (edge
-antialiasing can legitimately vary by renderer). A first-frame callback
-is required from each actual native executable before capturing pixels.
-The X11 pointer is parked at root coordinate (0,0), outside both placed
-viewports, to avoid composited Weston cursor pixels contaminating the raw
-screenshot comparison. No pixel mask or image rewrite is applied.
+captured upstream.png/moonbit.png and their SHA-256 digests. It retains sample colors for diagnosis, but acceptance requires **every RGB
+pixel** in each image to match the shared rectangle fixture and the two images
+to agree with zero different pixels. This axis-aligned, integer-coordinate
+two-color fixture has no allowed antialiasing tolerance. A cursor overlay, even
+outside all sample points or identical in both images, fails this comparison.
+No pixel mask or image rewrite is applied. The pointer is moved into the owned
+Weston output and then outside it so Weston receives an actual enter/leave;
+the full-frame check remains authoritative if cursor parking is ineffective.
+A first-frame observation is required from each native executable.
 Build timing, launcher-observed first-frame timing, native events and
 window resize requests/results are separately reported.
 
 Exit 0 / pass requires two matching observed rendered fixtures and
 corresponding native resize events. Exit 1 / mismatch means observed pixels
 are inconsistent with the shared fixture or one another. Exit 2 /
-unverified covers missing display, child/window identification, failed
+unverified takes precedence over mismatch and covers missing display, child/window identification, failed
 build/launch, missing screenshot, incorrect or missing resize event,
 build-only, or interrupted manual mode. One passing contract test is
 never silently promoted into runtime evidence. The runner has no
@@ -102,9 +108,9 @@ client may also differ by window decorations; the actual captured
 viewport dimensions are checked and failure is retained. No input
 automation or accessibility claim is made.
 
-## Portable tests and actual native GPU checks
+## Portable tests and actual native software-rendered checks
 
-    python3 -m unittest discover -s tests -p 'test_native_lab.py' -v
+    python3 -m unittest discover -s tests -p 'test_native_lab*.py' -v
 
 These test contracts with synthetic fixture **images**, not native
 execution. In particular the negative control, mismatched capture
@@ -112,9 +118,20 @@ dimensions, absent GPU event, wrong run token and build-only result
 are tested. The optional Linux action additionally attempts to build
 both pinned engines, run Xvfb + Openbox + Weston, capture real frames
 and upload comparison.json plus build/runtime logs. CI marks missing native observations UNVERIFIED, retains all logs, and fails
-native qualification when real GPU evidence is absent. Portable tests passing
+native qualification when runtime evidence is absent. Portable tests passing
 alone never constitute a GPU pass.
-Do not mark this native slice verified until its own real run is pass.
+The live step must succeed; its errors are not ignored. The always-run classifier
+rejects missing, corrupt, unsupported, nonpassing or reason-bearing reports and
+recomputes comparison from retained image bytes, verifies frame/resize logs,
+image digests and resized dimensions. It also requires a separate live negative
+control (same builds/pins, fresh token), with an exact blue rectangle and no
+other pixel changes. Portable tests passing alone cannot satisfy these gates.
+
+    python3 native_lab/launcher.py --output _build/native-lab-run --online --verify-negative-control
+    python3 native_lab/classify.py _build/native-lab-run/comparison.json --require-negative-control
+
+Do not mark this native slice verified until its own retained-evidence gate passes.
+A software-rendered native pass is never a physical GPU qualification.
 
 ## Next qualifications (separate PRs)
 

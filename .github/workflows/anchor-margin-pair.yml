@@ -1,0 +1,130 @@
+name: Supplemental native anchor margin pair
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/anchor_margin_moonbit/**'
+      - 'diagnostics/anchor_margin_pair/**'
+      - 'tests/test_anchor_margin_pair.py'
+      - '.github/workflows/anchor-margin-pair.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anchor-margin-pair-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-source-bound-margin-pair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Require reviewed exact published core pin and frozen fixtures
+        id: pins
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, re
+          from pathlib import Path
+          p = json.load(open('diagnostics/anchor_margin_pair/profile.json'))
+          assert p['candidate_pin_status'] == 'published-exact-commit-tree', 'Core review/publication remains a hard gate'
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_commit'] or '')
+          assert re.fullmatch('[0-9a-f]{40}', p['candidate_tree'] or '')
+          for name, digest in p['approved_fixture_sha256'].items():
+              assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == digest, name
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('core=' + p['candidate_commit'], file=out)
+              print('upstream=' + p['upstream_commit'], file=out)
+          PY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: gpui-mbt/gpui.mbt
+          ref: ${{ steps.pins.outputs.core }}
+          path: _build/core-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: ${{ steps.pins.outputs.upstream }}
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install compiler and schema checker
+        run: |
+          mkdir -p _build/anchor-margin-pair-logs
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+          python3 -m pip install jsonschema==4.26.0
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh -o _build/anchor-margin-pair-logs/install-moon.sh
+          bash _build/anchor-margin-pair-logs/install-moon.sh
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+          echo "MOON_HOME=$HOME/.moon" >> "$GITHUB_ENV"
+      - name: Run unchanged and new checker regressions
+        run: |
+          python3 -m unittest discover -s tests -p 'test_anchor_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_pair.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_margin_diagnostic.py' -v
+          python3 -m unittest discover -s tests -p 'test_anchor_margin_pair.py' -v
+      - name: Compile and execute both unchanged actual Rust observers
+        run: |
+          set -o pipefail
+          python3 diagnostics/anchor_margin/run.py --online --upstream-source _build/upstream-source \
+            --output _build/anchor-margin-baseline 2>&1 | tee _build/anchor-margin-pair-logs/rust-margin.log
+          python3 diagnostics/anchor_margin/verify.py _build/anchor-margin-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/anchor-margin-pair-logs/rust-margin-independent.json
+          python3 diagnostics/anchor/run.py --online --upstream-source _build/upstream-source \
+            --output _build/anchor-original-baseline 2>&1 | tee _build/anchor-margin-pair-logs/rust-original.log
+          python3 diagnostics/anchor/verify.py _build/anchor-original-baseline \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/anchor-margin-pair-logs/rust-original-independent.json
+      - name: Compile margin pair and compatibility-derived frozen-corpus regressions
+        run: |
+          set -o pipefail
+          python3 diagnostics/anchor_margin_pair/run.py --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' --baseline _build/anchor-margin-baseline \
+            --regression-baseline _build/anchor-original-baseline --baseline-suite-source . \
+            --baseline-suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --output _build/anchor-margin-pair-evidence 2>&1 | tee _build/anchor-margin-pair-logs/native-pair.log
+          python3 diagnostics/anchor_margin_pair/verify.py _build/anchor-margin-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            > _build/anchor-margin-pair-logs/native-independent.json
+      - name: Reopen all ordinary passes before each compiled production control
+        run: |
+          python3 diagnostics/anchor_margin_pair/run_mutants.py --evidence _build/anchor-margin-pair-evidence \
+            --suite-source . --suite-commit "$(git rev-parse HEAD)" --upstream-source _build/upstream-source \
+            --core-source _build/core-source --core-commit '${{ steps.pins.outputs.core }}' \
+            --output _build/anchor-margin-mutants
+      - name: Independently reopen copied bundles and exercise rehashed forensic controls
+        run: |
+          cp -a _build/anchor-margin-pair-evidence _build/anchor-margin-pair-copy
+          cp -a _build/anchor-margin-mutants _build/anchor-margin-mutants-copy
+          python3 diagnostics/anchor_margin_pair/verify_mutants.py --evidence _build/anchor-margin-pair-copy \
+            --mutants _build/anchor-margin-mutants-copy --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' > _build/anchor-margin-pair-logs/copied-independent.json
+          python3 diagnostics/anchor_margin_pair/run_controls.py --evidence _build/anchor-margin-pair-evidence \
+            --mutants _build/anchor-margin-mutants --suite-source . --suite-commit "$(git rev-parse HEAD)" \
+            --upstream-source _build/upstream-source --core-source _build/core-source \
+            --core-commit '${{ steps.pins.outputs.core }}' --output _build/anchor-margin-forensic-controls
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-anchor-margin-pair-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/anchor-margin-baseline
+            _build/anchor-original-baseline
+            _build/anchor-margin-pair-evidence
+            _build/anchor-margin-mutants
+            _build/anchor-margin-forensic-controls
+            _build/anchor-margin-pair-logs
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30

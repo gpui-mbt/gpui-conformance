@@ -1,0 +1,113 @@
+[
+  {
+    "name": "disabled-fitting",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Make all shared right/left/bottom/top fitting corrections no-ops, at one contiguous production site.",
+    "required_witnesses": [
+      {
+        "case": "outer-only",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "inner-only",
+        "operation": "initial",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Outer-only A outer must be (216,160); inner-only A nested must fit independently. Both witnesses are required.",
+    "old": "  if x + size.width() > viewport.width() {\n    let correction = x + size.width() - viewport.width() + spec.margin\n    x -= correction\n    // Check before the opposite-edge correction can hide an overflow.\n    if !scroll_finite(correction) || !scroll_finite(x) {\n      return Err(GeometryFailure)\n    }\n  }\n  if x < 0.0 {\n    x = spec.margin\n  }\n  if y + size.height() > viewport.height() {\n    let correction = y + size.height() - viewport.height() + spec.margin\n    y -= correction\n    if !scroll_finite(correction) || !scroll_finite(y) {\n      return Err(GeometryFailure)\n    }\n  }\n  if y < 0.0 {\n    y = spec.margin\n  }\n",
+    "new": "  // Negative control: preserve mutable coordinates but disable every correction.\n  x += viewport.width() * 0.0\n  y += viewport.height() * 0.0\n"
+  },
+  {
+    "name": "separately-snapped-levels",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Snap inherited and relative levels separately before their sum instead of snapping the composed logical offset.",
+    "required_witnesses": [
+      {
+        "case": "signed-half-composed",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Signed-half A nested is approximately (27.2,32.8); separate snapping gives (26.4,33.6).",
+    "old": "let absolute = match inherited.translated(relative) {",
+    "new": "let absolute = match\n          inherited_snapped.translated(\n            scroll_translation(relative, ordinary.scale_factor).unwrap(),\n          ) {"
+  },
+  {
+    "name": "logical-half-toward-zero",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Round signed logical half ties toward zero instead of away from zero.",
+    "required_witnesses": [
+      {
+        "case": "signed-half-composed",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "signed-half-composed",
+        "operation": "initial",
+        "field": "bounds/b.root"
+      }
+    ],
+    "witness_explanation": "Both positive and negative logical half witnesses in A and B outer origins must reject.",
+    "old": "let rounded = (value.abs() + 0.5).floor()",
+    "new": "let rounded = (value.abs() - 0.5).ceil()"
+  },
+  {
+    "name": "device-half-away-from-zero",
+    "path": "element/scroll_viewport.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Round signed device half ties away from zero instead of toward zero.",
+    "required_witnesses": [
+      {
+        "case": "threshold-device-half",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Threshold A nested is approximately (25.6,34.4); wrong device ties give (26.4,33.6).",
+    "old": "let rounded = (value.abs() - 0.5).ceil() / scale",
+    "new": "let rounded = (value.abs() + 0.5).floor() / scale"
+  },
+  {
+    "name": "window-treated-local",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Interpret authored Window positions relative to the live local static origin.",
+    "required_witnesses": [
+      {
+        "case": "window-local",
+        "operation": "scale1.25",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Window A nested remains (80,96); the Local counterpart is (272,200).",
+    "old": "Window => spec.position",
+    "new": "Window =>\n      match static_origin.translated(spec.position) {\n        Ok(value) => value\n        Err(_) => return Err(GeometryFailure)\n      }"
+  },
+  {
+    "name": "owner-top-instead-of-live-reference-bottom",
+    "path": "element/anchored.mbt",
+    "scope": "rust-paired-nested-deferred-fitting-box-projection",
+    "predicate": "Use owner.top instead of the live first reference bottom when measuring each attachment.",
+    "required_witnesses": [
+      {
+        "case": "exact-inside",
+        "operation": "initial",
+        "field": "bounds/a.root"
+      },
+      {
+        "case": "signed-half-composed",
+        "operation": "reference-height",
+        "field": "bounds/a.nested.root"
+      }
+    ],
+    "witness_explanation": "Require both static ordinary-reference and nested reference-height 8 to 12 transition witnesses. Reference remains read only to preserve compilability under deny-warn.",
+    "old": "@primitives.Point::new(parent.left(), reference.bottom())",
+    "new": "@primitives.Point::new(parent.left(), parent.top() + reference.bottom() * 0.0)"
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "id": "grid_layout",
+  "source": "crates/gpui/examples/grid_layout.rs",
+  "source_blob": "51f9b13e41fb7913c653d716da3e8ce05a96109d",
+  "source_sha256": "c82663a8c48340464f70f96dfa60135f4cd3b48670882b7bc23a9ca787fb261e",
+  "upstream_revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "upstream_tree": "990fb995914d51a546b20e5cf0382dafc105c299",
+  "width": 500,
+  "height": 500,
+  "widths": [
+    399,
+    400,
+    401,
+    500
+  ],
+  "dpr": 1,
+  "status": "rust_oracle_only",
+  "candidate": "not_implemented",
+  "observation": "Original unchanged-source Rust screenshots at real browser viewport sizes, measured solid-color regions, source grid/span/gap and threshold invariants, reversible viewport resize.",
+  "unverified": [
+    "MoonBit counterpart/comparison",
+    "Text content, shaping or exact glyph pixels",
+    "Dashed border, rounded corner or shadow raster fidelity",
+    "Exact full-image or native parity",
+    "Internal container-query callback count, layout internals or hidden offscreen work",
+    "Other browsers/GPUs/viewports/DPRs"
+  ]
+}

@@ -1,0 +1,63 @@
+name: Supplemental actual GPUI anchor deferred semantics
+
+on:
+  pull_request:
+    paths:
+      - 'adapters/anchor_rust/**'
+      - 'diagnostics/anchor/**'
+      - 'tests/test_anchor_diagnostic.py'
+      - '.github/workflows/anchor-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: anchor-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  supplemental-headless-semantics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check input, trace and corruption contracts without compiling Rust
+        run: python3 -m unittest discover -s tests -p 'test_anchor_diagnostic.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: zed-industries/zed
+          ref: 5a5fbe79917971a4d52a96b6ddb04da198a5012e
+          path: _build/upstream-source
+          persist-credentials: false
+      - name: Install pinned compiler and Linux link dependencies
+        run: |
+          rustup toolchain install 1.98.1 --profile minimal
+          sudo apt-get update
+          sudo apt-get install -y clang lld cmake pkg-config libasound2-dev libfontconfig-dev libglib2.0-dev libssl-dev libwayland-dev libx11-xcb-dev libxkbcommon-x11-dev libvulkan1
+      - name: Build and run actual public GPUI APIs on test platform
+        run: |
+          set -o pipefail
+          mkdir -p _build/anchor-run-logs
+          python3 diagnostics/anchor/run.py --online \
+            --upstream-source _build/upstream-source \
+            --output _build/anchor-evidence \
+            2>&1 | tee _build/anchor-run-logs/run.log
+      - name: Independently reread retained source, ELF and raw lifecycle events
+        run: |
+          python3 diagnostics/anchor/verify.py _build/anchor-evidence \
+            --suite-commit "$(git rev-parse HEAD)" --suite-tree "$(git rev-parse HEAD^{tree})" \
+            --suite-source . --upstream-source _build/upstream-source \
+            > _build/anchor-independent-verification.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: supplemental-anchor-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            _build/anchor-evidence
+            _build/anchor-run-logs
+            _build/anchor-independent-verification.json
+          if-no-files-found: warn
+          retention-days: 30

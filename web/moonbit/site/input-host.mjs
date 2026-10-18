@@ -115,14 +115,27 @@ export function createInputHost({runtime, canvas, render, onError = error => con
     if (suppressFinalInput) {
       const duplicate = (event.inputType === 'insertFromComposition' ||
         event.inputType === 'insertText') && event.data === finalCompositionText;
+      if (duplicate) {
+        event.preventDefault();
+        // A non-cancelable beforeinput can still write to the textarea; do
+        // not discard the guard before its matching input is reconciled.
+        if (event.defaultPrevented) {
+          suppressFinalInput = false;
+          finalCompositionText = '';
+        }
+        return;
+      }
       suppressFinalInput = false;
       finalCompositionText = '';
-      if (duplicate) { event.preventDefault(); return; }
     }
     if (event.inputType === 'insertText' && event.data != null) {
       event.preventDefault();
-      mutate(() => runtime.input_insert(event.data), 'insertText');
-      record('insertText', {text:event.data, trusted:event.isTrusted});
+      // Do not send non-cancelable beforeinput to MoonBit here: native DOM
+      // insertion will be forwarded once by the input fallback.
+      if (event.defaultPrevented) {
+        mutate(() => runtime.input_insert(event.data), 'insertText');
+        record('insertText', {text:event.data, trusted:event.isTrusted});
+      }
     }
   });
   editor.addEventListener('input', event => {

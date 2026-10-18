@@ -14,7 +14,7 @@ Source: `zed-industries/zed`, revision
 The MoonBit implementation is `moonbit/hello_world/hello_world.mbt`. It uses
 **gpui.mbt Element → request_layout → prepaint → SceneSnapshot**, rather than a
 JavaScript recreation of the demo or hardcoded layout results. The candidate
-library is pinned to `01818aa4e96fc21d1676f747a6b23d91445648a1` in
+library is pinned to `fc53cb382c66f68bfc1b3e1cc72d01056cd3c625` in
 `examples.json`; native/headless `pins.json` remains untouched.
 
 The port retains the 500×500 logical viewport, gray background, centered
@@ -43,9 +43,9 @@ Plex Sans faces as upstream (the closest bundled bold face is SemiBold).
 
 `moonbit/text_layout/text_layout.mbt` constructs a real gpui.mbt Element tree
 and emits SceneSnapshot text items and clip chains. Browser-measured text widths
-are inputs; candidate layout computes the positions. Because this pinned gpui.mbt
-only has start/center/end justification, a flexible spacer composes the two-box
-`justify_between` layout. This is an example port, not a new library API claim.
+are inputs; candidate layout computes the positions. A flexible spacer still composes the two-box `justify_between` layout, as
+required by the older candidate pin when this port was introduced. This port
+does not exercise the newer core distributed-justification API.
 Font metrics, weight/style, and decoration drawing are explicit Canvas host
 extensions. Decoration formulas follow the pinned GPUI text renderer, but font
 shaping, rasterization, exact pixel equality and native parity remain unverified.
@@ -116,9 +116,9 @@ and the remaining six runs use 20-pixel text in 32-pixel line boxes.
 `moonbit/text_wrapper/text_wrapper.mbt` makes the wrapping and elision
 decisions in MoonBit from browser-measured font inputs. It builds gpui.mbt
 Elements and uses request_layout → prepaint → SceneSnapshot for the final
-text items, boxes and clipping. The pinned candidate
-`01818aa4e96fc21d1676f747a6b23d91445648a1` has no text-wrapping API, so this
-is an example-local algorithm rather than a library capability claim.
+text items, boxes and clipping. The original candidate
+`01818aa4e96fc21d1676f747a6b23d91445648a1` had no text-wrapping API; this remains
+an example-local algorithm rather than a library capability claim.
 The host segments with `Intl.Segmenter('und', { granularity: 'grapheme' })`
 and measures individual grapheme advances, whole-string prefix widths, and
 the 16/20-pixel ellipsis widths. It does not choose line breaks. MoonBit uses
@@ -235,25 +235,83 @@ Paired acceptance currently runs at DPR 1. A DPR 2 attempt was rejected because
 the pinned Rust backing canvas stayed 300×300 while the candidate was 600×600;
 no resampling is permitted and DPR 2 equivalence remains unverified.
 
+## Implemented port: `scrollable`
+
+The unchanged upstream `scrollable.rs`, blob
+`c81795618875aecf06e06043bd1709c48630b58f`, supplies the nested 500×500 example.
+The real core integration in the candidate pin supplies `with_scroll_offset`,
+`scroll_viewport`, and `scroll_wheel`: direct-child padded limits, same-delta
+ancestor routing, prepaint clamping, device-snapped descendant translation,
+scene clips, and half-open clipped pointer hit tests. Offsets, pointer state,
+hover selection, and layout live in MoonBit. JavaScript transports finite pixel
+wheel/pointer input and paints the resulting scene; it owns no scroll offsets
+or hit boxes. Three short text widths remain explicit host font inputs.
+
+The source's anonymous green child has a subtle repaint rule. Actual initial
+Rust execution produced identical full screenshots after moving the pointer
+inside it. Source inspection confirmed anonymous elements have no retained
+hover-state notification. A real nonzero wheel notifies the identified scroll
+ancestor before prepaint clamps its offset; even a top-clamped upward wheel can
+therefore repaint the hover style without changing layout. The candidate
+retains pointer input without requesting presentation and follows that same
+rule. The failed move-only assumption and untouched screenshots remain part of
+the initial PR44 artifact history, rather than being patched out of Rust.
+
+Both independent profiles use a direct 500×500 DPR1 viewport, delivered trusted
+input, and complete retained screenshots. They measure initial border geometry,
+horizontal and ancestor vertical ink displacement, clipped padding strips,
+hover after a genuine redraw, both endpoints, and exact within-runtime recovery.
+The paired comparator compares those observed behaviors and reports fill-color
+differences explicitly. It does not compare text rasterization, fabricate Rust
+private offsets, or infer full pixel/native parity. Intentionally corrupted
+evidence must fail the comparator. The unchanged-Rust baseline passed all 16
+wheel operations and nine rejection controls in CI run 38892398129; final
+paired qualification is recorded separately by the retained CI artifact.
+Source-derived unit tests alone do not qualify it.
+
+`web/oracles/scrollable.json` retains the historical Rust-only baseline record.
+The current normal build takes scrollable from the implemented catalog; adding
+it again with `--extra-example scrollable` is rejected as a duplicate. The
+historical extra-oracle path is still independently tested. The engine-wide
+compatibility pin is unchanged, and neither this port nor its source snapshot
+claims arbitrary viewport, DPR, line/page wheel, native, or GPU equivalence.
+
 ## Upstream example inventory
 
 Checked 2026-10-16 against upstream main
 `32b16ce2ada96ba86c9052e456a2642102b39b7a` and the existing browser pin
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e`. Both contain the same **41 top-level
 Rust example files**, with identical blob IDs. This count excludes asset/support
-subdirectories. Six of these now have browser counterparts: hello_world, text,
-text_layout, text_wrapper, input and tree. The two additional counterparts,
+subdirectories. Eleven of these now have source-derived browser counterparts: hello_world, text,
+text_layout, text_wrapper, input, tree, scrollable, focus_visible, tab_stop, drag_drop and uniform_list. The two additional counterparts,
 dynamic_fonts and Prime sieve, live under `crates/gpui_web/examples/hello_web`.
-Eight catalog entries therefore do **not** mean all upstream examples are covered.
+The catalog has thirteen counterparts, each retaining its own verification status. Thirteen
+entries therefore do **not** mean all upstream examples are covered.
 
-The remaining 35 top-level examples are: a11y, active_state_bug, anchor,
-animation, data_table, drag_drop, focus_visible, gif_viewer, gradient,
+The remaining 30 top-level examples are: a11y, active_state_bug, anchor,
+animation, data_table, gif_viewer, gradient,
 grid_layout, image_gallery, image_loading, layer_shell, list_example,
 mouse_pressure, move_entity_between_windows, on_window_close_quit, opacity,
-ownership_post, painting, paths_bench, pattern, popover, scrollable, set_menus,
-shadow, system_notifications, tab_stop, testing, toggle_headless, uniform_list,
+ownership_post, painting, paths_bench, pattern, popover, set_menus,
+shadow, system_notifications, testing, toggle_headless,
 window, window_movable, window_positioning and window_shadow. These are an
 inventory of missing counterparts, not unsupported-feature verdicts or passes.
+
+The unchanged `tab_stop.rs` has a source-derived MoonBit candidate using genuine
+core group-prefix traversal and owner-preserving geometry refresh. See
+[moonbit/tab_stop/README.md](moonbit/tab_stop/README.md) for source lowering,
+input contracts and local tests. Historical Rust-only discovery retains its own
+original source/executable/PNG provenance in [TAB_STOP_ORACLE.md](TAB_STOP_ORACLE.md).
+The new candidate has no paired browser or native qualification yet.
+
+The unchanged `drag_drop.rs` now has a typed core `DragSession` candidate, with
+real source layout and one-shot drop delivery, signed preview placement, and an
+explicit Canvas `shadow_md` extension. See [moonbit/drag_drop/README.md](moonbit/drag_drop/README.md)
+and [DRAG_DROP_PAIR.md](DRAG_DROP_PAIR.md). The independently verified Rust-only
+baseline remains immutable; the active pair requires fresh original screenshots
+and trusted input from both current runtimes. Catalog entries remain unverified
+unless their own measurements are explicitly published. Full-image/text/native
+and GPU shadow-kernel parity are not claimed.
 
 ## Build and verify the actual pairs
 
@@ -359,6 +417,74 @@ overwrite the existing published site. Once a Cloudflare URL exists, an
 existing Pages site can link to it as a top-level navigation. An unisolated
 Pages iframe is not presented as a working shared-memory runtime host.
 Neither workflow runs deployment on push or pull request.
+
+### Parallel builds and verified artifact assembly
+
+The reusable `browser-examples.yml` workflow first records one clean lab
+commit and tree, the complete catalog and its dependency revisions, and the
+catalog/Cargo.lock SHA-256 values. Every later job checks out that exact lab
+commit and verifies the common input artifact against the SHA-256 passed
+through the pin job's outputs. Pull requests therefore use one frozen merge
+commit even if the branch advances while the jobs are queued.
+
+The MoonBit and Rust jobs both depend only on the pin job. Host/catalog
+contracts, immutable packaging tests and all MoonBit compilation/unit tests
+run on the MoonBit runner while the Rust runner prepares the unchanged
+upstream package and builds its full implemented catalog. Rust uses its own
+intermediate manifest; that artifact does not claim a MoonBit build or a
+successful browser comparison. Both build artifacts retain the original
+manifest and SHA-256 values for every shipped file.
+
+The `matched-examples` job requires both build jobs to succeed. Before it
+starts a browser, `web/scripts/browser_build_artifacts.py merge` validates
+both artifacts against the current pinned checkout, the input digest,
+dependency revisions, implemented examples and recorded file hashes. It
+rejects missing, changed or mismatched artifacts before assembling the
+existing `_build/browser-lab` layout with both runtimes on one origin. Input
+and build provenance are retained in `browser-example-evidence`; assembly
+leaves comparison status unverified until the existing browser commands run.
+Each isolated image-comparison runner installs the same pinned Pillow version.
+
+Artifacts are scoped to the current workflow run. A failed-job rerun may use
+successful artifacts from an earlier attempt of that run only when their
+common pinned inputs still match. It cannot borrow an artifact from another
+run or relabel a different source revision. Intermediate artifact names are
+separate from the final `browser-example-evidence` artifact consumed by the
+manual Cloudflare workflow. The existing publication branch, credentials,
+environment, full-workflow-success and result checks remain required.
+
+Measure changes from the Actions run's `run_started_at` to the final
+comparison job's `completed_at`, including pin-job startup, build-job
+startup, artifact uploads/downloads, assembly and verification. Compare
+catalog/lock digests, source pins, compiler versions, cache hit/miss and
+runner image before interpreting a difference. The sum of individual job
+durations measures runner use; it is not the elapsed time when jobs overlap.
+Observed timings and run links are recorded in the implementation PR.
+
+Measured 15-example historical comparison: cache-HIT serial 10m41s (641s) vs
+cache-HIT parallel 8m32s (512s), 129s / 20.12% observed reduction. Rust and
+MoonBit completed on separate runners and the critical path included artifact
+handoff. The comparison had one serial and two parallel observations across
+non-identical runner regions; it is not a normalized benchmark. After main
+adds the 16th gradient example and changes source pins, remeasure on a matched
+16-example serial baseline rather than transplanting that 20.12% rate.
+
+The reused Browser example ports workflow reports the Rust and MoonBit
+scrollable/focus-visible captures and retained-image comparisons as separate
+steps, so Actions exposes their elapsed times. Screenshot analysis still
+decodes each complete PNG with Chromium's `Image.decode`, `drawImage` and
+`getImageData`. The test runner transfers those RGBA bytes as one base64
+string instead of serializing a JavaScript number for every channel. This
+preserves the complete pixel buffer, stable-frame checks, source identity,
+trusted inputs and independent Pillow rechecks of the saved PNGs.
+
+`node web/tests/screenshot-rgba-browser.mjs` compares the new transport with
+the previous numeric-array path in real Chromium and retains full-buffer
+hashes and per-path timings in
+`_build/browser-example-evidence/screenshot-rgba-transport.json`. Timings are
+observations on that runner; a speed threshold is not a correctness gate.
+The manual deploy continues to build and pass the full browser workflow
+before publishing its compiled artifact.
 
 Current execution evidence and deployment status are recorded in the PR.
 The original [2026-10-15 results](RESULTS_20261015.md) are retained as the
@@ -500,9 +626,100 @@ boundaries instead, so grapheme movement equivalence (combining marks and
 ZWJ emoji) is **UNVERIFIED**. `TextField` owns undo/redo; these shortcuts
 are an additive candidate behavior absent from this upstream example.
 
+The IME host suppresses post-`compositionend` duplicate text only after
+reconciling the corresponding browser edit. For cancelable `beforeinput`, a
+successful `preventDefault()` allows the guard to be cleared immediately;
+for non-cancelable `beforeinput`, the guard survives until `input` has
+consumed the browser textarea value. Ordinary non-cancelable `insertText`
+also passes through `input` only, never both delivery callbacks.
+`web/tests/input-ime-host.test.mjs` exercises those paths with a mock
+TextField boundary; the paired `candidate-browser.mjs` also runs them in
+actual Chromium against the **compiled MoonBit TextField**. These are synthetic
+DOM IME event sequences, distinct from actual Japanese IME integration.
+
 Synthetic Chromium composition event tests cannot activate a genuine
 Japanese IME or validate its candidate window, platform-specific selection
 reporting, or keyboard-layout changes. Actual Japanese IME, Rust–MoonBit
 interactive equivalence, exact pixel matching, font shaping and native
 composition behavior remain **UNVERIFIED**. Recorded independent browser
 runtime behavior must be distinguished from these boundaries.
+
+## Implemented port: `focus_visible`
+
+The unchanged upstream `focus_visible.rs`, blob
+`c5b3d5dfec3a189d088a621baff55eb55a121b6c`, has a core-backed MoonBit counterpart
+in [moonbit/focus_visible](moonbit/focus_visible/README.md). Its 800×600 layout,
+three source buttons, yellow/green 4px rings, exact messages and source event
+rules are retained. A persistent input ElementTree owns focus acquisitions,
+signed flat tab order, routing and Mouse/Keyboard modality; fresh paint trees
+never borrow that ownership. JavaScript transports events and shaped widths.
+Rounded strokes, font selection/measurement and rasterization remain explicit
+Canvas host boundaries, including the source's weight700 request.
+
+The independent Rust-only baseline was introduced at public head
+`f7974606caa91a4de7bee4283961c1d770970a05`. Its source record is retained with
+historical scope, not relabeled as candidate evidence. The current normal build
+compiles both catalog entries and rejects a duplicate `--extra-example` request.
+The shared trusted-input profile and decoded-image comparator test bounded
+focus, hover, traversal and activation behavior independently for each renderer.
+Actual paired execution is pending; neither candidate diagnostics nor unit tests
+establish it. Source provenance and baseline boundaries are described in
+[FOCUS_VISIBLE_ORACLE.md](FOCUS_VISIBLE_ORACLE.md).
+
+Full-image/text equality, native rendering, nested tab groups, touch, pointer
+capture, arbitrary viewport/DPR changes and complete keymap semantics remain
+unverified. No preview or result from another example is borrowed for this port.
+
+The opt-in [unchanged drag/drop Rust-only baseline](DRAG_DROP_ORACLE.md) has a
+separate source-profile workflow and no matched candidate/gallery entry. Its
+introduction is static/mock contract coverage; actual unchanged WASM observations
+must be established by that workflow before candidate or core behavior changes.
+
+### Uniform list: scoped placement evidence and typography limitation
+
+The source-derived `uniform_list` candidate uses genuine core `UniformList`
+prototype measurement, lazy range construction, full scroll extent, clipped
+input routing and stable row IDs. Browser prefix measurement and Canvas glyph
+rasterization remain explicit host boundaries. The unchanged Rust example is
+compared separately from the supplemental font-free GPUI range/click probe.
+
+The strict text-envelope predicate is preserved: the local paired diagnostic
+finds a one-pixel right-ink-edge difference for Items 3, 5, 6, 7 and 9. Its
+failed output is retained; it is not a passed strict text comparison. A separately
+named placement/scroll/clip profile checks exact row ink-left origins, vertical
+bands, scrolling and clipping, with regression controls. Candidate scene checks
+cover source labels and formula-derived glyph origins only on the candidate
+side. They do not establish cross-runtime glyph identity or full text parity.
+
+The catalog remains unverified and does not borrow historical screenshots or
+results. See [the scoped pair](UNIFORM_LIST_PAIR.md) for exact provenance,
+strict mismatch records and the limits of any separately qualified result.
+
+## Source-only baseline under construction: `grid_layout`
+
+[The isolated grid-layout baseline](GRID_LAYOUT_ORACLE.md) registers only the
+unchanged source5a Rust example. It prepares original PNG and actual viewport
+resize evidence at 399/400/401/500×500 DPR1, measuring solid-color grid/span/gap
+and threshold behavior. Local synthetic tests do not establish runtime results;
+its dedicated CI build/capture and independent artifact review remain required.
+No grid MoonBit candidate or full-image/text/native parity is claimed.
+
+## Implemented source candidate: `pattern`
+
+The unchanged pinned `crates/gpui/examples/pattern.rs` (blob
+`7d2e98d16e24dc23dc307296a3b35c18e624d9e3`) is registered beside its MoonBit
+counterpart. Its fixed 600×600 DPR1 candidate retains eight source slash
+rectangles, two labels, four blue bordered groups/controls, the translucent
+green parent, red solid and 45-degree red→blue gradient. Core ElementTree,
+SlashPattern and opaque linear raster composition own the rendering semantics;
+JavaScript only measures/disjointness-checks actual label ink and transports
+canonical pixels. See [scope](moonbit/pattern/SCOPE.md).
+
+The exact current core revision/tree is in `examples.json`; earlier retained
+measurements and paired profiles keep their own immutable provenance.
+`tests/pattern-pair-browser.mjs` executes independent Rust and MoonBit runtimes
+and checks the frozen `pairs/pattern.json` source regions. Separately compiled
+interval/phase/color/missing-row faults and a missing-runtime control must be
+rejected. Compilation and actual qualification are required before a bounded
+pass can be reported; source tests alone are not visual evidence. Text, shadows,
+antialias edges, full-image equality and native parity remain unverified.
