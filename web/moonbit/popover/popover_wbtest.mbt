@@ -295,3 +295,24 @@ test "popover narrow metrics never enlarge hit bounds or panic on minimum button
   assert_false(popover_pointer("down", 0, 0, 0))
   ignore(fixture_frame())
 }
+
+///|
+test "popover source bars preserve GPUI green lightness one-quarter" {
+  // Pinned gpui/src/color.rs: green() is HSL(1/3,1,0.25), not CSS lime.
+  // The portable RGBA8 paint boundary rounds its 127.5 green channel to128
+  // and source alpha0.25 to64; exact floating-alpha raster parity is unverified.
+  let state = initial_state()
+  let prepared = build_view(state, text_blocks(800, 1, fixture_prefixes()))
+    .request_layout_with_device_scale(size(800, 600), 1).unwrap().prepaint().unwrap()
+  let mut checked = 0
+  for item in prepared.paint_snapshot(1).unwrap().items() {
+    match item {
+      @scene.QuadItem(id=23, color~, ..) => {
+        assert_true(color == @primitives.Color::rgba(0, 128, 0, 64).unwrap())
+        checked = checked + 1
+      }
+      _ => ()
+    }
+  }
+  assert_eq(checked, 1)
+}

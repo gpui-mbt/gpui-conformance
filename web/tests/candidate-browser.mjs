@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { checkTreePair } from './tree-browser.mjs';
+import { checkPopoverPair } from './popover-browser.mjs';
 import { checkInputPointers } from './input-pointer-browser.mjs';
 import { checkInputIme } from './input-ime-browser.mjs';
 import {execFileSync} from 'node:child_process';
@@ -812,6 +813,8 @@ try {
   assert.deepEqual(errors, []);
   report.tree = await checkTreePair({page, evidence, paired});
   report.verified.push('tree default-depth candidate geometry and full-frame browser comparison when paired');
+  report.popover = await checkPopoverPair({browser, page, evidence, paired});
+  report.verified.push('popover source-specific trusted browser flow; see separate bounded profile evidence');
   report.overall = 'passed';
   console.log(paired ? 'PASS: actual Rust WASM and MoonBit JS rendered on one origin; screenshots, browser events and color probes retained. Pixel parity UNVERIFIED.' : 'PASS: compiled MoonBit; Rust comparison NOT RUN.');
 } catch (error) {
@@ -823,3 +826,4 @@ try {
   if (browser) await browser.close();
   await new Promise(done => server.close(done));
 }
+

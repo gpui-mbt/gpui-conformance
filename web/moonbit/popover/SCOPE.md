@@ -31,6 +31,9 @@ rebuilds a fresh frame without replaying a stale press.
 
 Canvas rounded borders (including device-snapped widths and 0.1 black border
 opacity) and both source shadow_lg layers are explicit host approximations.
+The source green bar uses GPUI's quarter-lightness green (RGB 0,128,0).
+Portable RGBA8 represents the source bars' 0.25 opacity as alpha 64/255;
+this quantization is not an exact floating-point color equivalence claim.
 Text, exact shadows, full images, native behavior, browser interaction and
 callback-count parity remain unverified. No viewport has a qualified comparison
 profile: every emitted frame reports comparison_profile_match=false.
@@ -39,3 +42,12 @@ Node host tests and Python packaging tests use synthetic dependencies. They
 verify transport and packaging contracts only. A compiler or browser run must
 be recorded separately; these tests cannot establish that either runtime built
 or that the two runtimes agree visually or interactively.
+
+The existing compiled-browser harness now invokes a bounded popover check for
+each available runtime at 800x600 DPR1 and 480x600 DPR1.25. It independently
+targets each runtime using its own screenshot OCR, retaining screenshots,
+OCR output and trusted pointer events for opening and child-first dismissal,
+including secondary-button down and outside release. A passed run would verify
+only those observed interactions; OCR failure is a failed qualification, not a
+pass. Exact occlusion, pixel equality and interrupted-focus parity remain
+outside this check. Adding the harness alone does not establish a passed run.

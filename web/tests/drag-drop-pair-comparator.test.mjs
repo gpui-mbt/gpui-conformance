@@ -87,7 +87,14 @@ test('paired exact current pins reject historical source-only claims',async()=>{
   historical.moonbit={repository:'gpui-mbt/gpui.mbt',revision:'eb968228bbea56aff13721dc427875c2dacffc14',tree:'ae9072d350ef6d1546e408226218ec08efc96552'};
   historicalCatalog.moonbit=historical.moonbit;assert.throws(()=>assertPairedProvenance(historical,historicalCatalog),/Exact reviewed candidate core/);
   const actual=JSON.parse(await readFile(new URL('../examples.json',import.meta.url)));
-  assert.deepEqual(actual.moonbit,DRAG_CANDIDATE,'Integrated catalog uses this exact reviewed public core');
+  assert.deepEqual(actual.moonbit,{
+    repository:'gpui-mbt/gpui.mbt',revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522',
+  },'Integrated catalog uses the current popover-capable core');
+  // A new inventory pin cannot inherit this retained drag-drop pair's qualification.
+  assert.notDeepEqual(actual.moonbit,DRAG_CANDIDATE);
+  const currentBuild=structuredClone(report.build),currentCatalog=structuredClone(report.catalog);
+  currentBuild.moonbit=actual.moonbit;currentCatalog.moonbit=actual.moonbit;
+  assert.throws(()=>assertPairedProvenance(currentBuild,currentCatalog),/Exact reviewed candidate core/);
   const entry=actual.examples.find(value=>value.id==='drag_drop');assert(entry);assert.equal(entry.moonbit,'implemented');
   assert.equal(entry.source_blob,DRAG_DROP.sourceBlob);assert.equal(entry.candidate_source,'web/moonbit/drag_drop/drag_drop.mbt');
 });

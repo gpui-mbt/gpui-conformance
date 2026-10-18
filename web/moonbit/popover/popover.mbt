@@ -250,7 +250,7 @@ fn build_view(state : PopoverState, blocks : Map[UInt64, TextBlock]) -> @element
     .with_background(Some(color(255))).with_child(row)
     .with_child(text_leaf(19, blocks.get(19).unwrap()))
   for (id, red, green, blue) in [(20UL, 255, 0, 0), (21UL, 255, 255, 0),
-    (22UL, 0, 0, 255), (23UL, 0, 255, 0)] {
+    (22UL, 0, 0, 255), (23UL, 0, 128, 0)] {
     root = root.with_child(auto(id, 480, 8).with_pointer_events(false)
       .with_background(Some(@primitives.Color::rgba(red, green, blue, 64).unwrap())))
   }
