@@ -191,7 +191,7 @@ def _frame(rows, step, variant, audit):
     audit.equal(len(returns), 1, 'host_paint_return_count', **ctx)
     if len(returns) == 1 and 'host' in paint and 'parent' in paint:
         audit.check(paint['host'][0] < returns[0] < paint['parent'][0], 'deferred_paint_order', True, False, **ctx)
-    for node in set(pre) & set(paint):
+    for node in sorted(set(pre) & set(paint)):
         audit.check(pre[node][0] < paint[node][0], 'prepaint_before_paint', True, False, node=node, **ctx)
         audit.equal(paint[node][1].get('bounds'), pre[node][1].get('bounds'), 'rust_paint_bounds', node=node, **ctx)
     for node, (index, event) in hits.items():
@@ -322,11 +322,12 @@ def _paint_commands(op, expected_quads, audit, context):
     audit.equal(pushes, anchors, 'clip_push_order', **context)
     audit.equal(sorted(pops), sorted(anchors), 'clip_pop_presence', **context)
     audit.equal(stack, [], 'clip_stack_restored', **context)
-    expected_commands = [('quad', 'host'), ('clip_push', 'host'), ('quad', 'primary'), ('clip_pop', 'host'),
-                         ('clip_push', 'primary_anchor_static'), ('quad', 'parent'), ('quad', 'secondary'),
-                         ('clip_pop', 'primary_anchor_static')]
+    # Production element paint retains each ancestor clip through deferred descendants.
+    expected_commands = [('quad', 'host'), ('clip_push', 'host'), ('quad', 'primary'),
+                         ('clip_push', 'primary_anchor_static'), ('quad', 'parent'), ('quad', 'secondary')]
     if op.get('nested_open') is True:
         expected_commands += [('clip_push', 'secondary_anchor_static'), ('quad', 'child'), ('clip_pop', 'secondary_anchor_static')]
+    expected_commands += [('clip_pop', 'primary_anchor_static'), ('clip_pop', 'host')]
     audit.equal([[c.get('kind'), c.get('node')] for c in commands if type(c) is dict],
                 [list(c) for c in expected_commands], 'paint_command_order', **context)
 
@@ -354,7 +355,9 @@ def _source_inputs(op, variant, step, audit, context):
                  button_border=[0.75, 2.5, 1.5, 1.25] if asymmetric else [0, 0, 0, 0])
     scale = step['scale']
     authored = lambda value: math.ceil(value * scale - 0.5) / scale
-    paragraph_width = authored(384) - 2 * authored(12) - 2 * max(authored(1), 1 / scale)
+    # Preserve the authored adapter's left-to-right Double subtraction association.
+    paragraph_width = (authored(384) - authored(12) - authored(12)
+                       - max(authored(1), 1 / scale) - max(authored(1), 1 / scale))
     fixed['parent_text_available_width'] = paragraph_width
     for key, expected in fixed.items():
         audit.equal(source.get(key), expected, 'source_input', field=key, **context)
@@ -577,7 +580,7 @@ def compare(rust, core, fixture=None, token=None):
                     continue
                 ri = _index(rust_rows, 'node', audit, stage, stage=stage, **ctx)
                 ci = _index(core_rows, 'node', audit, stage, stage=stage, **ctx)
-                for node in ri.keys() & ci.keys():
+                for node in sorted(ri.keys() & ci.keys()):
                     audit.rect(ri[node].get('bounds'), ci[node].get('bounds'), step['scale'], node=node, stage=stage, **ctx)
     restoration = _restoration(rm, 'rust', audit) + _restoration(cm, 'moonbit-core', audit)
     proofs = _secondary_proof(cm, rm, audit)

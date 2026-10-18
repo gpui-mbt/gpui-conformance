@@ -1,7 +1,8 @@
 """Source-only synthetic comparator/runner tests. No build or execution evidence.
 
 All fabricated geometry below is validator input, never a parity golden. No
-compiler, package manager, installer, network, or external process is invoked.
+compiler, package manager, installer, or network is invoked. The determinism
+regression launches only this Python validator under explicit hash seeds.
 """
 import copy
 import hashlib
@@ -9,6 +10,9 @@ import importlib.util
 import inspect
 import json
 import math
+import os
+import subprocess
+import struct
 from pathlib import Path
 import sys
 import tempfile
@@ -38,7 +42,8 @@ def source_inputs(variant, step):
     asymmetric = variant == 'asymmetric_fractional'
     scale = step['scale']
     authored = lambda v: math.ceil(v * scale - 0.5) / scale
-    paragraph_width = authored(384) - 2 * authored(12) - 2 * max(authored(1), 1 / scale)
+    paragraph_width = (authored(384) - authored(12) - authored(12)
+                       - max(authored(1), 1 / scale) - max(authored(1), 1 / scale))
     source = dict(text_backend='source-derived-upstream-NoopTextSystem',
                   unbounded_available_width=0, rem_size=16, line_height_multiplier=1.618034,
                   inset_order='top,right,bottom,left', parent_width=384,
@@ -81,11 +86,11 @@ def repaint(op):
     mask = [0, 0, *op['viewport']]
     quads = compare.QUADS + (['child'] if op['nested_open'] else [])
     op['paint_traversal'] = [dict(node=n, bounds=copy.deepcopy(bounds[n]), clip=list(mask)) for n in quads]
-    order = [('quad', 'host'), ('clip_push', 'host'), ('quad', 'primary'), ('clip_pop', 'host'),
-             ('clip_push', 'primary_anchor_static'), ('quad', 'parent'), ('quad', 'secondary'),
-             ('clip_pop', 'primary_anchor_static')]
+    order = [('quad', 'host'), ('clip_push', 'host'), ('quad', 'primary'),
+             ('clip_push', 'primary_anchor_static'), ('quad', 'parent'), ('quad', 'secondary')]
     if op['nested_open']:
         order += [('clip_push', 'secondary_anchor_static'), ('quad', 'child'), ('clip_pop', 'secondary_anchor_static')]
+    order += [('clip_pop', 'primary_anchor_static'), ('clip_pop', 'host')]
     stack, commands = [], []
     for kind, node in order:
         before = len(stack)
@@ -270,10 +275,45 @@ class ComparatorTests(unittest.TestCase):
         self.assertIn('restoration_exact', self.codes(report))
         self.assertNotIn('edge_residual', self.codes(report))
 
+    def test_source_width_preserves_sequential_double_association(self):
+        target = next(o for o in self.core['variants'][0]['operations'] if o['scale'] == 1.5)
+        authored = lambda value: math.ceil(value * 1.5 - 0.5) / 1.5
+        sequential = authored(384) - authored(12) - authored(12) - authored(1) - authored(1)
+        grouped = authored(384) - 2 * authored(12) - 2 * authored(1)
+        self.assertNotEqual(sequential, grouped)
+        self.assertEqual(struct.pack('>f', sequential).hex(), '43b35555')
+        self.assertEqual(struct.pack('>f', sequential), struct.pack('>f', grouped))
+        self.assertEqual(target['source_inputs']['parent_text_available_width'], sequential)
+        self.assertTrue(self.report()['strict_match'])
+        target['source_inputs']['parent_text_available_width'] = grouped
+        next(row for row in target['source_inputs']['text'] if row['node'] == 'parent_text')['available_width'] = grouped
+        report = self.report()
+        self.assertIn('source_input', self.codes(report))
+        self.assertIn('source_text_input', self.codes(report))
+
+    def test_flattened_balanced_clips_are_rejected(self):
+        target = op(self.core)
+        commands = target['paint_commands']
+        host_pop = commands.pop()
+        commands.insert(3, host_pop)
+        stack = []
+        for command in commands:
+            command['clip_depth_before'] = len(stack)
+            if command['kind'] == 'clip_push':
+                stack.append(command['node'])
+            elif command['kind'] == 'clip_pop':
+                stack.pop()
+            command['clip_depth_after'] = len(stack)
+            command['clip_stack_after'] = list(stack)
+        report = self.report()
+        self.assertIn('paint_command_order', self.codes(report))
+        self.assertNotIn('clip_stack_after', self.codes(report))
+        self.assertNotIn('clip_pop_identity', self.codes(report))
+
     def test_paint_clip_order_and_stack_are_actual_not_invented(self):
         target = op(self.core)
         target['paint_commands'][1]['clip_stack_after'] = []
-        target['paint_commands'][-1]['node'] = 'host'
+        target['paint_commands'][-1]['node'] = 'primary_anchor_static'
         report = self.report()
         self.assertIn('clip_stack_after', self.codes(report))
         self.assertIn('clip_pop_identity', self.codes(report))
@@ -452,6 +492,32 @@ class MutationWitnessTests(unittest.TestCase):
 
 
 class RunnerContractTests(unittest.TestCase):
+    def test_report_is_identical_across_python_hash_seeds(self):
+        program = """
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import test_measured_anchor_pair as tests
+rust, core, fixture = tests.synthetic_pair()
+# Deliberately invalid geometry exercises both residual and failure ordering.
+core['variants'][0]['operations'][0]['bounds']['primary'][0] += 1
+for variant in rust['variants']:
+    for row in variant['events']:
+        event = row['event']
+        if event.get('type') == 'paint' and event.get('node') in ('primary', 'parent'):
+            event['bounds'][0] += 1
+report = tests.compare.compare(rust, core, fixture, 'synthetic-never-executed')
+assert report['strict_match'] is False and report['failures']
+print(json.dumps(report, sort_keys=True, separators=(',', ':'), allow_nan=False))
+"""
+        reports = []
+        for seed in ('1', '2', '321'):
+            environment = dict(os.environ, PYTHONHASHSEED=seed, PYTHONDONTWRITEBYTECODE='1')
+            result = subprocess.run([sys.executable, '-B', '-c', program, str(Path(__file__).parent)],
+                                    env=environment, capture_output=True, text=True, timeout=30, check=True)
+            reports.append(result.stdout)
+        self.assertEqual(reports[0], reports[1])
+        self.assertEqual(reports[0], reports[2])
+
     def test_frozen_spec_and_exact_fourteen_additions(self):
         self.assertEqual(hashlib.sha256((DIRECTORY / 'comparison_spec.json').read_bytes()).hexdigest(), compare.SPEC_SHA256)
         self.assertEqual(run.SPEC_SHA256, compare.SPEC_SHA256)
