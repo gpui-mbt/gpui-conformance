@@ -25,8 +25,10 @@ try{
  browser=await chromium.launch({headless:true});report.browser=await browser.version();
  const context=await browser.newContext({viewport:{width:801,height:700},deviceScaleFactor:1.25});page=await context.newPage();
  page.on('pageerror',e=>report.errors.push(e.message));
- await page.goto(`http://127.0.0.1:${server.address().port}/moonbit/?example=pattern`);
  const cdp=await context.newCDPSession(page);
+ // One session owns initial metrics, every transition and every screenshot.
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:801,height:700,deviceScaleFactor:1.25,mobile:false});
+ await page.goto(`http://127.0.0.1:${server.address().port}/moonbit/?example=pattern`);
  async function geometry(){return page.evaluate(()=>({width:innerWidth,height:innerHeight,dpr:devicePixelRatio,status:document.documentElement.dataset.runtimeStatus,example:globalThis.gpuiExample?{width:gpuiExample.metadata.width,height:gpuiExample.metadata.height,dpr:gpuiExample.actualDeviceScale}:null,error:document.querySelector('#error').textContent,hidden:document.querySelector('canvas').hidden}));}
  async function capture(name,w,h,dpr){
   report.currentStage=name;
@@ -53,7 +55,7 @@ try{
   assert.deepEqual(pngSize,[Math.round(w*dpr),Math.round(h*dpr)],'actual device screenshot dimensions');
  }
  await capture('embedded-fractional',801,700,1.25);
- await page.setViewportSize({width:321,height:479});await capture('narrow-clipped',321,479,1.25);
+ await cdp.send('Emulation.setDeviceMetricsOverride',{width:321,height:479,deviceScaleFactor:1.25,mobile:false});await capture('narrow-clipped',321,479,1.25);
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:321,height:479,deviceScaleFactor:2,mobile:false});await capture('dpr-only',321,479,2);
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:801,height:701,deviceScaleFactor:2,mobile:false});await capture('fractional-root-boundary',801,701,2);
  await cdp.send('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:3,mobile:false});await capture('budget-reduced',1280,900,3);assert(report.stages.at(-1).state.reduced);
