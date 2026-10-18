@@ -42,6 +42,8 @@ try {
   }
   const isGradient = example === 'gradient';
   const gradientPolicy = isGradient && new URL(location.href).searchParams.get('policy') === '1';
+  let patternNotice;
+  if(isPattern){patternNotice=document.createElement('p');patternNotice.id='pattern-live-notice';patternNotice.setAttribute('role','status');patternNotice.hidden=true;Object.assign(patternNotice.style,{position:'fixed',bottom:'0',right:'0',margin:'0',background:'#fff4d6',font:'12px system-ui',pointerEvents:'none'});document.body.append(patternNotice);}
   let gradientNotice;
   if(isGradient&&!gradientPolicy){gradientNotice=document.createElement('p');gradientNotice.id='gradient-live-notice';gradientNotice.setAttribute('role','status');gradientNotice.hidden=true;Object.assign(gradientNotice.style,{position:'fixed',bottom:'0',right:'0',margin:'0',background:'#fff4d6',font:'12px system-ui',pointerEvents:'none'});gradientNotice.textContent='Live gradient preview outside the frozen wide/tall DPR1 profile. This viewport is unverified.';document.body.append(gradientNotice);}
   const isAnchor = example === 'anchor';
@@ -109,18 +111,23 @@ try {
     if(isPattern) {
       if(patternLifecycle?.suspended)return;
       try {
-        const {frame,width,height,scale,widths,glyphInk}=readPatternFrame(runtime,context,window,metadata);
-        validateCoreRasterFrame(frame,{...metadata,width,height},scale);
+        const {frame,width,height,scale,widths,glyphInk,rasterWidth,rasterHeight,backingWidth,backingHeight,actualDeviceScale,effectiveRenderScale,renderScaleReduced}=readPatternFrame(runtime,context,window,metadata);
+        const rasterMetadata={...metadata,width:rasterWidth,height:rasterHeight};
+        validateCoreRasterFrame(frame,rasterMetadata,scale);
         metadata.width=width;metadata.height=height;
         canvas.style.width=`${width}px`;canvas.style.height=`${height}px`;
-        if(canvas.width!==width)canvas.width=width;
-        if(canvas.height!==height)canvas.height=height;
-        drawCoreRasterFrame(context,frame,metadata,scale);
-        globalThis.gpuiExample={metadata,frame,textWidth:widths,scale,glyphInk};
+        if(canvas.width!==backingWidth)canvas.width=backingWidth;
+        if(canvas.height!==backingHeight)canvas.height=backingHeight;
+        drawCoreRasterFrame(context,frame,rasterMetadata,scale);
+        globalThis.gpuiExample={metadata,frame,textWidth:widths,scale,glyphInk,actualDeviceScale,effectiveRenderScale,renderScaleReduced,rasterWidth,rasterHeight};
+        patternNotice.hidden=frame.pattern.comparison_profile_match;
+        patternNotice.textContent=`Live pattern preview outside 600×600 DPR1; this viewport is unverified.${renderScaleReduced ? " Backing resolution reduced to fit the raster budget." : ""}`;
+        canvas.title=`Live rendering; numerical comparison is qualified only at 600×600 DPR1. Text, shadows and full-image parity remain unverified.${renderScaleReduced ? " Backing resolution reduced to stay within the raster budget." : ""}`;
         canvas.hidden=false;error.hidden=true;document.documentElement.dataset.runtimeStatus='ready';
       } catch(cause) {
         delete globalThis.gpuiExample;canvas.hidden=true;error.hidden=false;document.documentElement.dataset.runtimeStatus='failed';
-        error.textContent=`Pattern candidate failed: ${cause.message}. Only the source-sized 600×600 DPR1 profile is supported; text, shadows and full-image parity remain unverified.`;
+        patternNotice.hidden=true;
+        error.textContent=`Pattern candidate failed: ${cause.message}. Live viewport is resource-bounded; numerical comparison remains limited to 600×600 DPR1. Text, shadows and full-image parity remain unverified.`;
       }
       return;
     }
@@ -349,7 +356,7 @@ try {
   else loadTiming.fail();
   window.addEventListener('resize', render);
   if(isPattern)patternLifecycle=createPatternLifecycle(window,render,()=>{
-    delete globalThis.gpuiExample;canvas.hidden=true;
+    delete globalThis.gpuiExample;canvas.hidden=true;patternNotice.hidden=true;
     document.documentElement.dataset.runtimeStatus='suspended';
   });
   if (isGrid) {

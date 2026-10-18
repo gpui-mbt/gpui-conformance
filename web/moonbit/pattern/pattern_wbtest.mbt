@@ -75,8 +75,38 @@ test "source labels have no geometric overlap with source-later stripes" {
 }
 
 ///|
-test "invalid metrics and unsupported profiles fail closed" {
+test "invalid metrics and unsafe viewports fail closed" {
   assert_eq(pattern_frame_at_scale(600,600,[],1,1),"{\"ok\":false,\"error\":\"invalid_metrics\"}")
-  assert_eq(pattern_frame_at_scale(600,600,[140.0,350.0],2,1),"{\"ok\":false,\"error\":\"unsupported_pattern_profile\"}")
-  assert_eq(pattern_frame_at_scale(800,600,[140.0,350.0],1,1),"{\"ok\":false,\"error\":\"unsupported_pattern_profile\"}")
+  for (w,h,dpr,scale) in [(0.0,600.0,1.0,1.0),(2049.0,600.0,1.0,1.0),(600.0,600.0,0.0,1.0),(600.0,600.0,2.0,2.0)] {
+    assert_eq(pattern_frame_at_scale(w,h,[140.0,350.0],dpr,scale),"{\"ok\":false,\"error\":\"invalid_pattern_viewport\"}")
+  }
+}
+
+///|
+test "live clipping and DPR preserve authored content and mark qualification separately" {
+  for dpr in [0.75,1.0,1.25,2.0,3.0] {
+    let frame = prepare([140.0,350.0],dpr)
+    assert_eq(frame.tree().node(1).unwrap().bounds().size().width(),600)
+    for (w,h) in [(320.0,480.0),(800.0,700.0),(600.0,600.0)] {
+      let scene = canonical_scene(frame,w,h,1,dpr)
+      assert_eq(scene.viewport().size().width(),w)
+      assert_eq(scene.viewport().size().height(),h)
+      let output = present(scene,dpr,w,h)
+      assert_true(output.contains("\"ok\":true"))
+      assert_true(output.contains(if w == 600 && h == 600 && dpr == 1 { "\"comparison_profile_match\":true" } else { "\"comparison_profile_match\":false" }))
+    }
+  }
+}
+
+///|
+test "fractional clipped live edges retain opaque transport and exact qualification stays unchanged" {
+  for (w,h,scale) in [(1.0,1.0,0.25),(321.0,479.0,1.25),(801.0,701.0,0.75),(320.0,480.0,2.0)] {
+    let scene = live_scene(prepare([140.0,350.0],scale),w,h,scale,scale)
+    let tile = scene.rasterize_paint_run_webgl2_linear(0,scene.items().length()-2).unwrap().unwrap()
+    let bytes = tile.rgba()
+    for i = 3; i < bytes.length(); i = i + 4 { assert_eq(bytes[i],255) }
+    assert_eq(scene.items()[0].id(),0)
+  }
+  let frame = prepare([140.0,350.0],1)
+  assert_eq(live_scene(frame,600,600,1,1).canonical_json(),canonical_scene(frame,600,600,1,1).canonical_json())
 }
