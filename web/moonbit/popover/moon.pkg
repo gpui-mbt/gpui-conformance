@@ -1,0 +1,17 @@
+import {
+  "f4ah6o/gpui/controls/button",
+  "f4ah6o/gpui/element",
+  "f4ah6o/gpui/layout",
+  "f4ah6o/gpui/primitives",
+  "f4ah6o/gpui/scene",
+  "moonbitlang/core/json",
+}
+
+supported_targets = "js"
+
+pkgtype(kind: "foreign_library")
+
+options(
+  link: { "js": { "format": "esm" } },
+)
+

@@ -119,7 +119,7 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient"]:
+    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"]:
         if name in examples:
             relative = f"crates/gpui/examples/{name}.rs"
             path = os.path.relpath(source / relative, gallery)
@@ -307,3 +307,4 @@ if __name__ == "__main__":
         build(args.upstream_source.resolve(), args.site.resolve(), args.target_dir.resolve(), args.extra_example, args.oracle_only, args.implemented_example)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"upstream WASM build failed: {error}\n")
+
