@@ -10,7 +10,7 @@ import {decodeScreenshotRgba} from './screenshot-rgba.mjs';
 import {FOCUS_VISIBLE,SOURCE_CONSTRAINTS,inspectState,assertPanelSame,assertPanelDifferent,
   assertUnchanged,assertDelivery,assertProvenance,provenanceNegativeControls,focusVisibleNegativeControls}
   from './focus-visible-comparator.mjs';
-import {assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,
+import {PAIR_REVISION,assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,
   validateFocusVisibleEvents} from './focus-visible-pair-comparator.mjs';
 
 const sha256=data=>createHash('sha256').update(data).digest('hex');
@@ -49,7 +49,7 @@ try {
   assert(paired||!candidate,'Candidate execution requires current compiled implementation provenance');
   result.source=paired?assertPairedProvenance(manifest,catalog):assertProvenance(manifest,catalog);
   result.provenance_negative_controls=paired?pairedProvenanceNegativeControls(manifest,catalog):provenanceNegativeControls(manifest,catalog);
-  if(paired)result.candidate='implemented';
+  if(paired){result.candidate='implemented';result.profile_revision=PAIR_REVISION;}
   runtimeFiles=paired?expectedRuntimeFiles(manifest,runtime):Object.fromEntries(
     ['focus_visible.js','focus_visible_bg.wasm','host.mjs'].map(file=>['rust/'+file,manifest.rust.files[file]]));
   const types={'.html':'text/html','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css',

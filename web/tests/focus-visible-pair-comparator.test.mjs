@@ -6,7 +6,7 @@ import {mkdtemp,writeFile,readFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {FOCUS_CANDIDATE,FOCUS_PROFILE,FOCUS_SEQUENCE,FOCUS_CAPTURES,assertPairedProvenance,
+import {HISTORICAL_PAIR,PAIR_REVISION,FOCUS_CANDIDATE,FOCUS_PROFILE,FOCUS_SEQUENCE,FOCUS_CAPTURES,assertPairedProvenance,
   pairedProvenanceNegativeControls,expectedRuntimeFiles,validateFocusVisibleEvents,
   validateFocusVisibleEvidence,validateFocusVisiblePixels,loadFocusVisibleEvidence,compareFocusVisibleBehavior,assertCurrentFocusVisibleBuild,validateFocusVisibleRelations}
   from './focus-visible-pair-comparator.mjs';
@@ -70,7 +70,7 @@ function fixtures() {
   for(const [runtime,variant] of [['rust',0],['moonbit',1]]) {
     const {build,catalog}=provenance(),manifest_bytes=Buffer.from(JSON.stringify(build)),catalog_bytes=Buffer.from(JSON.stringify(catalog));
     const report={runtime,status:'SYNTHETIC TEST FIXTURE ONLY',candidate:'implemented',comparison:'not_run',errors:[],console:[],
-      profile:clone(FOCUS_PROFILE),canvas:{bounds:{x:0,y:0,width:800,height:600},backing:{width:800,height:600}},build,catalog,
+      profile_revision:PAIR_REVISION,profile:clone(FOCUS_PROFILE),canvas:{bounds:{x:0,y:0,width:800,height:600},backing:{width:800,height:600}},build,catalog,
       source:assertPairedProvenance(build,catalog),provenance_negative_controls:pairedProvenanceNegativeControls(build,catalog),
       build_manifest_file:`focus-visible-${runtime}-build-manifest.json`,build_manifest_sha256:sha(manifest_bytes),
       catalog_file:`focus-visible-${runtime}-catalog.json`,catalog_sha256:sha(catalog_bytes),
@@ -260,6 +260,7 @@ test('actual PNG bytes are independently decoded for both complete stable sample
     const loaded={};for(const runtime of ['rust','moonbit']){await persist(directory,sides[runtime],retained[runtime]);loaded[runtime]=await loadFocusVisibleEvidence(directory,sides[runtime]);}
     const result=compareFocusVisibleBehavior(sides.rust,sides.moonbit,loaded);
     assert.equal(result.status,'passed');assert.equal(result.comparison,'independently_decoded_bounded_focus_behavior');
+    assert.equal(result.profile_revision,PAIR_REVISION);
     assert.equal(result.decoded_pixel_validation.rust.capture_count,43);assert.equal(result.decoded_pixel_validation.moonbit.samples_per_capture,2);
     assert.equal(result.cross_renderer_image_observations.verdict,'not_a_parity_check');
     assert(result.cross_renderer_image_observations.captures.every(c=>c.different_pixels>0));
@@ -292,4 +293,37 @@ test('paired CLI fails closed and writes diagnostic JSON when either renderer is
     assert.equal(child.status,1);const result=JSON.parse(await readFile(join(directory,'focus-visible-pair-result-dpr1.json'),'utf8'));
     assert.equal(result.status,'failed');assert.match(result.failure,/ENOENT/);assert.deepEqual(result.inputs,{});
   } finally {await rm(directory,{recursive:true,force:true});}
+});
+
+
+test('current paired profile requires new exact identity and rejects unversioned or historical reuse',()=>{
+  assert.equal(PAIR_REVISION,'focus_visible_paired_v1_popover_pin');
+  assert.deepEqual(FOCUS_CANDIDATE,{repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
+  assert.deepEqual(HISTORICAL_PAIR,{revision:null,candidate:{repository:'gpui-mbt/gpui.mbt',
+    revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'}});
+  assert(Object.isFrozen(HISTORICAL_PAIR));assert(Object.isFrozen(HISTORICAL_PAIR.candidate));
+  for(const runtime of ['rust','moonbit']) {
+    const current=fixtures().sides[runtime];validateFocusVisibleEvidence(current,runtime);
+    for(const revision of [undefined,HISTORICAL_PAIR.revision,'focus_visible_paired_other']) {
+      const old=clone(current);
+      if(revision===undefined)delete old.profile_revision;else old.profile_revision=revision;
+      assert.throws(()=>validateFocusVisibleEvidence(old,runtime),/Exact current paired profile revision/);
+    }
+    for(const candidate of [HISTORICAL_PAIR.candidate,
+      {...FOCUS_CANDIDATE,revision:HISTORICAL_PAIR.candidate.revision},
+      {...FOCUS_CANDIDATE,tree:HISTORICAL_PAIR.candidate.tree}]) {
+      const old=clone(current);old.build.moonbit=clone(candidate);old.catalog.moonbit=clone(candidate);
+      assert.throws(()=>assertPairedProvenance(old.build,old.catalog),/Exact public candidate engine/);
+      assert.throws(()=>validateFocusVisibleEvidence(old,runtime),'New labels cannot qualify historical or mixed core pins');
+      delete old.profile_revision;
+      assert.throws(()=>validateFocusVisibleEvidence(old,runtime),'Historical evidence remains historical');
+    }
+  }
+});
+
+test('capture harness emits the explicit profile identity only for implemented paired captures',async()=>{
+  const harness=await readFile(new URL('./focus-visible-oracle-browser.mjs',import.meta.url),'utf8');
+  assert.match(harness,/import \{PAIR_REVISION,assertPairedProvenance/);
+  assert(harness.includes("if(paired){result.candidate='implemented';result.profile_revision=PAIR_REVISION;}"));
 });
