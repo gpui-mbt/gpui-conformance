@@ -7,8 +7,8 @@
   },
   "moonbit": {
     "repository": "gpui-mbt/gpui.mbt",
-    "revision": "e160f5ec7bf0c6f43738d0bdcf837098299d5569",
-    "tree": "96d62ea12a6824ee20d04cb913191bc23a424522"
+    "revision": "3bea4fea2dd54768a3859c7c881dda2a60fa5bbd",
+    "tree": "25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85"
   },
   "examples": [
     {
@@ -292,7 +292,7 @@
         "Source-sized grid and inert center"
       ],
       "candidate_source": "web/moonbit/anchor/anchor.mbt",
-      "implementation_note": "Source-derived bounded candidate using genuine core grid/flex layout, anchored_after Local placement, snap-to-window, deferred prepaint and hit routing. Browser text measurements, Canvas rounded border/shadow_sm and pointer/viewport transport are explicit host boundaries. Live viewport: width 4–4096 and height 4–16384, DPR0.25–4, rounded Canvas sides at most 16384 and area at most 33554432 pixels. Frozen comparison profile remains widths 750 and 480, height 600, DPR1; all other viewports remain unverified. Popup dimensions derive from measured label widths, source min_w100, px2/py0p5 and device-snapped phi line height at text_sm14. Paired browser, text raster, exact shadow/opacity, full-image, native and callback-count parity remain unverified."
+      "implementation_note": "Source-derived bounded candidate using genuine core grid/flex layout, anchored_after Local placement, snap-to-window, deferred prepaint and hit routing. Browser text measurements, Canvas rounded border/shadow_sm and pointer/viewport transport are explicit host boundaries. Live viewport: width 4\u20134096 and height 4\u201316384, DPR0.25\u20134, rounded Canvas sides at most 16384 and area at most 33554432 pixels. Frozen comparison profile remains widths 750 and 480, height 600, DPR1; all other viewports remain unverified. Popup dimensions derive from measured label widths, source min_w100, px2/py0p5 and device-snapped phi line height at text_sm14. Paired browser, text raster, exact shadow/opacity, full-image, native and callback-count parity remain unverified."
     },
     {
       "id": "gradient",
@@ -311,7 +311,7 @@
         "Core float sampling and ordered raster transport"
       ],
       "candidate_source": "web/moonbit/gradient/gradient.mbt",
-      "implementation_note": "Source-derived candidate using genuine core ElementTree layout/prepaint, dispatch, canonical Scene/PaintCommand and float gradient sampling. Frozen comparison profiles are 960×600 and 600×960, DPR1. Live logical sizes width240–2048 and height300–2048 retain actual device layout scale; effective raster resolution is explicitly reduced to fit 2048-side/1048576-pixel core caps. Browser font measurements and Canvas text/pixel presentation are host boundaries. Equal-stop core policy is deterministic and backend-scoped. Paired browser, text, antialias edges, arbitrary translucent/interleaved-text composition, full-image and native/Metal parity remain unverified."
+      "implementation_note": "Source-derived candidate using genuine core ElementTree layout/prepaint, dispatch, canonical Scene/PaintCommand and float gradient sampling. Frozen comparison profiles are 960\u00d7600 and 600\u00d7960, DPR1. Live logical sizes width240\u20132048 and height300\u20132048 retain actual device layout scale; effective raster resolution is explicitly reduced to fit 2048-side/1048576-pixel core caps. Browser font measurements and Canvas text/pixel presentation are host boundaries. Equal-stop core policy is deterministic and backend-scoped. Paired browser, text, antialias edges, arbitrary translucent/interleaved-text composition, full-image and native/Metal parity remain unverified."
     },
     {
       "id": "popover",
@@ -330,7 +330,26 @@
         "Viewport-snapped anchor placement"
       ],
       "candidate_source": "web/moonbit/popover/popover.mbt",
-      "implementation_note": "Source-derived candidate using genuine core Element layout/prepaint/SceneSnapshot, deferred priorities, anchored placement and outside-pointer routing. Bundled IBM Plex Sans loads before actual prefix measurement; MoonBit owns wrapping, geometry, hit testing and open/dismiss state. JavaScript transports trusted primary-mouse events and paints. Live host accepts width/height 1–8192, DPR0.25–4 with rounded Canvas sides at most16384 and area at most33554432 pixels. The runtime has broader numeric bounds, not a browser parity claim. Canvas text, rounded borders and shadow_lg are explicit approximations. Paired browser, native, text, shadow, full-image and callback-count parity remain unverified."
+      "implementation_note": "Source-derived candidate using genuine core Element layout/prepaint/SceneSnapshot, deferred priorities, anchored placement and outside-pointer routing. Bundled IBM Plex Sans loads before actual prefix measurement; MoonBit owns wrapping, geometry, hit testing and open/dismiss state. JavaScript transports trusted primary-mouse events and paints. Live host accepts width/height 1\u20138192, DPR0.25\u20134 with rounded Canvas sides at most16384 and area at most33554432 pixels. The runtime has broader numeric bounds, not a browser parity claim. Canvas text, rounded borders and shadow_lg are explicit approximations. Paired browser, native, text, shadow, full-image and callback-count parity remain unverified."
+    },
+    {
+      "id": "pattern",
+      "title": "Slash patterns",
+      "rust_route": "pattern",
+      "source": "crates/gpui/examples/pattern.rs",
+      "source_blob": "7d2e98d16e24dc23dc307296a3b35c18e624d9e3",
+      "moonbit": "implemented",
+      "width": 600,
+      "height": 600,
+      "interactive": false,
+      "features": [
+        "Eight core slash-pattern rectangles",
+        "Width, interval and bounds-relative phase",
+        "Translucent green background",
+        "Solid and gradient controls"
+      ],
+      "candidate_source": "web/moonbit/pattern/pattern.mbt",
+      "implementation_note": "Source-derived ElementTree layout and canonical core SlashPattern rasterization. Frozen 600\u00d7600 DPR1 only. Browser-measured label ink is checked disjoint from source-later paint before labels-last normalization; the opaque core paint run preserves linear alpha composition. Canvas text is a host approximation. Root shadow kernel, text, full-image, arbitrary viewport and native parity remain unverified."
     }
   ]
 }

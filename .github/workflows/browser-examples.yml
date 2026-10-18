@@ -97,8 +97,20 @@ jobs:
         run: |
           python3 -m unittest discover -s web/tests -p 'test_rust_packaging.py' -v
           python3 -m unittest discover -s web/tests -p 'test_moonbit_provenance.py' -v
+          python3 -m unittest discover -s web/tests -p 'test_pattern_packaging.py' -v
+          python3 web/tests/pattern-control-build.test.py
       - name: Compile and unit-test the actual MoonBit port
         run: python3 web/scripts/build_moonbit.py --gpui-source _sources/gpui --upstream-source _sources/zed
+      - name: Compile intentional pattern source faults separately
+        run: python3 web/scripts/build_pattern_controls.py --gpui _sources/gpui --baseline-site _build/browser-lab --out _build/pattern-compiled-controls
+      - name: Upload separately declared compiled pattern faults
+        uses: actions/upload-artifact@v4
+        with:
+          name: pattern-compiled-controls
+          path: _build/pattern-compiled-controls
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 3
       - name: Package MoonBit output with its provenance
         run: |
           python3 web/scripts/browser_build_artifacts.py attest \
@@ -214,6 +226,11 @@ jobs:
         with:
           name: browser-build-rust
           path: _artifacts/rust
+      - name: Download separately declared compiled pattern faults
+        uses: actions/download-artifact@v4
+        with:
+          name: pattern-compiled-controls
+          path: _artifacts/pattern-compiled-controls
       - name: Verify provenance and assemble both runtimes on one origin
         run: |
           python3 web/scripts/browser_build_artifacts.py merge \
@@ -239,6 +256,16 @@ jobs:
         run: |
           node web/tests/candidate-browser.mjs _build/browser-lab --require-rust
           node web/tests/load-timing-browser.mjs
+      - name: Qualify actual source-sized pattern shader regions
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: |
+          node web/tests/pattern-pair-browser.mjs _build/browser-lab _build/browser-lab _build/browser-example-evidence/pattern
+          PATTERN_RUST_PNG="$(python3 -c 'import json; from pathlib import Path; p=Path("_build/browser-example-evidence/pattern"); print(p/json.loads((p/"pattern-pair-result.json").read_text())["captures"]["rust"]["final"])')" python3 web/tests/pattern-negative-controls.test.py
+      - name: Reject actual compiled pattern faults and missing executable
+        env:
+          PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw
+        run: node web/tests/pattern-controls-browser.mjs _build/browser-lab _build/browser-lab _artifacts/pattern-compiled-controls _build/browser-example-evidence/pattern-controls
       - name: Capture unchanged Rust scrollable behavior
         env:
           PLAYWRIGHT_ROOT: ${{ runner.temp }}/pw

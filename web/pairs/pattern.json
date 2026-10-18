@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "id": "pattern",
+  "profile": "pattern_actual_browser_pair_v1",
+  "status": "source_specific_browser_pair_unverified",
+  "comparison_budget_declared_utc": "2026-10-18T07:22:49Z",
+  "upstream": {
+    "repository": "zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "source": "crates/gpui/examples/pattern.rs",
+    "source_blob": "7d2e98d16e24dc23dc307296a3b35c18e624d9e3"
+  },
+  "viewport": {
+    "width": 600,
+    "height": 600,
+    "dpr": 1
+  },
+  "thresholds": {
+    "geometry_physical_px": 2,
+    "rgb_code": 2,
+    "alpha_code": 0,
+    "minimum_region_agreement": 0.99,
+    "minimum_samples_per_row": 30
+  },
+  "rows": [
+    {
+      "id": "red1",
+      "width": 54,
+      "height": 18,
+      "thickness": 4.5,
+      "interval": 4.5
+    },
+    {
+      "id": "red2",
+      "width": 54,
+      "height": 18,
+      "thickness": 4.5,
+      "interval": 4.5
+    },
+    {
+      "id": "red3",
+      "width": 54,
+      "height": 18,
+      "thickness": 4.5,
+      "interval": 4.5
+    },
+    {
+      "id": "red4",
+      "width": 54,
+      "height": 18,
+      "thickness": 4.5,
+      "interval": 9
+    },
+    {
+      "id": "large_red",
+      "width": 256,
+      "height": 56,
+      "thickness": 9.333333333333334,
+      "interval": 9.333333333333334
+    },
+    {
+      "id": "large_green",
+      "width": 256,
+      "height": 56,
+      "thickness": 9.333333333333334,
+      "interval": 9.333333333333334
+    },
+    {
+      "id": "large_blue",
+      "width": 256,
+      "height": 56,
+      "thickness": 9.333333333333334,
+      "interval": 9.333333333333334
+    },
+    {
+      "id": "short_yellow",
+      "width": 256,
+      "height": 26,
+      "thickness": 9.333333333333334,
+      "interval": 9.333333333333334
+    }
+  ],
+  "controls": [
+    "wrong_interval",
+    "wrong_phase",
+    "wrong_color",
+    "missing_row",
+    "missing_runtime"
+  ],
+  "acceptance": "All eight source rows independently compared to unchanged Rust original screenshot at oracle-selected flat 5-pixel axis-cross interiors; green alpha background and red solid/red-blue 45-degree gradient separately checked. No host stripe recreation.",
+  "not_claimed": [
+    "Full image equality",
+    "Text, glyph, shaping, typography parity",
+    "Shadow parity",
+    "Antialias edge parity",
+    "Native/Metal or physical GPU parity",
+    "Other browsers, viewports or DPRs",
+    "General pattern conformance"
+  ],
+  "source_color_verification": {
+    "declared_utc": "2026-10-18T07:25:52Z",
+    "source": "crates/gpui/src/color.rs",
+    "source_blob": "3bd893f99357051e1936f52e22c4c40d6dd24887",
+    "green_hsla": [
+      0.3333333333,
+      1,
+      0.25,
+      1
+    ],
+    "green_rgb": [
+      0,
+      0.5,
+      0
+    ],
+    "green_gap_unorm8": [
+      214,
+      235,
+      214
+    ],
+    "note": "Corrected unexecuted source-color assumption before any candidate capture; no tolerance change."
+  },
+  "sampling_declared_utc": "2026-10-18T07:27:41Z",
+  "sampling_note": "Source narrow stripe opaque width is smaller than a 3x3 diagonal span; use center+N/S/E/W uniformity. Defined before candidate execution.",
+  "candidate": {
+    "repository": "gpui-mbt/gpui.mbt",
+    "revision": "3bea4fea2dd54768a3859c7c881dda2a60fa5bbd",
+    "tree": "25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85"
+  }
+}

@@ -30,8 +30,8 @@ class GradientPairPackaging(unittest.TestCase):
         self.assertIn("gradient:'./gradient.mjs'",(ROOT/'web/moonbit/site/host.mjs').read_text())
         self.assertEqual(catalog['moonbit'],{
             'repository':'gpui-mbt/gpui.mbt',
-            'revision':'e160f5ec7bf0c6f43738d0bdcf837098299d5569',
-            'tree':'96d62ea12a6824ee20d04cb913191bc23a424522',
+            'revision':'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd',
+            'tree':'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85',
         })
         retained_candidate=json.loads(builder.PROFILE.read_text())['candidate']
         self.assertEqual(retained_candidate,{

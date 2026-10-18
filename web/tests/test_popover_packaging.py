@@ -15,8 +15,8 @@ import build_rust
 class PopoverPackaging(unittest.TestCase):
     def test_catalog_is_source_pinned_and_unverified(self):
         catalog = json.loads((WEB / 'examples.json').read_text())
-        self.assertEqual(catalog['moonbit']['revision'], 'e160f5ec7bf0c6f43738d0bdcf837098299d5569')
-        self.assertEqual(catalog['moonbit']['tree'], '96d62ea12a6824ee20d04cb913191bc23a424522')
+        self.assertEqual(catalog['moonbit']['revision'], '3bea4fea2dd54768a3859c7c881dda2a60fa5bbd')
+        self.assertEqual(catalog['moonbit']['tree'], '25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85')
         entry, = [e for e in catalog['examples'] if e['id'] == 'popover']
         self.assertEqual(entry['source_blob'], '7678a6a3ed865d9874b72cb99b473a115591d35c')
         self.assertEqual(entry['source'], 'crates/gpui/examples/popover.rs')

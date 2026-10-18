@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {DRAG_DROP,EMBEDDED_FONTS,SOURCE_CONSTRAINTS,sha256,makeProfile,discoverGeometry,assertPaint,assertPreview,validateOperations,decodePng,assertCurrentBuild} from './drag-drop-comparator.mjs';
-import {DRAG_CANDIDATE,HISTORICAL_PAIR,PAIR_REVISION,REQUIRED_HOSTS,SUITE_INPUTS,GRAPHICS_ARGS,HTML_ENTRYPOINTS,validateRuntimeResponses,runtimeResponsePath,requiresRuntimeRetention,captureBinding,validateCaptureBindings,inputEvidence,validateInputEvidence,
+import {DRAG_CANDIDATE,HISTORICAL_PAIR,POPOVER_PAIR,PAIR_REVISION,REQUIRED_HOSTS,SUITE_INPUTS,GRAPHICS_ARGS,HTML_ENTRYPOINTS,validateRuntimeResponses,runtimeResponsePath,requiresRuntimeRetention,captureBinding,validateCaptureBindings,inputEvidence,validateInputEvidence,
   assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,requiredRuntimeFiles,validateReport,loadEvidence,validatePixels,validateTransport,assertCaptureDigests,assertExecutedBytes,compareMeasurements,compareBehavior,pairedPixelNegativeControls,pairedEvidenceNegativeControls} from './drag-drop-pair-comparator.mjs';
 import {RUST_WORKER,evidenceFilename,assertUploadSafeFilename,deriveRustWorkerBytes,assertRustWorkerSource,assertRustWorkerResponse} from './drag-drop-runtime-evidence.mjs';
 import {syntheticPixels,syntheticFrame,syntheticGeometry} from './drag-drop-pair-fixtures.mjs';
@@ -75,9 +75,9 @@ function appendWorker(report,id=report.requests.length+1,url='blob:http://127.0.
 let synthetic,measured;
 const fixtures=()=>synthetic??=syntheticPixels();
 const measurement=()=>measured??=validatePixels(fixtures().report,fixtures().retained);
-test('current pair binds the exact published popover-capable shared core',()=>{
-  assert.equal(DRAG_CANDIDATE.revision,'e160f5ec7bf0c6f43738d0bdcf837098299d5569');
-  assert.equal(DRAG_CANDIDATE.tree,'96d62ea12a6824ee20d04cb913191bc23a424522');
+test('current pair binds the exact pattern-capable shared core',()=>{
+  assert.equal(DRAG_CANDIDATE.revision,'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd');
+  assert.equal(DRAG_CANDIDATE.tree,'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85');
 });
 test('paired exact current pins reject historical source-only claims',async()=>{
   const {report}=metadata();assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
@@ -88,8 +88,8 @@ test('paired exact current pins reject historical source-only claims',async()=>{
   historicalCatalog.moonbit=historical.moonbit;assert.throws(()=>assertPairedProvenance(historical,historicalCatalog),/Exact reviewed candidate core/);
   const actual=JSON.parse(await readFile(new URL('../examples.json',import.meta.url)));
   assert.deepEqual(actual.moonbit,{
-    repository:'gpui-mbt/gpui.mbt',revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522',
-  },'Integrated catalog uses the current popover-capable core');
+    repository:'gpui-mbt/gpui.mbt',revision:'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd',tree:'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85',
+  },'Integrated catalog uses the current pattern-capable core');
   assert.deepEqual(actual.moonbit,DRAG_CANDIDATE,'Current live pair requires this exact new source profile');
   const entry=actual.examples.find(value=>value.id==='drag_drop');assert(entry);assert.equal(entry.moonbit,'implemented');
   assert.equal(entry.source_blob,DRAG_DROP.sourceBlob);assert.equal(entry.candidate_source,'web/moonbit/drag_drop/drag_drop.mbt');
@@ -360,7 +360,7 @@ test('every repeated generated response is independently reread and matched to t
 });
 
 test('current pair profile rejects historical identity and cross-profile reuse',()=>{
-  assert.equal(PAIR_REVISION,'drag_drop_paired_pointer_v5_popover_pin');
+  assert.equal(PAIR_REVISION,'drag_drop_paired_pointer_v6_pattern_pin');
   assert.deepEqual(HISTORICAL_PAIR,{revision:'drag_drop_paired_pointer_v4_uniform_list_pin',
     candidate:{repository:'gpui-mbt/gpui.mbt',revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'}});
   assert(Object.isFrozen(HISTORICAL_PAIR));assert(Object.isFrozen(HISTORICAL_PAIR.candidate));
@@ -378,6 +378,32 @@ test('current pair profile rejects historical identity and cross-profile reuse',
       assert.throws(()=>validateReport(reused,runtime),'A current label cannot qualify old or mixed core identities');
       reused.profile_revision=HISTORICAL_PAIR.revision;
       assert.throws(()=>validateReport(reused,runtime),'Historical evidence remains historical');
+    }
+  }
+});
+
+
+test('pattern profile rejects retired popover pins and missing or mixed identities for both runtimes',()=>{
+  assert.equal(PAIR_REVISION,'drag_drop_paired_pointer_v6_pattern_pin');
+  assert.deepEqual(POPOVER_PAIR,{revision:'drag_drop_paired_pointer_v5_popover_pin',candidate:{repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'}});
+  assert(Object.isFrozen(POPOVER_PAIR));assert(Object.isFrozen(POPOVER_PAIR.candidate));
+  assert(Object.isFrozen(DRAG_CANDIDATE));
+  for(const runtime of ['rust','moonbit']) {
+    const current=metadata(runtime).report;validateReport(current,runtime);
+    for(const revision of [undefined,null,POPOVER_PAIR.revision,'unrecognized_profile']) {
+      const wrong=structuredClone(current);
+      if(revision===undefined)delete wrong.profile_revision;else wrong.profile_revision=revision;
+      assert.throws(()=>validateReport(wrong,runtime),'Exact current label is mandatory');
+    }
+    for(const pin of [POPOVER_PAIR.candidate,
+      {...DRAG_CANDIDATE,revision:POPOVER_PAIR.candidate.revision},
+      {...DRAG_CANDIDATE,tree:POPOVER_PAIR.candidate.tree}]) {
+      const wrong=structuredClone(current);wrong.build.moonbit=structuredClone(pin);wrong.catalog.moonbit=structuredClone(pin);
+      assert.throws(()=>assertPairedProvenance(wrong.build,wrong.catalog),'Matching catalog/build cannot bless retired or mixed pins');
+      assert.throws(()=>validateReport(wrong,runtime),'Current label cannot qualify retired or mixed pins');
+      wrong.profile_revision=POPOVER_PAIR.revision;
+      assert.throws(()=>validateReport(wrong,runtime),'Retired evidence remains historical');
     }
   }
 });

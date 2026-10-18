@@ -6,7 +6,7 @@ import {mkdtemp,writeFile,readFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {HISTORICAL_PAIR,PAIR_REVISION,FOCUS_CANDIDATE,FOCUS_PROFILE,FOCUS_SEQUENCE,FOCUS_CAPTURES,assertPairedProvenance,
+import {HISTORICAL_PAIR,POPOVER_PAIR,PAIR_REVISION,FOCUS_CANDIDATE,FOCUS_PROFILE,FOCUS_SEQUENCE,FOCUS_CAPTURES,assertPairedProvenance,
   pairedProvenanceNegativeControls,expectedRuntimeFiles,validateFocusVisibleEvents,
   validateFocusVisibleEvidence,validateFocusVisiblePixels,loadFocusVisibleEvidence,compareFocusVisibleBehavior,assertCurrentFocusVisibleBuild,validateFocusVisibleRelations}
   from './focus-visible-pair-comparator.mjs';
@@ -297,9 +297,9 @@ test('paired CLI fails closed and writes diagnostic JSON when either renderer is
 
 
 test('current paired profile requires new exact identity and rejects unversioned or historical reuse',()=>{
-  assert.equal(PAIR_REVISION,'focus_visible_paired_v1_popover_pin');
+  assert.equal(PAIR_REVISION,'focus_visible_paired_v2_pattern_pin');
   assert.deepEqual(FOCUS_CANDIDATE,{repository:'gpui-mbt/gpui.mbt',
-    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
+    revision:'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd',tree:'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85'});
   assert.deepEqual(HISTORICAL_PAIR,{revision:null,candidate:{repository:'gpui-mbt/gpui.mbt',
     revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'}});
   assert(Object.isFrozen(HISTORICAL_PAIR));assert(Object.isFrozen(HISTORICAL_PAIR.candidate));
@@ -326,4 +326,30 @@ test('capture harness emits the explicit profile identity only for implemented p
   const harness=await readFile(new URL('./focus-visible-oracle-browser.mjs',import.meta.url),'utf8');
   assert.match(harness,/import \{PAIR_REVISION,assertPairedProvenance/);
   assert(harness.includes("if(paired){result.candidate='implemented';result.profile_revision=PAIR_REVISION;}"));
+});
+
+
+test('pattern profile rejects retired popover pins and missing or mixed identities for both runtimes',()=>{
+  assert.equal(PAIR_REVISION,'focus_visible_paired_v2_pattern_pin');
+  assert.deepEqual(POPOVER_PAIR,{revision:'focus_visible_paired_v1_popover_pin',candidate:{repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'}});
+  assert(Object.isFrozen(POPOVER_PAIR));assert(Object.isFrozen(POPOVER_PAIR.candidate));
+  assert(Object.isFrozen(FOCUS_CANDIDATE));
+  for(const runtime of ['rust','moonbit']) {
+    const current=fixtures().sides[runtime];validateFocusVisibleEvidence(current,runtime);
+    for(const revision of [undefined,null,POPOVER_PAIR.revision,'unrecognized_profile']) {
+      const wrong=structuredClone(current);
+      if(revision===undefined)delete wrong.profile_revision;else wrong.profile_revision=revision;
+      assert.throws(()=>validateFocusVisibleEvidence(wrong,runtime),'Exact current label is mandatory');
+    }
+    for(const pin of [POPOVER_PAIR.candidate,
+      {...FOCUS_CANDIDATE,revision:POPOVER_PAIR.candidate.revision},
+      {...FOCUS_CANDIDATE,tree:POPOVER_PAIR.candidate.tree}]) {
+      const wrong=structuredClone(current);wrong.build.moonbit=structuredClone(pin);wrong.catalog.moonbit=structuredClone(pin);
+      assert.throws(()=>assertPairedProvenance(wrong.build,wrong.catalog),'Matching catalog/build cannot bless retired or mixed pins');
+      assert.throws(()=>validateFocusVisibleEvidence(wrong,runtime),'Current label cannot qualify retired or mixed pins');
+      wrong.profile_revision=POPOVER_PAIR.revision;
+      assert.throws(()=>validateFocusVisibleEvidence(wrong,runtime),'Retired evidence remains historical');
+    }
+  }
 });

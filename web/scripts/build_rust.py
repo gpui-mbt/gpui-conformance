@@ -119,7 +119,7 @@ def prepare_gallery(source: Path, gallery: Path, examples: list[str]) -> dict:
         return 'path = "' + os.path.relpath(target, gallery) + '"'
     manifest = re.sub(r'path = "([^"]+)"', relocate, manifest)
     additional_bins = []
-    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover"]:
+    for name in ["tree", "scrollable", "focus_visible", "tab_stop", "drag_drop", "uniform_list", "grid_layout", "anchor", "gradient", "popover", "pattern"]:
         if name in examples:
             relative = f"crates/gpui/examples/{name}.rs"
             path = os.path.relpath(source / relative, gallery)
@@ -264,6 +264,19 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
                 output = rust / "unchanged-source" / (record["id"] + ".rs")
                 output.parent.mkdir(exist_ok=True)
                 shutil.copy2(source / record["source"], output)
+        pattern_source = None
+        if "pattern" in examples:
+            entry = next(item for item in catalog["examples"] if item["id"] == "pattern")
+            original_pattern = (source / entry["source"]).read_bytes()
+            blob = hashlib.sha1(b"blob " + str(len(original_pattern)).encode() + b"\0" + original_pattern).hexdigest()
+            if blob != entry["source_blob"]:
+                raise ValueError("unchanged pattern source blob differs from catalog")
+            output = rust / "unchanged-source/pattern.rs"
+            output.parent.mkdir(exist_ok=True)
+            output.write_bytes(original_pattern)
+            pattern_source = {"id": "pattern", "source": entry["source"], "source_blob": blob,
+                              "source_sha256": hashlib.sha256(original_pattern).hexdigest(),
+                              "retained_file": "unchanged-source/pattern.rs"}
         check_source(upstream, catalog["upstream"]["revision"])
         manifest["lab_tree"] = run(["git", "rev-parse", "HEAD^{tree}"], WEB.parent, True)
         manifest["rust_bundled"] = True
@@ -285,6 +298,8 @@ def build(upstream: Path, site: Path, target: Path, extra_examples: list[str] | 
             "files": {str(p.relative_to(rust)): hashlib.sha256(p.read_bytes()).hexdigest()
                       for p in sorted(rust.rglob("*")) if p.is_file()},
         }
+        if pattern_source is not None:
+            manifest["rust"]["pattern_source"] = pattern_source
         shutil.copytree(rust, site / "rust")
         shutil.copy2(WEB / "_headers", site / "_headers")
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")

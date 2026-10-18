@@ -4,7 +4,7 @@ import {readFile,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {TAB_STOP,EMBEDDED_FONTS,sha256,sourceGeometry} from './tab-stop-comparator.mjs';
-import {TAB_CANDIDATE,HISTORICAL_PAIR,PAIR_REVISION,REQUIRED_HOSTS,assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,
+import {TAB_CANDIDATE,HISTORICAL_PAIR,POPOVER_PAIR,PAIR_REVISION,REQUIRED_HOSTS,assertPairedProvenance,pairedProvenanceNegativeControls,expectedRuntimeFiles,
   requiredRuntimeFiles,validateReport,loadEvidence,validatePixels,compareMeasurements,compareBehavior,pixelNegativeControls} from './tab-stop-pair-comparator.mjs';
 import {syntheticPixels,fixtureFrame} from './tab-stop-pair-fixtures.mjs';
 // Synthetic metadata and pixels only test rejection sensitivity; they cannot
@@ -41,8 +41,8 @@ function metadata(runtime='rust') {
 }
 const synthetic=syntheticPixels();
 test('paired source and core pins are exact and historical oracle claims are rejected',()=>{
-  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'e160f5ec7bf0c6f43738d0bdcf837098299d5569');
-  assert.equal(TAB_CANDIDATE.tree,'96d62ea12a6824ee20d04cb913191bc23a424522');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
+  const {report}=metadata();assert.equal(TAB_CANDIDATE.revision,'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd');
+  assert.equal(TAB_CANDIDATE.tree,'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85');assert.equal(assertPairedProvenance(report.build,report.catalog).candidate,'implemented');
   assert.equal(pairedProvenanceNegativeControls(report.build,report.catalog).length,13);
   const changed=structuredClone(report.catalog);changed.examples[0].moonbit='not_implemented';assert.throws(()=>assertPairedProvenance(report.build,changed));
 });
@@ -106,7 +106,7 @@ test('dedicated pair workflow keeps the complete profile out of the matched job 
 });
 
 test('current pair profile rejects historical identity and cross-profile reuse',()=>{
-  assert.equal(PAIR_REVISION,'tab_stop_paired_state_specific_v4_popover_pin');
+  assert.equal(PAIR_REVISION,'tab_stop_paired_state_specific_v5_pattern_pin');
   assert.deepEqual(HISTORICAL_PAIR,{revision:'tab_stop_paired_state_specific_v3_uniform_list_pin',
     candidate:{repository:'gpui-mbt/gpui.mbt',revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'}});
   assert(Object.isFrozen(HISTORICAL_PAIR));assert(Object.isFrozen(HISTORICAL_PAIR.candidate));
@@ -124,6 +124,32 @@ test('current pair profile rejects historical identity and cross-profile reuse',
       assert.throws(()=>validateReport(reused,runtime),'A current label cannot qualify old or mixed core identities');
       reused.profile_revision=HISTORICAL_PAIR.revision;
       assert.throws(()=>validateReport(reused,runtime),'Historical evidence remains historical');
+    }
+  }
+});
+
+
+test('pattern profile rejects retired popover pins and missing or mixed identities for both runtimes',()=>{
+  assert.equal(PAIR_REVISION,'tab_stop_paired_state_specific_v5_pattern_pin');
+  assert.deepEqual(POPOVER_PAIR,{revision:'tab_stop_paired_state_specific_v4_popover_pin',candidate:{repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'}});
+  assert(Object.isFrozen(POPOVER_PAIR));assert(Object.isFrozen(POPOVER_PAIR.candidate));
+  assert(Object.isFrozen(TAB_CANDIDATE));
+  for(const runtime of ['rust','moonbit']) {
+    const current=metadata(runtime).report;validateReport(current,runtime);
+    for(const revision of [undefined,null,POPOVER_PAIR.revision,'unrecognized_profile']) {
+      const wrong=structuredClone(current);
+      if(revision===undefined)delete wrong.profile_revision;else wrong.profile_revision=revision;
+      assert.throws(()=>validateReport(wrong,runtime),'Exact current label is mandatory');
+    }
+    for(const pin of [POPOVER_PAIR.candidate,
+      {...TAB_CANDIDATE,revision:POPOVER_PAIR.candidate.revision},
+      {...TAB_CANDIDATE,tree:POPOVER_PAIR.candidate.tree}]) {
+      const wrong=structuredClone(current);wrong.build.moonbit=structuredClone(pin);wrong.catalog.moonbit=structuredClone(pin);
+      assert.throws(()=>assertPairedProvenance(wrong.build,wrong.catalog),'Matching catalog/build cannot bless retired or mixed pins');
+      assert.throws(()=>validateReport(wrong,runtime),'Current label cannot qualify retired or mixed pins');
+      wrong.profile_revision=POPOVER_PAIR.revision;
+      assert.throws(()=>validateReport(wrong,runtime),'Retired evidence remains historical');
     }
   }
 });

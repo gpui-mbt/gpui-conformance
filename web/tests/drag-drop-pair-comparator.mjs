@@ -11,10 +11,14 @@ export {assertCurrentBuild};
 export const HISTORICAL_PAIR=Object.freeze({revision:'drag_drop_paired_pointer_v4_uniform_list_pin',
   candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
     revision:'89108ad966c2d37b0cb44909b1aac3ecfa8e3c4a',tree:'dd5612a412d251b468c358a25baa0b0dd592c807'})});
+// Retired popover profile is provenance only, never an accepted current alternative.
+export const POPOVER_PAIR=Object.freeze({revision:'drag_drop_paired_pointer_v5_popover_pin',
+  candidate:Object.freeze({repository:'gpui-mbt/gpui.mbt',
+    revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'})});
 // This new source profile requires fresh independent captures and byte verification.
 export const DRAG_CANDIDATE=Object.freeze({repository:'gpui-mbt/gpui.mbt',
-  revision:'e160f5ec7bf0c6f43738d0bdcf837098299d5569',tree:'96d62ea12a6824ee20d04cb913191bc23a424522'});
-export const PAIR_REVISION='drag_drop_paired_pointer_v5_popover_pin';
+  revision:'3bea4fea2dd54768a3859c7c881dda2a60fa5bbd',tree:'25b0647f974d8b6ffd46c1a15c7eeb5ef7e4fe85'});
+export const PAIR_REVISION='drag_drop_paired_pointer_v6_pattern_pin';
 export const REQUIRED_HOSTS=['moonbit/host.mjs','moonbit/render.mjs','moonbit/drag-drop-host.mjs','moonbit/focus-visible-host.mjs','moonbit/tab-stop-host.mjs','load-timing.mjs'];
 export const HTML_ENTRYPOINTS=Object.freeze({
   rust:Object.freeze({path:'rust/index.html',source:'web/rust/index.html',sha256:'8f6806a2ae5f935a8212171af3890fb1460c5ab30a357032bf541222b2bd6669'}),
