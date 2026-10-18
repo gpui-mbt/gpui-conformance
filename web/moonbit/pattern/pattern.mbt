@@ -28,13 +28,13 @@ fn node(id : UInt64, height : @layout.Dimension, width : @layout.Dimension) -> @
 
 ///|
 fn line_height(scale : Double) -> Double {
-  (20 * 1.618033988749895 * scale - 0.5).ceil() / scale
+  (20.0 * 1.618033988749895 * scale - 0.5).ceil() / scale
 }
 
 ///|
 fn prepare(widths : Array[Double], scale : Double) -> @element.Prepainted {
   let auto = @layout.Dimension::auto()
-  let border = (1 * scale).round() / scale
+  let border = (1.0 * scale).round() / scale
   let label = fn(id : UInt64, width : Double) {
     node(id,fixed(line_height(scale)),fixed(width))
   }
