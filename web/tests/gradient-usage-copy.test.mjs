@@ -10,6 +10,7 @@ const gradientUsage = 'Click the sRGB/Oklab color-space toggle independently in 
 const primeUsage = 'Use the preset and Count Primes controls independently in each pane. CPU work timings are not render-startup benchmarks.';
 const anchorUsage = 'Hover the eight buttons independently in each pane. Supported viewport profile: 750 or 480 × 600 at DPR 1; paired conformance remains unverified.';
 const popoverUsage = 'Open the parent and Child Popover independently in each pane; click outside to dismiss one level. Source-derived preview; paired browser and pixel conformance remain unverified.';
+const gridViewport = 'live viewport: both panes fit the screen; resizing recomputes each runtime layout. Strict comparison remains limited to 399/400/401/500 × 500 at DPR1; other sizes are unverified.';
 const staticUsage = 'The upstream example has no interactive controls.';
 
 // Execute the real app with synthetic DOM/network boundaries. This checks host
@@ -34,6 +35,7 @@ async function loadApp(id, { rustBundled = true, isolated = true, data = catalog
     fetch: async path => ({ ok: true, json: async () => path === './examples.json'
       ? data : { rust_bundled: rustBundled, lab_revision: 'test-revision' } }),
     selectExample, rustExampleUrl, moonbitExampleUrl,
+    fitLiveGrid: () => () => {}, // Geometry is tested separately with the real controller and browser.
     createLoadComparison: () => ({ cancel() {}, start(value) { starts.push(value); } }),
   };
   await vm.runInNewContext(`(async () => {${app.replace(/^import .*;\n/gm, '')}})()`, sandbox);
@@ -41,7 +43,7 @@ async function loadApp(id, { rustBundled = true, isolated = true, data = catalog
 }
 
 function expectedNotice(example, usage, rustBundled = true, isolated = true) {
-  return `${example.title} · fixed ${example.width} × ${example.height} logical pixels · ${rustBundled ? 'Both compiled runtimes requested from this origin; rendering results are recorded by browser E2E.' : 'MoonBit port requested; Rust artifact missing.'} ${usage}${rustBundled && !isolated ? ' This host lacks the COOP/COEP headers required by Rust WASM.' : ''}`;
+  return `${example.title} · ${example.id === 'grid_layout' ? gridViewport : `fixed ${example.width} × ${example.height} logical pixels`} · ${rustBundled ? 'Both compiled runtimes requested from this origin; rendering results are recorded by browser E2E.' : 'MoonBit port requested; Rust artifact missing.'} ${usage}${rustBundled && !isolated ? ' This host lacks the COOP/COEP headers required by Rust WASM.' : ''}`;
 }
 
 test('gradient usage names the current rendered color-space labels', () => {
@@ -62,7 +64,7 @@ test('gradient notice describes its toggle while preserving runtime and isolatio
   }
 });
 
-test('all other current routes retain their existing notice text', async () => {
+test('other routes retain their notice text except the explicit live-grid viewport copy', async () => {
   for (const example of catalog.examples.filter(example => example.id !== 'gradient')) {
     const f = await loadApp(example.id);
     const usage = example.id === 'popover' ? popoverUsage : example.id === 'anchor' ? anchorUsage : example.interactive ? primeUsage : staticUsage;
