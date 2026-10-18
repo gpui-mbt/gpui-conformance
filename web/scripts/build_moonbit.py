@@ -88,7 +88,7 @@ def build(gpui: Path, upstream: Path, out: Path) -> None:
             runtimes[name] = runtime
         staging = Path(work) / "site"
         staging.mkdir()
-        for name in ["index.html", "style.css", "app.js", "routing.mjs", "load-timing.mjs", "load-comparison.mjs", "examples.json"]:
+        for name in ["index.html", "style.css", "app.js", "live-grid-viewport.mjs", "routing.mjs", "load-timing.mjs", "load-comparison.mjs", "examples.json"]:
             shutil.copy2(WEB / name, staging / name)
         shutil.copytree(WEB / "moonbit/site", staging / "moonbit")
         for name, runtime in runtimes.items():
@@ -129,3 +129,4 @@ if __name__ == "__main__":
         build(args.gpui_source.resolve(), args.upstream_source.resolve(), args.out.resolve())
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         parser.exit(1, f"browser example build failed: {error}\n")
+

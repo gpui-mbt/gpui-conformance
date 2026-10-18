@@ -13,7 +13,7 @@ import stat
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-ROOT_FILES = ("index.html", "style.css", "app.js", "routing.mjs", "load-timing.mjs",
+ROOT_FILES = ("index.html", "style.css", "app.js", "live-grid-viewport.mjs", "routing.mjs", "load-timing.mjs",
               "load-comparison.mjs", "examples.json")
 FONT_FILES = ("IBMPlexSans-Regular.ttf", "IBMPlexSans-Italic.ttf", "IBMPlexSans-SemiBold.ttf")
 MOONBIT_FONTS = (*FONT_FILES, "font-license.txt", "Lilex-Regular.ttf", "Lilex-license.txt")
@@ -395,3 +395,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
