@@ -31,6 +31,15 @@ def expected_alpha(case):
     if case['nested']: result[7]=0.25
     return {key:value for key,value in result.items() if value > 0}
 
+def transparent_strips(bounds, scale):
+    """Pinned window.rs 4650-4765: zero border/radius, one physical pixel inset.
+    Bounded zero-hit nodes are wholly inside the viewport and have nonempty interiors.
+    """
+    x,y,w,h=bounds; inset=1/scale
+    require(w>2*inset and h>2*inset,'transparent interior')
+    return [[x,y,w,inset],[x,y+h-inset,w,inset],
+            [x,y+inset,inset,h-2*inset],[x+w-inset,y+inset,inset,h-2*inset]]
+
 def validate_fixture(fixture):
     require(set(fixture)=={'schema_version','viewport','cases'} and fixture['schema_version']==1,'fixture schema')
     require(fixture['viewport']==[240,180],'bounded viewport')
@@ -56,16 +65,35 @@ def validate_trace(trace, fixture, backend, token):
         for b in observed['bounds']:
             require(len(b['bounds'])==4 and all(numeric(n) for n in b['bounds']) and all(n>0 for n in b['bounds'][2:]),'nonempty bounds')
         require(type(observed['target']) is int and observed['target']==4,'real pointer target including opacity-zero')
-        alpha = {}
+        alpha = {}; transparent = {}
+        rust=backend=='rust-gpui'
+        if rust: require(numeric(observed.get('scale')) and observed['scale']>0,'actual scale')
+        expected=expected_alpha(case)
         for quad in observed['quads']:
-            require(set(quad)=={'bounds','clip','rgba'},'quad fields')
-            require(all(len(quad[k])==4 and all(numeric(n) for n in quad[k]) for k in quad),'quad values')
+            require(set(quad)==({'bounds','clip','rgba','border_alpha','border_widths','corner_radii'} if rust else {'bounds','clip','rgba'}),'quad fields')
+            require(all(len(quad[k])==4 and all(numeric(n) for n in quad[k]) for k in ('bounds','clip','rgba')),'quad values')
+            if rust:
+                require(numeric(quad['border_alpha']) and quad['border_alpha']==0,'unexpected visible border')
+                require(all(len(quad[k])==4 and all(numeric(n) and n==0 for n in quad[k]) for k in ('border_widths','corner_radii')),'authored border/radius')
             rgb = tuple(round(x) for x in quad['rgba'][:3])
             require(rgb in COLORS and all(abs(x-y)<=1e-6 for x,y in zip(rgb,quad['rgba'][:3])),'distinct source paint colors')
             identity=COLORS[rgb]
+            if rust and identity not in expected:
+                require(case['id']=='zero-hit' and identity in (2,3,4) and quad['rgba'][3]==0,'unexpected transparent primitive alpha')
+                transparent.setdefault(identity,[]).append(quad)
+                continue
             require(identity not in alpha,'duplicate primitive')
             alpha[identity]=quad['rgba'][3]
-        expected=expected_alpha(case)
+        if rust and case['id']=='zero-hit':
+            require(set(transparent)=={2,3,4},'missing transparent primitives')
+            layouts={b['id']:b['bounds'] for b in observed['bounds']}
+            for identity,quads in transparent.items():
+                require(len(quads)==4,'transparent strip multiplicity')
+                bounds=layouts[identity]
+                require(all(all(abs(x-y)<=1e-4 for x,y in zip(q['bounds'],bounds)) for q in quads),'transparent bounds')
+                masks=sorted(q['clip'] for q in quads)
+                expected_masks=sorted(transparent_strips(bounds,observed['scale']))
+                require(all(abs(x-y)<=1e-4 for a,b in zip(masks,expected_masks) for x,y in zip(a,b)),'source transparent strip masks')
         require(alpha.keys()==expected.keys(),'missing primitive or wrong transparent culling')
         require(all(abs(alpha[k]-expected[k])<=1e-6 for k in expected),'source opacity policy')
         if backend=='moonbit-core':
@@ -87,7 +115,7 @@ def project_case(case):
         return [max(b[0],c[0]),max(b[1],c[1]),min(b[0]+b[2],c[0]+c[2]),min(b[1]+b[3],c[1]+c[3])]
     def overlaps(a,b):
         return max(a[0],b[0])<min(a[2],b[2]) and max(a[1],b[1])<min(a[3],b[3])
-    quads=case['quads'];constraints=[]
+    quads=[{k:q[k] for k in ('bounds','clip','rgba')} for q in case['quads'] if q['rgba'][3]!=0];constraints=[]
     for i,a in enumerate(quads):
         for b in quads[i+1:]:
             if overlaps(visible(a),visible(b)): constraints.append([identity(a),identity(b)])

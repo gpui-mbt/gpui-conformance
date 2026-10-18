@@ -7,7 +7,7 @@ asset-rich upstream `opacity.rs` example and does not increase catalog coverage.
 No renderer pixels, native windows, text, images, SVG, GIF, shadows or animation
 are qualified by this headless fixture.
 
-## Policy frozen before execution
+## Source policy and execution history
 
 `policy.json` pins each inspected upstream source blob. `window.rs` lines
 4226–4242 multiply then restore the element opacity. `div.rs` line 2544 applies
@@ -24,9 +24,13 @@ explicitly rejects that composition. That limitation is retained, not faked.
 Nine cases cover default/unit, nested overlap, intrinsic alpha, binding alpha,
 zero-opacity pointer input, clipping, deferred reset, and nested priorities.
 Each backend reports its actual geometry and paint traversal. Candidate raw
-intrinsic alpha and scalar opacity are preserved. The only normalization removes
-alpha-zero or wholly clipped candidate solid commands, matching GPUI scene
-insertion. GPUI sorts scene quads by overlap order; the comparison permits
+intrinsic alpha and scalar opacity are preserved. Candidate projection removes alpha-zero or wholly clipped solid commands.
+Rust retains all raw quads, actual scale, border alpha, widths and corner radii.
+Pinned window.rs 4650–4765 splits transparent backgrounds into four strips,
+including invisible zero-width borders, using a one-physical-pixel inset.
+The zero-hit case requires exactly those four masks per zero node, zero fill
+and border alpha, and the unchanged pointer target. Only these validated
+invisible strips are excluded from the visible comparison. GPUI sorts scene quads by overlap order; the comparison permits
 disjoint quads to commute while requiring the same ordering for every pair of
 intersecting visible rectangles. Raw order remains retained. Numeric tolerances are fixed in `policy.json`; no observed Rust answer
 is substituted into the candidate.
@@ -59,6 +63,11 @@ recomputes the comparison and rejects missing runtime/source/stale capture.
 Retain the entire output directory. Its hash inventory is an audit trail, not
 remote attestation against a malicious host.
 
-Current state: source prepared and portable tests only. Neither Rust nor MoonBit
-has been compiled or executed in the source-preparation environment. No paired
-pass count or visual parity result is claimed.
+Initial CI run 39114493082 compiled and executed both frameworks, then failed
+because the original comparator incorrectly required one primitive per color
+and did not account for GPUI transparent border strips. Its original artifact
+is preserved (SHA256 9c87ec55675253b7c7569775a3b712ad8ca946c91f684df00d74c567085a2a2f).
+This source-derived observer/projection repair requires independent review and
+a fresh execution; it does not retroactively qualify the failed run. Numeric
+tolerances and candidate behavior are unchanged. No paired pass or visual
+parity is claimed here. Local preparation runs portable tests, not toolchains.

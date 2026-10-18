@@ -4,7 +4,7 @@
   "core_commit": "3d8d7ec2aabc5a7bf2e8bbd95ef9cbf8eb77eb4b",
   "core_tree": "5ecc263b17d7a9c4fdf70aaa897d518b6fe642c2",
   "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
-  "policy_sha256": "cc74ffd8e6cb09d0945f35bea2dd9e37eb2b65d63f6dfde574097f601dcdc922",
+  "policy_sha256": "7a00f50260593b15dc9588b433b1adf2107b6be87fb3a09e7fd20e78d8cb6c64",
   "scenarios_sha256": "bec7394b5a8cfc96bcedfb2b296f471e7cf5540fef2bb8d90fab776d16a66fd6",
   "files": [
     ".github/workflows/element-opacity-pair.yml",

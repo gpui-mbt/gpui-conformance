@@ -51,13 +51,17 @@ fn main() {
         let mut app=TestAppContext::single();
         let handle=app.open_window(size(px(parsed.viewport[0]),px(parsed.viewport[1])),|_,_|Probe{case:case.clone(),hits:hits.clone()});
         let mut cx=VisualTestContext::from_window(*handle,&app);cx.run_until_parked();
+        let scale=cx.update(|window,_|window.scale_factor());
         let quads=cx.update(|window,_|{
             let scale=window.scale_factor();
             window.painted_quads().iter().map(|q|{
                 let c=Rgba::from(q.background.as_solid().expect("solid quad"));
                 json!({"bounds":[q.bounds.origin.x.0/scale,q.bounds.origin.y.0/scale,q.bounds.size.width.0/scale,q.bounds.size.height.0/scale],
                     "clip":[q.content_mask.bounds.origin.x.0/scale,q.content_mask.bounds.origin.y.0/scale,q.content_mask.bounds.size.width.0/scale,q.content_mask.bounds.size.height.0/scale],
-                    "rgba":[c.r,c.g,c.b,c.a]})
+                    "rgba":[c.r,c.g,c.b,c.a],
+                    "border_alpha":q.border_color.a,
+                    "border_widths":[q.border_widths.top.0/scale,q.border_widths.right.0/scale,q.border_widths.bottom.0/scale,q.border_widths.left.0/scale],
+                    "corner_radii":[q.corner_radii.top_left.0/scale,q.corner_radii.top_right.0/scale,q.corner_radii.bottom_right.0/scale,q.corner_radii.bottom_left.0/scale]})
             }).collect::<Vec<_>>()
         });
         let bounds=[2u64,3,4,5].into_iter().chain(if case.nested {Some(7)}else{None}).map(|id|{
@@ -69,7 +73,7 @@ fn main() {
         let p=if case.deferred {25.}else{10.};
         cx.simulate_mouse_down(point(px(p),px(p)),MouseButton::Left,Modifiers::default());
         let target=hits.borrow().first().copied();
-        cases.push(json!({"id":case.id,"quads":quads,"bounds":bounds,"target":target}));
+        cases.push(json!({"id":case.id,"scale":scale,"quads":quads,"bounds":bounds,"target":target}));
         cx.update(|window,_|window.remove_window());cx.run_until_parked();
     }
     println!("{}",json!({"schema_version":1,"backend":"rust-gpui","upstream_revision":"5a5fbe79917971a4d52a96b6ddb04da198a5012e","run_token":token,"input":input,"cases":cases}));

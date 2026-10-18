@@ -14,14 +14,14 @@
     "intrinsic": "multiply primitive intrinsic alpha by binding opacity and inherited element opacity exactly once",
     "siblings": "restore ancestor opacity on scope exit",
     "deferred": "start each deferred group at opacity one; apply that group subtree local opacities",
-    "zero": "transparent solids may be culled from scene; layout and mouse target remain",
+    "zero": "Pinned window.rs paint_quad splits transparent backgrounds into four border strips with a one-physical-pixel interior inset, including zero-width transparent borders; scene insertion culls only empty geometry. Layout and mouse target remain.",
     "compositing": "per primitive alpha, not isolated group compositing",
     "clipping": "ordinary descendant clip intersects parent viewport; parent background remains outside own child clip"
   },
   "projection": {
     "geometry_tolerance": 0.0001,
     "color_tolerance": 1e-06,
-    "zero_alpha": "omit alpha-zero candidate solid commands, retaining raw command values",
+    "zero_alpha": "Retain every raw Rust strip, actual scale, border alpha/widths/radii. Require exactly four source-derived zero-alpha invisible-border strips per zero-hit node, unchanged layout and target4. Exclude validated invisible strips only from visible comparison. Candidate retains every raw command alpha/scalar; omits zero-alpha visible solids.",
     "fully_clipped": "omit candidate commands whose bounds do not intersect current content mask",
     "quad_order": "Retain raw backend scene order. Compare all primitive fields by unique authored color identity, plus direction of every overlapping visible-rectangle pair. Only disjoint quads may commute (GPUI Scene::finish/bounds_tree)."
   },

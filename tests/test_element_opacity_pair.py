@@ -27,6 +27,13 @@ class ContractTests(unittest.TestCase):
                 alpha=compare.expected_alpha(case)
                 quads=[{'bounds':[0,0,20,20],'clip':[0,0,240,180],'rgba':list(colors[i])+[alpha[i]]} for i in order if i in alpha]
                 row={'id':case['id'],'bounds':[{'id':i,'bounds':[0,0,20,20]} for i in ids],'target':4,'quads':quads}
+                if key=='rust':
+                    row['scale']=2
+                    for i in order:
+                        if i not in alpha:
+                            quads.extend({'bounds':[0,0,20,20],'clip':mask,'rgba':list(colors[i])+[0]} for mask in compare.transparent_strips([0,0,20,20],row['scale']))
+                    for q in quads:
+                        q.update(border_alpha=0,border_widths=[0]*4,corner_radii=[0]*4)
                 if key=='candidate':
                     row['raw_alpha']=[{'id':i,'alpha':case['alpha']/255 if i==4 else 1,'opacity':alpha.get(i,0)/(case['alpha']/255 if i==4 else 1)} for i in order]
                 trace['cases'].append(row)
@@ -55,6 +62,27 @@ class ContractTests(unittest.TestCase):
     def test_zero_still_receives_input(self):
         r,c=self.traces();c['cases'][5]['target']=None
         with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_rust_still_receives_input(self):
+        r,c=self.traces();r['cases'][5]['target']=None
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_strip_nonzero_alpha_rejected(self):
+        r,c=self.traces();r['cases'][5]['quads'][1]['rgba'][3]=.01
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_strip_visible_border_rejected(self):
+        r,c=self.traces();r['cases'][5]['quads'][1]['border_alpha']=.1
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_missing_strip_rejected(self):
+        r,c=self.traces();r['cases'][5]['quads'].pop()
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_wrong_strip_geometry_rejected(self):
+        r,c=self.traces();r['cases'][5]['quads'][1]['clip'][3]+=1
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_zero_wrong_scale_rejected(self):
+        r,c=self.traces();r['cases'][5]['scale']=1
+        with self.assertRaises(ValueError):compare.compare(r,c,self.fixture,self.tokens)
+    def test_visible_duplicate_rejected(self):
+        r,c=self.traces();r['cases'][0]['quads'].append(copy.deepcopy(r['cases'][0]['quads'][0]))
+        with self.assertRaisesRegex(ValueError,'duplicate primitive'):compare.compare(r,c,self.fixture,self.tokens)
     def test_geometry_difference(self):
         r,c=self.traces();c['cases'][0]['bounds'][0]['bounds'][2]+=1
         self.assertFalse(compare.compare(r,c,self.fixture,self.tokens)['strict_match'])
