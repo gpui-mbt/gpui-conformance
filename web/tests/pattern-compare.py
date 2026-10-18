@@ -13,11 +13,13 @@ def check(ok, message):
 def pixel(image, x, y):
     return image.getpixel((x, y))
 
-def blue_boxes(image):
+def blue_boxes(image, diagnostics=None):
     # Source blue borders, not candidate scene claims, establish independent geometry.
     pixels = image.load()
     unseen = {(x,y) for y in range(600) for x in range(600)
               if pixels[x,y][0] <= 2 and pixels[x,y][1] <= 2 and pixels[x,y][2] >= 253 and pixels[x,y][3] == 255}
+    blue_pixel_count=len(unseen)
+    components=[]
     boxes=[]
     while unseen:
         point=unseen.pop(); stack=[point]; group=[point]
@@ -27,8 +29,18 @@ def blue_boxes(image):
                 if n in unseen:
                     unseen.remove(n); stack.append(n); group.append(n)
         xs,ys=zip(*group); box=(min(xs),min(ys),max(xs)+1,max(ys)+1)
-        if box[2]-box[0]>=50 and box[3]-box[1]>=30: boxes.append(box)
+        # Source div borders are closed rectangular outlines. A blue diagonal
+        # stripe can have a large bounding box but cannot satisfy its perimeter.
+        # Use the SAME exact-blue pixel predicate; no color/geometry relaxation.
+        points=set(group)
+        left,top,right,bottom=box
+        closed_perimeter=(all((x,top) in points and (x,bottom-1) in points for x in range(left,right)) and
+                          all((left,y) in points and (right-1,y) in points for y in range(top,bottom)))
+        components.append({"bounds":box,"pixels":len(group),"closed_perimeter":closed_perimeter})
+        if right-left>=50 and bottom-top>=30 and closed_perimeter: boxes.append(box)
     boxes.sort(key=lambda b:b[1])
+    if diagnostics is not None:
+        diagnostics.update(blue_pixel_count=blue_pixel_count,qualifying_boxes=boxes,component_count=len(components),largest_components=sorted(components,key=lambda c:c["pixels"],reverse=True)[:20])
     check(len(boxes)==4, f'expected four connected blue source borders; got {boxes}')
     return boxes
 
@@ -86,7 +98,22 @@ def compare(oracle,candidate,contract=None):
         results.append({'region':name,'samples':count,'matched':matched,'agreement':ratio})
     return {'status':'qualified_source_regions','profile':contract['profile'],'regions':results,'not_claimed':contract['not_claimed']}
 
+def diagnose(path):
+    from collections import Counter
+    image=Image.open(path).convert('RGBA')
+    result={'width':image.width,'height':image.height,'rgba_sha256':hashlib.sha256(image.tobytes()).hexdigest(),
+            'top_colors':[{'rgba':color,'pixels':count} for color,count in Counter(image.getdata()).most_common(12)]}
+    try:
+        blue_boxes(image,result)
+        result['source_visible']=True
+    except Exception as error:
+        result.update(source_visible=False,error_type=type(error).__name__,error=str(error))
+    return result
+
 def main():
+    import sys
+    if len(sys.argv)==3 and sys.argv[1]=='--diagnose':
+        print(json.dumps(diagnose(sys.argv[2])));return
     parser=argparse.ArgumentParser();parser.add_argument('rust_png');parser.add_argument('moonbit_png');parser.add_argument('--output');args=parser.parse_args()
     report=compare(Image.open(args.rust_png),Image.open(args.moonbit_png))
     report['inputs']={name:hashlib.sha256(Path(path).read_bytes()).hexdigest() for name,path in [('rust',args.rust_png),('moonbit',args.moonbit_png)]}

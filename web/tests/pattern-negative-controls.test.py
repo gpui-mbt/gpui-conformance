@@ -27,6 +27,11 @@ class ActualOracleMutationTests(unittest.TestCase):
         self.oracle=Image.open(os.environ['PATTERN_RUST_PNG']).convert('RGBA');self.regions=dict(m.regions(m.blue_boxes(self.oracle)))
     def reject(self,image,region):
         with self.assertRaisesRegex(AssertionError,region):m.compare(self.oracle,image)
+    def test_actual_blue_stripes_are_not_closed_borders(self):
+        diagnostics={};boxes=m.blue_boxes(self.oracle,diagnostics)
+        self.assertEqual(len(boxes),4)
+        self.assertTrue(all(c['closed_perimeter'] for c in diagnostics['largest_components'] if c['bounds'] in boxes))
+        self.assertTrue(any(not c['closed_perimeter'] and c['bounds'][2]-c['bounds'][0]>=50 and c['bounds'][3]-c['bounds'][1]>=30 for c in diagnostics['largest_components']))
     def test_unchanged_actual_oracle_self_check(self):m.compare(self.oracle,self.oracle.copy())
     def test_wrong_interval(self):
         candidate=self.oracle.copy();x,y,w,h=self.regions['red4'];sx,sy,_,_=self.regions['red3']

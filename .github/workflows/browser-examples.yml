@@ -293,6 +293,13 @@ jobs:
           python3 web/scripts/analyze_screenshots.py _build/browser-example-evidence --font _build/browser-lab/moonbit/IBMPlexSans-Regular.ttf --baseline web/evidence/20261015
           python3 -m unittest discover -s web/tests -p 'test_pixel_regions.py' -v
           python3 -m unittest discover -s web/tests -p 'test_text_layout_comparator.py' -v
+      - name: Upload bounded pattern diagnostics without duplicate runtimes
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pattern-browser-diagnostics
+          path: _build/browser-example-evidence/pattern/diagnostics
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always()
         with:
