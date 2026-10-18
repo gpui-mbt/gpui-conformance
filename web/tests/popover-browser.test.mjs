@@ -8,7 +8,7 @@ import {createHash} from 'node:crypto';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import vm from 'node:vm';
-import {profiles,limits,parseTsv,phraseBox,visibleState,ObservationUnavailable,inverseScreenshot} from './popover-browser.mjs';
+import {profiles,limits,parseTsv,phraseBox,visibleState,ObservationUnavailable,inverseScreenshot,measureCanvasGeometry,probeScaleGeometry} from './popover-browser.mjs';
 const header='level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext';
 const row=(text,i=1,conf=95,line=1)=>`5\t1\t1\t1\t${line}\t${i}\t${10+i*40}\t30\t35\t20\t${conf}\t${text}`;
 const words=text=>parseTsv([header,...text.split(' ').map((w,i)=>row(w,i))].join('\n'));
@@ -110,4 +110,59 @@ test('real retained failing screenshot gains an independent button target via in
   writeFileSync(join(directory,'offline-recognition.json'),JSON.stringify({source:input,source_sha256:before,
     derived_sha256:digest(inverse),target,original_target:'observation_unavailable',inverse_target:'observed',
     scope:'Offline OCR replay of one actual captured MoonBit image only; no new browser behavior or Rust qualification'},null,2));
+});
+
+test('passive geometry observer reports actual backing and disconnects on delivery/timeout/error',async()=>{
+  for(const mode of ['delivery','timeout','error']) {
+    let disconnected=0,cleared=0,timeout;
+    const canvas={width:480,height:600,clientWidth:480,clientHeight:600,
+      getBoundingClientRect:()=>({x:0,y:0,width:480,height:600})};
+    class Observer {
+      constructor(callback){this.callback=callback;}
+      observe(target,options){
+        assert.equal(target,canvas);assert.equal(options.box,'device-pixel-content-box');
+        if(mode==='error')throw Error('observer unavailable');
+        queueMicrotask(()=>{if(mode==='timeout')timeout();else {
+          canvas.width=600;canvas.height=750;
+          this.callback([{target:canvas,contentRect:{x:0,y:0,width:480,height:600},
+            contentBoxSize:[{inlineSize:480,blockSize:600}],devicePixelContentBoxSize:[{inlineSize:600,blockSize:750}]}]);
+        }});
+      }
+      disconnect(){disconnected++;}
+    }
+    const measure=vm.runInNewContext('('+measureCanvasGeometry.toString()+')',{
+      ResizeObserver:Observer,window:{devicePixelRatio:1.25,innerWidth:480,innerHeight:600,visualViewport:{width:480,height:600,scale:1}},
+      getComputedStyle:()=>({width:'480px',height:'600px',transform:'none',zoom:'1'}),
+      setTimeout(callback,ms){assert.equal(ms,2000);timeout=callback;return 1;},clearTimeout(){cleared++;}
+    });
+    const observed=await measure(canvas);
+    assert.equal(disconnected,1);assert.equal(cleared,1);
+    assert.equal(observed.window_dpr,1.25);
+    assert.equal(observed.resize_observer.status,mode==='delivery'?'observed':mode==='timeout'?'timeout':'unavailable');
+    if(mode==='delivery'){
+      assert.equal(observed.canvas.backing_width,600,'Snapshot must follow observer delivery');
+      assert.equal(observed.resize_observer.device_pixel_content_box[0].inline_size,600);
+    }
+  }
+});
+test('scale probe has exactly two isolated blank pages and closes owned browser even on failures',async()=>{
+  for(const failure of [false,true]){
+    let pagesClosed=0,browsersClosed=0,launches=0,screenshots=0;
+    const png=Buffer.alloc(24);png.writeUInt32BE(600,16);png.writeUInt32BE(750,20);
+    const active={version:async()=>'test-only',newPage:async options=>{
+      assert.deepEqual(options,{viewport:{width:480,height:600},deviceScaleFactor:1.25});
+      return {setDefaultTimeout:ms=>assert.equal(ms,5000),setDefaultNavigationTimeout:ms=>assert.equal(ms,5000),
+        setContent:async html=>{assert.doesNotMatch(html,/script|popover/);},
+        locator:()=>({evaluate:async fn=>{assert.equal(fn,measureCanvasGeometry);if(failure)throw Error('diagnostic failed');return {test:true};}}),
+        screenshot:async()=>{screenshots++;return png;},close:async()=>{pagesClosed++;}};
+    }};
+    const browser={...active,browserType:()=>({launch:async options=>{
+      launches++;assert.equal(options.timeout,15000);assert(options.args.includes('--force-device-scale-factor=1.25'));
+      return {...active,close:async()=>{browsersClosed++;}};
+    }})};
+    const result=await probeScaleGeometry({browser,directory:'/unused-by-mock'});
+    assert.equal(launches,1);assert.equal(browsersClosed,1);assert.equal(pagesClosed,2);
+    assert.equal(screenshots,failure?0:2);assert.equal(result.captures,screenshots);
+    assert(result.runs.every(run=>run.status===(failure?'unavailable':'observed')));
+  }
 });

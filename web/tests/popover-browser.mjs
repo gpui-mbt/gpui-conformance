@@ -68,12 +68,71 @@ export async function inverseScreenshot(data) {
   context.putImageData(pixels,0,0);return canvas.toDataURL('image/png');
 }
 
+// Passive DOM diagnostics only. A single independently owned ResizeObserver
+// is disconnected after its first delivery, error, or two-second timeout.
+export async function measureCanvasGeometry(canvas) {
+  const snapshot=()=>{const rect=canvas.getBoundingClientRect(),style=getComputedStyle(canvas),visual=window.visualViewport;
+  return {window_dpr:window.devicePixelRatio,inner_width:window.innerWidth,inner_height:window.innerHeight,
+    canvas:{backing_width:canvas.width,backing_height:canvas.height,client_width:canvas.clientWidth,client_height:canvas.clientHeight,
+      css_rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height},
+      style:{width:style.width,height:style.height,transform:style.transform,zoom:style.zoom}},
+    visual_viewport:visual?{width:visual.width,height:visual.height,scale:visual.scale,
+      offset_left:visual.offsetLeft,offset_top:visual.offsetTop,page_left:visual.pageLeft,page_top:visual.pageTop}:null};};
+  const geometry={};
+  geometry.resize_observer=await new Promise(resolve=>{
+    let observer,timer,finished=false;
+    const finish=value=>{if(finished)return;finished=true;clearTimeout(timer);observer?.disconnect();resolve(value);};
+    timer=setTimeout(()=>finish({status:'timeout',timeout_ms:2000}),2000);
+    try {
+      observer=new ResizeObserver(entries=>{
+        try {
+          const entry=entries.find(entry=>entry.target===canvas);
+          if(!entry){finish({status:'unavailable',reason:'No canvas entry'});return;}
+          const boxes=value=>value?Array.from(value).map(box=>({inline_size:box.inlineSize,block_size:box.blockSize})):null;
+          finish({status:'observed',content_rect:{x:entry.contentRect.x,y:entry.contentRect.y,
+            width:entry.contentRect.width,height:entry.contentRect.height},
+            content_box:boxes(entry.contentBoxSize),device_pixel_content_box:boxes(entry.devicePixelContentBoxSize)});
+        }catch(error){finish({status:'unavailable',reason:String(error)});}
+      });
+      observer.observe(canvas,{box:'device-pixel-content-box'});
+    }catch(error){finish({status:'unavailable',reason:String(error)});}
+  });
+  return {...snapshot(),...geometry};
+}
+
+// Two source-independent blank pages diagnose context emulation versus browser
+// launch scale. Neither page loads or qualifies application code. At most one
+// extra browser is launched, and both pages/browser are closed even on failure.
+export async function probeScaleGeometry({browser,directory}) {
+  const probe={purpose:'diagnostics only; original application profile and gates unchanged',captures:0,runs:[]};
+  for(const mode of ['context-only','forced-launch']) {
+    const record={mode,status:'running'};probe.runs.push(record);let owned,page;
+    try {
+      const active=mode==='context-only'?browser:(owned=await browser.browserType().launch({headless:true,timeout:15000,
+        args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist','--force-device-scale-factor=1.25']}));
+      record.browser=await active.version();
+      page=await active.newPage({viewport:{width:480,height:600},deviceScaleFactor:1.25});
+      page.setDefaultTimeout(5000);page.setDefaultNavigationTimeout(5000);
+      await page.setContent('<!doctype html><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}canvas{display:block;width:480px;height:600px}</style><canvas width="480" height="600"></canvas>');
+      record.geometry=await page.locator('canvas').evaluate(measureCanvasGeometry);
+      assert(probe.captures<2,'Blank-page probe capture cap exceeded');probe.captures++;
+      const name='scale-probe-'+mode+'.png',png=await page.screenshot({path:join(directory,name),timeout:5000});
+      record.screenshot={image:name,width:png.readUInt32BE(16),height:png.readUInt32BE(20),sha256:createHash('sha256').update(png).digest('hex')};
+      record.status='observed';
+    }catch(error){record.status='unavailable';record.failure=error.stack;
+    }finally{if(page)await page.close().catch(()=>{});if(owned)await owned.close().catch(()=>{});}
+  }
+  return probe;
+}
+
 export async function checkPopoverPair({browser,page,evidence,paired}) {
   const directory=join(evidence,'popover');await mkdir(directory,{recursive:true});
   const result={status:'running',source_blob:'7678a6a3ed865d9874b72cb99b473a115591d35c',
     comparison:'source-specific observed interactions and same-runtime image restoration only; pixel, shaping, callback-count, native and arbitrary-viewport parity unverified',
     interrupted_press:'not_run: no reliable cross-runtime native focus-loss oracle',profiles:[],captures:0,derived_images:0,ocr_runs:0};
   try {
+    result.scale_probe=await probeScaleGeometry({browser,directory});
+    console.log('Popover scale diagnostic: '+JSON.stringify(result.scale_probe));
     await page.selectOption('#fixture','popover');
     const urls={moon:await page.locator('#moon-frame').getAttribute('src')};
     if(paired)urls.rust=await page.locator('#rust-frame').getAttribute('src');
@@ -101,6 +160,8 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
         await p.locator(`html[data-runtime-status="${side==='moon'?'ready':'initialized'}"]`).waitFor({timeout:60000});
         assert.equal(await p.evaluate(()=>crossOriginIsolated),true);
         const canvas=p.locator('canvas');
+        run.geometry_initial=await canvas.evaluate(measureCanvasGeometry,undefined,{timeout:3000})
+          .catch(cause=>({status:'unavailable',reason:String(cause)}));
         const bounds=await canvas.boundingBox();
         assert.deepEqual([bounds?.x,bounds?.y,bounds?.width,bounds?.height],[0,0,profile.width,profile.height],
           'Full runtime canvas must occupy the declared viewport without clipping');
@@ -228,7 +289,12 @@ export async function checkPopoverPair({browser,page,evidence,paired}) {
         assert(run.requests.some(r=>r.status===200&&new URL(r.url).pathname.endsWith(side==='rust'?'/popover_bg.wasm':'/popover.mjs')),
           'Actual compiled runtime response required independently for each profile');
         assert.deepEqual(run.errors,[]);run.status='passed';
-      }catch(error){run.status=error instanceof ObservationUnavailable?'observation_unavailable':'failed';run.failure=error.stack;throw error;
+      }catch(error){run.status=error instanceof ObservationUnavailable?'observation_unavailable':'failed';run.failure=error.stack;
+        run.geometry_failure=await p.locator('canvas').evaluate(measureCanvasGeometry,undefined,{timeout:3000})
+          .catch(cause=>({status:'unavailable',reason:String(cause)}));
+        console.error('Popover failure diagnostics: '+JSON.stringify({side,width:profile.width,height:profile.height,dpr:profile.dpr,
+          status:run.status,failure:error.message,initial:run.geometry_initial,current:run.geometry_failure}));
+        throw error;
       }finally{
         run.events=await p.evaluate(()=>globalThis.popoverQualificationEvents||[]).catch(()=>[]);
         await writeFile(join(directory,`${side}-${profile.width}-dpr${profile.dpr}-events.json`),JSON.stringify(run.events,null,2));
