@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "frozen_before_candidate_execution": true,
+  "corpus": {"fixture_commit": "4bf568614f9a5707855a441314eec8080adbc8a7", "variants": ["example_branch", "asymmetric_fractional"], "steps_per_variant": 14, "settled_operations": 28, "attachments": 42, "rust_div_hitboxes": 84, "core_geometry_label": "corresponding_core_input_geometry"},
+  "edges": {"space": "physical", "projection": "scale * [left, top, left + width, top + height]", "absolute_epsilon": 0.0009765625, "inclusive": true, "report": "every signed edge residual, maximum absolute residual, node, operation, scale, backend, comparison stage"},
+  "exact": ["variant_order", "operation_order", "viewport", "scale", "nested_state", "node_presence", "attachment_count", "input_geometry_count", "restoration", "mask_equals_logical_viewport"],
+  "masks": "Compare logical viewport independently of snapped host bounds; no occlusion or input-dispatch parity claim.",
+  "failure_policy": "Every strict failure remains failed, including source-explained Double/f32 differences. No post-result tolerance adjustment, integer-only comparison, or aggregate-only acceptance.",
+  "control_policy": "Production-path source mutations must compile and execute. Each requires an independently predicted semantic witness and additional violation beyond baseline. Compilation failure is not a killed control.",
+  "qualification": "Bounded source-derived NoopTextSystem text/layout pairing, not native-font, screenshot, full-popover, or general constraint-dependent measurement parity."
+}
