@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "layer": "ime",
+  "runner": "node --test web/tests/input-ime-host.test.mjs",
+  "reference": {
+    "status": "unsupported",
+    "reason": "The pinned Rust GPUI reference has no TextField or IME transport, so these cases have no differential reference."
+  },
+  "cases": [
+    {
+      "id": "web-composition-commit-once",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "compositionstart/update/end commits the final text once; the browser editor value is not used as a second document"
+    },
+    {
+      "id": "web-cancelable-final-beforeinput-prevented",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "a cancelable final beforeinput is prevented and the following identical edit is accepted exactly once"
+    },
+    {
+      "id": "web-noncancelable-ime-beforeinput-deduplicated",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "a non-cancelable IME beforeinput followed by input does not duplicate the committed text"
+    },
+    {
+      "id": "web-input-fallback-deduplicated",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "an input event without a preceding beforeinput consumes the duplicate exactly once"
+    },
+    {
+      "id": "web-escape-and-empty-finalization-cancel",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "Escape and ambiguous empty finalization cancel the composition; ordinary typing still works"
+    },
+    {
+      "id": "web-next-character-not-swallowed",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "the next ordinary character is accepted with or without a keydown after a handled composition"
+    },
+    {
+      "id": "web-ordinary-beforeinput-fallback",
+      "kind": "ime",
+      "layer": "ime",
+      "status": "candidate-only",
+      "source": "web/tests/input-ime-host.test.mjs",
+      "observation": "a non-cancelable ordinary beforeinput is inserted by the input fallback, not twice"
+    }
+  ]
+}

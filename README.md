@@ -19,13 +19,28 @@ gpui.mbt `b16210d9363aaac778d9c9240deadd392347b9d6` (distributed align-content c
 | Nested positive rectangle clips | GPUI window content-mask stack during canvas prepaint; MoonBit scene snapshot clip chain intersected by its geometry API |
 | Native window create/resize/remove | Separate native runner observes logical content size and handle liveness in both AppKit backends |
 | Native GPU pixels | Separate native runner compares three requested pixel samples, bound to the complete retained RGBA8 readbacks |
-| IME composition | Outside this bounded slice: **unsupported** |
+| IME composition | Web-only synthetic DOM transport (`web/tests/input-ime-host.test.mjs`); no live IME and no Rust reference comparison; **candidate-only** |
 
 Headless layout/paint preparation and clip geometry do not establish pixel
 rendering, Metal correctness, AppKit lifecycle, physical input, accessibility,
 text shaping, or general GPUI compatibility. The root's implicit pointer target
 is normalized to null: pointer cases compare only the two child listeners.
 The original trees/data are authored here; no upstream test fixture is copied.
+
+### Web TextField/IME lane
+
+`ime_scenarios.json` declares the existing Web TextField composition cases as a
+separate `ime` corpus. It is executed by the Node lane, not by `run.py`:
+
+```sh
+node --test web/tests/input-ime-host.test.mjs
+python3 -m unittest discover -s tests -p 'test_ime_scenarios.py'
+```
+
+The corpus has no differential reference: the pinned Rust GPUI has no TextField
+or IME transport. Its cases are therefore `candidate-only`, and the corpus
+validator rejects a `pass` status or a live-Japanese-IME claim. The separate
+Chromium programmatic-event test is not a physical keyboard or live IME result.
 
 ## Run
 
