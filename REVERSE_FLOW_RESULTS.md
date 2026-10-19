@@ -3,8 +3,8 @@
 This independently authored 68-case bounded diagnostic compares actual GPUI
 `5a5fbe79917971a4d52a96b6ddb04da198a5012e` (tree
 `990fb995914d51a546b20e5cf0382dafc105c299`) and public MoonBit candidate
-`8cb19113b0ed9af9389a53cd6c2d9ba6b750dbb9`, tree
-`153d50a3427cb3e11e23294ec0d535b6c58c3bf7`, from
+`50373f51aa0cf8b4adc0adbdd665879008723bfb`, tree
+`0c584786b2d76546ef99f34671173f6c9580d85a`, from
 [core draft PR #123](https://github.com/gpui-mbt/gpui.mbt/pull/123).
 This is an explicitly selected diagnostic reference, consistent with the
 recent runtime diagnostic work. It is separate from the suite's older overall
