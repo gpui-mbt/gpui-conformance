@@ -71,7 +71,6 @@ jobs:
           node-version: 24.11.0
       - name: Verify exact core scene and element interfaces
         id: interfaces
-        continue-on-error: true
         run: |
           set -o pipefail
           failed=0

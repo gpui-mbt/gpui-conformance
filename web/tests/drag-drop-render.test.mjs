@@ -194,11 +194,17 @@ test('md ordering outward-covers offset/spread boxes before strict device-pixel 
 
 // Deliberate in-memory renderer substitutions are command-recorder controls.
 // They neither generate nor relabel original screenshots or browser evidence.
-const source=await readFile(new URL('../moonbit/site/render.mjs',import.meta.url),'utf8');
+const renderURL=new URL('../moonbit/site/render.mjs',import.meta.url);
+const source=await readFile(renderURL,'utf8');
+// A data URL has no directory. Keep the real renderer dependency while resolving
+// its relative specifier against the original renderer module, before mutation.
+const imageImport="'./image-resources.mjs'";
+assert.equal(source.split(imageImport).length,2,'exactly one image dependency import is required');
+const importableSource=source.replace(imageImport,JSON.stringify(new URL('./image-resources.mjs',renderURL).href));
 async function mutatedDraw(before,after) {
   assert(source.includes(before),'negative-control mutation anchor must remain present');
-  const mutated=source.replace(before,after);
-  assert.notEqual(mutated,source);
+  const mutated=importableSource.replace(before,after);
+  assert.notEqual(mutated,importableSource);
   return (await import(`data:text/javascript;base64,${Buffer.from(mutated).toString('base64')}`)).drawFrame;
 }
 
