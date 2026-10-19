@@ -12,6 +12,7 @@ import { createPopoverHost, readPopoverFrame } from './popover-host.mjs';
 import { loadPopoverFont } from './popover-text.mjs';
 import { createUniformListHost } from './uniform-list-host.mjs';
 import { measureUniformListInputs } from './uniform-list-text.mjs';
+import { watchGridQualificationNotice } from './grid-qualification-notice.mjs';
 import { readGridFrame, watchGridDeviceScale } from './grid-layout-host.mjs';
 import { readAnchorFrame, createAnchorHost } from './anchor-host.mjs';
 import {readGradientFrame,createGradientHost} from './gradient-host.mjs';
@@ -31,7 +32,7 @@ try {
   const isFocusVisible = example === 'focus_visible';
   const isTabStop = example === 'tab_stop';
   const isGrid = example === 'grid_layout';
-  let gridNotice;
+  let gridNotice, gridQualification;
   if (isGrid) {
     gridNotice = document.createElement('p');
     gridNotice.id = 'grid-live-notice';
@@ -203,7 +204,7 @@ try {
         canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale);
         drawFrame(context,frame,metadata,scale);
         globalThis.gpuiExample = {metadata,frame,content,textWidth:prefixes,scale};
-        gridNotice.hidden = frame.grid_layout.comparison_profile_match;
+        gridQualification.setRequired(!frame.grid_layout.comparison_profile_match);
         gridNotice.textContent = 'Live viewport outside the comparison profile. Rendering and text wrapping here are unverified.';
         canvas.hidden = false; error.hidden = true;
         document.documentElement.dataset.runtimeStatus = 'ready';
@@ -213,7 +214,7 @@ try {
         delete globalThis.gpuiExample;
         canvas.hidden = true; error.hidden = false;
         document.documentElement.dataset.runtimeStatus = 'failed';
-        gridNotice.hidden = true;
+        gridQualification.setRequired(false);
         error.textContent = `Grid candidate failed: ${cause.message}. Live viewport requires width 16–16384px and height 32–16384px, DPR 0.25–4, and a rounded Canvas of 1–16384px per side and at most 33554432 pixels.`;
       }
       return;
@@ -267,6 +268,7 @@ try {
     globalThis.gpuiExample = { metadata, frame, textWidth: width, scale, ...(content ? { content, ...(prime ? {workers:prime.diagnostics} : {}) } : {}), ...(input ? { input: input.readState(), inputEvents: input.events } : {}), ...(dynamicFonts ? {dynamic_fonts: dynamicFonts.state} : {}), ...(scrollable ? {scrollableEvents:scrollable.events} : {}), ...(focusVisible ? {focusVisibleEvents:focusVisible.events} : {}), ...(tabStop ? {tabStopEvents:tabStop.events} : {}), ...(dragDrop ? {dragDropEvents:dragDrop.events} : {}), ...(uniformList ? {uniformListEvents:uniformList.events} : {}) };
     document.documentElement.dataset.runtimeStatus = 'ready';
   }
+  if (isGrid) gridQualification = watchGridQualificationNotice(window, gridNotice);
   render();
   if(isPopover) {
     popover=createPopoverHost({runtime,canvas,render});
@@ -361,10 +363,10 @@ try {
   });
   if (isGrid) {
     let stopScaleWatch = watchGridDeviceScale(window, render);
-    window.addEventListener('pagehide', () => { stopScaleWatch?.(); stopScaleWatch = null; });
+    window.addEventListener('pagehide', () => { stopScaleWatch?.(); stopScaleWatch = null; gridQualification.stop(); });
     // BFCache restores this document without rerunning module initialization.
     window.addEventListener('pageshow', () => {
-      if (!stopScaleWatch) { stopScaleWatch = watchGridDeviceScale(window, render); render(); }
+      if (!stopScaleWatch) { gridQualification = watchGridQualificationNotice(window, gridNotice); stopScaleWatch = watchGridDeviceScale(window, render); render(); }
     });
   }
 } catch (cause) {
@@ -373,4 +375,3 @@ try {
   document.documentElement.dataset.runtimeStatus = 'failed';
   error.textContent = `gpui.mbt example failed: ${cause.message}. Build web assets with web/scripts/build_moonbit.py before serving the page.`;
 }
-

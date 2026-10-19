@@ -37,12 +37,31 @@ try{
    if(width<=720){assert.equal(r.x,m.x);assert(m.y>r.y);assert(r.width<400,'narrow parent must reach the grid stack breakpoint');}else {assert(r.x<m.x);assert.equal(r.y,m.y);}
    assert.equal(state.candidate.grid_layout.mode,r.width<400?'stack':'grid');assert.equal(state.candidate.conformance,'unverified');
    assert.equal(r.width,Math.floor(Math.min(r.containerWidth,m.containerWidth)));
+   // The visible shared qualification replaces only the duplicate canvas overlay.
+   await page.waitForFunction(()=>document.getElementById('moon-frame').contentDocument.getElementById('grid-live-notice').hidden);
+   assert(await page.locator('#notice').isVisible());
+   assert.match(await page.locator('#notice').textContent(),/399\/400\/401\/500 × 500 at DPR1; other sizes are unverified/);
    const next=state.panes.map(p=>[p.src,p.timeOrigin]);if(urls)assert.deepEqual(next,urls,'resize must not reload either runtime');else urls=next;
    report.states.push({dpr,width,height,...state});await page.screenshot({path:join(out,`${width}-${height}-dpr${dpr}.png`),fullPage:true});
   }
+   await page.evaluate(()=>document.getElementById('notice').hidden=true);
+   await page.waitForFunction(()=>!document.getElementById('moon-frame').contentDocument.getElementById('grid-live-notice').hidden);
+   await page.evaluate(()=>document.getElementById('notice').hidden=false);
+   await page.waitForFunction(()=>document.getElementById('moon-frame').contentDocument.getElementById('grid-live-notice').hidden);
+   // Removal also restores the fallback; reinsertion restores shared labeling.
+   await page.evaluate(()=>{window.savedGridNotice=document.getElementById('notice');window.savedGridNotice.remove();});
+   await page.waitForFunction(()=>!document.getElementById('moon-frame').contentDocument.getElementById('grid-live-notice').hidden);
+   await page.evaluate(()=>document.querySelector('.panes').before(window.savedGridNotice));
+   await page.waitForFunction(()=>document.getElementById('moon-frame').contentDocument.getElementById('grid-live-notice').hidden);
+
   // Leaving the responsive example restores the original fixed-size contract.
   await page.selectOption('#fixture','hello_world');
   await page.waitForFunction(()=>!document.body.classList.contains('live-grid')&&['rust','moon'].every(s=>{const f=document.getElementById(s+'-frame');return f.style.width==='500px'&&f.style.height==='500px';}));
+  const standalone=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:dpr});
+  await standalone.goto(`http://127.0.0.1:${server.address().port}/moonbit/?example=grid_layout`);
+  await standalone.waitForFunction(()=>document.documentElement.dataset.runtimeStatus==='ready'&&!document.getElementById('grid-live-notice').hidden);
+  assert(await standalone.locator('#grid-live-notice').isVisible());
+  await standalone.close();
   await browser.close();browser=null;
  }
  assert.deepEqual(report.errors,[]);report.status='passed';
