@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "bound",
+  "suite_base": "0816b45b743dc34376f5c945fe6fc01dfd0b240a",
+  "upstream_commit": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+  "core_commit": "bf1f33457de583048d2c14b086e74c38eb2a20d9",
+  "core_tree": "ea289c2df1b6cf067d0bdbbef82e3b95b9d74459",
+  "rust_version": "1.98.1",
+  "moon_version": "0.10.15+943464bfa",
+  "node_version": "24.11.0",
+  "playwright_version": "1.56.1",
+  "claim": "separate bounded static PNG resource prerequisite"
+}

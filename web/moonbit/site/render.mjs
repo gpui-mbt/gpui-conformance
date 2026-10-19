@@ -1,3 +1,4 @@
+import {validateImageResources, resolveImageResources} from './image-resources.mjs';
 // Pinned gpui_macros/styles.rs presets only, not a caller-configurable shadow API.
 const sourceShadowLayers = {
   shadow_sm: [
@@ -19,11 +20,11 @@ export function validateFrame(frame) {
   const snapshot = frame.snapshot;
   if (snapshot?.schema_version !== 1 || !Array.isArray(snapshot.items) || !Array.isArray(frame.decorations)) throw new Error('Expected SceneSnapshot v1 and explicit host decorations');
   for (const item of snapshot.items) {
-    if (!['quad', 'text', 'text_run'].includes(item.kind)) throw new Error(`Unsupported scene item ${item.kind}`);
+    if (!['quad', 'text', 'text_run', 'image'].includes(item.kind)) throw new Error(`Unsupported scene item ${item.kind}`);
     const b = item.bounds;
     if (!b || ![b.x,b.y,b.width,b.height].every(Number.isFinite) || b.width < 0 || b.height < 0) throw new Error('Invalid scene bounds');
     const c = item.color;
-    if (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255)) throw new Error('Invalid scene color');
+    if (item.kind !== 'image' && (!c || ![c.red,c.green,c.blue,c.alpha].every(n => Number.isInteger(n) && n >= 0 && n <= 255))) throw new Error('Invalid scene color');
     if (item.opacity !== undefined && (!Number.isFinite(item.opacity) || item.opacity < 0 || item.opacity > 1)) throw new Error('Invalid scene opacity');
     if ((item.kind === 'text' || item.kind === 'text_run') && (typeof item.text !== 'string' || !Number.isFinite(item.font_size) || item.font_size <= 0)) throw new Error('Invalid text item');
   }
@@ -94,6 +95,8 @@ export function validateFrame(frame) {
           !['a','b','c','d','tx','ty'].every((key, index) => item.transform[key] === [1,0,0,1,0,0][index])))
       throw new Error('Unsupported source shadow paint geometry');
   }
+  if (snapshot.items.some(item => item.kind === 'image') && (frame.shadows?.length || frame.scroll)) throw new Error('Unsupported mixed image paint extension');
+  validateImageResources(snapshot);
   return frame;
 }
 
@@ -193,12 +196,13 @@ function sourceShadowPaintCommands(frame, metadata, scale) {
   return commands.sort((a,b) => a.order-b.order || a.kind-b.kind || a.index-b.index);
 }
 
-export function drawFrame(context, frame, metadata, scale) {
-  return drawFrameInternal(context, frame, metadata, scale, true);
+export function drawFrame(context, frame, metadata, scale, imageResources) {
+  return drawFrameInternal(context, frame, metadata, scale, true, imageResources);
 }
 
-function drawFrameInternal(context, frame, metadata, scale, clear) {
+function drawFrameInternal(context, frame, metadata, scale, clear, imageResources) {
   validateFrame(frame);
+  const images = resolveImageResources(frame.snapshot, imageResources);
   if (!Number.isFinite(scale) || scale <= 0 || scale > 4) throw new Error('Invalid device scale');
   const styles = new Map(frame.decorations.map(style => [style.id, style]));
   const roundedFills = new Map((frame.rounded_fills || []).map(style => [style.id, style.radius]));
@@ -227,7 +231,7 @@ function drawFrameInternal(context, frame, metadata, scale, clear) {
         for (const rect of clips.get(item.clip_chain_id) || []) {
           context.beginPath(); context.rect(rect.x, rect.y, rect.width, rect.height); context.clip();
         }
-        context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
+        if (c) context.fillStyle = `rgba(${c.red},${c.green},${c.blue},${c.alpha / 255})`;
         if (shadow) {
           const {offset_x,offset_y,blur,spread} = shadow;
           // Keep both source layers, opacity and clip. The offscreen caster
@@ -242,6 +246,10 @@ function drawFrameInternal(context, frame, metadata, scale, clear) {
           context.roundRect(b.x-spread-4096,b.y-spread,b.width+2*spread,b.height+2*spread,
             Math.max(0,(style?.radius || roundedFills.get(item.id) || 0)+spread));
           context.fill();
+        } else if (item.kind === 'image') {
+          const crop = item.image_bounds;
+          context.beginPath(); context.rect(crop.x,crop.y,crop.width,crop.height); context.clip();
+          images(context,item);
         } else if (item.kind === 'text' || item.kind === 'text_run') {
           const textStyle = textStyles.get(item.id);
           context.font = `${textStyle?.style || 'normal'} ${textStyle?.weight || 400} ${item.font_size}px "${metadata.font_family}"${metadata.font_fallback ? `, "${metadata.font_fallback}"` : ''}`;
@@ -299,6 +307,7 @@ export function validateCoreRasterFrame(frame,metadata,scale) {
   const width=Math.ceil(metadata.width*scale),height=Math.ceil(metadata.height*scale);
   if(width<1||height<1||width>2048||height>2048||width*height>1048576)throw new Error('Core raster viewport exceeds resource cap');
   const snapshot=frame.snapshot;
+  if (snapshot?.resources !== undefined && (!Array.isArray(snapshot.resources) || snapshot.resources.length)) throw new Error('Image resources unsupported in core raster transport');
   if(snapshot?.schema_version!==1||!Array.isArray(snapshot.items)||snapshot.items.length>128||!Array.isArray(frame.operations)||frame.operations.length>snapshot.items.length||frame.decorations?.length!==0)throw new Error('Invalid ordered core raster scene');
   const viewport=snapshot.viewport;
   if(!viewport||viewport.x!==0||viewport.y!==0||viewport.width!==metadata.width||viewport.height!==metadata.height||snapshot.scale!==scale)throw new Error('Core snapshot/viewport mismatch');
@@ -354,4 +363,5 @@ export function drawCoreRasterFrame(context,frame,metadata,scale,makeSurface=(w,
     }
   } finally {context.restore();}
 }
+
 
