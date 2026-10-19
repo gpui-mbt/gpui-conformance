@@ -26,6 +26,13 @@ def synthetic_pair():
     return rust,core
 
 class SourceTests(unittest.TestCase):
+    def test_probe_joins_cases_outside_string_interpolation(self):
+        # Source regression only. The image workflow must still compile this probe.
+        source=(ROOT/'adapters/image_resource_moonbit/main.mbt').read_text()
+        self.assertEqual(source.count('  let cases_json = cases.join(",")'),1)
+        self.assertIn(r'\{cases_json}',source)
+        self.assertNotIn(r'\{cases.join(',source)
+
     def test_original_asset_identity(self):
         b=(ROOT/'assets/app-icon.png').read_bytes()
         self.assertEqual(len(b),168173)

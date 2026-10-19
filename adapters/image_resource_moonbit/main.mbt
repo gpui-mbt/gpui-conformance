@@ -37,5 +37,6 @@ fn main {
       .snapshot_v1(@primitives.Rect::new(0, 0, 160, 120).unwrap(), 1).unwrap().canonical_json()
     cases.push("{\"case\":\"\{name}\",\"frame\":{\"ok\":true,\"conformance\":\"unverified\",\"decorations\":[],\"snapshot\":\{snapshot}}}")
   }
-  println("{\"schema_version\":1,\"backend\":\"actual-moonbit-core\",\"run_token\":\{token_json()},\"cases\":[\{cases.join(\",\")}]}")
+  let cases_json = cases.join(",")
+  println("{\"schema_version\":1,\"backend\":\"actual-moonbit-core\",\"run_token\":\{token_json()},\"cases\":[\{cases_json}]}")
 }
