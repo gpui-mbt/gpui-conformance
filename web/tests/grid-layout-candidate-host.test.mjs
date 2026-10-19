@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import {readGridViewport,measureGridInputs,readGridFrame,watchGridDeviceScale} from '../moonbit/site/grid-layout-host.mjs';
 
+import {watchGridQualificationNotice} from '../moonbit/site/grid-qualification-notice.mjs';
+
 // Synthetic host fixtures exercise transport only, not compiled MoonBit or Rust.
 function fixture() {
   const calls=[],measurements=[];
@@ -76,7 +78,7 @@ async function route(width=500) {
   const source=readFileSync(new URL('../moonbit/site/host.mjs',import.meta.url),'utf8')
     .replace(/^import .*;\n/gm,'').replace('await import(modules[example])','await load(modules[example])');
   const sandbox={URL,location:{href:'http://127.0.0.1/moonbit/?example=grid_layout'},window,document,devicePixelRatio:1,
-    FontFace:class {async load(){return this;}},readGridFrame,watchGridDeviceScale,
+    FontFace:class {async load(){return this;}},readGridFrame,watchGridDeviceScale,watchGridQualificationNotice,
     drawFrame:(_context,frame,metadata,scale)=>draws.push({frame,metadata:{...metadata},scale}),
     load:async path=>{imports.push(path);return f.runtime;},
     createHostTiming:()=>({complete:(...args)=>timing.push(['complete',...args]),fail:()=>timing.push(['fail'])})};
