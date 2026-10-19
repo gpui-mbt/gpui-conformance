@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "scope": "bounded reverse-flow diagnostic; separate from legacy compatibility pins.json",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "e2c8bd5f0fd2da157f529813bdb33f5ce329f01b",
+    "tree": "cf086d5c04ce4db99e6697606bf93852cc177c95",
+    "pull_request": "https://github.com/gpui-mbt/gpui.mbt/pull/123"
+  }
+}
