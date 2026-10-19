@@ -14,7 +14,7 @@ def observation(fixture, backend):
     frame = {'offsets': [[0, 0], [0, 0]], 'maximums': [[160, 240], [160, 0]],
              'bounds': [[i, [0, 0, 10, 10]] for i in range(2, 7)], 'targets': [None] * len(fixture['points'])}
     return {'schema_version': 1, 'backend': backend, 'input': copy.deepcopy(fixture),
-            'cases': [{'id': case['id'], 'frames': [copy.deepcopy(frame) for _ in range(len(case['wheels']) + 1)]}
+            'cases': [{'id': case['id'], 'device_scale': case['device_scale'], 'frames': [copy.deepcopy(frame) for _ in range(len(case['wheels']) + 1)]}
                       for case in fixture['cases']]}
 
 
@@ -29,7 +29,30 @@ class NestedScrollPairTests(unittest.TestCase):
 
     def test_fixture_and_synthetic_equal_records(self):
         report = self.compare()
-        self.assertEqual((report['status'], report['cases'], report['frames']), ('pass', 7, 31))
+        self.assertEqual((report['status'], report['cases'], report['frames']), ('pass', 40, 202))
+
+    def test_layout_and_scale_contract(self):
+        for layout in ('vertical', 'horizontal', 'both'):
+            self.assertTrue(any(case['layout'] == layout for case in self.fixture['cases']))
+        for value in ('diagonal', '', None, True):
+            changed = copy.deepcopy(self.fixture)
+            changed['cases'][0]['layout'] = value
+            with self.assertRaises(ValueError): PAIR.validate_fixture(changed)
+        for value in (3, 0, -2, True, '2', float('nan')):
+            changed = copy.deepcopy(self.fixture)
+            changed['cases'][0]['device_scale'] = value
+            with self.assertRaises(ValueError): PAIR.validate_fixture(changed)
+        changed = copy.deepcopy(self.fixture)
+        del changed['cases'][0]['layout']
+        with self.assertRaises(ValueError): PAIR.validate_fixture(changed)
+
+    def test_observed_scale_mismatch_rejected(self):
+        self.rust['cases'][0]['device_scale'] = 1
+        with self.assertRaises(ValueError): self.compare()
+
+    def test_fractional_differences_are_not_rounded_away(self):
+        self.moon['cases'][0]['frames'][1]['bounds'][1][1][0] = 0.25
+        self.assertEqual(self.compare()['differences'][0]['field'], 'bounds')
 
     def test_every_observed_field_detects_difference(self):
         for field in ('offsets', 'maximums', 'bounds', 'targets'):

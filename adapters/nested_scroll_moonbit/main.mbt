@@ -47,7 +47,17 @@ fn rect(b : @primitives.Rect) -> Json {
 }
 
 ///|
-fn block(id : UInt64, w : Double, h : Double) -> @element.Element {
+fn block(
+  id : UInt64,
+  w : Double,
+  h : Double,
+  horizontal : Bool,
+) -> @element.Element {
+  let direction = if horizontal {
+    @layout.FlowDirection::row()
+  } else {
+    @layout.FlowDirection::column()
+  }
   @element.Element::new(
     @layout.FlexItem::new(
       id,
@@ -57,35 +67,45 @@ fn block(id : UInt64, w : Double, h : Double) -> @element.Element {
     )
     .with_flex(0, 0)
     .unwrap(),
-  ).with_children_style(
-    @layout.FlexTreeStyle::new(@layout.FlowDirection::column()),
-  )
+  ).with_children_style(@layout.FlexTreeStyle::new(direction))
 }
 
 ///|
 fn view(
   outer : @primitives.Point,
   inner : @primitives.Point,
+  horizontal : Bool,
+  both : Bool,
+  scale : Double,
 ) -> @element.Prepainted {
   @element.Element::root(
     1,
-    @layout.FlexTreeStyle::new(@layout.FlowDirection::column()),
+    @layout.FlexTreeStyle::new(
+      if horizontal {
+        @layout.FlowDirection::row()
+      } else {
+        @layout.FlowDirection::column()
+      },
+    ),
   )
   .with_pointer_events(false)
   .with_child(
-    block(2, 160, 120)
+    block(2, 160, 120, horizontal)
     .with_scroll_offset(outer)
     .with_child(
-      block(3, 320, 360)
+      block(3, 320, 360, horizontal)
       .with_child(
-        block(4, 160, 60)
+        block(4, 160, 60, horizontal)
         .with_scroll_offset(inner)
-        .with_child(block(5, 320, 60)),
+        .with_child(block(5, 320, if both { 180 } else { 60 }, horizontal)),
       )
-      .with_child(block(6, 320, 300)),
+      .with_child(block(6, 320, 300, horizontal)),
     ),
   )
-  .request_layout(@primitives.Size::new(240, 180).unwrap())
+  .request_layout_with_device_scale(
+    @primitives.Size::new(240, 180).unwrap(),
+    scale,
+  )
   .unwrap()
   .prepaint()
   .unwrap()
@@ -96,6 +116,9 @@ fn main {
   let input = try! @json.parse(input())
   let cases : Array[Json] = []
   for case in array(field(input, "cases")) {
+    let scale = number(field(case, "device_scale"))
+    let horizontal = field(case, "layout") == @json.to_json("horizontal")
+    let both = field(case, "layout") == @json.to_json("both")
     let mut outer = point(0, 0)
     let mut inner = point(0, 0)
     let wheels = array(field(case, "wheels"))
@@ -103,7 +126,7 @@ fn main {
     for step = -1; step < wheels.length(); step = step + 1 {
       if step >= 0 {
         let wheel = array(wheels[step])
-        let tree = view(outer, inner).tree()
+        let tree = view(outer, inner, horizontal, both, scale).tree()
         // GPUI pixel deltas move content; core deltas advance the viewport.
         for
           update in tree
@@ -121,7 +144,7 @@ fn main {
           }
         }
       }
-      let tree = view(outer, inner).tree()
+      let tree = view(outer, inner, horizontal, both, scale).tree()
       let bounds : Array[Json] = []
       for id = 2; id <= 6; id = id + 1 {
         bounds.push(
@@ -162,7 +185,11 @@ fn main {
       )
     }
     cases.push(
-      object([("id", field(case, "id")), ("frames", @json.to_json(frames))]),
+      object([
+        ("id", field(case, "id")),
+        ("device_scale", @json.to_json(scale)),
+        ("frames", @json.to_json(frames)),
+      ]),
     )
   }
   println(

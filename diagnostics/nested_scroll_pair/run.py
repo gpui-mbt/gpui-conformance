@@ -53,7 +53,9 @@ def validate_fixture(fixture):
         require(isinstance(row, list) and len(row) == 2, 'point shape')
         require(all(type(x) in (int, float) and math.isfinite(x) for x in row), 'finite point')
     for case in fixture['cases']:
-        require(set(case) == {'id', 'wheels'}, 'case schema')
+        require(set(case) == {'id', 'layout', 'device_scale', 'wheels'}, 'case schema')
+        require(type(case['device_scale']) in (int, float) and case['device_scale'] in (1, 2), 'supported device scale')
+        require(case['layout'] in ('vertical', 'horizontal', 'both'), 'case layout')
         require(isinstance(case['id'], str) and case['id'] and case['id'] not in names, 'unique case id')
         names.add(case['id'])
         require(isinstance(case['wheels'], list) and case['wheels'], 'wheel list')
@@ -67,7 +69,8 @@ def validate_observation(raw, fixture, backend):
     require(type(raw['schema_version']) is int and raw['schema_version'] == 1 and raw['backend'] == backend and raw['input'] == fixture, 'observation identity/input')
     require(len(raw['cases']) == len(fixture['cases']), 'case count')
     for actual, case in zip(raw['cases'], fixture['cases']):
-        require(set(actual) == {'id', 'frames'} and actual['id'] == case['id'], 'ordered case identity')
+        require(set(actual) == {'id', 'device_scale', 'frames'} and actual['id'] == case['id'], 'ordered case identity')
+        require(type(actual['device_scale']) in (int, float) and actual['device_scale'] == case['device_scale'], 'observed device scale')
         require(len(actual['frames']) == len(case['wheels']) + 1, 'frame count')
         for frame in actual['frames']:
             require(set(frame) == {'offsets', 'maximums', 'bounds', 'targets'}, 'frame schema')
