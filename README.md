@@ -328,3 +328,10 @@ differences. The measured-width control detects all 39 nonempty cases; three
 empty controls remain passing. A real combined rerun retains all prior 191
 headless passes, for 233 total, with one unsupported IME and two unverified
 native cases unchanged. See [the exact scope and evidence](CONTENT_DISTRIBUTION_RESULTS.md).
+
+### Nested scroll runtime diagnostic
+
+[The nested-scroll pair](diagnostics/nested_scroll_pair/README.md) executes actual
+pinned Rust/MoonBit wheel routing, offsets, maxima, translated bounds and hit
+clipping. It retains offscreen-handle differences as explicit mismatches; it is
+not a native-input or pixel-parity claim.
