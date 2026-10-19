@@ -14,11 +14,31 @@ Neither side emits expected geometry or reimplements scrolling. The only
 normalization is the documented sign difference between GPUI content-translation
 deltas/offsets and gpui.mbt positive viewport deltas/offsets.
 
-Seven sequences cover 31 initial/post-wheel frames: repeated and reversed inner
+The seven original sequences cover 31 initial/post-wheel frames: repeated and reversed inner
 scroll, overscroll and inner-boundary propagation, vertical wheels through the
 inner container, outer clamping, outside/far-edge hit rejection, dominant-axis
-selection, zero deltas, and offscreen threshold/reentry. All 31 frames compare
-both scroll offsets/maxima, five translated node bounds and six pointer targets.
+selection, zero deltas, and offscreen threshold/reentry. The expanded fixture has 40 sequences and 202 initial/post-wheel frames (20 sequences at each scale).
+Seven horizontally transposed sequences preserve the original actions. Three
+fractional sequences cover quarter/half-pixel accumulation, reversal and clamping
+in vertical, horizontal and both-axis layouts. Three additional both-axis sequences
+exercise y-boundary propagation, axis switching/ties, and a clamped dominant axis.
+Each frame compares both scroll offsets/maxima, five translated node bounds and
+16 pointer targets, including fractional near-edge samples.
+
+The vertical layout keeps the original 160×120 outer viewport and 160×60 inner
+viewport, with 320×360 and 320×60 content respectively. Horizontal mode transposes
+all block dimensions and child flow. Both-axis mode retains the vertical geometry
+but gives the inner content height 180, so its maxima are (160, 120). GPUI bubbles
+wheel events to both eligible scroll ancestors; this is not a residual-delta
+handoff implementation. Once an inner viewport is clipped out, subsequent events
+at the old point only reach the outer viewport.
+
+Each case explicitly records device scale 1 or 2. The Rust probe changes the test
+window scale through the production test context, reads Window::scale_factor(),
+asserts it equals the fixture and emits the observed value; MoonBit calls production request_layout_with_device_scale.
+This is necessary for fractional bounds: the unscaled logical-layout API does not
+perform the device snapping used by GPUI. Offsets remain fractional and the exact
+comparator retains every field difference, without rounding or tolerance.
 
 ## Run
 
@@ -60,3 +80,28 @@ the distance back to zero. `clamp_scroll_position` then derives `ScrollHandle`'s
 maximum from that inflated extent. gpui.mbt computes its scroll extent in local
 layout coordinates. This diagnostic preserves the difference as a mismatch;
 it does not copy the upstream quirk into core or claim full parity.
+
+## Expanded runtime findings (2026-10-19)
+
+At the unchanged pinned core/upstream revisions, the 202-frame actual pair has
+16 maximum-only mismatches: the original four and their transposed horizontal
+counterparts at each device scale. Offsets, all five node bounds and all 16 hit targets agree in every
+frame. The result remains `mismatch`, not a full compatibility pass. No core fix
+is justified by these measurements.
+
+A preliminary run with MoonBit's unscaled layout API produced fractional-bound
+mismatches. Using its existing explicit device-scale API resolved those adapter
+configuration differences; no core algorithm or expected geometry was substituted.
+
+The real negative controls rebuild two deliberately broken MoonBit adapters:
+
+    python diagnostics/nested_scroll_pair/negative_controls.py \
+      --baseline /path/to/completed-evidence --output /path/to/new-controls
+
+The no-wheel control zeroes both wheel deltas and detects 408 field differences
+(138 offsets, 135 bounds, 119 targets, 16 maxima). The no-scale control calls the
+unscaled production layout API and detects 62 differences (33 bounds, 13 targets,
+16 maxima), with every offset still matching. Both controls compile and execute
+real production core code; their mismatches never count as compatibility evidence.
+The script verifies baseline source and observation hashes before mutation and
+retains mutated source hashes, compiler logs, outputs and comparisons.

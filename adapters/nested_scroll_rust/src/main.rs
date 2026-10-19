@@ -2,8 +2,9 @@ use gpui::{prelude::*, *};
 use serde_json::{Value, json};
 use std::{cell::RefCell, rc::Rc};
 type Hits = Rc<RefCell<Vec<u64>>>;
-fn block(id: u64, w: f32, h: f32, hits: &Hits) -> Stateful<Div> {
+fn block(id: u64, w: f32, h: f32, hits: &Hits, horizontal: bool) -> Stateful<Div> {
     let hits = hits.clone();
+    let (w, h) = if horizontal { (h, w) } else { (w, h) };
     div()
         .id(id)
         .debug_selector(move || id.to_string().into())
@@ -11,7 +12,8 @@ fn block(id: u64, w: f32, h: f32, hits: &Hits) -> Stateful<Div> {
         .h(px(h))
         .flex_shrink_0()
         .flex()
-        .flex_col()
+        .when(horizontal, |element| element.flex_row())
+        .when(!horizontal, |element| element.flex_col())
         .items_start()
         .on_mouse_down(MouseButton::Left, move |_, _, _| hits.borrow_mut().push(id))
 }
@@ -19,22 +21,30 @@ struct Probe {
     outer: ScrollHandle,
     inner: ScrollHandle,
     hits: Hits,
+    horizontal: bool,
+    both: bool,
 }
 impl Render for Probe {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
         div().size_full().flex().flex_col().items_start().child(
-            block(2, 160., 120., &self.hits)
+            block(2, 160., 120., &self.hits, self.horizontal)
                 .overflow_scroll()
                 .track_scroll(&self.outer)
                 .child(
-                    block(3, 320., 360., &self.hits)
+                    block(3, 320., 360., &self.hits, self.horizontal)
                         .child(
-                            block(4, 160., 60., &self.hits)
+                            block(4, 160., 60., &self.hits, self.horizontal)
                                 .overflow_scroll()
                                 .track_scroll(&self.inner)
-                                .child(block(5, 320., 60., &self.hits)),
+                                .child(block(
+                                    5,
+                                    320.,
+                                    if self.both { 180. } else { 60. },
+                                    &self.hits,
+                                    self.horizontal,
+                                )),
                         )
-                        .child(block(6, 320., 300., &self.hits)),
+                        .child(block(6, 320., 300., &self.hits, self.horizontal)),
                 ),
         )
     }
@@ -57,9 +67,14 @@ fn main() {
             outer: outer.clone(),
             inner: inner.clone(),
             hits: hits.clone(),
+            horizontal: case["layout"] == "horizontal",
+            both: case["layout"] == "both",
         });
         let mut cx = VisualTestContext::from_window(*handle, &app);
+        cx.simulate_scale_factor_change(number(&case["device_scale"]));
         cx.run_until_parked();
+        let device_scale = cx.update(|window, _| window.scale_factor());
+        assert_eq!(device_scale, number(&case["device_scale"]));
         let mut frames = Vec::new();
         for step in std::iter::once(None).chain(case["wheels"].as_array().unwrap().iter().map(Some))
         {
@@ -116,7 +131,7 @@ fn main() {
             frames.push(json!({"offsets":[point_json(outer.offset()),point_json(inner.offset())],
                 "maximums":[point_json(outer.max_offset()),point_json(inner.max_offset())],"bounds":bounds,"targets":targets}));
         }
-        cases.push(json!({"id":case["id"],"frames":frames}));
+        cases.push(json!({"id":case["id"],"device_scale":device_scale,"frames":frames}));
         cx.update(|window, _| window.remove_window());
         cx.run_until_parked();
     }
