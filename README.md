@@ -350,3 +350,11 @@ native cases unchanged. See [the exact scope and evidence](CONTENT_DISTRIBUTION_
 pinned Rust/MoonBit wheel routing, offsets, maxima, translated bounds and hit
 clipping. It retains offscreen-handle differences as explicit mismatches; it is
 not a native-input or pixel-parity claim.
+
+### Per-item cross-axis alignment diagnostic
+
+[The align-self diagnostic](ALIGN_SELF_RESULTS.md) adds 48 full-rectangle cases
+for inherited and per-item physical/flex-relative alignment, center, and
+bounded auto-size stretch. It runs real Rust and MoonBit probes with explicit
+source pins, build binding and capability/comparator negative controls.
+It is separate from native input, pixels, and the older overall suite pins.

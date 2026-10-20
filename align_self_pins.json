@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "bounded per-item align-self headless diagnostic; separate from legacy pins.json",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "bc89003e8412afa6c81fc8eb2073bf0b39e6b605",
+    "tree": "c51031f08b708c36a2d64700fb4383a864ba9968",
+    "pull_request": "https://github.com/gpui-mbt/gpui.mbt/pull/139"
+  },
+  "baseline": {
+    "revision": "603cbfe15bf30e775ec71821d8b540e184e738d9",
+    "tree": "293f0f234ed9a50bc5cb4339a00ad48a520f9e88"
+  }
+}

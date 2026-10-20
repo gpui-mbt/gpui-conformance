@@ -1,0 +1,1589 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "row-inherit-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": "row-physical-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ],
+      "padding": [
+        4,
+        8,
+        6,
+        10
+      ]
+    },
+    {
+      "id": "row-flex-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "center",
+        "flex_end"
+      ]
+    },
+    {
+      "id": "row-auto-stretch-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "start",
+        "stretch",
+        "stretch"
+      ]
+    },
+    {
+      "id": "row-auto-stretch-inherit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "center",
+        "auto"
+      ]
+    },
+    {
+      "id": "row-fixed-stretch-capped",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "stretch",
+        "stretch"
+      ],
+      "min_cross": [
+        0,
+        30,
+        10
+      ],
+      "max_cross": [
+        null,
+        null,
+        42
+      ]
+    },
+    {
+      "id": "row-signed-overflow",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          30,
+          120
+        ],
+        [
+          40,
+          120
+        ],
+        [
+          20,
+          120
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ]
+    },
+    {
+      "id": "row-wrap-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row-wrap-reverse-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row-wrap-reverse-flex",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "flex_end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row-wrap-reverse-stretch-cap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          45,
+          null
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          null
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "auto",
+        "stretch"
+      ],
+      "wrap": "wrap_reverse",
+      "max_cross": [
+        18,
+        null,
+        26
+      ]
+    },
+    {
+      "id": "row-minimum-auto-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          null
+        ]
+      ],
+      "align_self": [
+        "center"
+      ],
+      "min_cross": [
+        24
+      ]
+    },
+    {
+      "id": "column-inherit-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": "column-physical-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ],
+      "padding": [
+        4,
+        8,
+        6,
+        10
+      ]
+    },
+    {
+      "id": "column-flex-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "center",
+        "flex_end"
+      ]
+    },
+    {
+      "id": "column-auto-stretch-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          null,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "stretch",
+        "stretch"
+      ]
+    },
+    {
+      "id": "column-auto-stretch-inherit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          null,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "center",
+        "auto"
+      ]
+    },
+    {
+      "id": "column-fixed-stretch-capped",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "stretch",
+        "stretch"
+      ],
+      "min_cross": [
+        0,
+        30,
+        10
+      ],
+      "max_cross": [
+        null,
+        null,
+        42
+      ]
+    },
+    {
+      "id": "column-signed-overflow",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          120,
+          30
+        ],
+        [
+          120,
+          40
+        ],
+        [
+          120,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ]
+    },
+    {
+      "id": "column-wrap-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column-wrap-reverse-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column-wrap-reverse-flex",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "flex_end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column-wrap-reverse-stretch-cap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          null,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          null,
+          45
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "auto",
+        "stretch"
+      ],
+      "wrap": "wrap_reverse",
+      "max_cross": [
+        18,
+        null,
+        26
+      ]
+    },
+    {
+      "id": "column-minimum-auto-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          null,
+          30
+        ]
+      ],
+      "align_self": [
+        "center"
+      ],
+      "min_cross": [
+        24
+      ]
+    },
+    {
+      "id": "row_reverse-inherit-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": "row_reverse-physical-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ],
+      "padding": [
+        4,
+        8,
+        6,
+        10
+      ]
+    },
+    {
+      "id": "row_reverse-flex-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          8
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "center",
+        "flex_end"
+      ]
+    },
+    {
+      "id": "row_reverse-auto-stretch-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "start",
+        "stretch",
+        "stretch"
+      ]
+    },
+    {
+      "id": "row_reverse-auto-stretch-inherit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          null
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "center",
+        "auto"
+      ]
+    },
+    {
+      "id": "row_reverse-fixed-stretch-capped",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          30,
+          12
+        ],
+        [
+          40,
+          24
+        ],
+        [
+          20,
+          null
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "stretch",
+        "stretch"
+      ],
+      "min_cross": [
+        0,
+        30,
+        10
+      ],
+      "max_cross": [
+        null,
+        null,
+        42
+      ]
+    },
+    {
+      "id": "row_reverse-signed-overflow",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          30,
+          120
+        ],
+        [
+          40,
+          120
+        ],
+        [
+          20,
+          120
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ]
+    },
+    {
+      "id": "row_reverse-wrap-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row_reverse-wrap-reverse-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row_reverse-wrap-reverse-flex",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          45,
+          12
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          20
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "flex_end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "row_reverse-wrap-reverse-stretch-cap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 100,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          45,
+          null
+        ],
+        [
+          45,
+          30
+        ],
+        [
+          45,
+          null
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "auto",
+        "stretch"
+      ],
+      "wrap": "wrap_reverse",
+      "max_cross": [
+        18,
+        null,
+        26
+      ]
+    },
+    {
+      "id": "row_reverse-minimum-auto-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 180,
+      "height": 80,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          30,
+          null
+        ]
+      ],
+      "align_self": [
+        "center"
+      ],
+      "min_cross": [
+        24
+      ]
+    },
+    {
+      "id": "column_reverse-inherit-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ]
+    },
+    {
+      "id": "column_reverse-physical-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ],
+      "padding": [
+        4,
+        8,
+        6,
+        10
+      ]
+    },
+    {
+      "id": "column_reverse-flex-mixed",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          8,
+          20
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "center",
+        "flex_end"
+      ]
+    },
+    {
+      "id": "column_reverse-auto-stretch-override",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          null,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "stretch",
+        "stretch"
+      ]
+    },
+    {
+      "id": "column_reverse-auto-stretch-inherit",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          null,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "auto",
+        "center",
+        "auto"
+      ]
+    },
+    {
+      "id": "column_reverse-fixed-stretch-capped",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          12,
+          30
+        ],
+        [
+          24,
+          40
+        ],
+        [
+          null,
+          20
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "stretch",
+        "stretch"
+      ],
+      "min_cross": [
+        0,
+        30,
+        10
+      ],
+      "max_cross": [
+        null,
+        null,
+        42
+      ]
+    },
+    {
+      "id": "column_reverse-signed-overflow",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          120,
+          30
+        ],
+        [
+          120,
+          40
+        ],
+        [
+          120,
+          20
+        ]
+      ],
+      "align_self": [
+        "start",
+        "center",
+        "end"
+      ]
+    },
+    {
+      "id": "column_reverse-wrap-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column_reverse-wrap-reverse-physical",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "end",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "start",
+        "end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column_reverse-wrap-reverse-flex",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "start",
+      "children": [
+        [
+          12,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          20,
+          45
+        ]
+      ],
+      "align_self": [
+        "flex_start",
+        "flex_end",
+        "center"
+      ],
+      "wrap": "wrap_reverse",
+      "gap_x": 6,
+      "gap_y": 8
+    },
+    {
+      "id": "column_reverse-wrap-reverse-stretch-cap",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 100,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "center",
+      "children": [
+        [
+          null,
+          45
+        ],
+        [
+          30,
+          45
+        ],
+        [
+          null,
+          45
+        ]
+      ],
+      "align_self": [
+        "stretch",
+        "auto",
+        "stretch"
+      ],
+      "wrap": "wrap_reverse",
+      "max_cross": [
+        18,
+        null,
+        26
+      ]
+    },
+    {
+      "id": "column_reverse-minimum-auto-center",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 80,
+      "height": 180,
+      "gap": 6,
+      "device_scale_factor": 2,
+      "justify": "start",
+      "align": "stretch",
+      "children": [
+        [
+          null,
+          30
+        ]
+      ],
+      "align_self": [
+        "center"
+      ],
+      "min_cross": [
+        24
+      ]
+    }
+  ]
+}

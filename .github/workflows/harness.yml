@@ -19,6 +19,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_portable_contracts.py' -v
       - name: Validate nested-scroll comparison contracts without claiming runtime parity
         run: python3 -m unittest discover -s tests -p 'test_nested_scroll_pair.py' -v
+      - name: Validate align-self differential contracts without claiming runtime parity
+        run: python3 -m unittest discover -s tests -p 'test_align_self.py' -v
       - name: Validate the declared Web TextField/IME corpus
         run: python3 -m unittest discover -s tests -p 'test_ime_scenarios.py' -v
       - name: Run the synthetic Node IME host lane (not a live IME claim)
