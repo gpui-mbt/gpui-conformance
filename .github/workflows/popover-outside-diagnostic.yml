@@ -28,8 +28,19 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
           fetch-depth: 0
-      - name: Check synthetic and source contracts without compiling Rust
-        run: python3 -m unittest discover -s tests -p 'test_popover_outside*.py' -v
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 999e3d95ee2b67d387223ef3eaecd693f285924e
+          path: _build/popover-historical-source
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Verify historical proof and current v2 source contracts without compiling Rust
+        # Executes the unchanged tests/test_popover_outside*.py against history;
+        # current behavioral and evidence contracts use the separately bound HEAD.
+        run: |
+          python3 diagnostics/popover_outside/contracts_current_v2.py \
+            --historical-source _build/popover-historical-source \
+            --suite-commit "$GITHUB_SHA" --suite-tree "$(git rev-parse HEAD^{tree})"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: zed-industries/zed
@@ -45,12 +56,13 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p _build/popover-run-logs
-          python3 diagnostics/popover_outside/run.py \
+          python3 diagnostics/popover_outside/run_current_v2.py \
+            --suite-commit "$GITHUB_SHA" --suite-tree "$(git rev-parse HEAD^{tree})" \
             --upstream-source _build/upstream-source --output _build/popover-evidence \
             2>&1 | tee _build/popover-run-logs/run.log
       - name: Independently reopen source, session, executable and raw callbacks
         run: |
-          python3 diagnostics/popover_outside/evidence.py _build/popover-evidence \
+          python3 diagnostics/popover_outside/evidence_current_v2.py _build/popover-evidence \
             --suite-source . --upstream-source _build/upstream-source \
             --suite-commit "$GITHUB_SHA" --suite-tree "$(git rev-parse HEAD^{tree})" \
             --repository "$GITHUB_REPOSITORY" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" \
