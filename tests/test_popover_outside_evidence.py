@@ -3,10 +3,11 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import signal
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT=Path(__file__).resolve().parents[1]
 def module(name,path):
@@ -168,11 +169,38 @@ class EvidenceTests(unittest.TestCase):
             directory=Path(temporary);samples=[]
             command=[sys.executable,"-c","import sys;sys.stdout.buffer.write(b'not-json\\x00');sys.stderr.buffer.write(b'compile-failed\\n');sys.exit(101)"]
             import os
-            record=runner.execute(command,directory,"failed",os.environ.copy(),10,samples)
+            # Capture is independent of the host's current free disk space.
+            with patch.object(runner,"disk",return_value={"workspace":E.FLOOR,"tmp":E.FLOOR}):
+                record=runner.execute(command,directory,"failed",os.environ.copy(),10,samples)
             self.assertEqual(record["returncode"],101)
+            self.assertFalse(record["timed_out"])
+            self.assertFalse(record["resource_floor_breached"])
             self.assertEqual((directory/"failed.stdout").read_bytes(),b"not-json\x00")
             self.assertEqual((directory/"failed.stderr").read_bytes(),b"compile-failed\n")
             with self.assertRaisesRegex(ValueError,"process exit"):E.process_ok(record,command)
+
+    def test_runner_kills_process_below_disk_floor(self):
+        with patch.dict(sys.modules,{"evidence":E}):
+            runner=module("popover_runner",ROOT/"diagnostics/popover_outside/run.py")
+        for location in ("workspace","tmp"):
+            with self.subTest(location=location), tempfile.TemporaryDirectory(prefix="popover-disk-test-") as temporary:
+                sample={"workspace":E.FLOOR,"tmp":E.FLOOR}
+                sample[location]-=1
+                process=Mock(pid=12345)
+                process.poll.side_effect=[None,-signal.SIGKILL]
+                process.wait.return_value=-signal.SIGKILL
+                samples=[]
+                with patch.object(runner.subprocess,"Popen",return_value=process), \
+                     patch.object(runner,"disk",return_value=sample), \
+                     patch.object(runner.time,"monotonic",return_value=0), \
+                     patch.object(runner.os,"killpg") as killpg:
+                    record=runner.execute(["synthetic-process"],Path(temporary),"low-disk",{},10,samples)
+                killpg.assert_called_once_with(process.pid,signal.SIGKILL)
+                process.wait.assert_called_once_with()
+                self.assertEqual(samples,[sample])
+                self.assertEqual(record["returncode"],-signal.SIGKILL)
+                self.assertTrue(record["resource_floor_breached"])
+                self.assertFalse(record["timed_out"])
 
     def test_runner_is_ci_only_and_workflow_scoped(self):
         source=(ROOT/"diagnostics/popover_outside/run.py").read_text()
