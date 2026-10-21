@@ -33,12 +33,17 @@ def source_identity(path):
             'source_sha256': digest, 'files': files}
 
 
-def validate_pins(sources):
+def validate_pins(sources, *, allow_local_core=False):
     pins = json.loads((ROOT/'root_box_pins.json').read_text())
     require(pins['schema_version'] == 1, 'Unknown root box pin schema')
-    for name in ('upstream', 'moonbit'):
-        for key in ('revision', 'tree'):
-            require(sources[name][key] == pins[name][key], name+' '+key+' differs from pin')
+    for key in ('revision', 'tree'):
+        require(sources['upstream'][key] == pins['upstream'][key], 'upstream '+key+' differs from pin')
+    expected = pins['moonbit']
+    if allow_local_core and sources['moonbit']['revision'] == pins['moonbit_local_build']['revision']:
+        expected = pins['moonbit_local_build']
+        require(expected['tree'] == pins['moonbit']['tree'], 'Local/public core trees differ')
+    for key in ('revision', 'tree'):
+        require(sources['moonbit'][key] == expected[key], 'moonbit '+key+' differs from pin')
     require(not sources['upstream']['dirty'], 'Upstream source must be clean')
 
 

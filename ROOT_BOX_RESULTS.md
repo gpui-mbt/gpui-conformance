@@ -95,7 +95,15 @@ source/binary identities, original corpus bytes, and comparison results.
 
 ## Current execution status
 
-Executed with actual Rust GPUI and MoonBit binaries against core
+Public core pin: [66f4dc6f0c11b52458f0e18c0946193db8c7b4bf](https://github.com/gpui-mbt/gpui.mbt/commit/66f4dc6f0c11b52458f0e18c0946193db8c7b4bf),
+[PR #143](https://github.com/gpui-mbt/gpui.mbt/pull/143). Its exact tree is
+`7a0b7cd362eb03d49c41799f60f1e8f3b228927e`, identical to the local build below.
+Default pin validation requires this exact public revision and tree. Only the
+attester's original-build verification admits the separately recorded exact local
+revision; arbitrary commits with the same tree are rejected. The attestation keeps
+both identities and verifies the complete source-byte map before reusing binaries.
+
+Executed with actual Rust GPUI and MoonBit binaries built against local core
 `26ec003a9fadb18aa4b969f0ff485a681a2ce6d1` / tree
 `7a0b7cd362eb03d49c41799f60f1e8f3b228927e`:
 
@@ -104,7 +112,7 @@ Executed with actual Rust GPUI and MoonBit binaries against core
 - Root-width corruption control: 132/132 mismatches detected.
 - Unchanged legacy regressions: flex-justify 72/72, align-self 48/48,
   reverse-flow 68/68 pass.
-- Focused portable contract modules pass independently: root-box 14 tests,
+- Focused portable contract modules pass independently: root-box 18 tests,
   flex-justify 17, align-self 17, reverse-flow 16. Synthetic tests do not
   constitute framework execution.
 
@@ -133,9 +141,15 @@ Runners accept a later suite commit only when its recorded source bytes match.
 A broad `unittest discover` invocation was also attempted: 727 tests, 10 failures,
 244 errors, 3 skips. It encountered generic-module import collisions, missing
 external evidence-fixture prerequisites, and unrelated baseline-identity checks.
-No matching baseline aggregate run was done, so these are not asserted to be
-pre-existing, nor is the aggregate suite called passing. Focused modules and
-actual preserved regression corpora above are the verified scope.
+The same default discovery invocation was subsequently run on exact parent
+`d8c403008df4c836382323ac740bf1004206f3cf` (716 tests; 10 failures, 244 errors,
+3 skips). All 254 ordered failure/error identities match, and 246 normalized trace
+bodies match. Seven other bodies differ in test-generated Git SHAs; one differs
+between a dirty-inventory first failure and a baseline-blob first failure. This is
+neither a final-clean aggregate pass nor proof that all underlying causes are
+identical. The original candidate and baseline logs plus
+`discovery-baseline-comparison.json` retain the evidence. Focused modules and
+actual preserved regression corpora above remain the verified passing scope.
 
 Local retained evidence is under `/tmp/root-box-20261021/`: original `positive/`,
 `fixed-control/`, corrected diagnostic `corrected-precommit/`, the actual

@@ -18,8 +18,16 @@
   ],
   "moonbit": {
     "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "66f4dc6f0c11b52458f0e18c0946193db8c7b4bf",
+    "tree": "7a0b7cd362eb03d49c41799f60f1e8f3b228927e",
+    "publication": "Published pull request commit; exact tree matches original local build 26ec003a9fadb18aa4b969f0ff485a681a2ce6d1",
+    "pull_request": "https://github.com/gpui-mbt/gpui.mbt/pull/143"
+  },
+  "moonbit_local_build": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
     "revision": "26ec003a9fadb18aa4b969f0ff485a681a2ce6d1",
     "tree": "7a0b7cd362eb03d49c41799f60f1e8f3b228927e",
-    "publication": "local-only candidate, not published"
+    "publication": "Original local-only build identity; provenance exception only, not the default public pin",
+    "historical_pins_sha256": "4c80f59bbc6a314b874aaa56dea068941c32d314cd511dd10605527a24aee2ef"
   }
 }

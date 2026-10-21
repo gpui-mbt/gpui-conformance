@@ -112,6 +112,37 @@ class RootBoxTests(unittest.TestCase):
         base={name:dict(revision='r',tree='t',source_sha256='s',files={'a':'hash'}) for name in ('upstream','moonbit','suite')}
         changed=copy.deepcopy(base);changed['moonbit']['source_sha256']='changed'
         with patch.object(attester,'validate_pins'),self.assertRaisesRegex(ValueError,'Compiled moonbit'):attester.verify_source_equivalence(base,changed)
+    def pinned_sources(self):
+        pins=json.loads((r.ROOT/'root_box_pins.json').read_text())
+        return {name:{**pins[name],'dirty':False,'source_sha256':'same','files':{'source':'hash'}} for name in ('upstream','moonbit')} | {'suite':{'files':{'a':'same'}}}
+    def test_public_pin_is_strict_and_local_exception_is_explicit(self):
+        source=self.pinned_sources();r.validate_pins(source)
+        pins=json.loads((r.ROOT/'root_box_pins.json').read_text())
+        source['moonbit']['revision']=pins['moonbit_local_build']['revision']
+        with self.assertRaisesRegex(ValueError,'revision differs'):r.validate_pins(source)
+        r.validate_pins(source,allow_local_core=True)
+        source['moonbit']['revision']='0'*40
+        with self.assertRaisesRegex(ValueError,'revision differs'):r.validate_pins(source,allow_local_core=True)
+    def test_public_and_local_wrong_tree_rejected(self):
+        pins=json.loads((r.ROOT/'root_box_pins.json').read_text())
+        for revision in (pins['moonbit']['revision'],pins['moonbit_local_build']['revision']):
+            source=self.pinned_sources();source['moonbit'].update(revision=revision,tree='0'*40)
+            with self.assertRaisesRegex(ValueError,'tree differs'):r.validate_pins(source,allow_local_core=True)
+    def test_equivalent_public_source_keeps_distinct_build_revision(self):
+        source=self.pinned_sources();original=copy.deepcopy(source)
+        pins=json.loads((r.ROOT/'root_box_pins.json').read_text())
+        original['moonbit']['revision']=pins['moonbit_local_build']['revision']
+        self.assertEqual(attester.verify_source_equivalence(original,source),[])
+        self.assertNotEqual(original['moonbit']['revision'],source['moonbit']['revision'])
+        original['moonbit']['source_sha256']='different'
+        with self.assertRaisesRegex(ValueError,'source_sha256'):attester.verify_source_equivalence(original,source)
+    def test_pin_migration_accepts_only_recorded_historical_pin_hash(self):
+        pins=json.loads((r.ROOT/'root_box_pins.json').read_text())
+        original={'pins_sha256':pins['moonbit_local_build']['historical_pins_sha256'],'sources':self.pinned_sources()}
+        original['sources']['moonbit']['revision']=pins['moonbit_local_build']['revision']
+        attester.verify_pin_migration(original,pins,r.sha(r.ROOT/'root_box_pins.json'))
+        original['pins_sha256']='0'*64
+        with self.assertRaisesRegex(ValueError,'Unrecognized historical'):attester.verify_pin_migration(original,pins,r.sha(r.ROOT/'root_box_pins.json'))
     def test_finite_zero_viewport_is_valid_input(self):
         self.corpus['cases'][0]['width']=0
         r.validate(self.corpus)
