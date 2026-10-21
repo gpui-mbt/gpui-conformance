@@ -358,3 +358,11 @@ for inherited and per-item physical/flex-relative alignment, center, and
 bounded auto-size stretch. It runs real Rust and MoonBit probes with explicit
 source pins, build binding and capability/comparator negative controls.
 It is separate from native input, pixels, and the older overall suite pins.
+
+### Flow-relative main-axis justification
+
+The [bounded flow-relative justification comparison](FLEX_JUSTIFY_RESULTS.md)
+adds actual GPUI/MoonBit headless cases for explicit FlexStart/FlexEnd without
+changing physical Start/End defaults. See `flex_justify_pins.json`,
+`build_flex_justify.py` and `run_flex_justify.py` for exact-source replay; this is
+separate from legacy pins and does not imply native/IME acceptance.
