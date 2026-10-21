@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "bounded flow-relative main-axis justification; separate from legacy pins.json",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "efdf5c08db35450c2846082df83d6093fec257d6",
+    "tree": "d88538f600691d13fbd3a55f57a27e9bdff2b742",
+    "publication": "local-only, unpublished"
+  },
+  "baseline": {
+    "revision": "e6ab2ecbc4e85bdbd4e73c7e58c0ab5beb49128e",
+    "tree": "9cd3cba8ce52dd323e7adfd2e49d527b8911c290"
+  }
+}
