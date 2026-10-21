@@ -366,3 +366,37 @@ adds actual GPUI/MoonBit headless cases for explicit FlexStart/FlexEnd without
 changing physical Start/End defaults. See `flex_justify_pins.json`,
 `build_flex_justify.py` and `run_flex_justify.py` for exact-source replay; this is
 separate from legacy pins and does not imply native/IME acceptance.
+
+### Process-isolated Python contract checks
+
+On Linux or macOS (POSIX), run `python3 scripts/run_contract_tests.py` from any working directory to run
+all `tests/test_*.py` modules serially, each in a fresh standard-library unittest
+process with the repository root as its working directory. This avoids unrelated
+diagnostics' bare `run` / `compare` imports colliding in one interpreter; it does
+not make monolithic in-process discovery supported. `web/tests` is out of scope.
+Select a bounded subset with repeated `--module test_name` options. The default
+per-module timeout is 300 seconds (`--timeout SECONDS`). Each child owns a process
+group, which is killed on exit, timeout or interruption and its direct child
+reaped. Descendants remaining in that group cannot overlap the next module;
+this is not a sandbox for tests that deliberately detach into other sessions.
+Windows execution is rejected rather than claiming unsupported tree cleanup. Child output is streamed;
+the final summary counts modules, not test methods. Unittest reports its own test
+counts, failures and skips in each child's output. Existing failures are not hidden.
+
+Six modules require retained evidence: `test_background_evidence`,
+`test_boundary_evidence`, `test_bundle_evidence`, `test_comparator`,
+`test_native_evidence`, and `test_observer_evidence`. Supply each separately with
+`--evidence MODULE=DIRECTORY` (repeatable); these use their existing script CLI.
+For comparator evidence with a non-default corpus, also supply `--corpus FILE`
+and `--expected-summary FILE`. Paths supplied on the command line are resolved
+relative to the caller's directory. Missing evidence directories or explicitly
+supplied missing comparator files are BLOCKED, not skipped. Invalid evidence and
+other child failures remain failures. Any failed, errored or blocked module makes
+the runner exit nonzero after attempting all selected modules.
+
+This runner does not generate evidence or build prerequisites for you. Tests may
+invoke tools or copy retained evidence, so provision their dependencies and disk
+space before selecting them. A subset passing is not a full-suite or native
+conformance qualification. Existing workflow-specific commands remain unchanged.
+The runner's own tests use isolated synthetic suites and do not recursively run
+the repository suite.
