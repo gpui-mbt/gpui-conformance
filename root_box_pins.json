@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "bounded authored root-box and physical-viewport separation, exact source snapshot identity recorded per build",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit_base": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "5126a95b507ca6c33144c92b820d3c35118309fc",
+    "tree": "d88538f600691d13fbd3a55f57a27e9bdff2b742",
+    "publication": "GitHub public; source tree identical to reviewed local efdf5c08db35450c2846082df83d6093fec257d6"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and MoonBit snapshot bounds only; no native desktop, renderer or pixel parity claim.",
+    "Source worktree snapshots may be uncommitted; base revision/tree never represent changed bytes."
+  ],
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "66f4dc6f0c11b52458f0e18c0946193db8c7b4bf",
+    "tree": "7a0b7cd362eb03d49c41799f60f1e8f3b228927e",
+    "publication": "Published pull request commit; exact tree matches original local build 26ec003a9fadb18aa4b969f0ff485a681a2ce6d1",
+    "pull_request": "https://github.com/gpui-mbt/gpui.mbt/pull/143"
+  },
+  "moonbit_local_build": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "26ec003a9fadb18aa4b969f0ff485a681a2ce6d1",
+    "tree": "7a0b7cd362eb03d49c41799f60f1e8f3b228927e",
+    "publication": "Original local-only build identity; provenance exception only, not the default public pin",
+    "historical_pins_sha256": "4c80f59bbc6a314b874aaa56dea068941c32d314cd511dd10605527a24aee2ef"
+  }
+}
