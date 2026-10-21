@@ -3,14 +3,14 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
-import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "diagnostics/uniform_list"))
-import verify
+spec = importlib.util.spec_from_file_location("uniform_list_diagnostic_verify", ROOT / "diagnostics/uniform_list/verify.py")
+verify = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(verify)
 
 
 def synthetic_checker_input():
