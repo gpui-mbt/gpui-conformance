@@ -361,7 +361,7 @@ It is separate from native input, pixels, and the older overall suite pins.
 
 ### Flow-relative main-axis justification
 
-The local-only [bounded flow-relative justification comparison](FLEX_JUSTIFY_RESULTS.md)
+The [bounded flow-relative justification comparison](FLEX_JUSTIFY_RESULTS.md)
 adds actual GPUI/MoonBit headless cases for explicit FlexStart/FlexEnd without
 changing physical Start/End defaults. See `flex_justify_pins.json`,
 `build_flex_justify.py` and `run_flex_justify.py` for exact-source replay; this is

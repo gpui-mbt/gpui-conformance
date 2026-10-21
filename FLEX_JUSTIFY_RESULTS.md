@@ -1,6 +1,7 @@
 # Flow-relative main-axis justification (2026-10-21)
 
-Status: local-only, unpublished bounded headless comparison. This is not native
+Status: published source for a bounded headless comparison; measurements below
+were obtained from the identical local source tree before publication. This is not native
 window, rendering, physical-input or IME acceptance, and not full CSS flexbox.
 
 ## Change and fixed sources
@@ -12,8 +13,9 @@ resolver. Reverse FlexEnd preserves small near-edge offsets at large magnitudes.
 
 - Actual GPUI reference: `5a5fbe79917971a4d52a96b6ddb04da198a5012e`, tree
   `990fb995914d51a546b20e5cf0382dafc105c299`; upstream source is read-only.
-- Candidate: `efdf5c08db35450c2846082df83d6093fec257d6`, tree
-  `d88538f600691d13fbd3a55f57a27e9bdff2b742` (local, not a GitHub revision).
+- Candidate: `5126a95b507ca6c33144c92b820d3c35118309fc`, tree
+  `d88538f600691d13fbd3a55f57a27e9bdff2b742` (published; byte-identical to reviewed local
+  `efdf5c08db35450c2846082df83d6093fec257d6`).
 - Baseline: merged core `e6ab2ecbc4e85bdbd4e73c7e58c0ab5beb49128e`, tree
   `9cd3cba8ce52dd323e7adfd2e49d527b8911c290`.
 - The suite revision/tree is captured from the checked-out HEAD in every build
@@ -79,4 +81,6 @@ bounds agreed.
 
 Existing broad-suite baseline failures
 and missing historical artifacts have not been fixed by this slice. No upstream
-writes, CI reruns, GitHub publication, release or physical IME test was performed.
+writes, CI reruns, release or physical IME test were performed during the local
+measurement run. Source was subsequently published with a public candidate pin;
+publication does not turn the retained local measurements into a fresh run.
