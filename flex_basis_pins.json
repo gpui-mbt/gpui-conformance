@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded Auto and finite nonnegative point flex-basis, explicit definite root main axis, full rectangle comparison",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and MoonBit snapshot bounds only; no desktop, renderer or pixel parity.",
+    "Percentage, content and indefinite parent main-axis basis resolution are outside this corpus."
+  ],
+  "moonbit": {
+    "revision": "a732eacee4f8fa6df394d5b76a64f7a111ac8adc",
+    "tree": "a122861bb39d796e1a68c2344eecfc546fbd08bd",
+    "repository": "https://github.com/gpui-mbt/gpui.mbt"
+  }
+}
