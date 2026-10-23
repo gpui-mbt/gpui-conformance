@@ -400,3 +400,11 @@ space before selecting them. A subset passing is not a full-suite or native
 conformance qualification. Existing workflow-specific commands remain unchanged.
 The runner's own tests use isolated synthetic suites and do not recursively run
 the repository suite.
+
+### Explicit point flex-basis
+
+The additive bounded Auto/point-basis corpus has 120 cases across all four flow
+directions and scales 1/1.5/2, including grow/shrink, mixed/zero/fractional basis,
+wrapping and min/max constraints. See [FLEX_BASIS_RESULTS.md](FLEX_BASIS_RESULTS.md)
+for actual full-rectangle GPUI observations, production-mutation controls,
+legacy regression replay, reproducibility and the explicit unsupported scope.
