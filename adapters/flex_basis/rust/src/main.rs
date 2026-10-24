@@ -108,8 +108,19 @@ impl Render for View {
             if let Some(height) = dimensions[1].as_f64() {
                 child = child.h(px(height as f32));
             }
-            if let Some(basis) = self.scenario["flex_basis"].get(i).and_then(Value::as_f64) {
-                child = child.flex_basis(px(basis as f32));
+            match self.scenario["flex_basis"].get(i) {
+                None | Some(Value::Null) => {},
+                Some(Value::Number(value)) => {
+                    let basis = value.as_f64().expect("finite point basis");
+                    assert!(basis.is_finite() && basis >= 0.);
+                    child = child.flex_basis(px(basis as f32));
+                },
+                Some(Value::Object(value)) if value.len() == 1 && value.contains_key("percent") => {
+                    let ratio = value["percent"].as_f64().expect("finite percentage ratio");
+                    assert!(ratio.is_finite() && ratio >= 0.);
+                    child = child.flex_basis(relative(ratio as f32));
+                },
+                _ => panic!("unsupported flex_basis encoding"),
             }
             let minimum = self.scenario["min_main"].get(i).map(n).unwrap_or(0.);
             let maximum = self.scenario["max_main"]

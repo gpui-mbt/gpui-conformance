@@ -14,7 +14,7 @@ from datetime import datetime,timezone
 import run_flex_justify
 import run_align_self
 import run_reverse_flow
-from run_flex_basis import ROOT,require,sha,source_identity,validate_build
+from run_flex_basis import ROOT,DEFAULT_PINS,require,sha,source_identity,validate_build
 
 CORPORA=[('flex_justify',run_flex_justify),('align_self',run_align_self),('reverse_flow',run_reverse_flow)]
 
@@ -27,10 +27,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('rust-exe','moon-exe','upstream-source','moonbit-source','build-manifest','output'):
         p.add_argument('--'+name,type=Path,required=True)
+    p.add_argument('--pins',type=Path,default=DEFAULT_PINS,help='Source profile used for the positive build')
     a=p.parse_args()
     sources={name:source_identity(path) for name,path in [('upstream',a.upstream_source),('moonbit',a.moonbit_source),('suite',ROOT)]}
     exes={'upstream':a.rust_exe,'moonbit':a.moon_exe};build=json.loads(a.build_manifest.read_text())
-    validate_build(build,sources,exes)
+    validate_build(build,sources,exes,a.pins)
     require(not build['disable_flex_basis'], 'Regressions require the positive production build')
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
     evidence={'started_at':datetime.now(timezone.utc).isoformat(),'sources':sources,'build_manifest':build,'build_manifest_sha256':sha(a.build_manifest),

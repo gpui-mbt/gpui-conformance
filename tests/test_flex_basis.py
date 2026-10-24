@@ -75,7 +75,10 @@ class FlexBasisTests(unittest.TestCase):
         moon=(r.ROOT/'adapters/flex_basis/moonbit/main.mbt').read_text()
         self.assertIn('child.flex_basis(px(basis as f32))',rust)
         self.assertIn('item.with_flex_basis(',moon)
-        self.assertIn('@layout.FlexBasis::points',moon)
+        parser=(r.ROOT/'adapters/flex_basis/moonbit/basis.mbt').read_text()
+        self.assertIn('basis(array(values)[i])',moon)
+        self.assertIn('@layout.FlexBasis::points',parser)
+        self.assertNotIn('@layout.FlexBasis::percent',parser)
         self.assertNotIn('GPUI_DISABLE_FLEX_BASIS',moon)
 
 
