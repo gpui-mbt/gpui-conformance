@@ -17,6 +17,34 @@ children-only projection, expected-answer adapter, pixel/image normalization or
 native desktop/window/GPU qualification. Content basis and intrinsically sized
 parent main axes remain unsupported by the bounded production API.
 
+## Publication identity and evidence availability, 2026-10-24 UTC
+
+The published core [commit `5ef415665fad8548110e5266a176ccd048138e07`](https://github.com/gpui-mbt/gpui.mbt/commit/5ef415665fad8548110e5266a176ccd048138e07)
+has exactly the reviewed local core tree
+`bd96cf73878353c9cd1e9bd495cdd94672a304de` from
+`82a95274964939b172e97b074e0ec13fae99cca7`. The GitHub connection creates new
+commit metadata; no implementation bytes changed. `percent_basis_pins.json`
+now selects this public core revision for future reproducible builds. The
+publication-only change follows reviewed local suite
+`5838e06b638e51609b6d1cd3d1a36f9c57273e7b`, tree
+`27ea7bf8599b040544215157f071c814701ea1d6`.
+
+The executions below remain attributed to their original local source
+identities. Repinning does not turn the earlier manifests into public-commit
+execution evidence: the validator binds exact pin-file bytes, source revision,
+tree, full source hashes and executable hashes. Fresh public-HEAD runtime
+qualification is not claimed here.
+
+The source repositories and this committed results index survived a subsequent
+cloud restart, but the external `percent-basis-20261024` raw evidence directory
+is no longer available in the current workspace. The retention statements
+below describe the time of the recorded executions, not current artifact
+availability. The original independent reviewer inspected and replayed that
+evidence before the restart. This index and its recorded hashes are not a
+substitute for the missing raw artifacts; they have not been reverified during
+publication. Full-rectangle/headless scope and all validation limits below
+remain unchanged.
+
 ## Actual executions, 2026-10-24 UTC
 
 All source checkouts were clean and immutable during the measured executions.
