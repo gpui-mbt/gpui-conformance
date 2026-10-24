@@ -408,3 +408,83 @@ directions and scales 1/1.5/2, including grow/shrink, mixed/zero/fractional basi
 wrapping and min/max constraints. See [FLEX_BASIS_RESULTS.md](FLEX_BASIS_RESULTS.md)
 for actual full-rectangle GPUI observations, production-mutation controls,
 legacy regression replay, reproducibility and the explicit unsupported scope.
+
+### Definite-parent percentage flex-basis
+
+The separate `percent_basis_scenarios.json` adds 144 independently authored cases:
+12 families across four directions and scales 1/1.5/2. The JSON basis encoding is
+`null` for Auto, a number for points, or exactly `{"percent": ratio}` for a finite
+nonnegative ratio (including values above one). Cases cover zero, fractional,
+unit and overfull ratios; asymmetric padding/borders; axis-specific gaps; mixed
+bases; grow/shrink; main/cross limits; wrap/wrap-reverse; and fractional rounding.
+The 24 Auto/point controls should remain unchanged by the percentage-only
+production mutation; 120 percentage cases have logically authored mismatch
+expectations. No expected rectangles are embedded in this corpus.
+
+`percent_basis_pins.json` selects its exact core/upstream sources and the
+`production-percent-resolve-as-auto` control. The shared builder overlays a small
+percentage parser, passing ratios unchanged to `FlexBasis::percent`; the
+historical point profile keeps its Auto/Points-only parser and old core pin.
+The Rust adapter uses GPUI's real `flex_basis(relative(ratio))`. All root and
+source-order child rectangle coordinates, scale metadata, headless viewport,
+and exact MoonBit physical/snapshot viewports remain checked. These are bounded
+headless layout observations, not native desktop, rendering, or pixel evidence.
+Indefinite intrinsic parent main axes and content bases remain outside scope.
+
+Measured clean-source runs, the initial ten scale-1.5 disagreements and their
+production correction are recorded in [percentage-basis results](PERCENT_BASIS_RESULTS.md).
+
+Synthetic contracts (also run by the portable harness workflow):
+
+```sh
+python3 -m unittest discover -s tests -p 'test_flex_basis.py' -v
+python3 -m unittest discover -s tests -p 'test_percent_basis.py' -v
+```
+
+Build from the exact clean source checkouts using the pinned Rust 1.98.1 toolchain
+and a compatible MoonBit toolchain. Omitting `--execute-build` only prepares a
+plan. Without a dependency-cache or binary-reuse option, the builder performs a
+full locked Cargo build, offline by default; `--online` explicitly permits
+dependency downloads. Failed or incompatible caches never trigger a silent
+fallback. Output directories must not already exist.
+
+```sh
+python3 build_flex_basis.py \
+  --pins percent_basis_pins.json \
+  --upstream-source /path/to/zed --moonbit-source /path/to/gpui.mbt \
+  --output /tmp/percent-basis-positive --online --execute-build
+
+python3 run_flex_basis.py \
+  --pins percent_basis_pins.json --scenarios percent_basis_scenarios.json \
+  --upstream-source /path/to/zed --moonbit-source /path/to/gpui.mbt \
+  --build-manifest /tmp/percent-basis-positive/build-manifest.json \
+  --rust-exe /tmp/percent-basis-positive/rust/target/debug/gpui-conformance-probe \
+  --moon-exe /tmp/percent-basis-positive/moon/_build/native/debug/build/conformance_probe/conformance_probe.exe \
+  --output /tmp/percent-basis-observations
+```
+
+Alternatively, replace `--online` with `--rust-dependency-cache /path/to/cache`
+for verified read-only exact-pin Cargo dependencies (new adapter compile/link),
+or `--reuse-rust-build /path/to/prior/build-manifest.json` for a verified identical
+Rust adapter binary. The manifest reports the actual executable paths. Binary
+reuse does not require a dependency cache. Neither reuse option accepts
+`--online`.
+
+For the capability control, build again with the percentage pins and
+`--disable-flex-basis`, optionally reusing the positive Rust build, then run with
+`--capability-control`. The only production mutation changes the percentage
+resolver's `Ok(Some(resolved)) => Ok(resolved)` arm to
+`Ok(Some(_)) => Ok(fallback)`, preserving validation, errors, point bases and the
+adapter while avoiding an unused binding under `--deny-warn`. Its kind,
+original/mutated function, complete source hash,
+selected parser, pins and executable bytes are bound in the evidence. The runner
+rejects point-versus-percentage control relabeling. Separately run the positive
+build with `--negative-control` to perturb each observed root width and require
+144 mismatches. The unchanged 120-case point corpus can also run with the
+percentage-positive build by selecting `--scenarios flex_basis_scenarios.json`;
+`run_flex_basis_regressions.py --pins percent_basis_pins.json` replays the original
+72/48/68 legacy corpora with the original root request behavior.
+
+Running these synthetic tests or preparing a build plan does not establish
+runtime parity. Retain the fresh raw process output and manifests when executing
+the commands before reporting an observed result.

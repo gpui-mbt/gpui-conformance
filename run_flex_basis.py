@@ -15,6 +15,29 @@ from datetime import datetime, timezone
 
 from run_flex_justify import numeric, require, sha
 ROOT = Path(__file__).resolve().parent
+DEFAULT_PINS = ROOT/'flex_basis_pins.json'
+POINTS_CONTROL = 'production-points-resolve-as-auto'
+PERCENT_CONTROL = 'production-percent-resolve-as-auto'
+CONTROL_KINDS = (POINTS_CONTROL, PERCENT_CONTROL)
+
+
+def control_kind(record):
+    """Old point-only profiles retain their original implicit classification."""
+    kind = record.get('capability_control', POINTS_CONTROL)
+    require(type(kind) is str and kind in CONTROL_KINDS, 'Unknown capability control classification')
+    return kind
+
+
+def basis_value(value, *, allow_percent=False):
+    if allow_percent and type(value) is dict:
+        return set(value) == {'percent'} and numeric(value['percent'])
+    return numeric(value, nullable=True)
+
+
+def basis_parser_identity(kind):
+    require(kind in CONTROL_KINDS, 'Unknown basis parser profile')
+    relative = 'adapters/'+('percent_basis' if kind == PERCENT_CONTROL else 'flex_basis')+'/moonbit/basis.mbt'
+    return {'profile':kind,'source_path':relative,'sha256':sha(ROOT/relative)}
 
 
 def source_identity(path):
@@ -33,18 +56,21 @@ def source_identity(path):
             'source_sha256': digest, 'files': files}
 
 
-def validate_pins(sources):
-    pins = json.loads((ROOT/'flex_basis_pins.json').read_text())
+def validate_pins(sources, pins_path=DEFAULT_PINS):
+    pins = json.loads(pins_path.read_text())
     require(pins['schema_version'] == 1, 'Unknown flex basis pin schema')
+    control_kind(pins)
     for key in ('revision', 'tree'):
         require(sources['upstream'][key] == pins['upstream'][key], 'upstream '+key+' differs from pin')
     for key in ('revision', 'tree'):
         require(sources['moonbit'][key] == pins['moonbit'][key], 'moonbit '+key+' differs from pin')
     require(not sources['upstream']['dirty'], 'Upstream source must be clean')
+    return pins
 
 
 def validate(corpus):
     require(type(corpus) is dict and corpus.get('schema_version') == 1)
+    allow_percent = control_kind(corpus) == PERCENT_CONTROL
     require(type(corpus.get('cases')) is list and corpus['cases'])
     ids = set()
     for c in corpus['cases']:
@@ -77,7 +103,7 @@ def validate(corpus):
             for minimum, maximum in zip(c.get('min_'+axis,[0]*len(children)),c.get('max_'+axis,[None]*len(children))):
                 require(maximum is None or minimum <= maximum)
         require(type(c.get('flex_basis')) is list and len(c['flex_basis']) == len(children))
-        require(all(numeric(v, nullable=True) for v in c['flex_basis']))
+        require(all(basis_value(v, allow_percent=allow_percent) for v in c['flex_basis']), 'Invalid flex-basis encoding')
         require(type(c.get('expected_capability_mismatch')) is bool)
 
 
@@ -122,9 +148,14 @@ def compare(corpus, rust, moon, fixed_root=False):
     return {'summary':{'total':len(rows),'pass':sum(r['status']=='pass' for r in rows),'mismatch':sum(r['status']=='mismatch' for r in rows)},'cases':rows}
 
 
-def validate_build(build,sources,executables):
-    validate_pins(sources);validate_pins(build['sources'])
-    require(build['pins_sha256']==sha(ROOT/'flex_basis_pins.json'), 'Changed flex-basis pins')
+def validate_build(build,sources,executables,pins_path=DEFAULT_PINS):
+    validate_pins(sources,pins_path);validate_pins(build['sources'],pins_path)
+    pins=json.loads(pins_path.read_text())
+    kind=control_kind(pins)
+    require(build.get('control_kind',POINTS_CONTROL)==kind, 'Build/pins control classification mismatch')
+    if kind == PERCENT_CONTROL or 'basis_parser' in build:
+        require(build.get('basis_parser')==basis_parser_identity(kind), 'Build/profile basis parser mismatch')
+    require(build['pins_sha256']==sha(pins_path), 'Changed flex-basis pins')
     for name in ('upstream','moonbit','suite'):
         # A subsequent suite commit may name the exact same recorded source bytes.
         # Keep original build revision/dirty provenance; never relabel it as rebuilt.
@@ -134,10 +165,23 @@ def validate_build(build,sources,executables):
     require(type(build.get('disable_flex_basis')) is bool, 'Missing control classification')
     mutation=build.get('mutation')
     if build['disable_flex_basis']:
-        require(type(mutation) is dict and mutation.get('kind')=='production-points-resolve-as-auto', 'Missing production mutation')
+        require(type(mutation) is dict and mutation.get('kind')==kind, 'Missing production mutation')
         require(mutation.get('file')=='layout/layout.mbt', 'Unexpected mutation target')
         require(mutation.get('original_sha256')==sources['moonbit']['files']['layout/layout.mbt'], 'Mutation original source mismatch')
         require(mutation.get('mutated_sha256')!=mutation.get('original_sha256'), 'Mutation did not change production source')
+        if kind == PERCENT_CONTROL:
+            original=mutation.get('original_function')
+            require(type(original) is str and original.startswith('fn FlexItem::resolved_flex_basis('), 'Missing percent resolver mutation evidence')
+            require(original.count('Ok(resolved)')==1, 'Percent mutation point must be unique')
+            needle='Ok(Some(resolved)) => Ok(resolved)'
+            require(original.count(needle)==1, 'Percent resolver arm changed')
+            require(mutation.get('mutated_function')==original.replace(needle,'Ok(Some(_)) => Ok(fallback)'), 'Percent mutation changed more than its resolver result/binding')
+            # Bind the complete mutated file as well as the documented function.
+            layout=Path(sources['moonbit']['path'])/'layout/layout.mbt'
+            before=layout.read_text()
+            require(before.count(original)==1, 'Percent mutation original function differs from source')
+            expected=before.replace(original,mutation['mutated_function'])
+            require(hashlib.sha256(expected.encode()).hexdigest()==mutation['mutated_sha256'], 'Percent mutation full source hash mismatch')
     else:
         require(mutation is None, 'Positive build cannot contain a mutation')
     require(len({sha(p) for p in executables.values()})==len(executables), 'Distinct executable bytes required')
@@ -145,11 +189,22 @@ def validate_build(build,sources,executables):
         require(build['executables'][name]['sha256']==sha(path), 'Executable hash mismatch')
 
 
+def validate_control_mode(build, corpus, capability_control):
+    require(type(capability_control) is bool, 'Invalid requested control classification')
+    require(type(build.get('disable_flex_basis')) is bool, 'Missing control classification')
+    require(build['disable_flex_basis'] == capability_control, 'Capability control/build mismatch')
+    if control_kind(corpus) == PERCENT_CONTROL:
+        require(build.get('control_kind',POINTS_CONTROL)==PERCENT_CONTROL, 'Percentage corpus requires percentage parser profile')
+    if capability_control:
+        require(build.get('control_kind',POINTS_CONTROL)==control_kind(corpus), 'Corpus/build control classification mismatch')
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('rust-exe','moon-exe','upstream-source','moonbit-source','build-manifest','output'):
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--scenarios',type=Path,default=ROOT/'flex_basis_scenarios.json')
+    p.add_argument('--pins',type=Path,default=DEFAULT_PINS,help='Exact source profile; use percent_basis_pins.json for percentage support')
     p.add_argument('--negative-control',action='store_true',help='Corrupt every observed MoonBit root width by one logical pixel')
     p.add_argument('--capability-control',action='store_true',help='Require separately compiled production-basis-disabled mutant')
     a=p.parse_args()
@@ -157,11 +212,12 @@ def main():
     sources={name:source_identity(path) for name,path in [('upstream',a.upstream_source),('moonbit',a.moonbit_source),('suite',ROOT)]}
     build=json.loads(a.build_manifest.read_text())
     executables={'upstream':a.rust_exe,'moonbit':a.moon_exe}
-    validate_build(build,sources,executables)
-    require(bool(build.get('disable_flex_basis')) == a.capability_control, 'Capability control/build mismatch')
+    validate_build(build,sources,executables,a.pins)
+    validate_control_mode(build,corpus,a.capability_control)
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=False)
     (out/'scenarios.json').write_bytes(a.scenarios.read_bytes())
     manifest={'started_at':datetime.now(timezone.utc).isoformat(),'build_manifest':build,'build_manifest_sha256':sha(a.build_manifest),'sources':sources,
+              'pins_sha256':sha(a.pins),'control_kind':build.get('control_kind',POINTS_CONTROL),
               'scenarios_sha256':sha(a.scenarios),'negative_control':a.negative_control,'capability_control':a.capability_control,'runs':{},
               'projection':'complete root and source-order child bounds, separately observed headless TestWindow and exact MoonBit snapshot viewport',
               'limitation':'No native desktop, renderer, clipping or pixel parity claim.'}

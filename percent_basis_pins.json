@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "Bounded Auto, point and percentage flex-basis with definite parent main axes, complete root and child rectangle comparison",
+  "capability_control": "production-percent-resolve-as-auto",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "5ef415665fad8548110e5266a176ccd048138e07",
+    "tree": "bd96cf73878353c9cd1e9bd495cdd94672a304de"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and MoonBit snapshot bounds only; no native desktop, renderer or pixel parity.",
+    "Percentage ratios resolve against the inner definite parent main extent. Content bases and indefinite intrinsic parent main-axis resolution remain outside this corpus.",
+    "The corpus contains independently authored inputs and logical mutation expectations, not expected runtime rectangles. Synthetic contract tests alone do not establish runtime parity."
+  ]
+}

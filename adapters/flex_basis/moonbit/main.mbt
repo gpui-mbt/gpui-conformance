@@ -224,10 +224,7 @@ fn tree(s : Json) -> @element.Prepainted {
     )
     let item = item.with_flex_basis(
       match optional(s, "flex_basis") {
-        Some(values) => match array(values)[i] {
-          Null => @layout.FlexBasis::auto()
-          value => checked(@layout.FlexBasis::points(number(value)))
-        }
+        Some(values) => basis(array(values)[i])
         None => @layout.FlexBasis::auto()
       },
     )
