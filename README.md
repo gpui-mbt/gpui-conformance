@@ -488,3 +488,22 @@ percentage-positive build by selecting `--scenarios flex_basis_scenarios.json`;
 Running these synthetic tests or preparing a build plan does not establish
 runtime parity. Retain the fresh raw process output and manifests when executing
 the commands before reporting an observed result.
+
+
+## Intrinsic-parent point flex-basis
+
+See [scope and source-bound results](INTRINSIC_BASIS_RESULTS.md). The additive
+132-case corpus observes a definite outer viewport, auto-main-size nested flex
+container and every source-order child. Only nowrap containers with zero child
+grow/shrink and Auto or finite nonnegative point bases are qualified here.
+Percentage/content bases and positive flex factors remain outside this profile.
+
+Use `build_flex_basis.py --pins intrinsic_basis_pins.json` with the exact pinned
+sources and an explicitly chosen build mode. Then use `run_flex_basis.py --pins
+intrinsic_basis_pins.json --scenarios intrinsic_basis_scenarios.json` with the
+resulting manifest/executables. The existing `--disable-flex-basis` build and
+`--capability-control` run form the production point resolver negative control;
+`--negative-control` corrupts root width separately. For unchanged 452-case
+regressions against the same core, build with `intrinsic_regression_pins.json`
+and use the original percent, point and legacy regression runners. Never reuse
+a manifest after changing source or pin bytes; build a fresh source-bound one.

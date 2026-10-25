@@ -129,7 +129,14 @@ fn tree(s : Json) -> @element.Prepainted {
     match optional(s, key) {
       Some(p) => {
         let p = array(p)
-        checked(@layout.Insets::new(number(p[0]), number(p[1]), number(p[2]), number(p[3])))
+        checked(
+          @layout.Insets::new(
+            number(p[0]),
+            number(p[1]),
+            number(p[2]),
+            number(p[3]),
+          ),
+        )
       }
       None => @layout.Insets::zero()
     }
@@ -143,7 +150,20 @@ fn tree(s : Json) -> @element.Prepainted {
     Some(v) => checked(style.with_gap_y(number(v)))
     None => style
   }
-  let mut root = @element.Element::root(1, style)
+  let nested = optional(s, "intrinsic_parent") == Some(@json.to_json(true))
+  let mut root = if nested {
+    let item = checked(
+      @layout.FlexItem::new(
+        99,
+        @layout.Dimension::auto(),
+        checked(@layout.Dimension::points(number(field(s, "container_cross")))),
+        checked(@primitives.Size::new(0.0, 0.0)),
+      ).with_flex(0.0, 0.0),
+    )
+    @element.Element::new(item).with_children_style(style)
+  } else {
+    @element.Element::root(1, style)
+  }
   for i, child in array(field(s, "children")) {
     let dimensions = array(child)
     let width = dimension_fallback(dimensions[0])
@@ -234,6 +254,21 @@ fn tree(s : Json) -> @element.Prepainted {
       ),
     )
   }
+  let root = if nested {
+    let outer_direction = if is_column {
+      @layout.FlowDirection::column()
+    } else {
+      @layout.FlowDirection::row()
+    }
+    @element.Element::root(
+      1,
+      @layout.FlexTreeStyle::new(outer_direction).with_align(
+        @layout.AlignItems::start(),
+      ),
+    ).with_child(root)
+  } else {
+    root
+  }
   let viewport = checked(
     @primitives.Size::new(number(field(s, "width")), number(field(s, "height"))),
   )
@@ -252,7 +287,9 @@ fn observe(s : Json) -> Json {
     abort("layout-only probe")
   }
   let painted = tree(s)
-  let snapshot = checked(painted.paint_snapshot(number(field(s, "device_scale_factor"))))
+  let snapshot = checked(
+    painted.paint_snapshot(number(field(s, "device_scale_factor"))),
+  )
   let output = painted.tree().nodes().map(node => bounds(node.bounds()))
   if @env.get_env_var("GPUI_NEGATIVE_CONTROL") == Some("1") {
     let first = array(output[0])
@@ -263,12 +300,15 @@ fn observe(s : Json) -> Json {
     ("id", field(s, "id")),
     ("layer", @json.to_json("headless-layout")),
     ("status", @json.to_json("observed")),
-    ("observation", object([
-      ("bounds", @json.to_json(output)),
-      ("physical_viewport", bounds(painted.viewport_bounds())),
-      ("snapshot_viewport", bounds(snapshot.viewport())),
-      ("device_scale_factor", @json.to_json(snapshot.scale())),
-    ])),
+    (
+      "observation",
+      object([
+        ("bounds", @json.to_json(output)),
+        ("physical_viewport", bounds(painted.viewport_bounds())),
+        ("snapshot_viewport", bounds(snapshot.viewport())),
+        ("device_scale_factor", @json.to_json(snapshot.scale())),
+      ]),
+    ),
   ])
 }
 

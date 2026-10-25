@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "Original452case regression against intrinsic point-basis candidate",
+  "capability_control": "production-percent-resolve-as-auto",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "d2bbcd0537645daccc2dd21e9112ecd2d7ad0b9c",
+    "tree": "24125f4c69431a4675373ba26f7fab7f2af44aeb"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and MoonBit snapshot bounds only; no native desktop, renderer or pixel parity.",
+    "Percentage ratios resolve against the inner definite parent main extent. Content bases and indefinite intrinsic parent main-axis resolution remain outside this corpus.",
+    "The corpus contains independently authored inputs and logical mutation expectations, not expected runtime rectangles. Synthetic contract tests alone do not establish runtime parity."
+  ]
+}

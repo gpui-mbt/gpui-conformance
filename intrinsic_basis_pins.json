@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "scope": "Nested intrinsic main-axis parent with bounded point flex-basis, nowrap and zero grow/shrink; complete outer/container/child rectangles",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and MoonBit snapshot bounds only, no desktop/pixel qualification.",
+    "Only finite nonnegative point bases and Auto controls; percentage/content/positive flex factors/wrap remain excluded.",
+    "Synthetic contracts alone are not parity evidence; see source-bound actual run records in INTRINSIC_BASIS_RESULTS.md."
+  ],
+  "moonbit": {
+    "revision": "d2bbcd0537645daccc2dd21e9112ecd2d7ad0b9c",
+    "tree": "24125f4c69431a4675373ba26f7fab7f2af44aeb",
+    "repository": "https://github.com/gpui-mbt/gpui.mbt"
+  }
+}

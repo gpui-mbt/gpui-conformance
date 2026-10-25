@@ -105,6 +105,15 @@ def validate(corpus):
         require(type(c.get('flex_basis')) is list and len(c['flex_basis']) == len(children))
         require(all(basis_value(v, allow_percent=allow_percent) for v in c['flex_basis']), 'Invalid flex-basis encoding')
         require(type(c.get('expected_capability_mismatch')) is bool)
+        if 'intrinsic_parent' in c:
+            require(type(c['intrinsic_parent']) is bool, 'Invalid intrinsic parent flag')
+        if c.get('intrinsic_parent', False):
+            require(not allow_percent, 'Intrinsic percentage resolution is not in this profile')
+            require(numeric(c.get('container_cross')), 'Missing definite container cross extent')
+            require(c.get('wrap', 'nowrap') == 'nowrap', 'Intrinsic wrapping is not in this profile')
+            require(c.get('grow') == [0] * len(children) and c.get('shrink') == [0] * len(children),
+                    'Intrinsic flexible children are not in this profile')
+
 
 
 def rectangle(value):
@@ -125,7 +134,7 @@ def compare(corpus, rust, moon, fixed_root=False):
         require(set(ao) == {'bounds','test_window_viewport','device_scale_factor'})
         require(set(bo) == {'bounds','physical_viewport','snapshot_viewport','device_scale_factor'})
         require(type(ao['bounds']) is list and type(bo['bounds']) is list)
-        require(len(ao['bounds']) == len(bo['bounds']) == len(c['children'])+1)
+        require(len(ao['bounds']) == len(bo['bounds']) == len(c['children'])+1+int(c.get('intrinsic_parent',False)))
         differences=[]
         for i,(ar,br) in enumerate(zip(ao['bounds'],bo['bounds'])):
             rectangle(ar);rectangle(br)
