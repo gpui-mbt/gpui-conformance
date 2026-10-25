@@ -31,6 +31,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_flex_basis.py' -v
       - name: Validate percentage flex-basis and fail-closed build contracts without claiming runtime parity
         run: python3 -m unittest discover -s tests -p 'test_percent_basis.py' -v
+      - name: Validate intrinsic-parent point basis contracts without claiming runtime parity
+        run: python3 -m unittest discover -s tests -p 'test_intrinsic_basis.py' -v
       - name: Validate the declared Web TextField/IME corpus
         run: python3 -m unittest discover -s tests -p 'test_ime_scenarios.py' -v
       - name: Run the synthetic Node IME host lane (not a live IME claim)

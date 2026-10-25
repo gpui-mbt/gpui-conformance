@@ -173,7 +173,23 @@ impl Render for View {
             };
             root = root.child(child);
         }
-        root
+        if self.scenario["intrinsic_parent"].as_bool().unwrap_or(false) {
+            root = root.min_w(px(0.)).min_h(px(0.)).flex_grow(0.).flex_shrink(0.);
+            let column = matches!(self.scenario["direction"].as_str(), Some("column" | "column_reverse"));
+            if column {
+                root.style().size.height = Some(Length::Auto);
+                root = root.w(px(n(&self.scenario["container_cross"])));
+            } else {
+                root.style().size.width = Some(Length::Auto);
+                root = root.h(px(n(&self.scenario["container_cross"])));
+            }
+            let mut outer = div().id("outer").debug_selector(|| "outer".into())
+                .flex().items_start().w_full().h_full();
+            outer = if column { outer.flex_col() } else { outer.flex_row() };
+            outer.child(root)
+        } else {
+            root
+        }
     }
 }
 fn observe(scenario: &Value) -> Value {
@@ -194,7 +210,8 @@ fn observe(scenario: &Value) -> Value {
     );
     let children = scenario["children"].as_array().expect("scenario children");
     let selectors = ["a", "b", "c"];
-    let rectangles: Vec<_> = std::iter::once("root")
+    let nested = scenario["intrinsic_parent"].as_bool().unwrap_or(false);
+    let rectangles: Vec<_> = nested.then_some("outer").into_iter().chain(std::iter::once("root"))
         .chain(selectors.iter().take(children.len()).copied())
         .map(|selector| bounds(context.debug_bounds(selector).expect("drawn selector")))
         .collect();

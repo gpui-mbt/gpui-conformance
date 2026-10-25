@@ -1,0 +1,9906 @@
+{
+  "schema_version": 1,
+  "capability_control": "production-points-resolve-as-auto",
+  "cases": [
+    {
+      "id": "intrinsic-auto-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-points-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-zero-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        0,
+        0,
+        0
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        18,
+        0,
+        10
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-max-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        60,
+        40,
+        50
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        24,
+        28,
+        22
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          39.5,
+          10
+        ],
+        [
+          20.25,
+          12
+        ],
+        [
+          29.75,
+          8
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-fractional-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          39.5
+        ],
+        [
+          12,
+          20.25
+        ],
+        [
+          8,
+          29.75
+        ]
+      ],
+      "flex_basis": [
+        17.5,
+        31.25,
+        23.75
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          null,
+          10
+        ],
+        [
+          null,
+          12
+        ],
+        [
+          null,
+          8
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-empty-auto-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          null
+        ],
+        [
+          12,
+          null
+        ],
+        [
+          8,
+          null
+        ]
+      ],
+      "flex_basis": [
+        16,
+        32,
+        24
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-min-dominant-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        8,
+        32,
+        4
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        60,
+        48,
+        36
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-mixed-limits-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        48,
+        8
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": true,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-row_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          40,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          30,
+          8
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column_reverse-1x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column_reverse-1.5x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    },
+    {
+      "id": "intrinsic-auto-limits-column_reverse-2x",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 320,
+      "height": 260,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          40
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          8,
+          30
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 4,
+      "padding": [
+        2,
+        5,
+        3,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        1,
+        3
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "flex_start",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": true,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        40
+      ],
+      "max_main": [
+        24,
+        28,
+        null
+      ],
+      "gap_x": 4,
+      "gap_y": 6
+    }
+  ]
+}
