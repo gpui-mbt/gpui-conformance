@@ -1,0 +1,985 @@
+{
+  "schema_version": 1,
+  "capability_control": "production-percent-resolve-as-auto",
+  "cases": [
+    {
+      "id": "round-percent-preserve-review-647",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 493,
+      "height": 71,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          10,
+          0
+        ],
+        [
+          10,
+          66
+        ],
+        [
+          10,
+          17
+        ],
+        [
+          10,
+          60
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null,
+        {
+          "percent": 0.3333333333333333
+        }
+      ],
+      "grow": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "gap": 1,
+      "padding": [
+        3,
+        1,
+        10,
+        4
+      ],
+      "border": [
+        0,
+        0,
+        2,
+        1
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "wrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-789",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 179,
+      "height": 487,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          10,
+          25
+        ],
+        [
+          10,
+          57
+        ]
+      ],
+      "flex_basis": [
+        45,
+        {
+          "percent": 0.3333333333333333
+        }
+      ],
+      "grow": [
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "gap": 2,
+      "padding": [
+        3,
+        14,
+        13,
+        2
+      ],
+      "border": [
+        0,
+        2,
+        2,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "wrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-846",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 299,
+      "height": 441,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          17,
+          10
+        ],
+        [
+          55,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "flex_basis": [
+        {
+          "percent": 0.3
+        },
+        null,
+        32
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 7,
+      "padding": [
+        6,
+        11,
+        1,
+        4
+      ],
+      "border": [
+        3,
+        3,
+        0,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1053",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 215,
+      "height": 170,
+      "device_scale_factor": 1.25,
+      "children": [
+        [
+          10,
+          41
+        ],
+        [
+          10,
+          54
+        ],
+        [
+          10,
+          5
+        ],
+        [
+          10,
+          4
+        ]
+      ],
+      "flex_basis": [
+        {
+          "percent": 0.3333333333333333
+        },
+        0,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "gap": 2,
+      "padding": [
+        3,
+        12,
+        5,
+        9
+      ],
+      "border": [
+        0,
+        1,
+        2,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-between",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1069",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row",
+      "width": 230,
+      "height": 460,
+      "device_scale_factor": 2,
+      "children": [
+        [
+          1,
+          10
+        ],
+        [
+          46,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          2,
+          10
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        {
+          "percent": 0.05
+        },
+        null,
+        {
+          "percent": 0.3
+        }
+      ],
+      "grow": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "gap": 10,
+      "padding": [
+        11,
+        4,
+        10,
+        1
+      ],
+      "border": [
+        1,
+        3,
+        1,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1354",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 422,
+      "height": 84,
+      "device_scale_factor": 1.25,
+      "children": [
+        [
+          56,
+          10
+        ],
+        [
+          4,
+          10
+        ]
+      ],
+      "flex_basis": [
+        {
+          "percent": 0.05
+        },
+        55
+      ],
+      "grow": [
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "gap": 1,
+      "padding": [
+        9,
+        12,
+        9,
+        3
+      ],
+      "border": [
+        3,
+        2,
+        2,
+        1
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto"
+      ],
+      "justify": "space-between",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1387",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column_reverse",
+      "width": 149,
+      "height": 198,
+      "device_scale_factor": 1.25,
+      "children": [
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          65
+        ]
+      ],
+      "flex_basis": [
+        {
+          "percent": 0.07
+        },
+        53
+      ],
+      "grow": [
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "gap": 7,
+      "padding": [
+        9,
+        5,
+        10,
+        7
+      ],
+      "border": [
+        1,
+        3,
+        1,
+        1
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto"
+      ],
+      "justify": "space-between",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1479",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 123,
+      "height": 188,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          12,
+          10
+        ],
+        [
+          74,
+          10
+        ],
+        [
+          34,
+          10
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          74,
+          10
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        {
+          "percent": 0.3333333333333333
+        },
+        2,
+        {
+          "percent": 0.1
+        }
+      ],
+      "grow": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "gap": 11,
+      "padding": [
+        8,
+        14,
+        7,
+        15
+      ],
+      "border": [
+        2,
+        0,
+        3,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-between",
+      "wrap": "wrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1679",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "column",
+      "width": 268,
+      "height": 201,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          10,
+          61
+        ],
+        [
+          10,
+          19
+        ],
+        [
+          10,
+          16
+        ],
+        [
+          10,
+          49
+        ],
+        [
+          10,
+          54
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        {
+          "percent": 0.07
+        },
+        {
+          "percent": 0.07
+        },
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "gap": 3,
+      "padding": [
+        0,
+        0,
+        5,
+        3
+      ],
+      "border": [
+        0,
+        0,
+        3,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-between",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-review-1811",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 147,
+      "height": 243,
+      "device_scale_factor": 1.5,
+      "children": [
+        [
+          69,
+          10
+        ],
+        [
+          0,
+          10
+        ]
+      ],
+      "flex_basis": [
+        {
+          "percent": 0.3333333333333333
+        },
+        null
+      ],
+      "grow": [
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "gap": 6,
+      "padding": [
+        11,
+        2,
+        9,
+        7
+      ],
+      "border": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null
+      ],
+      "min_cross": [
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null
+      ]
+    },
+    {
+      "id": "round-percent-preserve-minimal-1over3",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 5,
+      "height": 100,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          0,
+          10
+        ],
+        [
+          10,
+          10
+        ]
+      ],
+      "flex_basis": [
+        0,
+        {
+          "percent": 0.3333333333333333
+        }
+      ],
+      "grow": [
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0
+      ],
+      "gap": 0,
+      "padding": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null
+      ],
+      "gap_x": 0,
+      "gap_y": 0,
+      "min_cross": [
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null
+      ]
+    }
+  ]
+}

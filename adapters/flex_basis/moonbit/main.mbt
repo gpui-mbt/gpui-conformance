@@ -151,7 +151,18 @@ fn tree(s : Json) -> @element.Prepainted {
     None => style
   }
   let nested = optional(s, "intrinsic_parent") == Some(@json.to_json(true))
-  let mut root = if nested {
+  let parent_offset = optional(s, "parent_offset_x")
+  let mut root = if parent_offset is Some(offset) {
+    let item = checked(
+      @layout.FlexItem::new(
+        99,
+        checked(@layout.Dimension::points(number(field(s, "width")) - number(offset))),
+        checked(@layout.Dimension::points(number(field(s, "height")))),
+        checked(@primitives.Size::new(0.0, 0.0)),
+      ).with_flex(0.0, 0.0),
+    )
+    @element.Element::new(item).with_children_style(style)
+  } else if nested {
     let item = checked(
       @layout.FlexItem::new(
         99,
@@ -254,7 +265,15 @@ fn tree(s : Json) -> @element.Prepainted {
       ),
     )
   }
-  let root = if nested {
+  let root = if parent_offset is Some(offset) {
+    let outer_style = @layout.FlexTreeStyle::new(@layout.FlowDirection::row())
+      .with_align(@layout.AlignItems::start())
+      .with_insets(
+        checked(@layout.Insets::new(0.0, 0.0, 0.0, number(offset))),
+        @layout.Insets::zero(),
+      )
+    @element.Element::root(1, outer_style).with_child(root)
+  } else if nested {
     let outer_direction = if is_column {
       @layout.FlowDirection::column()
     } else {

@@ -18,7 +18,8 @@ ROOT = Path(__file__).resolve().parent
 DEFAULT_PINS = ROOT/'flex_basis_pins.json'
 POINTS_CONTROL = 'production-points-resolve-as-auto'
 PERCENT_CONTROL = 'production-percent-resolve-as-auto'
-CONTROL_KINDS = (POINTS_CONTROL, PERCENT_CONTROL)
+SPACING_CONTROL = 'production-distributed-spacing-double'
+CONTROL_KINDS = (POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL)
 
 
 def control_kind(record):
@@ -79,10 +80,10 @@ def validate(corpus):
         require(c.get('kind') == 'layout' and c.get('layer') == 'headless-layout')
         require(c.get('direction') in ('row', 'column', 'row_reverse', 'column_reverse'))
         require(all(numeric(c.get(k)) and c[k] <= 4096 for k in ('width', 'height')))
-        require(type(c.get('device_scale_factor')) in (int, float) and c['device_scale_factor'] in (1, 1.5, 2))
+        require(type(c.get('device_scale_factor')) in (int, float) and c['device_scale_factor'] in (1, 1.25, 1.5, 2))
         require(c.get('layout_observation', 'bounds') == 'bounds')
         children = c.get('children')
-        require(type(children) is list and len(children) <= 3)
+        require(type(children) is list and len(children) <= 7)
         require(all(type(child) is list and len(child) == 2 and all(numeric(v, nullable=True) for v in child) for child in children))
         require(c.get('align') in ('start', 'center', 'end', 'stretch'))
         require(c.get('justify') in ('start', 'center', 'end', 'space-between', 'space-around', 'space-evenly', 'flex_start', 'flex_end'))
@@ -107,6 +108,10 @@ def validate(corpus):
         require(type(c.get('expected_capability_mismatch')) is bool)
         if 'intrinsic_parent' in c:
             require(type(c['intrinsic_parent']) is bool, 'Invalid intrinsic parent flag')
+        if 'parent_offset_x' in c:
+            require(numeric(c['parent_offset_x']) and c['parent_offset_x'] < c['width'])
+            require(c['direction'] in ('row','row_reverse') and not c.get('intrinsic_parent',False),
+                    'Offset wrapper is a definite horizontal-container profile only')
         if c.get('intrinsic_parent', False):
             require(not allow_percent, 'Intrinsic percentage resolution is not in this profile')
             require(numeric(c.get('container_cross')), 'Missing definite container cross extent')
@@ -134,7 +139,7 @@ def compare(corpus, rust, moon, fixed_root=False):
         require(set(ao) == {'bounds','test_window_viewport','device_scale_factor'})
         require(set(bo) == {'bounds','physical_viewport','snapshot_viewport','device_scale_factor'})
         require(type(ao['bounds']) is list and type(bo['bounds']) is list)
-        require(len(ao['bounds']) == len(bo['bounds']) == len(c['children'])+1+int(c.get('intrinsic_parent',False)))
+        require(len(ao['bounds']) == len(bo['bounds']) == len(c['children'])+1+int(c.get('intrinsic_parent',False) or 'parent_offset_x' in c))
         differences=[]
         for i,(ar,br) in enumerate(zip(ao['bounds'],bo['bounds'])):
             rectangle(ar);rectangle(br)
@@ -178,6 +183,17 @@ def validate_build(build,sources,executables,pins_path=DEFAULT_PINS):
         require(mutation.get('file')=='layout/layout.mbt', 'Unexpected mutation target')
         require(mutation.get('original_sha256')==sources['moonbit']['files']['layout/layout.mbt'], 'Mutation original source mismatch')
         require(mutation.get('mutated_sha256')!=mutation.get('original_sha256'), 'Mutation did not change production source')
+        if kind == SPACING_CONTROL:
+            original=mutation.get('original_function')
+            require(type(original) is str and original.startswith('fn device_distributed_starts('), 'Missing spacing helper mutation evidence')
+            needle='if sizes.length() <= 1 ||'
+            require(original.count(needle)==1, 'Spacing guard must be unique')
+            expected_function=original.replace(needle, 'if sizes.length() >= 0 ||')
+            require(mutation.get('mutated_function')==expected_function, 'Spacing mutation changed more than the fallback guard')
+            before=(Path(sources['moonbit']['path'])/'layout/layout.mbt').read_text()
+            require(before.count(original)==1, 'Spacing helper differs from original source')
+            expected=before.replace(original,expected_function)
+            require(hashlib.sha256(expected.encode()).hexdigest()==mutation['mutated_sha256'], 'Spacing mutation full file hash mismatch')
         if kind == PERCENT_CONTROL:
             original=mutation.get('original_function')
             require(type(original) is str and original.startswith('fn FlexItem::resolved_flex_basis('), 'Missing percent resolver mutation evidence')

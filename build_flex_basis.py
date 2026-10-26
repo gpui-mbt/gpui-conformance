@@ -11,7 +11,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from build_flex_justify import cached_rust
-from run_flex_basis import (ROOT, DEFAULT_PINS, POINTS_CONTROL, PERCENT_CONTROL, CONTROL_KINDS,
+from run_flex_basis import (ROOT, DEFAULT_PINS, POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL, CONTROL_KINDS,
                             basis_parser_identity, control_kind, require, sha, source_identity, validate_pins)
 
 
@@ -29,12 +29,15 @@ def disable_flex_basis(moon, kind=POINTS_CONTROL):
     """Mutate the production resolver only; preserve its validation and adapter."""
     path = moon/'layout/layout.mbt'
     before = path.read_text()
-    start = before.index('fn FlexItem::resolved_flex_basis(')
+    start = before.index('fn device_distributed_starts(' if kind == SPACING_CONTROL else 'fn FlexItem::resolved_flex_basis(')
     end = before.index('\n}\n', start) + 3
     original = before[start:end]
     # Preserve validation and self use so --deny-warn remains meaningful.
     require(kind in CONTROL_KINDS, 'Unknown production basis mutation')
-    if kind == PERCENT_CONTROL:
+    if kind == SPACING_CONTROL:
+        needle = 'if sizes.length() <= 1 ||'
+        replacement = 'if sizes.length() >= 0 ||'
+    elif kind == PERCENT_CONTROL:
         needle = 'Ok(Some(resolved)) => Ok(resolved)'
         replacement = 'Ok(Some(_)) => Ok(fallback)'
         require(original.count('Ok(resolved)') == 1, 'Production percent result must be unique')
