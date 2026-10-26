@@ -19,7 +19,9 @@ DEFAULT_PINS = ROOT/'flex_basis_pins.json'
 POINTS_CONTROL = 'production-points-resolve-as-auto'
 PERCENT_CONTROL = 'production-percent-resolve-as-auto'
 SPACING_CONTROL = 'production-distributed-spacing-double'
-CONTROL_KINDS = (POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL)
+INTRINSIC_PERCENT_CONTROL = 'production-intrinsic-percent-fallback-zero'
+PERCENT_PARSER_CONTROLS = (PERCENT_CONTROL, INTRINSIC_PERCENT_CONTROL)
+CONTROL_KINDS = (POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL, INTRINSIC_PERCENT_CONTROL)
 
 
 def control_kind(record):
@@ -37,7 +39,7 @@ def basis_value(value, *, allow_percent=False):
 
 def basis_parser_identity(kind):
     require(kind in CONTROL_KINDS, 'Unknown basis parser profile')
-    relative = 'adapters/'+('percent_basis' if kind == PERCENT_CONTROL else 'flex_basis')+'/moonbit/basis.mbt'
+    relative = 'adapters/'+('percent_basis' if kind in PERCENT_PARSER_CONTROLS else 'flex_basis')+'/moonbit/basis.mbt'
     return {'profile':kind,'source_path':relative,'sha256':sha(ROOT/relative)}
 
 
@@ -71,7 +73,11 @@ def validate_pins(sources, pins_path=DEFAULT_PINS):
 
 def validate(corpus):
     require(type(corpus) is dict and corpus.get('schema_version') == 1)
-    allow_percent = control_kind(corpus) == PERCENT_CONTROL
+    allow_percent = control_kind(corpus) in PERCENT_PARSER_CONTROLS
+    intrinsic_percent = corpus.get('profile') == 'intrinsic_percent_basis'
+    require('profile' not in corpus or intrinsic_percent, 'Unknown basis corpus profile')
+    if intrinsic_percent:
+        require(allow_percent, 'Intrinsic percentage profile requires percentage parser')
     require(type(corpus.get('cases')) is list and corpus['cases'])
     ids = set()
     for c in corpus['cases']:
@@ -112,8 +118,11 @@ def validate(corpus):
             require(numeric(c['parent_offset_x']) and c['parent_offset_x'] < c['width'])
             require(c['direction'] in ('row','row_reverse') and not c.get('intrinsic_parent',False),
                     'Offset wrapper is a definite horizontal-container profile only')
+        if intrinsic_percent:
+            require(c.get('intrinsic_parent') is True, 'Intrinsic percentage profile requires intrinsic parent')
+            require('parent_offset_x' not in c, 'Translated wrappers are outside the intrinsic percentage profile')
         if c.get('intrinsic_parent', False):
-            require(not allow_percent, 'Intrinsic percentage resolution is not in this profile')
+            require(not allow_percent or intrinsic_percent, 'Intrinsic percentage resolution is not in this profile')
             require(numeric(c.get('container_cross')), 'Missing definite container cross extent')
             require(c.get('wrap', 'nowrap') == 'nowrap', 'Intrinsic wrapping is not in this profile')
             require(c.get('grow') == [0] * len(children) and c.get('shrink') == [0] * len(children),
@@ -167,7 +176,7 @@ def validate_build(build,sources,executables,pins_path=DEFAULT_PINS):
     pins=json.loads(pins_path.read_text())
     kind=control_kind(pins)
     require(build.get('control_kind',POINTS_CONTROL)==kind, 'Build/pins control classification mismatch')
-    if kind == PERCENT_CONTROL or 'basis_parser' in build:
+    if kind in PERCENT_PARSER_CONTROLS or 'basis_parser' in build:
         require(build.get('basis_parser')==basis_parser_identity(kind), 'Build/profile basis parser mismatch')
     require(build['pins_sha256']==sha(pins_path), 'Changed flex-basis pins')
     for name in ('upstream','moonbit','suite'):
@@ -180,9 +189,21 @@ def validate_build(build,sources,executables,pins_path=DEFAULT_PINS):
     mutation=build.get('mutation')
     if build['disable_flex_basis']:
         require(type(mutation) is dict and mutation.get('kind')==kind, 'Missing production mutation')
-        require(mutation.get('file')=='layout/layout.mbt', 'Unexpected mutation target')
-        require(mutation.get('original_sha256')==sources['moonbit']['files']['layout/layout.mbt'], 'Mutation original source mismatch')
+        target = 'layout/tree.mbt' if kind == INTRINSIC_PERCENT_CONTROL else 'layout/layout.mbt'
+        require(mutation.get('file')==target, 'Unexpected mutation target')
+        require(mutation.get('original_sha256')==sources['moonbit']['files'][target], 'Mutation original source mismatch')
         require(mutation.get('mutated_sha256')!=mutation.get('original_sha256'), 'Mutation did not change production source')
+        if kind == INTRINSIC_PERCENT_CONTROL:
+            original=mutation.get('original_function')
+            require(type(original) is str and original.startswith('fn intrinsic_percent_contribution('), 'Missing intrinsic percentage mutation evidence')
+            needle='Some(value) => Ok(value)'
+            require(original.count(needle)==1, 'Intrinsic percentage fallback must be unique')
+            expected_function=original.replace(needle,'Some(_) => Ok(0.0)')
+            require(mutation.get('mutated_function')==expected_function, 'Intrinsic percentage mutation changed more than authored fallback')
+            before=(Path(sources['moonbit']['path'])/target).read_text()
+            require(before.count(original)==1, 'Intrinsic percentage helper differs from original source')
+            expected=before.replace(original,expected_function)
+            require(hashlib.sha256(expected.encode()).hexdigest()==mutation['mutated_sha256'], 'Intrinsic percentage mutation full file hash mismatch')
         if kind == SPACING_CONTROL:
             original=mutation.get('original_function')
             require(type(original) is str and original.startswith('fn device_distributed_starts('), 'Missing spacing helper mutation evidence')
@@ -218,8 +239,8 @@ def validate_control_mode(build, corpus, capability_control):
     require(type(capability_control) is bool, 'Invalid requested control classification')
     require(type(build.get('disable_flex_basis')) is bool, 'Missing control classification')
     require(build['disable_flex_basis'] == capability_control, 'Capability control/build mismatch')
-    if control_kind(corpus) == PERCENT_CONTROL:
-        require(build.get('control_kind',POINTS_CONTROL)==PERCENT_CONTROL, 'Percentage corpus requires percentage parser profile')
+    if control_kind(corpus) in PERCENT_PARSER_CONTROLS:
+        require(build.get('control_kind',POINTS_CONTROL)==control_kind(corpus), 'Percentage corpus requires matching percentage parser profile')
     if capability_control:
         require(build.get('control_kind',POINTS_CONTROL)==control_kind(corpus), 'Corpus/build control classification mismatch')
 

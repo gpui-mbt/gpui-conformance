@@ -507,3 +507,23 @@ resulting manifest/executables. The existing `--disable-flex-basis` build and
 regressions against the same core, build with `intrinsic_regression_pins.json`
 and use the original percent, point and legacy regression runners. Never reuse
 a manifest after changing source or pin bytes; build a fresh source-bound one.
+
+
+### Bounded intrinsic-parent percentage flex-basis
+
+See [actual observations and qualification](INTRINSIC_PERCENT_BASIS_RESULTS.md).
+The distinct `intrinsic_percent_basis` profile adds 144 cases (12 profiles × four
+directions × three scales) without relaxing the older intrinsic-point profile.
+Only nowrap parents with zero grow/shrink children and authored point main sizes
+or empty Auto leaves are included. Content/text, wrapping, flexible children and
+percentage-authored dimensions remain excluded.
+
+Use `build_flex_basis.py --pins intrinsic_percent_basis_pins.json`, then
+`run_flex_basis.py --pins intrinsic_percent_basis_pins.json --scenarios
+intrinsic_percent_basis_scenarios.json` with the verified build and source paths.
+`--disable-flex-basis` builds the dedicated production intrinsic-fallback mutant;
+its run requires `--capability-control`. A separate positive-build run with
+`--negative-control` corrupts root width by one logical pixel.
+`intrinsic_percent_regression_pins.json` selects the unchanged percentage parser
+profile for the original 584 + 1297 + 13 regression inputs. These are headless
+geometry results, not native desktop, renderer or pixel-parity claims.

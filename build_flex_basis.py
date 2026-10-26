@@ -11,7 +11,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from build_flex_justify import cached_rust
-from run_flex_basis import (ROOT, DEFAULT_PINS, POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL, CONTROL_KINDS,
+from run_flex_basis import (ROOT, DEFAULT_PINS, POINTS_CONTROL, PERCENT_CONTROL, SPACING_CONTROL, CONTROL_KINDS, INTRINSIC_PERCENT_CONTROL, PERCENT_PARSER_CONTROLS,
                             basis_parser_identity, control_kind, require, sha, source_identity, validate_pins)
 
 
@@ -27,14 +27,18 @@ def snapshot_source(source, destination):
 
 def disable_flex_basis(moon, kind=POINTS_CONTROL):
     """Mutate the production resolver only; preserve its validation and adapter."""
-    path = moon/'layout/layout.mbt'
+    path = moon/('layout/tree.mbt' if kind == INTRINSIC_PERCENT_CONTROL else 'layout/layout.mbt')
     before = path.read_text()
-    start = before.index('fn device_distributed_starts(' if kind == SPACING_CONTROL else 'fn FlexItem::resolved_flex_basis(')
+    function = ('fn intrinsic_percent_contribution(' if kind == INTRINSIC_PERCENT_CONTROL else
+                'fn device_distributed_starts(' if kind == SPACING_CONTROL else 'fn FlexItem::resolved_flex_basis(')
+    start = before.index(function)
     end = before.index('\n}\n', start) + 3
     original = before[start:end]
     # Preserve validation and self use so --deny-warn remains meaningful.
     require(kind in CONTROL_KINDS, 'Unknown production basis mutation')
-    if kind == SPACING_CONTROL:
+    if kind == INTRINSIC_PERCENT_CONTROL:
+        needle, replacement = 'Some(value) => Ok(value)', 'Some(_) => Ok(0.0)'
+    elif kind == SPACING_CONTROL:
         needle = 'if sizes.length() <= 1 ||'
         replacement = 'if sizes.length() >= 0 ||'
     elif kind == PERCENT_CONTROL:
@@ -47,7 +51,7 @@ def disable_flex_basis(moon, kind=POINTS_CONTROL):
     mutated = original.replace(needle, replacement)
     before_hash = sha(path)
     path.write_text(before[:start] + mutated + before[end:])
-    return {'kind': kind, 'file': 'layout/layout.mbt',
+    return {'kind': kind, 'file': str(path.relative_to(moon)),
             'original_sha256': before_hash, 'mutated_sha256': sha(path),
             'original_function': original, 'mutated_function': mutated}
 
@@ -81,7 +85,7 @@ def main():
     moon=out/'moon';snapshot_source(sources['moonbit'],moon)
     shutil.copytree(ROOT/'adapters/flex_basis/moonbit',moon/'conformance_probe')
     parser=basis_parser_identity(kind)
-    if kind == PERCENT_CONTROL:
+    if kind in PERCENT_PARSER_CONTROLS:
         shutil.copy2(ROOT/parser['source_path'],moon/'conformance_probe/basis.mbt')
     require(sha(moon/'conformance_probe/basis.mbt')==parser['sha256'], 'Prepared basis parser differs from selected profile')
     mutation=disable_flex_basis(moon,kind) if a.disable_flex_basis else None
