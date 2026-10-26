@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "scope": "Regression corpora under bounded intrinsic percentage candidate, preserving original inputs",
+  "capability_control": "production-percent-resolve-as-auto",
+  "upstream": {
+    "repository": "https://github.com/zed-industries/zed",
+    "revision": "5a5fbe79917971a4d52a96b6ddb04da198a5012e",
+    "tree": "990fb995914d51a546b20e5cf0382dafc105c299"
+  },
+  "moonbit": {
+    "repository": "https://github.com/gpui-mbt/gpui.mbt",
+    "revision": "c58a53c11eaad138de1ee4b380e5dbfd512adb14",
+    "tree": "994c5c56405b492e2fe85193de1c945fe1ce04eb"
+  },
+  "limitations": [
+    "Headless GPUI TestWindow and snapshot bounds only, no desktop/pixel qualification.",
+    "Only bounded intrinsic-main nowrap parents with every child grow/shrink zero; authored point dimensions or empty Auto leaves. Content/text, wrapping, flexible children and percentage-authored dimensions remain excluded.",
+    "Actual source-bound process observations and production-branch mutation are required; synthetic tests are not parity evidence."
+  ]
+}

@@ -33,6 +33,8 @@ jobs:
         run: python3 -m unittest discover -s tests -p 'test_percent_basis.py' -v
       - name: Validate intrinsic-parent point basis contracts without claiming runtime parity
         run: python3 -m unittest discover -s tests -p 'test_intrinsic_basis.py' -v
+      - name: Validate bounded intrinsic percentage contracts without claiming runtime parity
+        run: python3 -m unittest discover -s tests -p 'test_intrinsic_percent_basis.py' -v
       - name: Validate distributed spacing precision and batched evidence contracts without claiming runtime parity
         run: python3 -m unittest discover -s tests -p 'test_reverse_rounding.py' -v
       - name: Validate the declared Web TextField/IME corpus
