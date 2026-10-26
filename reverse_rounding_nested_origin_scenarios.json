@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "capability_control": "production-distributed-spacing-double",
+  "cases": [
+    {
+      "id": "round-nested-origin47-preserve",
+      "kind": "layout",
+      "layer": "headless-layout",
+      "direction": "row_reverse",
+      "width": 189,
+      "height": 100,
+      "device_scale_factor": 1,
+      "children": [
+        [
+          12,
+          10
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          49,
+          10
+        ]
+      ],
+      "flex_basis": [
+        null,
+        null,
+        null
+      ],
+      "grow": [
+        0,
+        0,
+        0
+      ],
+      "shrink": [
+        0,
+        0,
+        0
+      ],
+      "gap": 6,
+      "padding": [
+        0,
+        10,
+        0,
+        14
+      ],
+      "border": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "align": "start",
+      "align_self": [
+        "auto",
+        "auto",
+        "auto"
+      ],
+      "justify": "space-around",
+      "wrap": "nowrap",
+      "align_content": "start",
+      "expected_capability_mismatch": false,
+      "intrinsic_parent": false,
+      "container_cross": 100,
+      "min_main": [
+        0,
+        0,
+        0
+      ],
+      "max_main": [
+        null,
+        null,
+        null
+      ],
+      "gap_x": 6,
+      "gap_y": 6,
+      "min_cross": [
+        0,
+        0,
+        0
+      ],
+      "max_cross": [
+        null,
+        null,
+        null
+      ],
+      "parent_offset_x": 47
+    }
+  ]
+}

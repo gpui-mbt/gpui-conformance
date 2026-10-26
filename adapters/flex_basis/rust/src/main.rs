@@ -93,7 +93,7 @@ impl Render for View {
             .iter()
             .enumerate()
         {
-            let selector = ["a", "b", "c", "d"][i];
+            let selector = ["a", "b", "c", "d", "e", "f", "g"][i];
             let mut child = div()
                 .id(i + 2)
                 .debug_selector(move || selector.into())
@@ -173,7 +173,13 @@ impl Render for View {
             };
             root = root.child(child);
         }
-        if self.scenario["intrinsic_parent"].as_bool().unwrap_or(false) {
+        if let Some(offset) = self.scenario["parent_offset_x"].as_f64() {
+            root = root.w(px(n(&self.scenario["width"]) - offset as f32))
+                .h(px(n(&self.scenario["height"]))).flex_grow(0.).flex_shrink(0.);
+            div().id("outer").debug_selector(|| "outer".into())
+                .flex().flex_row().items_start().w_full().h_full()
+                .pl(px(offset as f32)).child(root)
+        } else if self.scenario["intrinsic_parent"].as_bool().unwrap_or(false) {
             root = root.min_w(px(0.)).min_h(px(0.)).flex_grow(0.).flex_shrink(0.);
             let column = matches!(self.scenario["direction"].as_str(), Some("column" | "column_reverse"));
             if column {
@@ -209,8 +215,8 @@ fn observe(scenario: &Value) -> Value {
         n(&scenario["device_scale_factor"])
     );
     let children = scenario["children"].as_array().expect("scenario children");
-    let selectors = ["a", "b", "c"];
-    let nested = scenario["intrinsic_parent"].as_bool().unwrap_or(false);
+    let selectors = ["a", "b", "c", "d", "e", "f", "g"];
+    let nested = scenario["intrinsic_parent"].as_bool().unwrap_or(false) || scenario["parent_offset_x"].is_number();
     let rectangles: Vec<_> = nested.then_some("outer").into_iter().chain(std::iter::once("root"))
         .chain(selectors.iter().take(children.len()).copied())
         .map(|selector| bounds(context.debug_bounds(selector).expect("drawn selector")))
